@@ -55,7 +55,7 @@
   },
   "scripts": {
     "test": "phpunit",
-    "phpstan": "phpstan analyse --configuration=phpstan.neon.dist",
+    "phpstan": "phpstan analyse --configuration=phpstan.neon.dist --memory-limit=1G",
     "cs:check": "php-cs-fixer fix --dry-run --diff --config=.php-cs-fixer.dist.php",
     "cs:fix": "php-cs-fixer fix --diff --config=.php-cs-fixer.dist.php",
     "twigcs": "find templates -name '*.twig' | grep -q . && twigcs templates --config=.twig-cs-fixer.php || true",

@@ -21,7 +21,7 @@ return new Config()
         '@Symfony' => true,
         '@PHP84Migration' => true,
         'declare_strict_types' => true,
-        'final_class' => true,
+        'final_class' => false,
         'phpdoc_to_comment' => false,
         'php_unit_method_casing' => [
             'case' => 'snake_case',

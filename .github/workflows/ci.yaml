@@ -51,7 +51,7 @@ jobs:
         run: vendor/bin/phpunit
 
       - name: Run PHPStan
-        run: vendor/bin/phpstan analyse --configuration=phpstan.neon.dist
+        run: composer phpstan
 
       - name: Run PHP-CS-Fixer
         run: vendor/bin/php-cs-fixer fix --dry-run --diff --config=.php-cs-fixer.dist.php
