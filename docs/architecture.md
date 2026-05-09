@@ -172,3 +172,18 @@ The Stimulus controller is responsible for frontend interactions.
 It must use vanilla JavaScript only.
 
 It must not depend on jQuery or DataTables.net.
+
+### Stimulus controller skeleton
+
+The bundle provides an initial vanilla Stimulus controller skeleton in `assets/controllers/datatable_controller.js`.
+
+The controller is responsible for:
+
+- refreshing server-rendered HTML fragments through `fetch()`;
+- updating body and pagination targets;
+- managing loading state;
+- managing safe error display;
+- handling search debounce;
+- preparing future sort and pagination interactions.
+
+It does not render cells manually and does not depend on jQuery or DataTables.net.
