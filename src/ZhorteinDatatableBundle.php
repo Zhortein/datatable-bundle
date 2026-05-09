@@ -32,29 +32,39 @@ final class ZhorteinDatatableBundle extends AbstractBundle
 
     public function configure(DefinitionConfigurator $definition): void
     {
-        $definition
-            ->rootNode()
-                ->children()
-                    ->enumNode('default_provider')
-                        ->values(['array', 'doctrine'])
-                        ->defaultValue('doctrine')
-                    ->end()
-                    ->enumNode('default_theme')
-                        ->values(['bootstrap'])
-                        ->defaultValue('bootstrap')
-                    ->end()
-                    ->integerNode('default_page_size')
-                        ->min(1)
-                        ->defaultValue(25)
-                    ->end()
-                    ->integerNode('max_page_size')
-                        ->min(1)
-                        ->defaultValue(500)
-                    ->end()
-                    ->booleanNode('search_enabled')
-                        ->defaultFalse()
-                    ->end()
-                ->end()
+        $children = $definition->rootNode()->children();
+
+        $children
+            ->enumNode('default_provider')
+            ->values(['array', 'doctrine'])
+            ->defaultValue('doctrine')
+            ->end()
+        ;
+
+        $children
+            ->enumNode('default_theme')
+            ->values(['bootstrap'])
+            ->defaultValue('bootstrap')
+            ->end()
+        ;
+
+        $children
+            ->integerNode('default_page_size')
+            ->min(1)
+            ->defaultValue(25)
+            ->end()
+        ;
+
+        $children
+            ->integerNode('max_page_size')
+            ->min(1)
+            ->defaultValue(500)
+            ->end()
+        ;
+
+        $children
+            ->booleanNode('search_enabled')
+            ->defaultFalse()
             ->end()
         ;
     }
