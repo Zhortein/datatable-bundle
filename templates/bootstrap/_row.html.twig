@@ -2,7 +2,8 @@
     {% for cell in row.cells %}
         {% include '@ZhorteinDatatable/bootstrap/_cell.html.twig' with {
             column: cell.column,
-            value: cell.value
+            value: cell.value,
+            template: cell.template
         } only %}
     {% endfor %}
 
