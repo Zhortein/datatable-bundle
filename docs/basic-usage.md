@@ -152,3 +152,26 @@ Render it from Twig:
 ```
 
 More details are available in [`doctrine-provider.md`](doctrine-provider.md).
+
+## Custom column templates
+
+A column can define its own Twig template:
+
+```php
+$definition->addColumn(
+    name: 'e.status',
+    label: 'Status',
+    template: 'admin/datatable/cell/status.html.twig',
+    type: 'string',
+);
+```
+
+The custom template receives:
+
+```twig
+{{ column.name }}
+{{ column.label }}
+{{ value }}
+```
+
+Custom templates take precedence over built-in type-specific cell templates.
