@@ -7,6 +7,7 @@ namespace Zhortein\DatatableBundle\Renderer;
 use Twig\Environment;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Result\DatatableResult;
 
 final readonly class DatatableRenderer
 {
@@ -26,6 +27,17 @@ final readonly class DatatableRenderer
             'visibleColumns' => $this->getVisibleColumns($definition),
             'htmlId' => $this->createHtmlId($definition),
             'options' => $options,
+        ]);
+    }
+
+    public function renderBody(DatatableDefinition $definition, DatatableResult $result): string
+    {
+        if ($result->isEmpty()) {
+            return $this->renderEmptyBody($definition);
+        }
+
+        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_body.html.twig', $this->theme), [
+            'rows' => $this->normalizeRows($definition, $result),
         ]);
     }
 
@@ -52,6 +64,60 @@ final readonly class DatatableRenderer
             $definition->getColumns(),
             static fn (ColumnDefinition $column): bool => $column->isVisible(),
         );
+    }
+
+    /**
+     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed}>}>
+     */
+    private function normalizeRows(DatatableDefinition $definition, DatatableResult $result): array
+    {
+        $visibleColumns = $this->getVisibleColumns($definition);
+        $normalizedRows = [];
+
+        foreach ($result->getRows() as $row) {
+            $cells = [];
+
+            foreach ($visibleColumns as $column) {
+                $cells[] = [
+                    'column' => $column,
+                    'value' => $this->readColumnValue($row, $column),
+                ];
+            }
+
+            $normalizedRows[] = [
+                'cells' => $cells,
+            ];
+        }
+
+        return $normalizedRows;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function readColumnValue(array $row, ColumnDefinition $column): mixed
+    {
+        $columnName = $column->getName();
+
+        if (array_key_exists($columnName, $row)) {
+            return $row[$columnName];
+        }
+
+        $normalizedName = $this->normalizeColumnName($columnName);
+
+        return $row[$normalizedName] ?? null;
+    }
+
+    private function normalizeColumnName(string $columnName): string
+    {
+        if (!str_contains($columnName, '.')) {
+            return $columnName;
+        }
+
+        $parts = explode('.', $columnName);
+        $lastPart = $parts[array_key_last($parts)];
+
+        return '' !== $lastPart ? $lastPart : $columnName;
     }
 
     private function createHtmlId(DatatableDefinition $definition): string

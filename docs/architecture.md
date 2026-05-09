@@ -183,6 +183,15 @@ The Twig extension is intentionally thin:
 
 Business rendering logic must remain in the renderer and Twig templates, not in the Twig extension.
 
+### Row and cell rendering
+
+The renderer can render table body rows from a `DatatableResult`.
+
+Rows are normalized against visible columns from the `DatatableDefinition`.
+
+Cell values are rendered through Twig templates and escaped by default.
+
+The initial implementation uses a generic cell template only. Type-specific cell templates will be introduced later.
 
 ## Ajax controller
 
