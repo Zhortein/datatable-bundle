@@ -193,6 +193,17 @@ Cell values are rendered through Twig templates and escaped by default.
 
 The initial implementation uses a generic cell template only. Type-specific cell templates will be introduced later.
 
+### Pagination rendering
+
+The renderer can render Bootstrap pagination from a `DatatableResult`.
+
+Pagination controls are server-rendered and include Stimulus-compatible attributes:
+
+- `data-action="zhortein-datatable#goToPage"`;
+- `data-zhortein-datatable-page-param`.
+
+Pagination markup remains accessible with disabled states and `aria-current` on the active page.
+
 ## Ajax controller
 
 The Ajax controller exposes generic endpoints used by the frontend controller.

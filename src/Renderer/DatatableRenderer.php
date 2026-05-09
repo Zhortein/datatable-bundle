@@ -48,6 +48,14 @@ final readonly class DatatableRenderer
         ]);
     }
 
+    public function renderPagination(DatatableDefinition $definition, DatatableResult $result): string
+    {
+        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_pagination.html.twig', $this->theme), [
+            'htmlId' => $this->createHtmlId($definition),
+            'result' => $result,
+        ]);
+    }
+
     public function renderPaginationPlaceholder(DatatableDefinition $definition): string
     {
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_pagination.html.twig', $this->theme), [
