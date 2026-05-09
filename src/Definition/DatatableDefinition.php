@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Definition;
 
+use Zhortein\DatatableBundle\Enum\FilterOperator;
+
 final class DatatableDefinition
 {
     /**
@@ -17,6 +19,21 @@ final class DatatableDefinition
      * @var array<string, ColumnDefinition>
      */
     private array $columns = [];
+
+    /**
+     * @var array<string, ActionDefinition>
+     */
+    private array $rowActions = [];
+
+    /**
+     * @var array<string, ActionDefinition>
+     */
+    private array $globalActions = [];
+
+    /**
+     * @var list<FilterDefinition>
+     */
+    private array $permanentFilters = [];
 
     public function __construct(
         private readonly string $name,
@@ -65,6 +82,8 @@ final class DatatableDefinition
         bool $sortable = true,
         bool $searchable = true,
         ?string $className = null,
+        ?string $template = null,
+        ?string $type = null,
     ): self {
         $this->columns[$name] = new ColumnDefinition(
             name: $name,
@@ -73,6 +92,8 @@ final class DatatableDefinition
             sortable: $sortable,
             searchable: $searchable,
             className: $className,
+            template: $template,
+            type: $type,
         );
 
         return $this;
@@ -84,5 +105,105 @@ final class DatatableDefinition
     public function getColumns(): array
     {
         return $this->columns;
+    }
+
+    /**
+     * @param array<string, string> $routeParameters
+     * @param array<string, string> $attributes
+     */
+    public function addRowAction(
+        string $name,
+        string $route,
+        ?string $label = null,
+        ?string $icon = null,
+        string $httpMethod = 'GET',
+        ?string $confirmationMessage = null,
+        ?string $className = null,
+        array $routeParameters = [],
+        array $attributes = [],
+    ): self {
+        $this->rowActions[$name] = new ActionDefinition(
+            name: $name,
+            route: $route,
+            label: $label,
+            icon: $icon,
+            httpMethod: $httpMethod,
+            confirmationMessage: $confirmationMessage,
+            className: $className,
+            routeParameters: $routeParameters,
+            attributes: $attributes,
+        );
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, ActionDefinition>
+     */
+    public function getRowActions(): array
+    {
+        return $this->rowActions;
+    }
+
+    /**
+     * @param array<string, string> $routeParameters
+     * @param array<string, string> $attributes
+     */
+    public function addGlobalAction(
+        string $name,
+        string $route,
+        ?string $label = null,
+        ?string $icon = null,
+        string $httpMethod = 'GET',
+        ?string $confirmationMessage = null,
+        ?string $className = null,
+        array $routeParameters = [],
+        array $attributes = [],
+    ): self {
+        $this->globalActions[$name] = new ActionDefinition(
+            name: $name,
+            route: $route,
+            label: $label,
+            icon: $icon,
+            httpMethod: $httpMethod,
+            confirmationMessage: $confirmationMessage,
+            className: $className,
+            routeParameters: $routeParameters,
+            attributes: $attributes,
+        );
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, ActionDefinition>
+     */
+    public function getGlobalActions(): array
+    {
+        return $this->globalActions;
+    }
+
+    public function addPermanentFilter(
+        string $field,
+        FilterOperator $operator,
+        mixed $value = null,
+        mixed $secondValue = null,
+    ): self {
+        $this->permanentFilters[] = new FilterDefinition(
+            field: $field,
+            operator: $operator,
+            value: $value,
+            secondValue: $secondValue,
+        );
+
+        return $this;
+    }
+
+    /**
+     * @return list<FilterDefinition>
+     */
+    public function getPermanentFilters(): array
+    {
+        return $this->permanentFilters;
     }
 }
