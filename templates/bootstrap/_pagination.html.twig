@@ -1,4 +1,48 @@
 <div
     class="zhortein-datatable__pagination mt-3"
     data-zhortein-datatable-target="pagination"
-></div>
+>
+    {% if result is defined and result.totalPages > 1 %}
+        <nav aria-label="Datatable pagination">
+            <ul class="pagination mb-0">
+                <li class="page-item{% if result.page <= 1 %} disabled{% endif %}">
+                    <button
+                        type="button"
+                        class="page-link"
+                        data-action="zhortein-datatable#goToPage"
+                        data-zhortein-datatable-page-param="{{ result.page - 1 }}"
+                        {% if result.page <= 1 %}disabled aria-disabled="true"{% endif %}
+                    >
+                        Previous
+                    </button>
+                </li>
+
+                {% for page in 1..result.totalPages %}
+                    <li class="page-item{% if page == result.page %} active{% endif %}">
+                        <button
+                            type="button"
+                            class="page-link"
+                            data-action="zhortein-datatable#goToPage"
+                            data-zhortein-datatable-page-param="{{ page }}"
+                            {% if page == result.page %}aria-current="page"{% endif %}
+                        >
+                            {{ page }}
+                        </button>
+                    </li>
+                {% endfor %}
+
+                <li class="page-item{% if result.page >= result.totalPages %} disabled{% endif %}">
+                    <button
+                        type="button"
+                        class="page-link"
+                        data-action="zhortein-datatable#goToPage"
+                        data-zhortein-datatable-page-param="{{ result.page + 1 }}"
+                        {% if result.page >= result.totalPages %}disabled aria-disabled="true"{% endif %}
+                    >
+                        Next
+                    </button>
+                </li>
+            </ul>
+        </nav>
+    {% endif %}
+</div>
