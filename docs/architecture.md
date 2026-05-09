@@ -336,6 +336,18 @@ Global actions are rendered in the datatable toolbar using Bootstrap-compatible 
 
 Only GET global actions are rendered at this stage. Non-GET actions are handled in a later CSRF-aware action rendering step.
 
+### CSRF-aware action rendering
+
+The renderer supports safe rendering for non-GET actions.
+
+GET actions are rendered as links.
+
+Non-GET actions are rendered as POST forms with a hidden `_method` field.
+
+When a `CsrfTokenManagerInterface` is available, non-GET action forms include a `_token` hidden field.
+
+This avoids rendering unsafe destructive links while keeping action rendering compatible with Symfony conventions.
+
 
 ## Ajax controller
 

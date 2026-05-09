@@ -19,19 +19,9 @@
         {% if globalActions is defined and globalActions is not empty %}
             <div class="btn-group btn-group-sm" role="group">
                 {% for action in globalActions %}
-                    <a
-                        href="{{ action.url }}"
-                        class="{{ action.className ?? 'btn btn-outline-secondary' }}"
-                        {% for attribute_name, attribute_value in action.attributes %}
-                            {{ attribute_name }}="{{ attribute_value }}"
-                        {% endfor %}
-                    >
-                        {% if action.icon is not null %}
-                            <span class="{{ action.icon }}" aria-hidden="true"></span>
-                        {% endif %}
-
-                        {{ action.label ?? action.name }}
-                    </a>
+                    {% include '@ZhorteinDatatable/bootstrap/_action.html.twig' with {
+                        action: action
+                    } only %}
                 {% endfor %}
             </div>
         {% endif %}

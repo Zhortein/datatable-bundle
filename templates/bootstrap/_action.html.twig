@@ -1,0 +1,37 @@
+{% if action.httpMethod == 'GET' %}
+    <a
+        href="{{ action.url }}"
+        class="{{ action.className ?? 'btn btn-outline-secondary' }}"
+        {% for attribute_name, attribute_value in action.attributes %}
+            {{ attribute_name }}="{{ attribute_value }}"
+        {% endfor %}
+    >
+        {% if action.icon is not null %}
+            <span class="{{ action.icon }}" aria-hidden="true"></span>
+        {% endif %}
+
+        {{ action.label ?? action.name }}
+    </a>
+{% else %}
+    <form method="post" action="{{ action.url }}" class="d-inline">
+        <input type="hidden" name="_method" value="{{ action.httpMethod }}">
+
+        {% if action.csrfToken is not null %}
+            <input type="hidden" name="_token" value="{{ action.csrfToken }}">
+        {% endif %}
+
+        <button
+            type="submit"
+            class="{{ action.className ?? 'btn btn-outline-danger' }}"
+            {% for attribute_name, attribute_value in action.attributes %}
+                {{ attribute_name }}="{{ attribute_value }}"
+            {% endfor %}
+        >
+            {% if action.icon is not null %}
+                <span class="{{ action.icon }}" aria-hidden="true"></span>
+            {% endif %}
+
+            {{ action.label ?? action.name }}
+        </button>
+    </form>
+{% endif %}

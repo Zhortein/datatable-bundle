@@ -31,32 +31,6 @@ final class DatatableRendererGlobalActionsTest extends TestCase
         self::assertStringContainsString('data-test="create-user"', $html);
     }
 
-    public function test_it_skips_non_get_global_actions_for_now(): void
-    {
-        $definition = new DatatableDefinition('users');
-
-        $definition
-            ->addColumn('e.email', label: 'Email')
-            ->addGlobalAction(
-                name: 'bulk-delete',
-                route: 'app_user_bulk_delete',
-                label: 'Bulk delete',
-                httpMethod: 'POST',
-            )
-        ;
-
-        $renderer = new DatatableRenderer(
-            twig: $this->createTwigEnvironment(),
-            urlGenerator: $this->createUrlGeneratorStub(),
-            routeParameterResolver: new RowActionRouteParameterResolver(),
-        );
-
-        $html = $renderer->render($definition);
-
-        self::assertStringNotContainsString('Bulk delete', $html);
-        self::assertStringNotContainsString('app_user_bulk_delete', $html);
-    }
-
     public function test_it_does_not_render_global_actions_without_url_generator(): void
     {
         $renderer = new DatatableRenderer($this->createTwigEnvironment());
