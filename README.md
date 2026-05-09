@@ -92,6 +92,7 @@ With runtime options:
 - [Features](docs/features.md)
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
+- [First end-to-end flow](docs/end-to-end-flow.md)
 
 ## Architecture decisions
 

@@ -79,3 +79,36 @@ Runtime options can be passed as the second argument:
 The first rendering strategy will use server-rendered HTML fragments updated by a vanilla Stimulus controller.
 
 The frontend controller will not duplicate cell rendering logic in JavaScript.
+
+## First usable flow
+
+A first end-to-end flow is available with the array data provider.
+
+It is intended for tests, demos and early integration.
+
+```php
+use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
+
+$definition
+    ->addColumn('id', visible: false, sortable: false, searchable: false)
+    ->addColumn('email', label: 'Email')
+    ->setOption(ArrayDataProvider::OPTION_PROVIDER, ArrayDataProvider::PROVIDER_NAME)
+    ->setOption(ArrayDataProvider::OPTION_ROWS, [
+        [
+            'id' => 1,
+            'email' => 'alice@example.test',
+        ],
+    ])
+;
+```
+
+Render it from Twig:
+
+```twig
+{{ zhortein_datatable('users', {
+    search: true,
+    pageSize: 25
+}) }}
+```
+
+The complete flow is documented in [`end-to-end-flow.md`](end-to-end-flow.md).
