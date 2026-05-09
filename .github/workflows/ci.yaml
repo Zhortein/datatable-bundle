@@ -49,7 +49,9 @@ jobs:
 
       - name: Show installed package versions
         run: |
-          composer show doctrine/doctrine-bundle doctrine/orm doctrine/dbal symfony/framework-bundle symfony/http-kernel symfony/dependency-injection symfony/twig-bundle twig/twig phpunit/phpunit || true
+          for package in doctrine/doctrine-bundle doctrine/orm doctrine/dbal symfony/framework-bundle symfony/http-kernel symfony/dependency-injection symfony/twig-bundle symfony/event-dispatcher-contracts symfony/translation-contracts symfony/var-dumper twig/twig phpunit/phpunit; do
+            composer show "$package" || true
+          done
 
       - name: Run PHPUnit
         run: vendor/bin/phpunit --debug --display-errors

@@ -40,8 +40,11 @@
     "phpstan/phpstan-strict-rules": "^2.0",
     "phpstan/phpstan-symfony": "^2.0",
     "phpunit/phpunit": "^12.0",
+    "symfony/event-dispatcher-contracts": "^3.6",
     "symfony/framework-bundle": "^8.0",
-    "symfony/twig-bundle": "^8.0"
+    "symfony/translation-contracts": "^3.6",
+    "symfony/twig-bundle": "^8.0",
+    "symfony/var-dumper": "^8.0"
   },
   "suggest": {
     "doctrine/orm": "Required to use Doctrine ORM backed datatables.",
