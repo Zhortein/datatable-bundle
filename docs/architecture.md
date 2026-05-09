@@ -182,6 +182,22 @@ Sorting is applied only when:
 
 Unknown or non-sortable fields are ignored safely.
 
+### Doctrine provider documentation
+
+Doctrine-backed datatables are documented in `docs/doctrine-provider.md`.
+
+The documentation covers:
+
+- requirements;
+- entity-class based declarations;
+- columns;
+- pagination;
+- global search;
+- single-column sorting;
+- permanent filters;
+- Ajax response shape;
+- current limitations.
+
 ### Datatable request object
 
 Providers must receive a typed request object instead of parsing Symfony HTTP requests directly.

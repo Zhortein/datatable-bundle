@@ -112,3 +112,43 @@ Render it from Twig:
 ```
 
 The complete flow is documented in [`end-to-end-flow.md`](end-to-end-flow.md).
+
+## Doctrine-backed datatables
+
+Doctrine ORM is the first production-oriented data provider.
+
+Basic example:
+
+```php
+use App\Entity\User;
+use Zhortein\DatatableBundle\Attribute\AsDatatable;
+use Zhortein\DatatableBundle\Contract\DatatableInterface;
+use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\FilterOperator;
+
+#[AsDatatable(name: 'users', provider: 'doctrine')]
+final class UserDatatable implements DatatableInterface
+{
+    public function buildDatatable(DatatableDefinition $definition): void
+    {
+        $definition
+            ->setEntityClass(User::class)
+            ->addColumn('e.id', visible: false, sortable: false, searchable: true)
+            ->addColumn('e.email', label: 'Email')
+            ->addColumn('e.displayName', label: 'Display name')
+            ->addPermanentFilter('e.enabled', FilterOperator::Equals, true)
+        ;
+    }
+}
+```
+
+Render it from Twig:
+
+```twig
+{{ zhortein_datatable('users', {
+    search: true,
+    pageSize: 25
+}) }}
+```
+
+More details are available in [`doctrine-provider.md`](doctrine-provider.md).
