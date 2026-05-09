@@ -46,6 +46,14 @@ The provider registry can resolve a provider explicitly by name or automatically
 
 This keeps Doctrine ORM support isolated and allows future providers for arrays, APIs, Elasticsearch or custom application services.
 
+### Array data provider
+
+`ArrayDataProvider` is a simple provider intended for tests, demos and early rendering integration.
+
+It reads rows from datatable definition options, supports basic pagination, simple scalar search and single-column sorting.
+
+It is not intended to replace the future Doctrine ORM provider, but it allows the data pipeline to be tested without a database.
+
 ### Doctrine provider strategy
 
 The first data provider will target Doctrine ORM.
