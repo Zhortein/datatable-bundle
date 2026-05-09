@@ -80,6 +80,14 @@ The request object stores pagination, search, sorting and runtime options in a n
 
 This keeps providers independent from the HTTP layer and easier to test.
 
+### Datatable HTTP request factory
+
+`DatatableRequestFactory` converts Symfony HTTP requests into typed `DatatableRequest` objects.
+
+It reads query and request payload parameters, applies safe defaults and normalizes invalid values.
+
+This keeps controllers thin and prevents data providers from depending on the HTTP layer directly.
+
 ### Datatable result object
 
 Data providers must return a typed result object instead of raw arrays.
