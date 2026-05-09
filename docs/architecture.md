@@ -169,6 +169,19 @@ The initial implementation supports:
 
 Database-specific behavior such as PostgreSQL `ILIKE`, JSON search and advanced search builders are intentionally out of scope for this step.
 
+### Doctrine single-column sorting
+
+The Doctrine ORM provider supports single-column sorting from `DatatableRequest`.
+
+Sorting is applied only when:
+
+- a sort field is present;
+- the field matches a declared datatable column;
+- the column is sortable;
+- the field exists in Doctrine metadata.
+
+Unknown or non-sortable fields are ignored safely.
+
 ### Datatable request object
 
 Providers must receive a typed request object instead of parsing Symfony HTTP requests directly.

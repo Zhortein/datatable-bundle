@@ -112,6 +112,7 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
 
         $this->applyPermanentFilters($queryBuilder, $definition);
         $this->applySearch($queryBuilder, $entityManager, $entityClass, $definition, $request);
+        $this->applySorting($queryBuilder, $entityManager, $entityClass, $definition, $request);
 
         /** @var list<array<string, mixed>> $rows */
         $rows = $queryBuilder->getQuery()->getArrayResult();
@@ -228,7 +229,6 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         }
 
         $metadata = $entityManager->getClassMetadata($entityClass);
-
         $searchQuery = (string) $request->getSearchQuery();
         $expressions = [];
         $parameterIndex = 0;
@@ -273,6 +273,43 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         }
 
         $queryBuilder->andWhere($queryBuilder->expr()->orX(...$expressions));
+    }
+
+    /**
+     * @param class-string $entityClass
+     */
+    private function applySorting(
+        QueryBuilder $queryBuilder,
+        EntityManagerInterface $entityManager,
+        string $entityClass,
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+    ): void {
+        if (!$request->hasSort()) {
+            return;
+        }
+
+        $sortField = $request->getSortField();
+
+        if (null === $sortField) {
+            return;
+        }
+
+        $column = $definition->getColumns()[$sortField] ?? null;
+
+        if (!$column instanceof ColumnDefinition || !$column->isSortable()) {
+            return;
+        }
+
+        $fieldReference = $this->normalizeFieldReference($column->getName());
+        $fieldName = $this->extractFieldName($fieldReference);
+        $metadata = $entityManager->getClassMetadata($entityClass);
+
+        if (!$metadata->hasField($fieldName)) {
+            return;
+        }
+
+        $queryBuilder->addOrderBy($fieldReference, strtoupper($request->getSortDirection()->value));
     }
 
     private function isStringSearchableType(string $doctrineType): bool
