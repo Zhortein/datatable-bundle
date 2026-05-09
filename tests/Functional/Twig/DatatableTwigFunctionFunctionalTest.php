@@ -25,15 +25,11 @@ final class DatatableTwigFunctionFunctionalTest extends KernelTestCase
 
         self::assertStringContainsString('id="zhortein-datatable-functional-users"', $html);
         self::assertStringContainsString('data-controller="zhortein-datatable"', $html);
+        self::assertStringContainsString('data-zhortein-datatable-fragments-url-value="/_zhortein/datatable/functional-users/fragments"', $html);
         self::assertStringContainsString('type="search"', $html);
         self::assertStringContainsString('Email', $html);
         self::assertStringContainsString('Created at', $html);
         self::assertStringContainsString('No data available.', $html);
-    }
-
-    protected static function getKernelClass(): string
-    {
-        return TestKernel::class;
     }
 
     protected function tearDown(): void
@@ -41,5 +37,10 @@ final class DatatableTwigFunctionFunctionalTest extends KernelTestCase
         parent::tearDown();
 
         restore_exception_handler();
+    }
+
+    protected static function getKernelClass(): string
+    {
+        return TestKernel::class;
     }
 }

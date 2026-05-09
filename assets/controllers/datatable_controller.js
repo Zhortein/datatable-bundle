@@ -10,6 +10,7 @@ export default class extends Controller {
     static targets = [
         'body',
         'pagination',
+        'summary',
         'searchInput',
         'error',
         'loading',
@@ -72,6 +73,7 @@ export default class extends Controller {
             })
             .then((payload) => {
                 this.applyFragments(payload);
+                this.applyState(payload);
             })
             .catch((error) => {
                 if (error.name === 'AbortError') {
@@ -157,6 +159,20 @@ export default class extends Controller {
 
         if (this.hasPaginationTarget && typeof payload.pagination === 'string') {
             this.paginationTarget.innerHTML = payload.pagination;
+        }
+
+        if (this.hasSummaryTarget && typeof payload.summary === 'string') {
+            this.summaryTarget.textContent = payload.summary;
+        }
+    }
+
+    applyState(payload) {
+        if (typeof payload.page === 'number' && payload.page >= 1) {
+            this.pageValue = payload.page;
+        }
+
+        if (typeof payload.pageSize === 'number' && payload.pageSize >= 1) {
+            this.pageSizeValue = payload.pageSize;
         }
     }
 
