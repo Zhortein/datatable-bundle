@@ -35,6 +35,11 @@ final class DatatableDefinition
      */
     private array $permanentFilters = [];
 
+    /**
+     * @var array<string, mixed>
+     */
+    private array $options = [];
+
     public function __construct(
         private readonly string $name,
     ) {
@@ -205,5 +210,30 @@ final class DatatableDefinition
     public function getPermanentFilters(): array
     {
         return $this->permanentFilters;
+    }
+
+    public function setOption(string $name, mixed $value): self
+    {
+        $this->options[$name] = $value;
+
+        return $this;
+    }
+
+    public function hasOption(string $name): bool
+    {
+        return array_key_exists($name, $this->options);
+    }
+
+    public function getOption(string $name, mixed $default = null): mixed
+    {
+        return $this->options[$name] ?? $default;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getOptions(): array
+    {
+        return $this->options;
     }
 }
