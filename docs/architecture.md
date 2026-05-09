@@ -54,6 +54,14 @@ Doctrine-specific responsibilities such as metadata type guessing, QueryBuilder 
 
 The full architecture decision is documented in [docs/decisions/0005-doctrine-orm-provider-architecture.md](`docs/decisions/0005-doctrine-orm-provider-architecture.md`).
 
+### Datatable request object
+
+Providers must receive a typed request object instead of parsing Symfony HTTP requests directly.
+
+The request object stores pagination, search, sorting and runtime options in a normalized form.
+
+This keeps providers independent from the HTTP layer and easier to test.
+
 ## Renderer
 
 The renderer is responsible for Twig rendering and Bootstrap-first templates.
