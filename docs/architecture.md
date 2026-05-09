@@ -116,6 +116,20 @@ It reads Doctrine ORM metadata and returns a `DoctrineFieldType` value object co
 
 This keeps type inference testable and avoids embedding metadata rules directly in the provider.
 
+### Doctrine ORM data provider skeleton
+
+`DoctrineOrmDataProvider` is the first production-oriented provider implementation.
+
+The initial skeleton supports:
+
+- datatable definitions with an entity class;
+- simple visible-column selection on the main Doctrine alias `e`;
+- offset pagination;
+- total and filtered counts without search/filter distinction yet;
+- `DatatableResult` output.
+
+Search, sorting, permanent filters, association traversal and custom joins are implemented in later steps.
+
 ### Datatable request object
 
 Providers must receive a typed request object instead of parsing Symfony HTTP requests directly.
