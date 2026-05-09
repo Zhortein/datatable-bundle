@@ -310,3 +310,25 @@ This kernel registers:
 It allows the bundle to be tested in a real Symfony container, including service autoconfiguration, compiler passes, Twig function registration and bundle routes.
 
 Unit tests remain preferred for isolated behavior. Functional tests should be used when Symfony integration itself must be verified.
+
+### First end-to-end datatable flow
+
+The first usable server-side datatable flow is documented in `docs/end-to-end-flow.md`.
+
+Current flow:
+
+```text
+Datatable class
+→ DatatableDefinitionFactory
+→ DatatableDefinition
+→ DatatableRequestFactory
+→ DataProviderRegistry
+→ DataProviderInterface
+→ DatatableResult
+→ DatatableRenderer
+→ Twig fragments
+→ Ajax JSON response
+→ Stimulus DOM update
+```
+
+This flow currently uses `ArrayDataProvider` for tests and demos. Doctrine ORM support will be introduced later as a dedicated provider.
