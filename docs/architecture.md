@@ -20,6 +20,14 @@ It describes the datatable by implementing `DatatableInterface` and using the `#
 - filters;
 - options.
 
+### Datatable definition factory
+
+`DatatableDefinitionFactory` centralizes the process of building a `DatatableDefinition` from a registered datatable name.
+
+It resolves the datatable through `DatatableRegistry`, creates a new `DatatableDefinition`, calls `buildDatatable()` and returns the completed definition.
+
+This avoids duplicating definition-building logic in Twig extensions, controllers and future services.
+
 ## Data provider
 
 A data provider loads rows from a source.
