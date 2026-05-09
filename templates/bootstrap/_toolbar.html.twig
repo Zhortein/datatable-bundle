@@ -2,18 +2,38 @@
     <div class="zhortein-datatable__search">
         {% if options.search is defined and options.search %}
             <label class="visually-hidden" for="{{ htmlId }}_search">
-                {{ 'Search' }}
+                Search
             </label>
             <input
                 id="{{ htmlId }}_search"
                 type="search"
                 class="form-control"
-                placeholder="{{ 'Search' }}"
+                placeholder="Search"
                 data-zhortein-datatable-target="searchInput"
                 data-action="input->zhortein-datatable#search"
             >
         {% endif %}
     </div>
 
-    <div class="zhortein-datatable__actions" data-zhortein-datatable-target="globalActions"></div>
+    <div class="zhortein-datatable__actions" data-zhortein-datatable-target="globalActions">
+        {% if globalActions is defined and globalActions is not empty %}
+            <div class="btn-group btn-group-sm" role="group">
+                {% for action in globalActions %}
+                    <a
+                        href="{{ action.url }}"
+                        class="{{ action.className ?? 'btn btn-outline-secondary' }}"
+                        {% for attribute_name, attribute_value in action.attributes %}
+                            {{ attribute_name }}="{{ attribute_value }}"
+                        {% endfor %}
+                    >
+                        {% if action.icon is not null %}
+                            <span class="{{ action.icon }}" aria-hidden="true"></span>
+                        {% endif %}
+
+                        {{ action.label ?? action.name }}
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 </div>

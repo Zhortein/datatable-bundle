@@ -328,6 +328,15 @@ Row action rendering uses:
 
 Only GET actions are rendered at this stage. Non-GET actions are handled in a later CSRF-aware action rendering step.
 
+### Global action rendering
+
+The renderer can render GET global actions declared on `DatatableDefinition`.
+
+Global actions are rendered in the datatable toolbar using Bootstrap-compatible button markup.
+
+Only GET global actions are rendered at this stage. Non-GET actions are handled in a later CSRF-aware action rendering step.
+
+
 ## Ajax controller
 
 The Ajax controller exposes generic endpoints used by the frontend controller.

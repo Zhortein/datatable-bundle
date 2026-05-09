@@ -7,6 +7,7 @@ namespace Zhortein\DatatableBundle\Renderer;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment;
 use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
+use Zhortein\DatatableBundle\Definition\ActionDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Result\DatatableResult;
@@ -30,6 +31,7 @@ final readonly class DatatableRenderer
             'definition' => $definition,
             'visibleColumns' => $this->getVisibleColumns($definition),
             'rowActions' => $definition->getRowActions(),
+            'globalActions' => $this->normalizeGlobalActions($definition),
             'hasRowActions' => [] !== $definition->getRowActions(),
             'htmlId' => $this->createHtmlId($definition),
             'options' => $options,
@@ -79,6 +81,43 @@ final readonly class DatatableRenderer
             $definition->getColumns(),
             static fn (ColumnDefinition $column): bool => $column->isVisible(),
         );
+    }
+
+    /**
+     * @return list<array{name: string, label: string|null, icon: string|null, url: string, className: string|null, attributes: array<string, string>}>
+     */
+    private function normalizeGlobalActions(DatatableDefinition $definition): array
+    {
+        if (null === $this->urlGenerator) {
+            return [];
+        }
+
+        $actions = [];
+
+        foreach ($definition->getGlobalActions() as $action) {
+            if ('GET' !== strtoupper($action->getHttpMethod())) {
+                continue;
+            }
+
+            $actions[] = [
+                'name' => $action->getName(),
+                'label' => $action->getLabel(),
+                'icon' => $action->getIcon(),
+                'url' => $this->urlGenerator->generate($action->getRoute(), $this->normalizeStaticRouteParameters($action)),
+                'className' => $action->getClassName(),
+                'attributes' => $action->getAttributes(),
+            ];
+        }
+
+        return $actions;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function normalizeStaticRouteParameters(ActionDefinition $action): array
+    {
+        return $action->getRouteParameters();
     }
 
     /**
