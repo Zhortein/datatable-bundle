@@ -47,8 +47,12 @@ jobs:
             composer update --prefer-stable --no-interaction --no-progress
           fi
 
+      - name: Show installed package versions
+        run: |
+          composer show doctrine/doctrine-bundle doctrine/orm doctrine/dbal symfony/framework-bundle symfony/http-kernel symfony/dependency-injection symfony/twig-bundle twig/twig phpunit/phpunit || true
+
       - name: Run PHPUnit
-        run: vendor/bin/phpunit
+        run: vendor/bin/phpunit --debug --display-errors
 
       - name: Run PHPStan
         run: composer phpstan
