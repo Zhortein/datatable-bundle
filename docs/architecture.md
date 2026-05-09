@@ -293,25 +293,7 @@ Search uses a debounced refresh and pagination controls call `goToPage`.
 
 The controller updates server-rendered `body`, `pagination` and `summary` fragments from the JSON payload.
 
-
-## Test / Quality
-
-### Symfony test kernel
-
-The test suite includes a minimal Symfony kernel under `tests/Functional/Kernel`.
-
-This kernel registers:
-
-- FrameworkBundle;
-- TwigBundle;
-- ZhorteinDatatableBundle;
-- functional test datatable fixtures.
-
-It allows the bundle to be tested in a real Symfony container, including service autoconfiguration, compiler passes, Twig function registration and bundle routes.
-
-Unit tests remain preferred for isolated behavior. Functional tests should be used when Symfony integration itself must be verified.
-
-### First end-to-end datatable flow
+## First end-to-end datatable flow
 
 The first usable server-side datatable flow is documented in `docs/end-to-end-flow.md`.
 
@@ -332,3 +314,28 @@ Datatable class
 ```
 
 This flow currently uses `ArrayDataProvider` for tests and demos. Doctrine ORM support will be introduced later as a dedicated provider.
+
+## Test / Quality
+
+### Symfony test kernel
+
+The test suite includes a minimal Symfony kernel under `tests/Functional/Kernel`.
+
+This kernel registers:
+
+- FrameworkBundle;
+- TwigBundle;
+- ZhorteinDatatableBundle;
+- functional test datatable fixtures.
+
+It allows the bundle to be tested in a real Symfony container, including service autoconfiguration, compiler passes, Twig function registration and bundle routes.
+
+Unit tests remain preferred for isolated behavior. Functional tests should be used when Symfony integration itself must be verified.
+
+### Doctrine functional test foundation
+
+The functional test suite includes a minimal Doctrine ORM setup backed by in-memory SQLite.
+
+It registers a test entity under `tests/Functional/Fixtures/Entity` and uses Doctrine `SchemaTool` to create and drop the schema during tests.
+
+This foundation allows Doctrine provider features to be tested without requiring an external database service.

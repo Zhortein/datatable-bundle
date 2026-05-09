@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Tests\Functional;
 
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Tests\Functional\Kernel\TestKernel;
 
-final class DataProviderRegistryFunctionalTest extends KernelTestCase
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState(false)]
+final class DataProviderRegistryFunctionalTest extends FunctionalTestCase
 {
     public function test_it_registers_array_data_provider_in_container(): void
     {
@@ -39,13 +42,6 @@ final class DataProviderRegistryFunctionalTest extends KernelTestCase
         $definition->setOption(ArrayDataProvider::OPTION_ROWS, []);
 
         self::assertInstanceOf(ArrayDataProvider::class, $registry->resolve($definition));
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        restore_exception_handler();
     }
 
     protected static function getKernelClass(): string
