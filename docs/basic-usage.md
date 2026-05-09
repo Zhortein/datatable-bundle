@@ -60,13 +60,19 @@ $definition
 
 ## Render the datatable
 
-Expected Twig direction:
+Use the `zhortein_datatable` Twig function:
 
 ```twig
 {{ zhortein_datatable('users') }}
 ```
 
-This Twig helper is not implemented yet.
+Runtime options can be passed as the second argument:
+
+```twig
+{{ zhortein_datatable('users', {
+    search: true
+}) }}
+```
 
 ## Ajax behavior
 

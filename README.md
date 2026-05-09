@@ -74,7 +74,13 @@ Expected Twig usage:
 {{ zhortein_datatable('users') }}
 ```
 
-The Twig helper is not implemented yet.
+With runtime options:
+
+```twig
+{{ zhortein_datatable('users', {
+    search: true
+}) }}
+```
 
 ## Documentation
 

@@ -119,6 +119,25 @@ At this stage, the renderer does not load data and does not depend on Doctrine. 
 
 Future steps will connect this renderer to the provider layer and Ajax fragments.
 
+### Twig datatable function
+
+The first public rendering API is the `zhortein_datatable` Twig function.
+
+Expected usage:
+
+```twig
+{{ zhortein_datatable('users') }}
+```
+
+The Twig extension is intentionally thin:
+
+- it resolves the datatable by name through the registry;
+- it creates a `DatatableDefinition`;
+- it lets the datatable class build the definition;
+- it delegates HTML rendering to `DatatableRenderer`.
+
+Business rendering logic must remain in the renderer and Twig templates, not in the Twig extension.
+
 
 ## Ajax controller
 
