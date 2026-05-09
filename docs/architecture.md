@@ -28,6 +28,32 @@ The first provider will support Doctrine ORM.
 
 Later providers may support arrays, APIs, Elasticsearch or custom application services.
 
+### Doctrine provider strategy
+
+The first data provider will target Doctrine ORM.
+
+Doctrine support must be implemented in a dedicated provider layer.
+
+The provider is responsible for loading structured data from Doctrine ORM based on a `DatatableDefinition` and a typed datatable request object.
+
+It must not render HTML and must not parse Symfony HTTP requests directly.
+
+The expected flow is:
+
+```text
+DatatableDefinition
++ DatatableRequest
+→ DoctrineOrmDataProvider
+→ DatatableResult
+→ Twig renderer
+→ HTML fragments
+→ Stimulus update
+```
+
+Doctrine-specific responsibilities such as metadata type guessing, QueryBuilder construction, search, sorting, pagination and permanent filters must remain isolated from Twig rendering and frontend behavior.
+
+The full architecture decision is documented in [docs/decisions/0005-doctrine-orm-provider-architecture.md](`docs/decisions/0005-doctrine-orm-provider-architecture.md`).
+
 ## Renderer
 
 The renderer is responsible for Twig rendering and Bootstrap-first templates.
