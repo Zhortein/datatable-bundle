@@ -17,7 +17,32 @@ The current implementation already supports a first end-to-end flow with `ArrayD
 
 ---
 
-## 1. High-level flow
+## 1. Configuration
+
+These values are currently exposed as container parameters. Their application to renderer and request defaults is handled in the next configuration step.
+
+### Bundle configuration
+
+The bundle exposes a first configuration surface under the `zhortein_datatable` root key.
+
+Current options:
+
+```yaml
+zhortein_datatable:
+    default_provider: doctrine
+    default_theme: bootstrap
+    default_page_size: 25
+    max_page_size: 500
+    search_enabled: false
+```
+
+This configuration is intentionally small and focused on defaults that can be applied by services.
+
+Invalid values are rejected during Symfony container configuration.
+
+---
+
+## 2. High-level flow
 
 The first usable server-side datatable flow is:
 
@@ -39,7 +64,7 @@ This flow is documented in detail in [`end-to-end-flow.md`](end-to-end-flow.md).
 
 ---
 
-## 2. Datatable declaration layer
+## 3. Datatable declaration layer
 
 ### Datatable class
 
@@ -90,7 +115,7 @@ This avoids duplicating definition-building logic in Twig extensions, controller
 
 ---
 
-## 3. Definition model
+## 4. Definition model
 
 ### DatatableDefinition
 
@@ -144,7 +169,7 @@ Permanent filters are never controlled by the frontend and are applied by provid
 
 ---
 
-## 4. Request and result objects
+## 5. Request and result objects
 
 ### DatatableRequest
 
@@ -184,7 +209,7 @@ This keeps provider outputs explicit, testable and independent from Twig renderi
 
 ---
 
-## 5. Data provider layer
+## 6. Data provider layer
 
 A data provider loads rows from a source.
 
@@ -245,7 +270,7 @@ It is not intended to replace the Doctrine ORM provider, but it allows the data 
 
 ---
 
-## 6. Doctrine ORM provider layer
+## 7. Doctrine ORM provider layer
 
 Doctrine ORM is the first production-oriented provider.
 
@@ -375,7 +400,7 @@ Unknown or non-sortable fields are ignored safely.
 
 ---
 
-## 7. Rendering layer
+## 8. Rendering layer
 
 The rendering layer is Twig-first and Bootstrap-first.
 
@@ -466,7 +491,7 @@ Pagination markup remains accessible with disabled states and `aria-current` on 
 
 ---
 
-## 8. Action rendering layer
+## 9. Action rendering layer
 
 Actions are declared on `DatatableDefinition` and rendered by the Twig/renderer layer.
 
@@ -520,7 +545,7 @@ This avoids rendering unsafe destructive links while keeping action rendering co
 
 ---
 
-## 9. Ajax controller layer
+## 10. Ajax controller layer
 
 The Ajax controller exposes bundle-owned generic endpoints used by the frontend controller.
 
@@ -573,7 +598,7 @@ Current response shape:
 
 ---
 
-## 10. Stimulus controller layer
+## 11. Stimulus controller layer
 
 The frontend controller is a vanilla Stimulus controller located at:
 
@@ -617,7 +642,7 @@ The controller sends these values as query parameters:
 
 ---
 
-## 11. Test and quality architecture
+## 12. Test and quality architecture
 
 ### Quality gates
 
@@ -674,7 +699,7 @@ This allows Doctrine provider features to be tested without requiring an externa
 
 ---
 
-## 12. Current limitations
+## 13. Current limitations
 
 ### Doctrine limitations
 
@@ -713,7 +738,7 @@ Not implemented yet:
 
 ---
 
-## 13. Documentation map
+## 14. Documentation map
 
 Related documentation:
 

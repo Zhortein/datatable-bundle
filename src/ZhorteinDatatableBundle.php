@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle;
 
+use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -18,7 +19,44 @@ final class ZhorteinDatatableBundle extends AbstractBundle
      */
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
+        $container->parameters()
+            ->set('zhortein_datatable.default_provider', $config['default_provider'])
+            ->set('zhortein_datatable.default_theme', $config['default_theme'])
+            ->set('zhortein_datatable.default_page_size', $config['default_page_size'])
+            ->set('zhortein_datatable.max_page_size', $config['max_page_size'])
+            ->set('zhortein_datatable.search_enabled', $config['search_enabled'])
+        ;
+
         $container->import('../config/services.php');
+    }
+
+    public function configure(DefinitionConfigurator $definition): void
+    {
+        $definition
+            ->rootNode()
+                ->children()
+                    ->enumNode('default_provider')
+                        ->values(['array', 'doctrine'])
+                        ->defaultValue('doctrine')
+                    ->end()
+                    ->enumNode('default_theme')
+                        ->values(['bootstrap'])
+                        ->defaultValue('bootstrap')
+                    ->end()
+                    ->integerNode('default_page_size')
+                        ->min(1)
+                        ->defaultValue(25)
+                    ->end()
+                    ->integerNode('max_page_size')
+                        ->min(1)
+                        ->defaultValue(500)
+                    ->end()
+                    ->booleanNode('search_enabled')
+                        ->defaultFalse()
+                    ->end()
+                ->end()
+            ->end()
+        ;
     }
 
     public function build(ContainerBuilder $container): void
