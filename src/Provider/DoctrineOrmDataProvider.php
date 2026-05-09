@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Provider;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -43,13 +44,16 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
 
         $rows = $this->loadRows($entityManager, $entityClass, $selectedColumns, $definition, $request);
         $totalItems = $this->countRows($entityManager, $entityClass, $definition);
+        $filteredItems = $request->hasSearchQuery()
+            ? $this->countRows($entityManager, $entityClass, $definition, $request)
+            : $totalItems;
 
         return new DatatableResult(
             rows: $rows,
             page: $request->getPage(),
             pageSize: $request->getPageSize(),
             totalItems: $totalItems,
-            filteredItems: $totalItems,
+            filteredItems: $filteredItems,
         );
     }
 
@@ -107,6 +111,7 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         }
 
         $this->applyPermanentFilters($queryBuilder, $definition);
+        $this->applySearch($queryBuilder, $entityManager, $entityClass, $definition, $request);
 
         /** @var list<array<string, mixed>> $rows */
         $rows = $queryBuilder->getQuery()->getArrayResult();
@@ -117,14 +122,22 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
     /**
      * @param class-string $entityClass
      */
-    private function countRows(EntityManagerInterface $entityManager, string $entityClass, DatatableDefinition $definition): int
-    {
+    private function countRows(
+        EntityManagerInterface $entityManager,
+        string $entityClass,
+        DatatableDefinition $definition,
+        ?DatatableRequest $request = null,
+    ): int {
         $queryBuilder = $entityManager->createQueryBuilder()
             ->select(sprintf('COUNT(%s)', self::MAIN_ALIAS))
             ->from($entityClass, self::MAIN_ALIAS)
         ;
 
         $this->applyPermanentFilters($queryBuilder, $definition);
+
+        if (null !== $request) {
+            $this->applySearch($queryBuilder, $entityManager, $entityClass, $definition, $request);
+        }
 
         $result = $queryBuilder
             ->getQuery()
@@ -198,6 +211,103 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
                 ->andWhere(sprintf('%s NOT LIKE :%s', $field, $parameterName))
                 ->setParameter($parameterName, $filter->getValue()),
         };
+    }
+
+    /**
+     * @param class-string $entityClass
+     */
+    private function applySearch(
+        QueryBuilder $queryBuilder,
+        EntityManagerInterface $entityManager,
+        string $entityClass,
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+    ): void {
+        if (!$request->hasSearchQuery()) {
+            return;
+        }
+
+        $metadata = $entityManager->getClassMetadata($entityClass);
+
+        $searchQuery = (string) $request->getSearchQuery();
+        $expressions = [];
+        $parameterIndex = 0;
+
+        foreach ($definition->getColumns() as $column) {
+            if (!$column->isSearchable()) {
+                continue;
+            }
+
+            $fieldReference = $this->normalizeFieldReference($column->getName());
+            $fieldName = $this->extractFieldName($fieldReference);
+
+            if (!$metadata->hasField($fieldName)) {
+                continue;
+            }
+
+            $doctrineType = $metadata->getTypeOfField($fieldName);
+
+            if (null === $doctrineType) {
+                continue;
+            }
+
+            $parameterName = sprintf('datatable_search_%d', $parameterIndex++);
+
+            if ($this->isStringSearchableType($doctrineType)) {
+                $expressions[] = sprintf('LOWER(%s) LIKE :%s', $fieldReference, $parameterName);
+                $queryBuilder->setParameter($parameterName, '%'.mb_strtolower($searchQuery).'%');
+
+                continue;
+            }
+
+            if ($this->isNumericSearchableType($doctrineType) && is_numeric($searchQuery)) {
+                $expressions[] = sprintf('%s = :%s', $fieldReference, $parameterName);
+                $queryBuilder->setParameter($parameterName, $this->normalizeNumericSearchValue($searchQuery, $doctrineType));
+            }
+        }
+
+        if ([] === $expressions) {
+            $queryBuilder->andWhere('1 = 0');
+
+            return;
+        }
+
+        $queryBuilder->andWhere($queryBuilder->expr()->orX(...$expressions));
+    }
+
+    private function isStringSearchableType(string $doctrineType): bool
+    {
+        return in_array($doctrineType, [
+            Types::ASCII_STRING,
+            Types::STRING,
+            Types::TEXT,
+            Types::GUID,
+        ], true);
+    }
+
+    private function isNumericSearchableType(string $doctrineType): bool
+    {
+        return in_array($doctrineType, [
+            Types::BIGINT,
+            Types::INTEGER,
+            Types::SMALLINT,
+        ], true);
+    }
+
+    private function normalizeNumericSearchValue(string $searchQuery, string $doctrineType): int|string
+    {
+        if (Types::BIGINT === $doctrineType) {
+            return $searchQuery;
+        }
+
+        return (int) $searchQuery;
+    }
+
+    private function extractFieldName(string $fieldReference): string
+    {
+        [, $fieldName] = explode('.', $fieldReference, 2);
+
+        return $fieldName;
     }
 
     private function normalizeFieldReference(string $columnName): string
