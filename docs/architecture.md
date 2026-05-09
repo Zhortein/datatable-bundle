@@ -229,6 +229,25 @@ The controller resolves the datatable through the registry, lets the datatable b
 
 It does not parse advanced request parameters yet and does not depend on Doctrine.
 
+### Ajax fragments connected to providers
+
+The Ajax fragments endpoint now connects the first complete server-side data pipeline:
+
+```text
+HTTP Request
+→ DatatableRequestFactory
+→ DatatableDefinitionFactory
+→ DataProviderRegistry
+→ DataProviderInterface
+→ DatatableResult
+→ DatatableRenderer
+→ JSON HTML fragments
+```
+
+The controller remains thin and delegates request parsing, definition building, data loading and rendering to dedicated services.
+
+The endpoint returns rendered `body` and `pagination` fragments plus pagination metadata.
+
 
 ## Stimulus controller
 
