@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 use Zhortein\DatatableBundle\Controller\DatatableController;
@@ -10,6 +11,7 @@ use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
 use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
+use Zhortein\DatatableBundle\Provider\DoctrineOrmDataProvider;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 use Zhortein\DatatableBundle\Twig\DatatableTwigExtension;
 
@@ -24,7 +26,16 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(DatatableRequestFactory::class);
 
-    $services->set(DoctrineFieldTypeGuesser::class);
+    if (interface_exists(ManagerRegistry::class)) {
+        $services->set(DoctrineFieldTypeGuesser::class);
+
+        $services
+            ->set(DoctrineOrmDataProvider::class)
+            ->tag('zhortein_datatable.data_provider', [
+                'name' => DoctrineOrmDataProvider::PROVIDER_NAME,
+            ])
+        ;
+    }
 
     $services
         ->set(ArrayDataProvider::class)
