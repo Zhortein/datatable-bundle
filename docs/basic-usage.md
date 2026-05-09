@@ -1,12 +1,33 @@
 # Basic usage
 
-This document describes the expected developer experience.
+This document introduces the main developer experience of `zhortein/datatable-bundle`.
 
-The API is still under development.
+The bundle is still under active development, but the current API already supports:
 
-## Declare a datatable
+- PHP datatable declarations;
+- `#[AsDatatable]` service discovery;
+- Twig rendering through `zhortein_datatable()`;
+- server-side Ajax fragments;
+- array-backed demo datatables;
+- Doctrine-backed datatables;
+- row and global actions;
+- typed and custom cell templates.
+
+For the full architecture, see [`architecture.md`](architecture.md).
+
+---
+
+## 1. Declare a datatable
 
 A datatable is declared as a PHP class in the host application.
+
+The class must:
+
+- use the `#[AsDatatable]` attribute;
+- implement `DatatableInterface`;
+- configure a `DatatableDefinition`.
+
+Example:
 
 ```php
 <?php
@@ -29,36 +50,19 @@ final class UserDatatable implements DatatableInterface
             ->setEntityClass(User::class)
             ->setTranslationDomain('user')
             ->addColumn('e.id', visible: false, sortable: false, searchable: false)
-            ->addColumn('e.email')
-            ->addColumn('e.displayName')
-            ->addColumn('e.createdAt', searchable: false)
+            ->addColumn('e.email', label: 'Email')
+            ->addColumn('e.displayName', label: 'Display name')
+            ->addColumn('e.createdAt', label: 'Created at', searchable: false)
         ;
     }
 }
 ```
 
-## Add a permanent filter
+The datatable name is the public identifier used by Twig, Ajax routes and the frontend controller.
 
-Permanent filters are backend-defined filters.
+---
 
-They are never controlled by the frontend.
-
-```php
-use Zhortein\DatatableBundle\Enum\FilterOperator;
-
-$definition->addPermanentFilter('e.deletedAt', FilterOperator::IsNull);
-```
-
-## Add row actions
-
-```php
-$definition
-    ->addRowAction('view', route: 'app_user_show', label: 'View', routeParameters: ['id' => 'id'])
-    ->addRowAction('edit', route: 'app_user_edit', label: 'Edit', routeParameters: ['id' => 'id'])
-;
-```
-
-## Render the datatable
+## 2. Render a datatable in Twig
 
 Use the `zhortein_datatable` Twig function:
 
@@ -70,56 +74,157 @@ Runtime options can be passed as the second argument:
 
 ```twig
 {{ zhortein_datatable('users', {
-    search: true
-}) }}
-```
-
-## Ajax behavior
-
-The first rendering strategy will use server-rendered HTML fragments updated by a vanilla Stimulus controller.
-
-The frontend controller will not duplicate cell rendering logic in JavaScript.
-
-## First usable flow
-
-A first end-to-end flow is available with the array data provider.
-
-It is intended for tests, demos and early integration.
-
-```php
-use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
-
-$definition
-    ->addColumn('id', visible: false, sortable: false, searchable: false)
-    ->addColumn('email', label: 'Email')
-    ->setOption(ArrayDataProvider::OPTION_PROVIDER, ArrayDataProvider::PROVIDER_NAME)
-    ->setOption(ArrayDataProvider::OPTION_ROWS, [
-        [
-            'id' => 1,
-            'email' => 'alice@example.test',
-        ],
-    ])
-;
-```
-
-Render it from Twig:
-
-```twig
-{{ zhortein_datatable('users', {
     search: true,
     pageSize: 25
 }) }}
 ```
 
+Current supported rendering options include:
+
+- `search`: displays the global search input;
+- `pageSize`: defines the initial page size;
+- `fragmentsUrl`: overrides the Ajax fragments URL.
+
+Example with a custom fragments URL:
+
+```twig
+{{ zhortein_datatable('users', {
+    search: true,
+    pageSize: 50,
+    fragmentsUrl: path('custom_users_fragments')
+}) }}
+```
+
+---
+
+## 3. How Ajax refresh works
+
+The rendered datatable shell contains Stimulus values and targets.
+
+The frontend controller calls the fragments endpoint and receives server-rendered HTML fragments.
+
+Current request parameters:
+
+```text
+page
+pageSize
+search
+sortField
+sortDirection
+```
+
+Example request:
+
+```text
+/_zhortein/datatable/users/fragments?page=1&pageSize=25&search=alice
+```
+
+Current response shape:
+
+```json
+{
+  "body": "<tr>...</tr>",
+  "pagination": "<div>...</div>",
+  "summary": "Showing 1 to 25 of 83 entries",
+  "page": 1,
+  "pageSize": 25,
+  "totalItems": 83,
+  "filteredItems": 83,
+  "totalPages": 4
+}
+```
+
+The Stimulus controller updates:
+
+- table body;
+- pagination;
+- summary;
+- loading state;
+- error state.
+
+The frontend does not render business cells manually.
+
 The complete flow is documented in [`end-to-end-flow.md`](end-to-end-flow.md).
 
-## Doctrine-backed datatables
+---
 
-Doctrine ORM is the first production-oriented data provider.
+## 4. Use the array provider for demos and tests
 
-Basic example:
+The array provider is useful for tests, demos and early integration.
+
+It should not be considered the main production provider.
+
+Example:
 
 ```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Datatable;
+
+use Zhortein\DatatableBundle\Attribute\AsDatatable;
+use Zhortein\DatatableBundle\Contract\DatatableInterface;
+use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
+
+#[AsDatatable(name: 'demo-users', provider: 'array')]
+final class DemoUserDatatable implements DatatableInterface
+{
+    public function buildDatatable(DatatableDefinition $definition): void
+    {
+        $definition
+            ->addColumn('id', visible: false, sortable: false, searchable: false)
+            ->addColumn('email', label: 'Email')
+            ->addColumn('displayName', label: 'Display name')
+            ->setOption(ArrayDataProvider::OPTION_PROVIDER, ArrayDataProvider::PROVIDER_NAME)
+            ->setOption(ArrayDataProvider::OPTION_ROWS, [
+                [
+                    'id' => 1,
+                    'email' => 'alice@example.test',
+                    'displayName' => 'Alice',
+                ],
+                [
+                    'id' => 2,
+                    'email' => 'bob@example.test',
+                    'displayName' => 'Bob',
+                ],
+            ])
+        ;
+    }
+}
+```
+
+Render it from Twig:
+
+```twig
+{{ zhortein_datatable('demo-users', {
+    search: true,
+    pageSize: 25
+}) }}
+```
+
+The array provider currently supports:
+
+- pagination;
+- simple scalar search;
+- single-column sorting.
+
+---
+
+## 5. Use Doctrine-backed datatables
+
+Doctrine ORM is the first production-oriented provider.
+
+Example:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Datatable;
+
 use App\Entity\User;
 use Zhortein\DatatableBundle\Attribute\AsDatatable;
 use Zhortein\DatatableBundle\Contract\DatatableInterface;
@@ -133,9 +238,11 @@ final class UserDatatable implements DatatableInterface
     {
         $definition
             ->setEntityClass(User::class)
+            ->setTranslationDomain('user')
             ->addColumn('e.id', visible: false, sortable: false, searchable: true)
             ->addColumn('e.email', label: 'Email')
             ->addColumn('e.displayName', label: 'Display name')
+            ->addColumn('e.createdAt', label: 'Created at', searchable: false, type: 'datetime')
             ->addPermanentFilter('e.enabled', FilterOperator::Equals, true)
         ;
     }
@@ -151,9 +258,158 @@ Render it from Twig:
 }) }}
 ```
 
+The Doctrine provider currently supports:
+
+- entity-class based datatables;
+- main alias `e`;
+- simple scalar columns;
+- offset pagination;
+- permanent filters;
+- simple global search;
+- single-column sorting;
+- typed result output.
+
 More details are available in [`doctrine-provider.md`](doctrine-provider.md).
 
-## Custom column templates
+---
+
+## 6. Add permanent filters
+
+Permanent filters are backend-defined filters.
+
+They are never controlled by the frontend.
+
+Example:
+
+```php
+use Zhortein\DatatableBundle\Enum\FilterOperator;
+
+$definition->addPermanentFilter('e.deletedAt', FilterOperator::IsNull);
+```
+
+Another example:
+
+```php
+$definition->addPermanentFilter('e.enabled', FilterOperator::Equals, true);
+```
+
+Permanent filters apply to:
+
+- loaded rows;
+- total visible item count;
+- filtered item count.
+
+This means `totalItems` represents the visible universe for the datatable context, not necessarily the full database table.
+
+---
+
+## 7. Add row actions
+
+Row actions are rendered for each row.
+
+Example:
+
+```php
+$definition->addRowAction(
+    name: 'view',
+    route: 'app_user_show',
+    label: 'View',
+    routeParameters: [
+        'id' => 'e.id',
+    ],
+    className: 'btn btn-sm btn-outline-primary',
+);
+```
+
+Route parameters are resolved from row values.
+
+Supported row key styles include:
+
+```text
+id
+e_id
+e.id
+```
+
+GET row actions are rendered as links.
+
+Non-GET row actions are rendered as forms.
+
+Example delete action:
+
+```php
+$definition->addRowAction(
+    name: 'delete',
+    route: 'app_user_delete',
+    label: 'Delete',
+    httpMethod: 'DELETE',
+    routeParameters: [
+        'id' => 'e.id',
+    ],
+    className: 'btn btn-sm btn-danger',
+);
+```
+
+When a CSRF token manager is available, non-GET action forms include a CSRF token.
+
+---
+
+## 8. Add global actions
+
+Global actions are rendered in the datatable toolbar.
+
+They are useful for operations such as create, import or future batch actions.
+
+Example:
+
+```php
+$definition->addGlobalAction(
+    name: 'create',
+    route: 'app_user_create',
+    label: 'Create',
+    className: 'btn btn-sm btn-primary',
+);
+```
+
+GET global actions are rendered as links.
+
+Non-GET global actions are rendered as forms with CSRF token support when available.
+
+More details are available in [`actions-and-cells.md`](actions-and-cells.md).
+
+---
+
+## 9. Use typed cell templates
+
+Column rendering can use built-in cell types.
+
+Supported initial types:
+
+```text
+default
+string
+numeric
+boolean
+datetime
+array
+enum
+```
+
+Examples:
+
+```php
+$definition->addColumn('e.createdAt', label: 'Created at', type: 'datetime');
+$definition->addColumn('e.enabled', label: 'Enabled', type: 'boolean');
+$definition->addColumn('e.amount', label: 'Amount', type: 'numeric', className: 'text-end');
+```
+
+Doctrine-backed datatables can receive inferred cell types through Doctrine metadata.
+
+Explicit column types are preserved.
+
+---
+
+## 10. Use custom column templates
 
 A column can define its own Twig template:
 
@@ -166,7 +422,9 @@ $definition->addColumn(
 );
 ```
 
-The custom template receives:
+Custom templates take precedence over built-in type-specific templates.
+
+A custom cell template receives:
 
 ```twig
 {{ column.name }}
@@ -174,4 +432,33 @@ The custom template receives:
 {{ value }}
 ```
 
-Custom templates take precedence over built-in type-specific cell templates.
+Example:
+
+```twig
+<span class="badge text-bg-info">
+    {{ value }}
+</span>
+```
+
+More details are available in [`actions-and-cells.md`](actions-and-cells.md).
+
+---
+
+## 11. Current limitations
+
+The bundle is still under active development.
+
+Current limitations include:
+
+- Doctrine provider supports only the main alias `e`;
+- association traversal is not implemented yet;
+- custom joins are not implemented yet;
+- advanced filters are not implemented yet;
+- multi-column sorting is not implemented yet;
+- exports are not implemented yet;
+- action visibility/security voters are not implemented yet;
+- batch selected-row actions are not implemented yet;
+- built-in labels are not fully translated yet;
+- frontend test suite is not implemented yet.
+
+See [`roadmap.md`](roadmap.md) for planned work.

@@ -1,64 +1,222 @@
 # Architecture
 
-The bundle is organized around explicit responsibilities.
+This document describes the current architecture of `zhortein/datatable-bundle`.
 
-## Datatable class
+The bundle is designed as a Symfony 8+ reusable datatable system with:
 
-A datatable class is defined in the host application.
+- PHP-first datatable declarations;
+- Symfony service discovery;
+- provider-based data loading;
+- Twig-first rendering;
+- Bootstrap-first templates;
+- Ajax fragment updates;
+- vanilla Stimulus interactions;
+- extensibility toward multiple data sources.
 
-It describes the datatable by implementing `DatatableInterface` and using the `#[AsDatatable]` attribute.
+The current implementation already supports a first end-to-end flow with `ArrayDataProvider` and a Doctrine ORM provider foundation.
 
-## Datatable definition
+---
 
-`DatatableDefinition` stores the high-level datatable configuration:
+## 1. High-level flow
+
+The first usable server-side datatable flow is:
+
+```text
+Datatable class
+→ DatatableDefinitionFactory
+→ DatatableDefinition
+→ DatatableRequestFactory
+→ DataProviderRegistry
+→ DataProviderInterface
+→ DatatableResult
+→ DatatableRenderer
+→ Twig fragments
+→ Ajax JSON response
+→ Stimulus DOM update
+```
+
+This flow is documented in detail in [`end-to-end-flow.md`](end-to-end-flow.md).
+
+---
+
+## 2. Datatable declaration layer
+
+### Datatable class
+
+A datatable is declared as a PHP class in the host application.
+
+The class:
+
+- uses the `#[AsDatatable]` attribute;
+- implements `DatatableInterface`;
+- configures a `DatatableDefinition`.
+
+Example direction:
+
+```php
+#[AsDatatable(name: 'users', provider: 'doctrine')]
+final class UserDatatable implements DatatableInterface
+{
+    public function buildDatatable(DatatableDefinition $definition): void
+    {
+        $definition
+            ->setEntityClass(User::class)
+            ->addColumn('e.email', label: 'Email')
+        ;
+    }
+}
+```
+
+Datatable classes are regular Symfony services discovered through autoconfiguration and service tags.
+
+### Datatable registry
+
+`DatatableRegistry` resolves registered datatable services by public name.
+
+It does not instantiate datatables manually. Services are resolved through Symfony dependency injection.
+
+### Datatable definition factory
+
+`DatatableDefinitionFactory` centralizes definition building.
+
+It:
+
+1. resolves the datatable through `DatatableRegistry`;
+2. creates a new `DatatableDefinition`;
+3. calls `buildDatatable()`;
+4. returns the completed definition.
+
+This avoids duplicating definition-building logic in Twig extensions, controllers and future services.
+
+---
+
+## 3. Definition model
+
+### DatatableDefinition
+
+`DatatableDefinition` stores high-level datatable configuration:
 
 - name;
 - entity class;
 - translation domain;
 - columns;
-- actions;
-- filters;
-- options.
+- row actions;
+- global actions;
+- permanent filters;
+- provider/options metadata.
 
-### Datatable definition factory
+### ColumnDefinition
 
-`DatatableDefinitionFactory` centralizes the process of building a `DatatableDefinition` from a registered datatable name.
+`ColumnDefinition` stores column metadata:
 
-It resolves the datatable through `DatatableRegistry`, creates a new `DatatableDefinition`, calls `buildDatatable()` and returns the completed definition.
+- name;
+- label;
+- visibility;
+- sortable flag;
+- searchable flag;
+- CSS class;
+- custom Twig template;
+- cell type.
 
-This avoids duplicating definition-building logic in Twig extensions, controllers and future services.
+Columns can be replaced immutably through `withType()` when an enrichment step needs to infer metadata, for example from Doctrine.
 
-## Data provider
+### ActionDefinition
+
+`ActionDefinition` describes row and global actions:
+
+- name;
+- route;
+- label;
+- icon;
+- HTTP method;
+- confirmation message;
+- CSS class;
+- route parameters;
+- HTML attributes.
+
+Actions are declarative. Rendering is handled by the renderer layer.
+
+### FilterDefinition
+
+`FilterDefinition` represents backend-defined permanent filters.
+
+Permanent filters are never controlled by the frontend and are applied by providers.
+
+---
+
+## 4. Request and result objects
+
+### DatatableRequest
+
+Providers receive a typed `DatatableRequest` instead of parsing Symfony HTTP requests directly.
+
+It stores:
+
+- current page;
+- page size;
+- search query;
+- sort field;
+- sort direction;
+- runtime options.
+
+### DatatableRequestFactory
+
+`DatatableRequestFactory` converts Symfony HTTP requests into typed `DatatableRequest` objects.
+
+It reads query and request payload parameters, applies safe defaults and normalizes invalid values.
+
+This keeps controllers thin and prevents data providers from depending on the HTTP layer directly.
+
+### DatatableResult
+
+Providers return a typed `DatatableResult` instead of raw arrays.
+
+It stores:
+
+- rows;
+- current page;
+- page size;
+- total items;
+- filtered items;
+- total pages.
+
+This keeps provider outputs explicit, testable and independent from Twig rendering or HTTP responses.
+
+---
+
+## 5. Data provider layer
 
 A data provider loads rows from a source.
 
-The first provider will support Doctrine ORM.
-
-Later providers may support arrays, APIs, Elasticsearch or custom application services.
-
-### Data provider contract and registry
-
 Data loading is abstracted behind `DataProviderInterface`.
 
-A data provider is responsible for converting a `DatatableDefinition` and a typed `DatatableRequest` into a typed `DatatableResult`.
+A provider receives:
 
-The provider registry can resolve a provider explicitly by name or automatically by asking providers whether they support a given definition.
+```text
+DatatableDefinition
++ DatatableRequest
+```
 
-This keeps Doctrine ORM support isolated and allows future providers for arrays, APIs, Elasticsearch or custom application services.
+and returns:
 
-### Array data provider
+```text
+DatatableResult
+```
 
-`ArrayDataProvider` is a simple provider intended for tests, demos and early rendering integration.
+### DataProviderRegistry
 
-It reads rows from datatable definition options, supports basic pagination, simple scalar search and single-column sorting.
+`DataProviderRegistry` resolves providers:
 
-It is not intended to replace the future Doctrine ORM provider, but it allows the data pipeline to be tested without a database.
+- explicitly by provider name;
+- automatically by asking providers whether they support a definition.
 
-### Data provider container wiring
+Providers are regular Symfony services tagged with:
 
-Data providers are regular Symfony services tagged with `zhortein_datatable.data_provider`.
+```text
+zhortein_datatable.data_provider
+```
 
-The provider tag must define a `name` attribute.
+The provider tag defines a `name` attribute.
 
 Example:
 
@@ -71,19 +229,31 @@ $services
 ;
 ```
 
-`DataProviderRegistry` receives the tagged providers as an indexed iterable.
+The registry receives tagged providers as an indexed iterable.
 
-This keeps provider discovery extensible and avoids hardcoding Doctrine as the only supported source.
+### ArrayDataProvider
+
+`ArrayDataProvider` is a simple provider intended for tests, demos and early integration.
+
+It reads rows from datatable definition options and supports:
+
+- pagination;
+- simple scalar search;
+- single-column sorting.
+
+It is not intended to replace the Doctrine ORM provider, but it allows the data pipeline to be tested without a database.
+
+---
+
+## 6. Doctrine ORM provider layer
+
+Doctrine ORM is the first production-oriented provider.
+
+The full design decision is documented in [`decisions/0005-doctrine-orm-provider-architecture.md`](decisions/0005-doctrine-orm-provider-architecture.md), and user-facing documentation lives in [`doctrine-provider.md`](doctrine-provider.md).
 
 ### Doctrine provider strategy
 
-The first data provider will target Doctrine ORM.
-
-Doctrine support must be implemented in a dedicated provider layer.
-
-The provider is responsible for loading structured data from Doctrine ORM based on a `DatatableDefinition` and a typed datatable request object.
-
-It must not render HTML and must not parse Symfony HTTP requests directly.
+Doctrine support is implemented in a dedicated provider layer.
 
 The expected flow is:
 
@@ -92,18 +262,38 @@ DatatableDefinition
 + DatatableRequest
 → DoctrineOrmDataProvider
 → DatatableResult
-→ Twig renderer
+→ DatatableRenderer
 → HTML fragments
 → Stimulus update
 ```
 
-Doctrine-specific responsibilities such as metadata type guessing, QueryBuilder construction, search, sorting, pagination and permanent filters must remain isolated from Twig rendering and frontend behavior.
+Doctrine-specific responsibilities remain isolated:
 
-The full architecture decision is documented in [docs/decisions/0005-doctrine-orm-provider-architecture.md](`docs/decisions/0005-doctrine-orm-provider-architecture.md`).
+- metadata type guessing;
+- QueryBuilder construction;
+- pagination;
+- permanent filters;
+- global search;
+- sorting;
+- future joins/associations.
 
-### Doctrine field type guesser
+The provider must not render HTML and must not parse Symfony HTTP requests directly.
 
-`DoctrineFieldTypeGuesser` isolates Doctrine metadata inspection from the Doctrine ORM provider.
+### Doctrine provider container wiring
+
+`DoctrineOrmDataProvider` is registered as a tagged data provider when Doctrine is available.
+
+It uses provider name:
+
+```text
+doctrine
+```
+
+Doctrine-specific services such as `DoctrineFieldTypeGuesser`, `DoctrineDatatableDefinitionEnricher` and `DoctrineOrmDataProvider` are registered conditionally so the bundle can remain installable in applications that do not use Doctrine.
+
+### DoctrineFieldTypeGuesser
+
+`DoctrineFieldTypeGuesser` isolates Doctrine metadata inspection from the provider.
 
 It reads Doctrine ORM metadata and returns a `DoctrineFieldType` value object containing:
 
@@ -114,51 +304,52 @@ It reads Doctrine ORM metadata and returns a `DoctrineFieldType` value object co
 - sortable flag;
 - optional backed enum class.
 
-This keeps type inference testable and avoids embedding metadata rules directly in the provider.
+This avoids embedding metadata rules directly in `DoctrineOrmDataProvider`.
 
-### Doctrine ORM data provider skeleton
+### DoctrineDatatableDefinitionEnricher
 
-`DoctrineOrmDataProvider` is the first production-oriented provider implementation.
+`DoctrineDatatableDefinitionEnricher` enriches Doctrine-backed datatable definitions with inferred column types.
 
-The initial skeleton supports:
+It uses `DoctrineFieldTypeGuesser` for columns without explicit type metadata.
 
-- datatable definitions with an entity class;
-- simple visible-column selection on the main Doctrine alias `e`;
+Rules:
+
+- explicit column types are preserved;
+- definitions without entity class are ignored;
+- unsupported aliases/fields are ignored safely;
+- Doctrine-specific inference remains isolated from the generic renderer.
+
+### DoctrineOrmDataProvider
+
+`DoctrineOrmDataProvider` supports:
+
+- definitions with an entity class;
+- visible column selection on the main alias `e`;
 - offset pagination;
-- total and filtered counts without search/filter distinction yet;
+- permanent filters;
+- simple global search;
+- single-column sorting;
 - `DatatableResult` output.
 
-Search, sorting, permanent filters, association traversal and custom joins are implemented in later steps.
+Current limitations:
 
-### Doctrine provider container wiring
+- only the main Doctrine alias `e` is supported;
+- association traversal is not implemented yet;
+- custom joins are not implemented yet;
+- advanced user-controlled filters are not implemented yet;
+- multi-column sorting is not implemented yet.
 
-`DoctrineOrmDataProvider` is registered as a tagged data provider when Doctrine is available.
+### Permanent filters
 
-The provider is tagged with:
+The Doctrine provider applies backend-defined permanent filters from `DatatableDefinition`.
 
-```text
-zhortein_datatable.data_provider
-```
-
-using the provider name:
-
-```text
-doctrine
-```
-
-Doctrine-specific services such as `DoctrineFieldTypeGuesser` and `DoctrineOrmDataProvider` are registered conditionally so the bundle can remain installable in applications that do not use Doctrine.
-
-### Doctrine permanent filters
-
-The Doctrine ORM provider applies backend-defined permanent filters from `DatatableDefinition`.
-
-Permanent filters are translated into Doctrine QueryBuilder expressions and all values are bound as parameters.
+Permanent filters are translated into QueryBuilder expressions and all values are bound as parameters.
 
 They apply to both loaded rows and counts, so `totalItems` represents the visible universe for the datatable context.
 
-### Doctrine global search
+### Global search
 
-The Doctrine ORM provider supports simple global search on declared searchable columns.
+The Doctrine provider supports simple global search on declared searchable columns.
 
 The initial implementation supports:
 
@@ -167,11 +358,11 @@ The initial implementation supports:
 - safe parameter binding;
 - permanent filters combined with search filters.
 
-Database-specific behavior such as PostgreSQL `ILIKE`, JSON search and advanced search builders are intentionally out of scope for this step.
+Database-specific behavior such as PostgreSQL `ILIKE`, JSON search and advanced search builders is intentionally out of scope for now.
 
-### Doctrine single-column sorting
+### Single-column sorting
 
-The Doctrine ORM provider supports single-column sorting from `DatatableRequest`.
+The Doctrine provider supports single-column sorting from `DatatableRequest`.
 
 Sorting is applied only when:
 
@@ -182,84 +373,17 @@ Sorting is applied only when:
 
 Unknown or non-sortable fields are ignored safely.
 
-### Doctrine provider documentation
+---
 
-Doctrine-backed datatables are documented in `docs/doctrine-provider.md`.
+## 7. Rendering layer
 
-The documentation covers:
+The rendering layer is Twig-first and Bootstrap-first.
 
-- requirements;
-- entity-class based declarations;
-- columns;
-- pagination;
-- global search;
-- single-column sorting;
-- permanent filters;
-- Ajax response shape;
-- current limitations.
-
-### Datatable request object
-
-Providers must receive a typed request object instead of parsing Symfony HTTP requests directly.
-
-The request object stores pagination, search, sorting and runtime options in a normalized form.
-
-This keeps providers independent from the HTTP layer and easier to test.
-
-### Datatable HTTP request factory
-
-`DatatableRequestFactory` converts Symfony HTTP requests into typed `DatatableRequest` objects.
-
-It reads query and request payload parameters, applies safe defaults and normalizes invalid values.
-
-This keeps controllers thin and prevents data providers from depending on the HTTP layer directly.
-
-### Datatable result object
-
-Data providers must return a typed result object instead of raw arrays.
-
-The result object stores rows and pagination metadata:
-
-- rows;
-- current page;
-- page size;
-- total items;
-- filtered items;
-- total pages.
-
-This keeps provider outputs explicit, testable and independent from Twig rendering or HTTP responses.
-
-## Renderer
-
-The renderer is responsible for Twig rendering and Bootstrap-first templates.
-
-### Rendering strategy
-
-The bundle uses a Twig-first rendering strategy.
-
-The backend renders datatable HTML fragments, and the Stimulus controller updates these fragments through Ajax.
+The backend renders datatable HTML fragments, and the Stimulus controller updates those fragments through Ajax.
 
 The frontend controller must not duplicate cell rendering logic in JavaScript.
 
-### Stimulus interaction model
-
-The bundle uses a vanilla Stimulus controller to orchestrate datatable interactions.
-
-The controller is responsible for Ajax requests, loading state, error state, pagination, sorting, search and page size changes.
-
-It must not render business cells manually in JavaScript. Cell and row rendering remains a Twig/server-side responsibility.
-
-The controller receives server-rendered HTML fragments and updates the relevant DOM targets.
-
-### Twig renderer skeleton
-
-The rendering layer starts with a dedicated `DatatableRenderer` service.
-
-The renderer receives a `DatatableDefinition` and returns a server-rendered Bootstrap datatable shell.
-
-At this stage, the renderer does not load data and does not depend on Doctrine. It only renders the structural HTML and an empty state.
-
-Future steps will connect this renderer to the provider layer and Ajax fragments.
+The main rendering service is `DatatableRenderer`.
 
 ### Twig datatable function
 
@@ -273,80 +397,32 @@ Expected usage:
 
 The Twig extension is intentionally thin:
 
-- it resolves the datatable by name through the registry;
-- it creates a `DatatableDefinition`;
-- it lets the datatable class build the definition;
-- it delegates HTML rendering to `DatatableRenderer`.
+- it delegates definition building to `DatatableDefinitionFactory`;
+- it delegates rendering to `DatatableRenderer`.
 
-Business rendering logic must remain in the renderer and Twig templates, not in the Twig extension.
+Business rendering logic must stay in the renderer and Twig templates.
+
+### Datatable shell
+
+The datatable shell renders:
+
+- toolbar;
+- optional search input;
+- loading target;
+- error target;
+- summary target;
+- table;
+- body target;
+- pagination target;
+- Stimulus values.
 
 ### Row and cell rendering
 
-The renderer can render table body rows from a `DatatableResult`.
+The renderer renders table body rows from a `DatatableResult`.
 
-Rows are normalized against visible columns from the `DatatableDefinition`.
+Rows are normalized against visible columns from `DatatableDefinition`.
 
 Cell values are rendered through Twig templates and escaped by default.
-
-The initial implementation uses a generic cell template only. Type-specific cell templates will be introduced later.
-
-### Pagination rendering
-
-The renderer can render Bootstrap pagination from a `DatatableResult`.
-
-Pagination controls are server-rendered and include Stimulus-compatible attributes:
-
-- `data-action="zhortein-datatable#goToPage"`;
-- `data-zhortein-datatable-page-param`.
-
-Pagination markup remains accessible with disabled states and `aria-current` on the active page.
-
-### Row action route parameter resolver
-
-`RowActionRouteParameterResolver` resolves route parameters for row actions from rendered row data.
-
-It supports:
-
-- direct row keys such as `id`;
-- aliased row keys such as `e_id`;
-- Doctrine-style dot notation such as `e.id`.
-
-The resolver does not generate URLs. It only transforms an `ActionDefinition` route parameter mapping into resolved route parameter values.
-
-URL generation remains the responsibility of the action rendering layer.
-
-### Row action rendering
-
-The renderer can render GET row actions declared on `DatatableDefinition`.
-
-Row action rendering uses:
-
-- `ActionDefinition`;
-- `RowActionRouteParameterResolver`;
-- Symfony `UrlGeneratorInterface`;
-- Bootstrap-compatible button markup.
-
-Only GET actions are rendered at this stage. Non-GET actions are handled in a later CSRF-aware action rendering step.
-
-### Global action rendering
-
-The renderer can render GET global actions declared on `DatatableDefinition`.
-
-Global actions are rendered in the datatable toolbar using Bootstrap-compatible button markup.
-
-Only GET global actions are rendered at this stage. Non-GET actions are handled in a later CSRF-aware action rendering step.
-
-### CSRF-aware action rendering
-
-The renderer supports safe rendering for non-GET actions.
-
-GET actions are rendered as links.
-
-Non-GET actions are rendered as POST forms with a hidden `_method` field.
-
-When a `CsrfTokenManagerInterface` is available, non-GET action forms include a `_token` hidden field.
-
-This avoids rendering unsafe destructive links while keeping action rendering compatible with Symfony conventions.
 
 ### Typed cell templates
 
@@ -364,59 +440,100 @@ Initial supported types:
 
 The renderer uses the column `type` option when available and falls back to the default cell template for unknown types.
 
-Cell values are still escaped by Twig by default.
-
-### Doctrine type enrichment
-
-`DoctrineDatatableDefinitionEnricher` can enrich Doctrine-backed datatable definitions with inferred cell types.
-
-It uses `DoctrineFieldTypeGuesser` for columns without explicit type metadata.
-
-Explicit column types are preserved, and definitions without an entity class are ignored.
-
-This keeps Doctrine-specific type inference isolated from the generic renderer.
-
 ### Custom column template rendering
 
 A column can define a custom Twig template through `ColumnDefinition::getTemplate()`.
 
-When a custom template is configured, it takes precedence over the type-specific cell template.
+Custom templates take precedence over built-in type-specific templates.
 
-Custom cell templates receive a small context:
+Custom cell templates receive:
 
 - `column`: the `ColumnDefinition`;
 - `value`: the cell value.
 
-This allows applications to customize a single column without replacing the whole datatable rendering layer.
+This allows applications to customize one column without replacing the whole datatable rendering layer.
 
-## Ajax controller
+### Pagination rendering
 
-The Ajax controller exposes generic endpoints used by the frontend controller.
+The renderer renders Bootstrap pagination from a `DatatableResult`.
 
-Expected endpoints:
+Pagination controls include Stimulus-compatible attributes:
 
-- columns;
-- data;
-- export.
+- `data-action="zhortein-datatable#goToPage"`;
+- `data-zhortein-datatable-page-param`.
 
-### Ajax controller skeleton
+Pagination markup remains accessible with disabled states and `aria-current` on the active page.
 
-The bundle exposes a generic Ajax controller skeleton for future datatable refreshes.
+---
 
-The first endpoint returns server-rendered HTML fragments:
+## 8. Action rendering layer
+
+Actions are declared on `DatatableDefinition` and rendered by the Twig/renderer layer.
+
+User-facing documentation is available in [`actions-and-cells.md`](actions-and-cells.md).
+
+### Row action route parameter resolver
+
+`RowActionRouteParameterResolver` resolves route parameters for row actions from row data.
+
+It supports:
+
+- direct row keys such as `id`;
+- aliased row keys such as `e_id`;
+- Doctrine-style dot notation such as `e.id`.
+
+The resolver does not generate URLs. It only resolves route parameter values.
+
+URL generation remains the responsibility of the renderer.
+
+### Row actions
+
+The renderer can render row actions declared on `DatatableDefinition`.
+
+Row action rendering uses:
+
+- `ActionDefinition`;
+- `RowActionRouteParameterResolver`;
+- Symfony `UrlGeneratorInterface`;
+- Bootstrap-compatible markup.
+
+### Global actions
+
+Global actions are rendered in the datatable toolbar.
+
+They are useful for operations such as:
+
+- create;
+- import;
+- export;
+- future batch actions.
+
+### CSRF-aware action rendering
+
+GET actions are rendered as links.
+
+Non-GET actions are rendered as POST forms with a hidden `_method` field.
+
+When a `CsrfTokenManagerInterface` is available, non-GET action forms include a `_token` hidden field.
+
+This avoids rendering unsafe destructive links while keeping action rendering compatible with Symfony conventions.
+
+---
+
+## 9. Ajax controller layer
+
+The Ajax controller exposes bundle-owned generic endpoints used by the frontend controller.
+
+The current implemented endpoint returns server-rendered fragments:
 
 - body;
 - pagination;
 - summary;
 - pagination metadata.
 
-The controller resolves the datatable through the registry, lets the datatable build its definition, then delegates fragment rendering to `DatatableRenderer`.
+### Ajax fragments endpoint
 
-It does not parse advanced request parameters yet and does not depend on Doctrine.
-
-### Ajax fragments connected to providers
-
-The Ajax fragments endpoint now connects the first complete server-side data pipeline:
+The fragments endpoint connects the current server-side data pipeline:
 
 ```text
 HTTP Request
@@ -429,44 +546,68 @@ HTTP Request
 → JSON HTML fragments
 ```
 
-The controller remains thin and delegates request parsing, definition building, data loading and rendering to dedicated services.
+The controller remains thin and delegates:
 
-The endpoint returns rendered `body` and `pagination` fragments plus pagination metadata.
+- request parsing;
+- definition building;
+- provider resolution;
+- data loading;
+- rendering.
 
+The endpoint returns rendered `body` and `pagination` fragments plus metadata.
 
-## Stimulus controller
+Current response shape:
 
-The Stimulus controller is responsible for frontend interactions.
+```json
+{
+  "body": "<tr>...</tr>",
+  "pagination": "<div>...</div>",
+  "summary": "Showing 1 to 25 of 83 entries",
+  "page": 1,
+  "pageSize": 25,
+  "totalItems": 83,
+  "filteredItems": 83,
+  "totalPages": 4
+}
+```
 
-It must use vanilla JavaScript only.
+---
+
+## 10. Stimulus controller layer
+
+The frontend controller is a vanilla Stimulus controller located at:
+
+```text
+assets/controllers/datatable_controller.js
+```
 
 It must not depend on jQuery or DataTables.net.
 
-### Stimulus controller skeleton
-
-The bundle provides an initial vanilla Stimulus controller skeleton in `assets/controllers/datatable_controller.js`.
+### Responsibilities
 
 The controller is responsible for:
 
 - refreshing server-rendered HTML fragments through `fetch()`;
 - updating body and pagination targets;
+- updating summary target;
 - managing loading state;
 - managing safe error display;
 - handling search debounce;
-- preparing future sort and pagination interactions.
+- handling pagination;
+- preparing sort interactions.
 
-It does not render cells manually and does not depend on jQuery or DataTables.net.
+It does not render business cells manually.
 
-### Stimulus search and pagination loop
+### Values exposed by the datatable shell
 
-The datatable shell now exposes the values required by the Stimulus controller:
+The datatable shell exposes:
 
 - datatable name;
 - fragments URL;
 - current page;
 - page size.
 
-The controller sends these values as query parameters to the fragments endpoint:
+The controller sends these values as query parameters:
 
 - `page`;
 - `pageSize`;
@@ -474,53 +615,118 @@ The controller sends these values as query parameters to the fragments endpoint:
 - `sortField`;
 - `sortDirection`.
 
-Search uses a debounced refresh and pagination controls call `goToPage`.
+---
 
-The controller updates server-rendered `body`, `pagination` and `summary` fragments from the JSON payload.
+## 11. Test and quality architecture
 
-## First end-to-end datatable flow
+### Quality gates
 
-The first usable server-side datatable flow is documented in `docs/end-to-end-flow.md`.
+The project must pass:
 
-Current flow:
+- PHPUnit;
+- PHPStan at maximum level;
+- PHP-CS-Fixer with Symfony-oriented rules;
+- twigcs;
+- GitHub Actions CI.
+
+### Unit tests
+
+Unit tests are preferred for isolated behavior:
+
+- value objects;
+- registries;
+- request/result objects;
+- renderers;
+- resolvers;
+- providers where possible.
+
+### Functional tests
+
+Functional tests are used when Symfony integration itself must be verified.
+
+The suite includes a minimal Symfony kernel under:
 
 ```text
-Datatable class
-→ DatatableDefinitionFactory
-→ DatatableDefinition
-→ DatatableRequestFactory
-→ DataProviderRegistry
-→ DataProviderInterface
-→ DatatableResult
-→ DatatableRenderer
-→ Twig fragments
-→ Ajax JSON response
-→ Stimulus DOM update
+tests/Functional/Kernel
 ```
-
-This flow currently uses `ArrayDataProvider` for tests and demos. Doctrine ORM support will be introduced later as a dedicated provider.
-
-## Test / Quality
-
-### Symfony test kernel
-
-The test suite includes a minimal Symfony kernel under `tests/Functional/Kernel`.
 
 This kernel registers:
 
 - FrameworkBundle;
 - TwigBundle;
+- DoctrineBundle;
 - ZhorteinDatatableBundle;
-- functional test datatable fixtures.
-
-It allows the bundle to be tested in a real Symfony container, including service autoconfiguration, compiler passes, Twig function registration and bundle routes.
-
-Unit tests remain preferred for isolated behavior. Functional tests should be used when Symfony integration itself must be verified.
+- functional test fixtures.
 
 ### Doctrine functional test foundation
 
 The functional test suite includes a minimal Doctrine ORM setup backed by in-memory SQLite.
 
-It registers a test entity under `tests/Functional/Fixtures/Entity` and uses Doctrine `SchemaTool` to create and drop the schema during tests.
+It registers a test entity under:
 
-This foundation allows Doctrine provider features to be tested without requiring an external database service.
+```text
+tests/Functional/Fixtures/Entity
+```
+
+Doctrine `SchemaTool` is used to create and drop schema during tests.
+
+This allows Doctrine provider features to be tested without requiring an external database service.
+
+---
+
+## 12. Current limitations
+
+### Doctrine limitations
+
+The Doctrine provider currently supports only simple fields on the main alias `e`.
+
+Not implemented yet:
+
+- association traversal;
+- custom joins;
+- advanced filters;
+- search builder;
+- multi-column sorting;
+- export support.
+
+### Rendering limitations
+
+The renderer supports typed cells and custom column templates, but not yet:
+
+- full i18n message catalog integration;
+- advanced icon abstraction;
+- action visibility rules;
+- permission voters;
+- dropdown action groups;
+- batch selected-row actions.
+
+### Frontend limitations
+
+The Stimulus controller is intentionally lightweight.
+
+Not implemented yet:
+
+- advanced sorting UI;
+- column visibility;
+- persisted user preferences;
+- frontend test suite.
+
+---
+
+## 13. Documentation map
+
+Related documentation:
+
+- [`end-to-end-flow.md`](end-to-end-flow.md)
+- [`doctrine-provider.md`](doctrine-provider.md)
+- [`actions-and-cells.md`](actions-and-cells.md)
+- [`features.md`](features.md)
+- [`roadmap.md`](roadmap.md)
+
+Architecture decisions:
+
+- [`decisions/0001-legacy-code-as-functional-reference-only.md`](decisions/0001-legacy-code-as-functional-reference-only.md)
+- [`decisions/0002-initial-public-api.md`](decisions/0002-initial-public-api.md)
+- [`decisions/0003-bootstrap-rendering-strategy.md`](decisions/0003-bootstrap-rendering-strategy.md)
+- [`decisions/0004-vanilla-stimulus-interaction-model.md`](decisions/0004-vanilla-stimulus-interaction-model.md)
+- [`decisions/0005-doctrine-orm-provider-architecture.md`](decisions/0005-doctrine-orm-provider-architecture.md)
