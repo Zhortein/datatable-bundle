@@ -366,6 +366,16 @@ The renderer uses the column `type` option when available and falls back to the 
 
 Cell values are still escaped by Twig by default.
 
+### Doctrine type enrichment
+
+`DoctrineDatatableDefinitionEnricher` can enrich Doctrine-backed datatable definitions with inferred cell types.
+
+It uses `DoctrineFieldTypeGuesser` for columns without explicit type metadata.
+
+Explicit column types are preserved, and definitions without an entity class are ignored.
+
+This keeps Doctrine-specific type inference isolated from the generic renderer.
+
 ## Ajax controller
 
 The Ajax controller exposes generic endpoints used by the frontend controller.

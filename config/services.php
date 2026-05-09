@@ -7,6 +7,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
 use Zhortein\DatatableBundle\Controller\DatatableController;
+use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
@@ -31,6 +32,8 @@ return static function (ContainerConfigurator $container): void {
 
     if (interface_exists(ManagerRegistry::class)) {
         $services->set(DoctrineFieldTypeGuesser::class);
+
+        $services->set(DoctrineDatatableDefinitionEnricher::class);
 
         $services
             ->set(DoctrineOrmDataProvider::class)

@@ -11,6 +11,7 @@ use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
@@ -94,6 +95,11 @@ final class TestKernel extends Kernel
 
         $services
             ->alias('test.'.DoctrineFieldTypeGuesser::class, DoctrineFieldTypeGuesser::class)
+            ->public()
+        ;
+
+        $services
+            ->alias('test.'.DoctrineDatatableDefinitionEnricher::class, DoctrineDatatableDefinitionEnricher::class)
             ->public()
         ;
     }

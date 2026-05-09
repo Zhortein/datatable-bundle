@@ -57,4 +57,18 @@ final readonly class ColumnDefinition
     {
         return $this->type;
     }
+
+    public function withType(?string $type): self
+    {
+        return new self(
+            name: $this->name,
+            label: $this->label,
+            visible: $this->visible,
+            sortable: $this->sortable,
+            searchable: $this->searchable,
+            className: $this->className,
+            template: $this->template,
+            type: $type,
+        );
+    }
 }
