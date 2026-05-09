@@ -1,0 +1,19 @@
+<div class="zhortein-datatable__toolbar d-flex justify-content-between align-items-center gap-2 mb-3">
+    <div class="zhortein-datatable__search">
+        {% if options.search is defined and options.search %}
+            <label class="visually-hidden" for="{{ htmlId }}_search">
+                {{ 'Search' }}
+            </label>
+            <input
+                id="{{ htmlId }}_search"
+                type="search"
+                class="form-control"
+                placeholder="{{ 'Search' }}"
+                data-zhortein-datatable-target="searchInput"
+                data-action="input->zhortein-datatable#search"
+            >
+        {% endif %}
+    </div>
+
+    <div class="zhortein-datatable__actions" data-zhortein-datatable-target="globalActions"></div>
+</div>

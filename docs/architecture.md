@@ -109,6 +109,17 @@ It must not render business cells manually in JavaScript. Cell and row rendering
 
 The controller receives server-rendered HTML fragments and updates the relevant DOM targets.
 
+### Twig renderer skeleton
+
+The rendering layer starts with a dedicated `DatatableRenderer` service.
+
+The renderer receives a `DatatableDefinition` and returns a server-rendered Bootstrap datatable shell.
+
+At this stage, the renderer does not load data and does not depend on Doctrine. It only renders the structural HTML and an empty state.
+
+Future steps will connect this renderer to the provider layer and Ajax fragments.
+
+
 ## Ajax controller
 
 The Ajax controller exposes generic endpoints used by the frontend controller.
