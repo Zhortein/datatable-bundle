@@ -6,6 +6,19 @@ parameters:
         - tests
 
     treatPhpDocTypesAsCertain: true
+    ignoreErrors:
+        -
+            identifier: method.notFound
+            path: src/ZhorteinDatatableBundle.php
+            reportUnmatched: false
+        -
+            identifier: method.nonObject
+            path: src/ZhorteinDatatableBundle.php
+            reportUnmatched: false
+        -
+            identifier: class.notFound
+            path: src/ZhorteinDatatableBundle.php
+            reportUnmatched: false
 
     symfony:
         containerXmlPath: null

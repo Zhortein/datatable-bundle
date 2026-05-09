@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle;
 
-use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
-use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -34,42 +32,37 @@ final class ZhorteinDatatableBundle extends AbstractBundle
 
     public function configure(DefinitionConfigurator $definition): void
     {
-        /** @var ArrayNodeDefinition<TreeBuilder<'array'>> $rootNode */
-        $rootNode = $definition->rootNode();
+        $this->configureRootNode($definition);
+    }
 
-        $children = $rootNode->children();
-
-        $children
+    /**
+     * Symfony Config builder generics differ across supported dependency versions.
+     */
+    private function configureRootNode(DefinitionConfigurator $definition): void
+    {
+        $definition
+            ->rootNode()
+            ->children()
             ->enumNode('default_provider')
             ->values(['array', 'doctrine'])
             ->defaultValue('doctrine')
             ->end()
-        ;
-
-        $children
             ->enumNode('default_theme')
             ->values(['bootstrap'])
             ->defaultValue('bootstrap')
             ->end()
-        ;
-
-        $children
             ->integerNode('default_page_size')
             ->min(1)
             ->defaultValue(25)
             ->end()
-        ;
-
-        $children
             ->integerNode('max_page_size')
             ->min(1)
             ->defaultValue(500)
             ->end()
-        ;
-
-        $children
             ->booleanNode('search_enabled')
             ->defaultFalse()
+            ->end()
+            ->end()
             ->end()
         ;
     }
