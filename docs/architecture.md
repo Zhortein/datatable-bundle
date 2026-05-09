@@ -62,6 +62,21 @@ The request object stores pagination, search, sorting and runtime options in a n
 
 This keeps providers independent from the HTTP layer and easier to test.
 
+### Datatable result object
+
+Data providers must return a typed result object instead of raw arrays.
+
+The result object stores rows and pagination metadata:
+
+- rows;
+- current page;
+- page size;
+- total items;
+- filtered items;
+- total pages.
+
+This keeps provider outputs explicit, testable and independent from Twig rendering or HTTP responses.
+
 ## Renderer
 
 The renderer is responsible for Twig rendering and Bootstrap-first templates.
