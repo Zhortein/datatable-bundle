@@ -11,6 +11,7 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Zhortein\DatatableBundle\Contract\DatatableInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Registry\DatatableRegistry;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 use Zhortein\DatatableBundle\Twig\DatatableTwigExtension;
@@ -70,7 +71,7 @@ final class DatatableTwigExtensionTest extends TestCase
         );
 
         return new DatatableTwigExtension(
-            registry: $registry,
+            definitionFactory: new DatatableDefinitionFactory($registry),
             renderer: new DatatableRenderer($twig),
         );
     }

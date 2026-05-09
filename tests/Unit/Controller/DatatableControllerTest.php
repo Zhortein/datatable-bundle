@@ -11,6 +11,7 @@ use Twig\Loader\FilesystemLoader;
 use Zhortein\DatatableBundle\Contract\DatatableInterface;
 use Zhortein\DatatableBundle\Controller\DatatableController;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Registry\DatatableRegistry;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 
@@ -19,7 +20,7 @@ final class DatatableControllerTest extends TestCase
     public function test_it_returns_placeholder_fragments(): void
     {
         $controller = new DatatableController(
-            registry: $this->createRegistry(),
+            definitionFactory: new DatatableDefinitionFactory($this->createRegistry()),
             renderer: new DatatableRenderer($this->createTwigEnvironment()),
         );
 
