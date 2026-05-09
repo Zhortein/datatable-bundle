@@ -48,6 +48,7 @@ use App\Entity\Order;
 use Zhortein\DatatableBundle\Attribute\AsDatatable;
 use Zhortein\DatatableBundle\Contract\DatatableInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\FilterOperator;
 
 #[AsDatatable(name: 'orders')]
 final class OrderDatatable implements DatatableInterface
@@ -62,7 +63,7 @@ final class OrderDatatable implements DatatableInterface
             ->addColumn('e.customerName')
             ->addColumn('e.status')
             ->addColumn('e.createdAt', searchable: false)
-            ->addPermanentFilter('e.deletedAt', 'IS NULL')
+            ->addPermanentFilter('e.deletedAt', FilterOperator::IsNull)
         ;
     }
 }

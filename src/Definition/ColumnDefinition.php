@@ -13,6 +13,8 @@ final readonly class ColumnDefinition
         private bool $sortable = true,
         private bool $searchable = true,
         private ?string $className = null,
+        private ?string $template = null,
+        private ?string $type = null,
     ) {
     }
 
@@ -44,5 +46,15 @@ final readonly class ColumnDefinition
     public function getClassName(): ?string
     {
         return $this->className;
+    }
+
+    public function getTemplate(): ?string
+    {
+        return $this->template;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
     }
 }
