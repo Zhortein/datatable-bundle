@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Tests\Functional;
 
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Tests\Functional\Kernel\TestKernel;
 
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState(false)]
 final class DataProviderRegistryFunctionalTest extends FunctionalTestCase
 {
     public function test_it_registers_array_data_provider_in_container(): void

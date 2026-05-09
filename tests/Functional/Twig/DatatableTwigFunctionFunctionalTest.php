@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Tests\Functional\Twig;
 
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Twig\Environment;
 use Zhortein\DatatableBundle\Tests\Functional\FunctionalTestCase;
 use Zhortein\DatatableBundle\Tests\Functional\Kernel\TestKernel;
 
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState(false)]
 final class DatatableTwigFunctionFunctionalTest extends FunctionalTestCase
 {
     public function test_it_renders_datatable_through_twig_function(): void

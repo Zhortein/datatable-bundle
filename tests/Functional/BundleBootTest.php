@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Tests\Functional;
 
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Zhortein\DatatableBundle\Registry\DatatableRegistry;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Datatable\FunctionalUserDatatable;
 use Zhortein\DatatableBundle\Tests\Functional\Kernel\TestKernel;
 
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState(false)]
 final class BundleBootTest extends FunctionalTestCase
 {
     public function test_it_boots_bundle_and_registers_datatable_services(): void

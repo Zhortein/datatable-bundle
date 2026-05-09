@@ -99,7 +99,12 @@ final class TestKernel extends Kernel
 
     public function getCacheDir(): string
     {
-        return sys_get_temp_dir().'/zhortein-datatable-bundle/cache/'.$this->environment;
+        return sprintf(
+            '%s/zhortein-datatable-bundle/cache/%s_%s',
+            sys_get_temp_dir(),
+            $this->environment,
+            $this->debug ? 'debug' : 'nodebug',
+        );
     }
 
     public function getLogDir(): string

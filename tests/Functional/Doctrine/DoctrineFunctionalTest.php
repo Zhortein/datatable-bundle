@@ -8,10 +8,14 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
 use Zhortein\DatatableBundle\Tests\Functional\FunctionalTestCase;
 use Zhortein\DatatableBundle\Tests\Functional\Kernel\TestKernel;
 
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState(false)]
 final class DoctrineFunctionalTest extends FunctionalTestCase
 {
     private ?EntityManagerInterface $entityManager = null;
