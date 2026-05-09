@@ -40,6 +40,16 @@ The backend renders datatable HTML fragments, and the Stimulus controller update
 
 The frontend controller must not duplicate cell rendering logic in JavaScript.
 
+### Stimulus interaction model
+
+The bundle uses a vanilla Stimulus controller to orchestrate datatable interactions.
+
+The controller is responsible for Ajax requests, loading state, error state, pagination, sorting, search and page size changes.
+
+It must not render business cells manually in JavaScript. Cell and row rendering remains a Twig/server-side responsibility.
+
+The controller receives server-rendered HTML fragments and updates the relevant DOM targets.
+
 ## Ajax controller
 
 The Ajax controller exposes generic endpoints used by the frontend controller.
