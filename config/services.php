@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
+use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
 use Zhortein\DatatableBundle\Controller\DatatableController;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
@@ -21,6 +22,8 @@ return static function (ContainerConfigurator $container): void {
         ->autowire()
         ->autoconfigure()
     ;
+
+    $services->set(RowActionRouteParameterResolver::class);
 
     $services->set(DatatableDefinitionFactory::class);
 

@@ -301,6 +301,20 @@ Pagination controls are server-rendered and include Stimulus-compatible attribut
 
 Pagination markup remains accessible with disabled states and `aria-current` on the active page.
 
+### Row action route parameter resolver
+
+`RowActionRouteParameterResolver` resolves route parameters for row actions from rendered row data.
+
+It supports:
+
+- direct row keys such as `id`;
+- aliased row keys such as `e_id`;
+- Doctrine-style dot notation such as `e.id`.
+
+The resolver does not generate URLs. It only transforms an `ActionDefinition` route parameter mapping into resolved route parameter values.
+
+URL generation remains the responsibility of the action rendering layer.
+
 ## Ajax controller
 
 The Ajax controller exposes generic endpoints used by the frontend controller.
