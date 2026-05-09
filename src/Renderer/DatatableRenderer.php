@@ -29,6 +29,20 @@ final readonly class DatatableRenderer
         ]);
     }
 
+    public function renderEmptyBody(DatatableDefinition $definition): string
+    {
+        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_empty.html.twig', $this->theme), [
+            'visibleColumns' => $this->getVisibleColumns($definition),
+        ]);
+    }
+
+    public function renderPaginationPlaceholder(DatatableDefinition $definition): string
+    {
+        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_pagination.html.twig', $this->theme), [
+            'htmlId' => $this->createHtmlId($definition),
+        ]);
+    }
+
     /**
      * @return array<string, ColumnDefinition>
      */

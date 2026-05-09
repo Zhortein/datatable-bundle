@@ -6,12 +6,21 @@ namespace Zhortein\DatatableBundle;
 
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 use Zhortein\DatatableBundle\Attribute\AsDatatable;
 use Zhortein\DatatableBundle\DependencyInjection\Compiler\DatatableCompilerPass;
 
 final class ZhorteinDatatableBundle extends AbstractBundle
 {
+    /**
+     * @param array<array-key, mixed> $config
+     */
+    public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
+    {
+        $container->import('../config/services.php');
+    }
+
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);

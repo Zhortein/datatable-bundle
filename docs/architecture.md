@@ -149,6 +149,22 @@ Expected endpoints:
 - data;
 - export.
 
+### Ajax controller skeleton
+
+The bundle exposes a generic Ajax controller skeleton for future datatable refreshes.
+
+The first endpoint returns server-rendered HTML fragments:
+
+- body;
+- pagination;
+- summary;
+- pagination metadata.
+
+The controller resolves the datatable through the registry, lets the datatable build its definition, then delegates fragment rendering to `DatatableRenderer`.
+
+It does not parse advanced request parameters yet and does not depend on Doctrine.
+
+
 ## Stimulus controller
 
 The Stimulus controller is responsible for frontend interactions.
