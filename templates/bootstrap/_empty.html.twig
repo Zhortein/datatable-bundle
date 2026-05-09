@@ -1,5 +1,7 @@
+{% set colspan = visibleColumns|length + (hasRowActions is defined and hasRowActions ? 1 : 0) %}
+
 <tr>
-    <td colspan="{{ visibleColumns|length > 0 ? visibleColumns|length : 1 }}" class="text-center text-body-secondary py-4">
-        {{ 'No data available.' }}
+    <td colspan="{{ colspan > 0 ? colspan : 1 }}" class="text-center text-body-secondary py-4">
+        No data available.
     </td>
 </tr>

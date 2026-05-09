@@ -5,5 +5,11 @@
                 {{ column.label ?? column.name }}
             </th>
         {% endfor %}
+
+        {% if hasRowActions %}
+            <th class="text-end" scope="col">
+                Actions
+            </th>
+        {% endif %}
     </tr>
 </thead>

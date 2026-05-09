@@ -315,6 +315,19 @@ The resolver does not generate URLs. It only transforms an `ActionDefinition` ro
 
 URL generation remains the responsibility of the action rendering layer.
 
+### Row action rendering
+
+The renderer can render GET row actions declared on `DatatableDefinition`.
+
+Row action rendering uses:
+
+- `ActionDefinition`;
+- `RowActionRouteParameterResolver`;
+- Symfony `UrlGeneratorInterface`;
+- Bootstrap-compatible button markup.
+
+Only GET actions are rendered at this stage. Non-GET actions are handled in a later CSRF-aware action rendering step.
+
 ## Ajax controller
 
 The Ajax controller exposes generic endpoints used by the frontend controller.

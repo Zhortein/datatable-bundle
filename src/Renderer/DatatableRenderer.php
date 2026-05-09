@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Renderer;
 
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment;
+use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Result\DatatableResult;
@@ -13,6 +15,8 @@ final readonly class DatatableRenderer
 {
     public function __construct(
         private Environment $twig,
+        private ?UrlGeneratorInterface $urlGenerator = null,
+        private ?RowActionRouteParameterResolver $routeParameterResolver = null,
         private string $theme = 'bootstrap',
     ) {
     }
@@ -25,6 +29,8 @@ final readonly class DatatableRenderer
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/datatable.html.twig', $this->theme), [
             'definition' => $definition,
             'visibleColumns' => $this->getVisibleColumns($definition),
+            'rowActions' => $definition->getRowActions(),
+            'hasRowActions' => [] !== $definition->getRowActions(),
             'htmlId' => $this->createHtmlId($definition),
             'options' => $options,
         ]);
@@ -45,6 +51,7 @@ final readonly class DatatableRenderer
     {
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_empty.html.twig', $this->theme), [
             'visibleColumns' => $this->getVisibleColumns($definition),
+            'hasRowActions' => [] !== $definition->getRowActions(),
         ]);
     }
 
@@ -75,7 +82,7 @@ final readonly class DatatableRenderer
     }
 
     /**
-     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed}>}>
+     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed}>, actions: list<array{name: string, label: string|null, icon: string|null, url: string, className: string|null, attributes: array<string, string>}>}>
      */
     private function normalizeRows(DatatableDefinition $definition, DatatableResult $result): array
     {
@@ -94,10 +101,45 @@ final readonly class DatatableRenderer
 
             $normalizedRows[] = [
                 'cells' => $cells,
+                'actions' => $this->normalizeRowActions($definition, $row),
             ];
         }
 
         return $normalizedRows;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     *
+     * @return list<array{name: string, label: string|null, icon: string|null, url: string, className: string|null, attributes: array<string, string>}>
+     */
+    private function normalizeRowActions(DatatableDefinition $definition, array $row): array
+    {
+        if (null === $this->urlGenerator || null === $this->routeParameterResolver) {
+            return [];
+        }
+
+        $actions = [];
+
+        foreach ($definition->getRowActions() as $action) {
+            if ('GET' !== strtoupper($action->getHttpMethod())) {
+                continue;
+            }
+
+            $actions[] = [
+                'name' => $action->getName(),
+                'label' => $action->getLabel(),
+                'icon' => $action->getIcon(),
+                'url' => $this->urlGenerator->generate(
+                    $action->getRoute(),
+                    $this->routeParameterResolver->resolve($action, $row),
+                ),
+                'className' => $action->getClassName(),
+                'attributes' => $action->getAttributes(),
+            ];
+        }
+
+        return $actions;
     }
 
     /**

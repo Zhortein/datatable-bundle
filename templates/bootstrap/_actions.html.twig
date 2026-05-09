@@ -1,0 +1,19 @@
+<td class="text-end">
+    <div class="btn-group btn-group-sm" role="group">
+        {% for action in actions %}
+            <a
+                href="{{ action.url }}"
+                class="{{ action.className ?? 'btn btn-outline-secondary' }}"
+            {% for attribute_name, attribute_value in action.attributes %}
+                {{ attribute_name }}="{{ attribute_value }}"
+            {% endfor %}
+            >
+            {% if action.icon is not null %}
+                <span class="{{ action.icon }}" aria-hidden="true"></span>
+            {% endif %}
+
+            {{ action.label ?? action.name }}
+            </a>
+        {% endfor %}
+    </div>
+</td>

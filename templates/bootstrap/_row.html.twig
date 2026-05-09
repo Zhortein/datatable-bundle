@@ -5,4 +5,10 @@
             value: cell.value
         } only %}
     {% endfor %}
+
+    {% if row.actions is not empty %}
+        {% include '@ZhorteinDatatable/bootstrap/_actions.html.twig' with {
+            actions: row.actions
+        } only %}
+    {% endif %}
 </tr>
