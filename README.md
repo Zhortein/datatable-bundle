@@ -23,6 +23,77 @@ Early development. Not production-ready.
 
 - PHP 8.4+
 - Symfony 8+
+- Composer 2+
+
+Doctrine ORM is optional at package level, but required for Doctrine-backed datatables.
+
+## Installation
+
+Installation instructions are documented in [`docs/installation.md`](docs/installation.md).
+
+## Basic usage
+
+Basic usage is documented in [`docs/basic-usage.md`](docs/basic-usage.md).
+
+Expected direction:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Datatable;
+
+use App\Entity\User;
+use Zhortein\DatatableBundle\Attribute\AsDatatable;
+use Zhortein\DatatableBundle\Contract\DatatableInterface;
+use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\FilterOperator;
+
+#[AsDatatable(name: 'users')]
+final class UserDatatable implements DatatableInterface
+{
+    public function buildDatatable(DatatableDefinition $definition): void
+    {
+        $definition
+            ->setEntityClass(User::class)
+            ->setTranslationDomain('user')
+            ->addColumn('e.id', visible: false, sortable: false, searchable: false)
+            ->addColumn('e.email')
+            ->addColumn('e.displayName')
+            ->addColumn('e.createdAt', searchable: false)
+            ->addPermanentFilter('e.deletedAt', FilterOperator::IsNull)
+        ;
+    }
+}
+```
+
+Expected Twig usage:
+
+```twig
+{{ zhortein_datatable('users') }}
+```
+
+The Twig helper is not implemented yet.
+
+## Documentation
+
+- [Documentation index](docs/index.md)
+- [Installation](docs/installation.md)
+- [Basic usage](docs/basic-usage.md)
+- [Configuration](docs/configuration.md)
+- [Development workflow](docs/development.md)
+- [Features](docs/features.md)
+- [Architecture](docs/architecture.md)
+- [Roadmap](docs/roadmap.md)
+
+## Architecture decisions
+
+- [0001 - Legacy code as functional reference only](docs/decisions/0001-legacy-code-as-functional-reference-only.md)
+- [0002 - Initial public datatable API](docs/decisions/0002-initial-public-api.md)
+- [0003 - Bootstrap rendering strategy](docs/decisions/0003-bootstrap-rendering-strategy.md)
+- [0004 - Vanilla Stimulus interaction model](docs/decisions/0004-vanilla-stimulus-interaction-model.md)
+- [0005 - Doctrine ORM provider architecture](docs/decisions/0005-doctrine-orm-provider-architecture.md)
 
 ## Development
 
@@ -31,42 +102,23 @@ composer install
 composer qa
 ```
 
-## Example
+With the local Docker tooling:
 
-```php
-use Zhortein\DatatableBundle\Attribute\AsDatatable;
-use Zhortein\DatatableBundle\Contract\DatatableInterface;
-use Zhortein\DatatableBundle\Definition\DatatableDefinition;
-
-#[AsDatatable(name: 'user')]
-final class UserDatatable implements DatatableInterface
-{
-    public function buildDatatable(DatatableDefinition $definition): void
-    {
-        $definition
-            ->setEntityClass(User::class)
-            ->addColumn('e.id', visible: false)
-            ->addColumn('e.email')
-            ->addColumn('e.createdAt')
-        ;
-    }
-}
+```bash
+make installdeps
+make qa
 ```
 
-## Datatable discovery
+## Quality requirements
 
-Datatable classes are regular Symfony services.
+The project must pass:
 
-Classes using the `#[AsDatatable]` attribute are automatically tagged and registered in the datatable registry.
+- PHPUnit;
+- PHPStan at maximum level;
+- PHP-CS-Fixer with Symfony-oriented rules;
+- twigcs when Twig templates are present;
+- GitHub Actions CI.
 
-```php
-#[AsDatatable(name: 'users')]
-final class UserDatatable implements DatatableInterface
-{
-    public function buildDatatable(DatatableDefinition $definition): void
-    {
-        // ...
-    }
-}
-```
-The registry resolves datatables by their public name.
+## License
+
+This bundle is released under the MIT License.
