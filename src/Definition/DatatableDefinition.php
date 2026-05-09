@@ -104,6 +104,13 @@ final class DatatableDefinition
         return $this;
     }
 
+    public function replaceColumn(ColumnDefinition $column): self
+    {
+        $this->columns[$column->getName()] = $column;
+
+        return $this;
+    }
+
     /**
      * @return array<string, ColumnDefinition>
      */
