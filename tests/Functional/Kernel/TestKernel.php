@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Tests\Functional\Kernel;
 
+use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Bundle\TwigBundle\TwigBundle;
@@ -11,6 +12,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
+use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
 use Zhortein\DatatableBundle\ZhorteinDatatableBundle;
 
 final class TestKernel extends Kernel
@@ -21,6 +23,7 @@ final class TestKernel extends Kernel
     {
         yield new FrameworkBundle();
         yield new TwigBundle();
+        yield new DoctrineBundle();
         yield new ZhorteinDatatableBundle();
     }
 
@@ -42,16 +45,46 @@ final class TestKernel extends Kernel
             ],
         ]);
 
+        $doctrineUserFile = new \ReflectionClass(DoctrineUser::class)->getFileName();
+
+        if (false === $doctrineUserFile) {
+            throw new \LogicException(sprintf('Unable to locate file for "%s".', DoctrineUser::class));
+        }
+
+        $doctrineUserDirectory = dirname($doctrineUserFile);
+
+        $container->extension('doctrine', [
+            'dbal' => [
+                'driver' => 'pdo_sqlite',
+                'memory' => true,
+            ],
+            'orm' => [
+                'auto_mapping' => false,
+                'mappings' => [
+                    'ZhorteinDatatableBundleTests' => [
+                        'is_bundle' => false,
+                        'type' => 'attribute',
+                        'dir' => $doctrineUserDirectory,
+                        'prefix' => 'Zhortein\\DatatableBundle\\Tests\\Functional\\Fixtures\\Entity',
+                        'alias' => 'ZhorteinDatatableBundleTests',
+                    ],
+                ],
+            ],
+        ]);
+
         $services = $container->services()
             ->defaults()
             ->autowire()
             ->autoconfigure()
         ;
 
-        $services->load(
-            'Zhortein\\DatatableBundle\\Tests\\Functional\\Fixtures\\',
-            __DIR__.'/../Fixtures',
-        );
+        $services
+            ->load(
+                'Zhortein\\DatatableBundle\\Tests\\Functional\\Fixtures\\',
+                __DIR__.'/../Fixtures',
+            )
+            ->exclude(__DIR__.'/../Fixtures/Entity')
+        ;
 
         $services
             ->alias('test.'.DataProviderRegistry::class, DataProviderRegistry::class)

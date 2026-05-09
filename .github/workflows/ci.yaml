@@ -34,7 +34,7 @@ jobs:
           php-version: ${{ matrix.php-version }}
           coverage: none
           tools: composer
-          extensions: mbstring, intl
+          extensions: mbstring, intl, pdo_sqlite
 
       - name: Validate composer.json
         run: composer validate --strict
