@@ -1,45 +1,23 @@
 # Legacy NC Manager Datatable Analysis
 
-The files in `docs/legacy-ncmanager` come from the NC Manager project.
+This repository does not contain the original legacy application-specific datatable source files.
 
-They must be used as functional inspiration only.
+This is intentional.
 
-## Keep
+The original implementation belongs to a private application and must not be copied into this public bundle repository.
+## Public legacy reference
 
-- PHP attribute-based datatable declaration.
-- Dedicated datatable classes in the host application.
-- Fluent API to add columns.
-- Automatic Doctrine field type detection.
-- Template resolution by field type.
-- Persistent filters.
-- Custom joins.
-- Ajax endpoints for columns and data.
-- Future export support.
+The public, sanitized legacy reference is split into:
 
-## Do not copy directly
+- `docs/legacy-reference/functional-lessons.md`
+- `docs/legacy-reference/anti-patterns.md`
+- `docs/legacy-reference/sanitized-examples.md`
+- `docs/decisions/0001-legacy-code-as-functional-reference-only.md`
 
-- Do not keep the `DataTableNet` or `DatatableNet` names.
-- Do not depend on DataTables.net.
-- Do not depend on jQuery.
-- Do not depend on Select2.
-- Do not depend on BazingaJsTranslationBundle.
-- Do not instantiate datatable classes manually with `new`.
-- Do not scan all `App\\` services manually.
-- Do not mix Doctrine query building, Twig rendering, export, and HTTP handling in one class.
-- Do not depend on application-specific services like Historizer, CacheManager or LocaleProvider.
-- Do not use project-specific paths such as `templates/parts/datatable_rendering`.
+## Main conclusion
 
-## Target architecture
+The previous implementation shows what the bundle should be able to do.
 
-The final bundle must follow this responsibility split:
+It does not show how the final bundle must be architected.
 
-```text
-Datatable class
-→ DatatableDefinition
-→ ColumnDefinition / ActionDefinition / FilterDefinition
-→ Registry Symfony
-→ DataProvider
-→ Twig renderer
-→ Ajax controller
-→ Stimulus vanilla controller
-
+The final bundle must keep the developer experience and useful business concepts, but must use a clean Symfony bundle architecture, vanilla JavaScript, Stimulus, Twig rendering and Bootstrap-first templates.
