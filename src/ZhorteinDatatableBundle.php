@@ -9,4 +9,3 @@ use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 final class ZhorteinDatatableBundle extends AbstractBundle
 {
 }
-

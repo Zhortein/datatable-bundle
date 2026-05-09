@@ -1,0 +1,11 @@
+parameters:
+    level: max
+
+    paths:
+        - src
+        - tests
+
+    treatPhpDocTypesAsCertain: true
+
+    symfony:
+        containerXmlPath: null

@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Attribute;
 
-use Attribute;
-
-#[Attribute(Attribute::TARGET_CLASS)]
+#[\Attribute(\Attribute::TARGET_CLASS)]
 final readonly class AsDatatable
 {
     public function __construct(
