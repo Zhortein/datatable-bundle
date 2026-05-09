@@ -52,3 +52,21 @@ final class UserDatatable implements DatatableInterface
     }
 }
 ```
+
+## Datatable discovery
+
+Datatable classes are regular Symfony services.
+
+Classes using the `#[AsDatatable]` attribute are automatically tagged and registered in the datatable registry.
+
+```php
+#[AsDatatable(name: 'users')]
+final class UserDatatable implements DatatableInterface
+{
+    public function buildDatatable(DatatableDefinition $definition): void
+    {
+        // ...
+    }
+}
+```
+The registry resolves datatables by their public name.
