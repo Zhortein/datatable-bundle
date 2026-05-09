@@ -1,6 +1,6 @@
 # —— 🛠️ Configuration ————————————————————————————————————————————————————————————————
 .DEFAULT_GOAL := help
-.PHONY: help build installdeps updatedeps composer csfixer phpstan test qa
+.PHONY: help build installdeps updatedeps composer csfixer cscheck phpstan test twigcs qa
 
 TOOLS_IMAGE ?= zhortein-datatable-tools:php84
 APP_DIR := /app
@@ -17,7 +17,7 @@ COMPOSER_CACHE_CONT := /tmp/composer-cache
 DOCKER_VOLUME := -v "$(PWD)":$(APP_DIR) -w $(APP_DIR) -v "$(COMPOSER_CACHE_HOST)":$(COMPOSER_CACHE_CONT)
 DOCKER_RUN := docker run --rm $(TTY) $(USER_FLAGS) -e COMPOSER_CACHE_DIR=$(COMPOSER_CACHE_CONT) $(DOCKER_VOLUME) $(TOOLS_IMAGE)
 
-## —— 🐳 Zhortein Auditable Bundle Makefile 🐳 ————————————————————————————————————————
+## —— 🐳 Zhortein Datatable Bundle Makefile 🐳 ————————————————————————————————————————
 help: ## 📖 Show available commands
 	@echo ""
 	@echo "📖 Available make commands:"
@@ -39,16 +39,20 @@ updatedeps: build ## Update deps
 composer: build ## Run composer (usage: make composer ARGS='update')
 	$(DOCKER_RUN) composer $(ARGS)
 
-csfixer: build ## Run PHP-CS-Fixer (uses .php-cs-fixer.dist.php)
-	$(DOCKER_RUN) vendor/bin/php-cs-fixer fix --diff
+csfixer: build ## Run PHP-CS-Fixer and fix files
+	$(DOCKER_RUN) composer cs:fix
 
-phpstan: build ## Run PHPStan (uses phpstan.neon.dist)
-	$(DOCKER_RUN) vendor/bin/phpstan analyse --no-progress
+cscheck: build ## Run PHP-CS-Fixer in check mode
+	$(DOCKER_RUN) composer cs:check
+
+phpstan: build ## Run PHPStan
+	$(DOCKER_RUN) composer phpstan
 
 test: build ## Run PHPUnit
-	$(DOCKER_RUN) vendor/bin/phpunit
+	$(DOCKER_RUN) composer test
+
+twigcs: build ## Run twigcs
+	$(DOCKER_RUN) composer twigcs
 
 qa: build ## Run all QA checks
-	$(MAKE) csfixer
-	$(MAKE) phpstan
-	$(MAKE) test
+	$(DOCKER_RUN) composer qa
