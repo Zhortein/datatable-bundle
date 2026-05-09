@@ -148,6 +148,14 @@ doctrine
 
 Doctrine-specific services such as `DoctrineFieldTypeGuesser` and `DoctrineOrmDataProvider` are registered conditionally so the bundle can remain installable in applications that do not use Doctrine.
 
+### Doctrine permanent filters
+
+The Doctrine ORM provider applies backend-defined permanent filters from `DatatableDefinition`.
+
+Permanent filters are translated into Doctrine QueryBuilder expressions and all values are bound as parameters.
+
+They apply to both loaded rows and counts, so `totalItems` represents the visible universe for the datatable context.
+
 ### Datatable request object
 
 Providers must receive a typed request object instead of parsing Symfony HTTP requests directly.
