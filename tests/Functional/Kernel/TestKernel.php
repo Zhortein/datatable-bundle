@@ -10,6 +10,7 @@ use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\ZhorteinDatatableBundle;
 
 final class TestKernel extends Kernel
@@ -51,6 +52,11 @@ final class TestKernel extends Kernel
             'Zhortein\\DatatableBundle\\Tests\\Functional\\Fixtures\\',
             __DIR__.'/../Fixtures',
         );
+
+        $services
+            ->alias('test.'.DataProviderRegistry::class, DataProviderRegistry::class)
+            ->public()
+        ;
     }
 
     protected function configureRoutes(RoutingConfigurator $routes): void

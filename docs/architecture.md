@@ -54,6 +54,27 @@ It reads rows from datatable definition options, supports basic pagination, simp
 
 It is not intended to replace the future Doctrine ORM provider, but it allows the data pipeline to be tested without a database.
 
+### Data provider container wiring
+
+Data providers are regular Symfony services tagged with `zhortein_datatable.data_provider`.
+
+The provider tag must define a `name` attribute.
+
+Example:
+
+```php
+$services
+    ->set(ArrayDataProvider::class)
+    ->tag('zhortein_datatable.data_provider', [
+        'name' => ArrayDataProvider::PROVIDER_NAME,
+    ])
+;
+```
+
+`DataProviderRegistry` receives the tagged providers as an indexed iterable.
+
+This keeps provider discovery extensible and avoids hardcoding Doctrine as the only supported source.
+
 ### Doctrine provider strategy
 
 The first data provider will target Doctrine ORM.
