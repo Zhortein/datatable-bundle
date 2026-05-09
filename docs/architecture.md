@@ -348,6 +348,23 @@ When a `CsrfTokenManagerInterface` is available, non-GET action forms include a 
 
 This avoids rendering unsafe destructive links while keeping action rendering compatible with Symfony conventions.
 
+### Typed cell templates
+
+The renderer supports type-specific cell templates.
+
+Initial supported types:
+
+- `default`;
+- `string`;
+- `numeric`;
+- `boolean`;
+- `datetime`;
+- `array`;
+- `enum`.
+
+The renderer uses the column `type` option when available and falls back to the default cell template for unknown types.
+
+Cell values are still escaped by Twig by default.
 
 ## Ajax controller
 

@@ -11,6 +11,7 @@ use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
 use Zhortein\DatatableBundle\Definition\ActionDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\CellType;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
 final readonly class DatatableRenderer
@@ -115,7 +116,7 @@ final readonly class DatatableRenderer
     }
 
     /**
-     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed}>, actions: list<array{name: string, label: string|null, icon: string|null, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>}>}>
+     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed, template: string}>, actions: list<array{name: string, label: string|null, icon: string|null, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>}>}>
      */
     private function normalizeRows(DatatableDefinition $definition, DatatableResult $result): array
     {
@@ -129,6 +130,7 @@ final readonly class DatatableRenderer
                 $cells[] = [
                     'column' => $column,
                     'value' => $this->readColumnValue($row, $column),
+                    'template' => $this->resolveCellTemplate($column),
                 ];
             }
 
@@ -196,6 +198,21 @@ final readonly class DatatableRenderer
             ->getToken(sprintf('zhortein_datatable_action_%s', $action->getName()))
             ->getValue()
         ;
+    }
+
+    private function resolveCellTemplate(ColumnDefinition $column): string
+    {
+        if (null !== $column->getTemplate()) {
+            return $column->getTemplate();
+        }
+
+        $cellType = CellType::fromNullableString($column->getType());
+
+        return sprintf(
+            '@ZhorteinDatatable/%s/cell/%s.html.twig',
+            $this->theme,
+            $cellType->getTemplateName(),
+        );
     }
 
     /**
