@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle;
 
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -32,7 +34,10 @@ final class ZhorteinDatatableBundle extends AbstractBundle
 
     public function configure(DefinitionConfigurator $definition): void
     {
-        $children = $definition->rootNode()->children();
+        /** @var ArrayNodeDefinition<TreeBuilder<'array'>> $rootNode */
+        $rootNode = $definition->rootNode();
+
+        $children = $rootNode->children();
 
         $children
             ->enumNode('default_provider')
