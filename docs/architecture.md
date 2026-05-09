@@ -376,6 +376,19 @@ Explicit column types are preserved, and definitions without an entity class are
 
 This keeps Doctrine-specific type inference isolated from the generic renderer.
 
+### Custom column template rendering
+
+A column can define a custom Twig template through `ColumnDefinition::getTemplate()`.
+
+When a custom template is configured, it takes precedence over the type-specific cell template.
+
+Custom cell templates receive a small context:
+
+- `column`: the `ColumnDefinition`;
+- `value`: the cell value.
+
+This allows applications to customize a single column without replacing the whole datatable rendering layer.
+
 ## Ajax controller
 
 The Ajax controller exposes generic endpoints used by the frontend controller.
