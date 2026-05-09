@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Tests\Functional\Twig;
 
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Twig\Environment;
+use Zhortein\DatatableBundle\Tests\Functional\FunctionalTestCase;
 use Zhortein\DatatableBundle\Tests\Functional\Kernel\TestKernel;
 
-final class DatatableTwigFunctionFunctionalTest extends KernelTestCase
+final class DatatableTwigFunctionFunctionalTest extends FunctionalTestCase
 {
     public function test_it_renders_datatable_through_twig_function(): void
     {
@@ -30,13 +30,6 @@ final class DatatableTwigFunctionFunctionalTest extends KernelTestCase
         self::assertStringContainsString('Email', $html);
         self::assertStringContainsString('Created at', $html);
         self::assertStringContainsString('No data available.', $html);
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        restore_exception_handler();
     }
 
     protected static function getKernelClass(): string

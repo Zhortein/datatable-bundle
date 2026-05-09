@@ -8,11 +8,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\Attributes\After;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
+use Zhortein\DatatableBundle\Tests\Functional\FunctionalTestCase;
 use Zhortein\DatatableBundle\Tests\Functional\Kernel\TestKernel;
 
-final class DoctrineFunctionalTest extends KernelTestCase
+final class DoctrineFunctionalTest extends FunctionalTestCase
 {
     private ?EntityManagerInterface $entityManager = null;
 
@@ -57,13 +57,6 @@ final class DoctrineFunctionalTest extends KernelTestCase
         $this->dropSchema();
         $entityManager->close();
         $this->entityManager = null;
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        restore_exception_handler();
     }
 
     protected static function getKernelClass(): string
