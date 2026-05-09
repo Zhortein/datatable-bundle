@@ -16,6 +16,7 @@ This bundle is in early development.
 - [Architecture](architecture.md)
 - [Roadmap](roadmap.md)
 - [Development workflow](development.md)
+- [Doctrine-backed datatables](doctrine-provider.md)
 
 ## Legacy reference
 

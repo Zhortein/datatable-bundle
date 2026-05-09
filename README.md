@@ -93,6 +93,7 @@ With runtime options:
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
 - [First end-to-end flow](docs/end-to-end-flow.md)
+- [Doctrine-backed datatables](docs/doctrine-provider.md)
 
 ## Architecture decisions
 
