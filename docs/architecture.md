@@ -156,6 +156,19 @@ Permanent filters are translated into Doctrine QueryBuilder expressions and all 
 
 They apply to both loaded rows and counts, so `totalItems` represents the visible universe for the datatable context.
 
+### Doctrine global search
+
+The Doctrine ORM provider supports simple global search on declared searchable columns.
+
+The initial implementation supports:
+
+- portable `LIKE` search on string-like fields;
+- numeric equality search when the search query is numeric;
+- safe parameter binding;
+- permanent filters combined with search filters.
+
+Database-specific behavior such as PostgreSQL `ILIKE`, JSON search and advanced search builders are intentionally out of scope for this step.
+
 ### Datatable request object
 
 Providers must receive a typed request object instead of parsing Symfony HTTP requests directly.
