@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Renderer;
 
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Twig\Environment;
 use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
 use Zhortein\DatatableBundle\Definition\ActionDefinition;
@@ -18,6 +19,7 @@ final readonly class DatatableRenderer
         private Environment $twig,
         private ?UrlGeneratorInterface $urlGenerator = null,
         private ?RowActionRouteParameterResolver $routeParameterResolver = null,
+        private ?CsrfTokenManagerInterface $csrfTokenManager = null,
         private string $theme = 'bootstrap',
     ) {
     }
@@ -84,7 +86,7 @@ final readonly class DatatableRenderer
     }
 
     /**
-     * @return list<array{name: string, label: string|null, icon: string|null, url: string, className: string|null, attributes: array<string, string>}>
+     * @return list<array{name: string, label: string|null, icon: string|null, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>}>
      */
     private function normalizeGlobalActions(DatatableDefinition $definition): array
     {
@@ -95,18 +97,10 @@ final readonly class DatatableRenderer
         $actions = [];
 
         foreach ($definition->getGlobalActions() as $action) {
-            if ('GET' !== strtoupper($action->getHttpMethod())) {
-                continue;
-            }
-
-            $actions[] = [
-                'name' => $action->getName(),
-                'label' => $action->getLabel(),
-                'icon' => $action->getIcon(),
-                'url' => $this->urlGenerator->generate($action->getRoute(), $this->normalizeStaticRouteParameters($action)),
-                'className' => $action->getClassName(),
-                'attributes' => $action->getAttributes(),
-            ];
+            $actions[] = $this->normalizeAction(
+                action: $action,
+                url: $this->urlGenerator->generate($action->getRoute(), $this->normalizeStaticRouteParameters($action)),
+            );
         }
 
         return $actions;
@@ -121,7 +115,7 @@ final readonly class DatatableRenderer
     }
 
     /**
-     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed}>, actions: list<array{name: string, label: string|null, icon: string|null, url: string, className: string|null, attributes: array<string, string>}>}>
+     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed}>, actions: list<array{name: string, label: string|null, icon: string|null, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>}>}>
      */
     private function normalizeRows(DatatableDefinition $definition, DatatableResult $result): array
     {
@@ -150,7 +144,7 @@ final readonly class DatatableRenderer
     /**
      * @param array<string, mixed> $row
      *
-     * @return list<array{name: string, label: string|null, icon: string|null, url: string, className: string|null, attributes: array<string, string>}>
+     * @return list<array{name: string, label: string|null, icon: string|null, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>}>
      */
     private function normalizeRowActions(DatatableDefinition $definition, array $row): array
     {
@@ -161,24 +155,47 @@ final readonly class DatatableRenderer
         $actions = [];
 
         foreach ($definition->getRowActions() as $action) {
-            if ('GET' !== strtoupper($action->getHttpMethod())) {
-                continue;
-            }
-
-            $actions[] = [
-                'name' => $action->getName(),
-                'label' => $action->getLabel(),
-                'icon' => $action->getIcon(),
-                'url' => $this->urlGenerator->generate(
+            $actions[] = $this->normalizeAction(
+                action: $action,
+                url: $this->urlGenerator->generate(
                     $action->getRoute(),
                     $this->routeParameterResolver->resolve($action, $row),
                 ),
-                'className' => $action->getClassName(),
-                'attributes' => $action->getAttributes(),
-            ];
+            );
         }
 
         return $actions;
+    }
+
+    /**
+     * @return array{name: string, label: string|null, icon: string|null, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>}
+     */
+    private function normalizeAction(ActionDefinition $action, string $url): array
+    {
+        $httpMethod = strtoupper($action->getHttpMethod());
+
+        return [
+            'name' => $action->getName(),
+            'label' => $action->getLabel(),
+            'icon' => $action->getIcon(),
+            'url' => $url,
+            'httpMethod' => $httpMethod,
+            'csrfToken' => $this->generateCsrfToken($action, $httpMethod),
+            'className' => $action->getClassName(),
+            'attributes' => $action->getAttributes(),
+        ];
+    }
+
+    private function generateCsrfToken(ActionDefinition $action, string $httpMethod): ?string
+    {
+        if ('GET' === $httpMethod || null === $this->csrfTokenManager) {
+            return null;
+        }
+
+        return $this->csrfTokenManager
+            ->getToken(sprintf('zhortein_datatable_action_%s', $action->getName()))
+            ->getValue()
+        ;
     }
 
     /**

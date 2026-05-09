@@ -72,43 +72,6 @@ final class DatatableRendererActionsTest extends TestCase
         self::assertStringContainsString('colspan="2"', $html);
     }
 
-    public function test_it_skips_non_get_actions_for_now(): void
-    {
-        $definition = new DatatableDefinition('users');
-
-        $definition
-            ->addColumn('e.email', label: 'Email')
-            ->addRowAction(
-                name: 'delete',
-                route: 'app_user_delete',
-                label: 'Delete',
-                httpMethod: 'DELETE',
-                routeParameters: ['id' => 'e.id'],
-            )
-        ;
-
-        $result = new DatatableResult(
-            rows: [
-                [
-                    'e_id' => 42,
-                    'email' => 'alice@example.test',
-                ],
-            ],
-            totalItems: 1,
-        );
-
-        $renderer = new DatatableRenderer(
-            twig: $this->createTwigEnvironment(),
-            urlGenerator: $this->createUrlGeneratorStub(),
-            routeParameterResolver: new RowActionRouteParameterResolver(),
-        );
-
-        $html = $renderer->renderBody($definition, $result);
-
-        self::assertStringNotContainsString('Delete', $html);
-        self::assertStringNotContainsString('app_user_delete', $html);
-    }
-
     private function createDefinitionWithActions(): DatatableDefinition
     {
         $definition = new DatatableDefinition('users');
