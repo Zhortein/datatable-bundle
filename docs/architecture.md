@@ -32,6 +32,14 @@ Later providers may support arrays, APIs, Elasticsearch or custom application se
 
 The renderer is responsible for Twig rendering and Bootstrap-first templates.
 
+### Rendering strategy
+
+The bundle uses a Twig-first rendering strategy.
+
+The backend renders datatable HTML fragments, and the Stimulus controller updates these fragments through Ajax.
+
+The frontend controller must not duplicate cell rendering logic in JavaScript.
+
 ## Ajax controller
 
 The Ajax controller exposes generic endpoints used by the frontend controller.
