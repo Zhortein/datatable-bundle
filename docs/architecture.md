@@ -187,3 +187,20 @@ The controller is responsible for:
 - preparing future sort and pagination interactions.
 
 It does not render cells manually and does not depend on jQuery or DataTables.net.
+
+## Test / Quality
+
+### Symfony test kernel
+
+The test suite includes a minimal Symfony kernel under `tests/Functional/Kernel`.
+
+This kernel registers:
+
+- FrameworkBundle;
+- TwigBundle;
+- ZhorteinDatatableBundle;
+- functional test datatable fixtures.
+
+It allows the bundle to be tested in a real Symfony container, including service autoconfiguration, compiler passes, Twig function registration and bundle routes.
+
+Unit tests remain preferred for isolated behavior. Functional tests should be used when Symfony integration itself must be verified.
