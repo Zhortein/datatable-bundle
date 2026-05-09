@@ -1,10 +1,31 @@
+{% set fragments_url = options.fragmentsUrl is defined ? options.fragmentsUrl : '/_zhortein/datatable/' ~ definition.name ~ '/fragments' %}
+{% set page_size = options.pageSize is defined ? options.pageSize : 25 %}
+
 <div
     id="{{ htmlId }}"
     class="zhortein-datatable"
     data-controller="zhortein-datatable"
     data-zhortein-datatable-name-value="{{ definition.name }}"
+    data-zhortein-datatable-fragments-url-value="{{ fragments_url }}"
+    data-zhortein-datatable-page-value="1"
+    data-zhortein-datatable-page-size-value="{{ page_size }}"
 >
     {% include '@ZhorteinDatatable/bootstrap/_toolbar.html.twig' %}
+
+    <div
+        class="alert alert-danger"
+        role="alert"
+        data-zhortein-datatable-target="error"
+        hidden
+    ></div>
+
+    <div
+        class="zhortein-datatable__loading text-body-secondary small mb-2"
+        data-zhortein-datatable-target="loading"
+        hidden
+    >
+        Loading...
+    </div>
 
     <div class="table-responsive">
         <table class="table table-striped table-hover align-middle mb-0">
@@ -15,6 +36,11 @@
             </tbody>
         </table>
     </div>
+
+    <div
+        class="zhortein-datatable__summary text-body-secondary small mt-2"
+        data-zhortein-datatable-target="summary"
+    ></div>
 
     {% include '@ZhorteinDatatable/bootstrap/_pagination.html.twig' %}
 </div>

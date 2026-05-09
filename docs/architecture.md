@@ -272,6 +272,28 @@ The controller is responsible for:
 
 It does not render cells manually and does not depend on jQuery or DataTables.net.
 
+### Stimulus search and pagination loop
+
+The datatable shell now exposes the values required by the Stimulus controller:
+
+- datatable name;
+- fragments URL;
+- current page;
+- page size.
+
+The controller sends these values as query parameters to the fragments endpoint:
+
+- `page`;
+- `pageSize`;
+- `search`;
+- `sortField`;
+- `sortDirection`.
+
+Search uses a debounced refresh and pagination controls call `goToPage`.
+
+The controller updates server-rendered `body`, `pagination` and `summary` fragments from the JSON payload.
+
+
 ## Test / Quality
 
 ### Symfony test kernel

@@ -29,6 +29,12 @@ final class DatatableRendererTest extends TestCase
         self::assertStringContainsString('id="zhortein-datatable-users"', $html);
         self::assertStringContainsString('data-controller="zhortein-datatable"', $html);
         self::assertStringContainsString('data-zhortein-datatable-name-value="users"', $html);
+        self::assertStringContainsString('data-zhortein-datatable-fragments-url-value="/_zhortein/datatable/users/fragments"', $html);
+        self::assertStringContainsString('data-zhortein-datatable-page-value="1"', $html);
+        self::assertStringContainsString('data-zhortein-datatable-page-size-value="25"', $html);
+        self::assertStringContainsString('data-zhortein-datatable-target="summary"', $html);
+        self::assertStringContainsString('data-zhortein-datatable-target="loading"', $html);
+        self::assertStringContainsString('data-zhortein-datatable-target="error"', $html);
         self::assertStringContainsString('class="table table-striped table-hover align-middle mb-0"', $html);
         self::assertStringContainsString('Email', $html);
         self::assertStringContainsString('Created at', $html);
@@ -52,6 +58,22 @@ final class DatatableRendererTest extends TestCase
         self::assertStringContainsString('data-zhortein-datatable-target="searchInput"', $html);
     }
 
+    public function test_it_renders_runtime_fragments_url_and_page_size(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition->addColumn('e.email', label: 'Email');
+
+        $renderer = new DatatableRenderer($this->createTwigEnvironment());
+
+        $html = $renderer->render($definition, [
+            'fragmentsUrl' => '/custom/users/fragments',
+            'pageSize' => 50,
+        ]);
+
+        self::assertStringContainsString('data-zhortein-datatable-fragments-url-value="/custom/users/fragments"', $html);
+        self::assertStringContainsString('data-zhortein-datatable-page-size-value="50"', $html);
+    }
+
     private function createTwigEnvironment(): Environment
     {
         $loader = new FilesystemLoader();
@@ -59,6 +81,7 @@ final class DatatableRendererTest extends TestCase
 
         return new Environment($loader, [
             'strict_variables' => true,
+            'autoescape' => 'html',
         ]);
     }
 }
