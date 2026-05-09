@@ -28,6 +28,16 @@ The first provider will support Doctrine ORM.
 
 Later providers may support arrays, APIs, Elasticsearch or custom application services.
 
+### Data provider contract and registry
+
+Data loading is abstracted behind `DataProviderInterface`.
+
+A data provider is responsible for converting a `DatatableDefinition` and a typed `DatatableRequest` into a typed `DatatableResult`.
+
+The provider registry can resolve a provider explicitly by name or automatically by asking providers whether they support a given definition.
+
+This keeps Doctrine ORM support isolated and allows future providers for arrays, APIs, Elasticsearch or custom application services.
+
 ### Doctrine provider strategy
 
 The first data provider will target Doctrine ORM.
