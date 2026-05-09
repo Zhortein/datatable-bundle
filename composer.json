@@ -26,7 +26,7 @@
   },
   "require-dev": {
     "doctrine/orm": "^3.0 || ^4.0",
-    "friendsofphp/php-cs-fixer": "^3.0",
+    "friendsofphp/php-cs-fixer": "^3.95",
     "friendsoftwig/twigcs": "^6.0",
     "phpstan/extension-installer": "^1.4",
     "phpstan/phpstan": "^2.0",
@@ -58,7 +58,7 @@
     "phpstan": "phpstan analyse --configuration=phpstan.neon.dist",
     "cs:check": "php-cs-fixer fix --dry-run --diff --config=.php-cs-fixer.dist.php",
     "cs:fix": "php-cs-fixer fix --diff --config=.php-cs-fixer.dist.php",
-    "twigcs": "twigcs templates --config=.twig-cs-fixer.php",
+    "twigcs": "find templates -name '*.twig' | grep -q . && twigcs templates --config=.twig-cs-fixer.php || true",
     "qa": [
       "@test",
       "@phpstan",
