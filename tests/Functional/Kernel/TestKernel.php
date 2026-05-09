@@ -11,6 +11,7 @@ use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
 use Zhortein\DatatableBundle\ZhorteinDatatableBundle;
@@ -29,6 +30,14 @@ final class TestKernel extends Kernel
 
     protected function configureContainer(ContainerConfigurator $container): void
     {
+        $doctrineUserFile = new \ReflectionClass(DoctrineUser::class)->getFileName();
+
+        if (false === $doctrineUserFile) {
+            throw new \LogicException(sprintf('Unable to locate file for "%s".', DoctrineUser::class));
+        }
+
+        $doctrineUserDirectory = dirname($doctrineUserFile);
+
         $container->extension('framework', [
             'test' => true,
             'secret' => 'zhortein-datatable-test-secret',
@@ -44,14 +53,6 @@ final class TestKernel extends Kernel
                 __DIR__.'/../../../templates' => 'ZhorteinDatatable',
             ],
         ]);
-
-        $doctrineUserFile = new \ReflectionClass(DoctrineUser::class)->getFileName();
-
-        if (false === $doctrineUserFile) {
-            throw new \LogicException(sprintf('Unable to locate file for "%s".', DoctrineUser::class));
-        }
-
-        $doctrineUserDirectory = dirname($doctrineUserFile);
 
         $container->extension('doctrine', [
             'dbal' => [
@@ -88,6 +89,11 @@ final class TestKernel extends Kernel
 
         $services
             ->alias('test.'.DataProviderRegistry::class, DataProviderRegistry::class)
+            ->public()
+        ;
+
+        $services
+            ->alias('test.'.DoctrineFieldTypeGuesser::class, DoctrineFieldTypeGuesser::class)
             ->public()
         ;
     }

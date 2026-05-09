@@ -101,6 +101,21 @@ Doctrine-specific responsibilities such as metadata type guessing, QueryBuilder 
 
 The full architecture decision is documented in [docs/decisions/0005-doctrine-orm-provider-architecture.md](`docs/decisions/0005-doctrine-orm-provider-architecture.md`).
 
+### Doctrine field type guesser
+
+`DoctrineFieldTypeGuesser` isolates Doctrine metadata inspection from the Doctrine ORM provider.
+
+It reads Doctrine ORM metadata and returns a `DoctrineFieldType` value object containing:
+
+- field name;
+- Doctrine DBAL type;
+- datatable cell type;
+- searchable flag;
+- sortable flag;
+- optional backed enum class.
+
+This keeps type inference testable and avoids embedding metadata rules directly in the provider.
+
 ### Datatable request object
 
 Providers must receive a typed request object instead of parsing Symfony HTTP requests directly.

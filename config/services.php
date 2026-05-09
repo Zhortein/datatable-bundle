@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 use Zhortein\DatatableBundle\Controller\DatatableController;
+use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
 use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
@@ -22,6 +23,8 @@ return static function (ContainerConfigurator $container): void {
     $services->set(DatatableDefinitionFactory::class);
 
     $services->set(DatatableRequestFactory::class);
+
+    $services->set(DoctrineFieldTypeGuesser::class);
 
     $services
         ->set(ArrayDataProvider::class)
