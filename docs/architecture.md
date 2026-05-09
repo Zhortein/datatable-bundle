@@ -130,6 +130,24 @@ The initial skeleton supports:
 
 Search, sorting, permanent filters, association traversal and custom joins are implemented in later steps.
 
+### Doctrine provider container wiring
+
+`DoctrineOrmDataProvider` is registered as a tagged data provider when Doctrine is available.
+
+The provider is tagged with:
+
+```text
+zhortein_datatable.data_provider
+```
+
+using the provider name:
+
+```text
+doctrine
+```
+
+Doctrine-specific services such as `DoctrineFieldTypeGuesser` and `DoctrineOrmDataProvider` are registered conditionally so the bundle can remain installable in applications that do not use Doctrine.
+
 ### Datatable request object
 
 Providers must receive a typed request object instead of parsing Symfony HTTP requests directly.
