@@ -1213,6 +1213,25 @@ When a `CsrfTokenManagerInterface` is available, non-GET action forms include a 
 
 This avoids rendering unsafe destructive links while keeping action rendering compatible with Symfony conventions.
 
+### Action visibility extension point
+
+The bundle exposes `ActionVisibilityCheckerInterface`.
+
+The default implementation is `AllowAllActionVisibilityChecker`, which keeps current behavior and allows all actions.
+
+The visibility checker receives:
+
+- `ActionDefinition`;
+- `ActionVisibilityContext`.
+
+The context can contain:
+
+- the current `DatatableDefinition`;
+- optional row data for row actions;
+- runtime options.
+
+This extension point is independent from Symfony Security. Optional Symfony authorization integration is handled separately.
+
 ---
 
 ## 10. Ajax controller layer
