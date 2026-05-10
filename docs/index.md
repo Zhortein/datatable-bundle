@@ -23,6 +23,7 @@ This bundle is in early development.
 - [Table controls and interactions](table-controls.md)
 - [Column visibility and preferences](preferences.md)
 - [User-facing filters](filters.md)
+- [Server-side exports](exports.md)
 
 ## Legacy reference
 
