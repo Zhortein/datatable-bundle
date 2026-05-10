@@ -1335,6 +1335,21 @@ zhortein_datatable_action_{action_name}
 
 This behavior is covered by unit tests.
 
+### Action security and visibility documentation
+
+Action security and visibility are documented in `docs/action-security.md`.
+
+The documentation covers:
+
+- action visibility extension point;
+- row action visibility;
+- global action visibility;
+- optional Symfony authorization adapter;
+- CSRF-aware action rendering;
+- confirmation metadata;
+- vanilla confirmation behavior;
+- current limitations.
+
 ---
 
 ## 10. Ajax controller layer

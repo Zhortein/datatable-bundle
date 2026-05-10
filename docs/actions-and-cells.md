@@ -517,6 +517,21 @@ Example:
 zhortein_datatable_action_delete
 ```
 
+## Action security and visibility
+
+Action visibility, CSRF behavior and confirmation behavior are documented in [`action-security.md`](action-security.md).
+
+Summary:
+
+- row and global actions can be filtered through `ActionVisibilityCheckerInterface`;
+- the default checker allows all actions;
+- an optional Symfony authorization adapter is available;
+- GET actions render as links;
+- non-GET actions render as CSRF-aware forms;
+- confirmation metadata can trigger vanilla Stimulus confirmation.
+
+Server-side routes must still enforce authorization.
+
 
 ## Current limitations
 

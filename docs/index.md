@@ -29,6 +29,7 @@ This bundle is in early development.
 - [Optional icon rendering strategy](icons.md)
 - [Cell template reference](cell-templates.md)
 - [Theming and rendering customization](theming.md)
+- [Action security and visibility](action-security.md)
 
 ## Legacy reference
 
