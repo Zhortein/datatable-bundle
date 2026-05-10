@@ -1733,7 +1733,7 @@ The documentation covers:
 
 ## 15. Documentation map
 
-Related documentation:
+### Related documentation
 
 - [`end-to-end-flow.md`](end-to-end-flow.md)
 - [`doctrine-provider.md`](doctrine-provider.md)
@@ -1741,7 +1741,7 @@ Related documentation:
 - [`features.md`](features.md)
 - [`roadmap.md`](roadmap.md)
 
-Architecture decisions:
+### Architecture decisions
 
 - [`decisions/0001-legacy-code-as-functional-reference-only.md`](decisions/0001-legacy-code-as-functional-reference-only.md)
 - [`decisions/0002-initial-public-api.md`](decisions/0002-initial-public-api.md)
@@ -1787,3 +1787,19 @@ It demonstrates:
 - typed cells;
 - column visibility;
 - CSV exports.
+
+### CI matrix and dependency strategy
+
+The CI strategy is documented in [`ci.md`](ci.md).
+
+The project tests both highest and lowest dependency sets to ensure Composer constraints are truthful.
+
+Quality gates include:
+
+- Composer validation;
+- PHPUnit;
+- PHPStan max level;
+- PHP-CS-Fixer dry-run;
+- twigcs.
+
+Temporary debug output should not remain in CI workflows after investigation.
