@@ -8,6 +8,8 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
 use Zhortein\DatatableBundle\Controller\DatatableController;
+use Zhortein\DatatableBundle\DateTime\DateTimeFormatterInterface;
+use Zhortein\DatatableBundle\DateTime\DefaultDateTimeFormatter;
 use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
@@ -17,6 +19,7 @@ use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Provider\DoctrineOrmDataProvider;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 use Zhortein\DatatableBundle\Twig\DatatableTwigExtension;
+use Zhortein\DatatableBundle\Twig\DateTimeTwigExtension;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services()
@@ -34,6 +37,10 @@ return static function (ContainerConfigurator $container): void {
         ->arg('$defaultPageSize', param('zhortein_datatable.default_page_size'))
         ->arg('$maxPageSize', param('zhortein_datatable.max_page_size'))
     ;
+
+    $services->set(DefaultDateTimeFormatter::class);
+
+    $services->alias(DateTimeFormatterInterface::class, DefaultDateTimeFormatter::class);
 
     if (interface_exists(ManagerRegistry::class)) {
         $services->set(DoctrineFieldTypeGuesser::class);
@@ -68,6 +75,8 @@ return static function (ContainerConfigurator $container): void {
     ;
 
     $services->set(DatatableTwigExtension::class);
+
+    $services->set(DateTimeTwigExtension::class);
 
     $services
         ->set(DatatableController::class)
