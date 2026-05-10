@@ -234,3 +234,25 @@ data-action="input->zhortein--datatable-bundle--datatable#search"
 ```
 
 Check that the root element contains a valid fragments URL value.
+
+## Bootstrap requirements
+
+The bundle renders Bootstrap-first markup but does not install or load Bootstrap automatically.
+
+Host applications must load Bootstrap CSS.
+
+If dropdown-based controls are enabled, such as column visibility or export controls, host applications must also load Bootstrap JavaScript, preferably `bootstrap.bundle`.
+
+With AssetMapper/importmap:
+
+```bash
+php bin/console importmap:require bootstrap
+php bin/console importmap:require bootstrap/dist/css/bootstrap.min.css
+```
+
+Then import Bootstrap in the application entrypoint:
+```js
+// assets/app.js
+import 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+```
