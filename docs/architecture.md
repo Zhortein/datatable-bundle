@@ -1113,6 +1113,20 @@ Action icons render as decorative spans with `aria-hidden="true"`, while the act
 
 The strategy is documented in `docs/icons.md`.
 
+### Cell template reference
+
+Cell templates are documented in `docs/cell-templates.md`.
+
+The documentation covers:
+
+- built-in cell templates;
+- custom column templates;
+- cell template context;
+- fallback order;
+- default alignment by cell type;
+- Doctrine type enrichment;
+- current limitations.
+
 ---
 
 ## 9. Action rendering layer

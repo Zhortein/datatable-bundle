@@ -27,6 +27,7 @@ This bundle is in early development.
 - [Twig templates and overrides](templates.md)
 - [Template context reference](template-context.md)
 - [Optional icon rendering strategy](icons.md)
+- [Cell template reference](cell-templates.md)
 
 ## Legacy reference
 

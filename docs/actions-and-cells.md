@@ -336,6 +336,20 @@ Example:
 </span>
 ```
 
+## Cell template reference
+
+Built-in and custom cell templates are documented in [`cell-templates.md`](cell-templates.md).
+
+The reference covers:
+
+- supported cell types;
+- built-in templates;
+- custom column templates;
+- cell template context;
+- fallback order;
+- default alignment by type;
+- Doctrine type enrichment.
+
 ## Template resolution order
 
 The renderer resolves cell templates in this order:
