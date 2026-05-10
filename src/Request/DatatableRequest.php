@@ -10,6 +10,8 @@ final readonly class DatatableRequest
 {
     /**
      * @param array<string, mixed> $filters
+     * @param list<string>         $visibleColumns
+     * @param list<string>         $hiddenColumns
      * @param array<string, mixed> $options
      */
     public function __construct(
@@ -19,6 +21,8 @@ final readonly class DatatableRequest
         private ?string $sortField = null,
         private SortDirection $sortDirection = SortDirection::Asc,
         private array $filters = [],
+        private array $visibleColumns = [],
+        private array $hiddenColumns = [],
         private array $options = [],
     ) {
         if ($this->page < 1) {
@@ -32,6 +36,8 @@ final readonly class DatatableRequest
 
     /**
      * @param array<string, mixed> $filters
+     * @param list<string>         $visibleColumns
+     * @param list<string>         $hiddenColumns
      * @param array<string, mixed> $options
      */
     public static function create(
@@ -41,6 +47,8 @@ final readonly class DatatableRequest
         ?string $sortField = null,
         SortDirection|string $sortDirection = SortDirection::Asc,
         array $filters = [],
+        array $visibleColumns = [],
+        array $hiddenColumns = [],
         array $options = [],
     ): self {
         return new self(
@@ -50,6 +58,8 @@ final readonly class DatatableRequest
             sortField: self::normalizeNullableString($sortField),
             sortDirection: is_string($sortDirection) ? SortDirection::fromString($sortDirection) : $sortDirection,
             filters: self::normalizeFilters($filters),
+            visibleColumns: self::normalizeColumnList($visibleColumns),
+            hiddenColumns: self::normalizeColumnList($hiddenColumns),
             options: $options,
         );
     }
@@ -115,6 +125,38 @@ final readonly class DatatableRequest
     public function getFilter(string $name, mixed $default = null): mixed
     {
         return $this->filters[$name] ?? $default;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getVisibleColumns(): array
+    {
+        return $this->visibleColumns;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getHiddenColumns(): array
+    {
+        return $this->hiddenColumns;
+    }
+
+    public function hasColumnVisibilityState(): bool
+    {
+        return [] !== $this->visibleColumns || [] !== $this->hiddenColumns;
+    }
+
+    /**
+     * @return array{visibleColumns: list<string>, hiddenColumns: list<string>}
+     */
+    public function getColumnVisibilityOptions(): array
+    {
+        return [
+            'visibleColumns' => $this->visibleColumns,
+            'hiddenColumns' => $this->hiddenColumns,
+        ];
     }
 
     /**
@@ -204,5 +246,27 @@ final readonly class DatatableRequest
         }
 
         return null;
+    }
+
+    /**
+     * @param list<string> $columns
+     *
+     * @return list<string>
+     */
+    private static function normalizeColumnList(array $columns): array
+    {
+        $normalizedColumns = [];
+
+        foreach ($columns as $column) {
+            $column = trim($column);
+
+            if ('' === $column) {
+                continue;
+            }
+
+            $normalizedColumns[] = $column;
+        }
+
+        return array_values(array_unique($normalizedColumns));
     }
 }
