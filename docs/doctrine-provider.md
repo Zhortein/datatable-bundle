@@ -292,6 +292,33 @@ Only explicitly declared join aliases can be used. Undeclared aliases fail clear
 
 At this stage, joined column display is supported. Sorting, search and permanent filters on joined fields are covered by separate features.
 
+## Permanent filters on joined fields
+
+Permanent filters can target fields from explicitly declared joins.
+
+Example:
+
+```php
+use Zhortein\DatatableBundle\Enum\FilterOperator;
+use Zhortein\DatatableBundle\Enum\JoinType;
+
+$definition
+    ->setEntityClass(User::class)
+    ->addJoin('organization', 'e.organization', JoinType::Left)
+    ->addColumn('e.email', label: 'Email')
+    ->addColumn('organization.name', label: 'Organization')
+    ->addPermanentFilter('organization.enabled', FilterOperator::Equals, true)
+;
+```
+
+The filter is applied to:
+
+- loaded rows;
+- total visible item count;
+- filtered item count.
+
+Only explicitly declared join aliases can be used in permanent filters.
+
 ## Rendering
 
 Doctrine-backed datatables use the same Twig-first rendering pipeline as other providers.

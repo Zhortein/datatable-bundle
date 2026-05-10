@@ -524,6 +524,24 @@ The provider resolves Doctrine metadata for the joined alias before applying sea
 
 Only declared searchable columns participate in global search.
 
+### Permanent filters on joined Doctrine fields
+
+`DoctrineOrmDataProvider` supports permanent filters on fields from explicitly declared joins.
+
+Example:
+
+```php
+$definition
+    ->addJoin('organization', 'e.organization', JoinType::Left)
+    ->addPermanentFilter('organization.enabled', FilterOperator::Equals, true)
+;
+```
+
+Joined permanent filters are applied to both rows and counts.
+
+Only explicit join aliases can be used.
+
+
 ### Doctrine association test fixtures
 
 The Doctrine functional test foundation includes associated entities for join-related tests.
