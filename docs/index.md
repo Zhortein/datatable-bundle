@@ -20,6 +20,7 @@ This bundle is in early development.
 - [Actions and typed cell rendering](actions-and-cells.md)
 - [Routes](routes.md)
 - [Stimulus and AssetMapper integration](stimulus-assetmapper.md)
+- [Table controls and interactions](table-controls.md)
 
 ## Legacy reference
 
