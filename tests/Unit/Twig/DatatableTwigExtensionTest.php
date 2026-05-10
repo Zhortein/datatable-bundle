@@ -11,7 +11,11 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Zhortein\DatatableBundle\Contract\DatatableInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
+use Zhortein\DatatableBundle\Preference\DatatablePreference;
+use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
+use Zhortein\DatatableBundle\Preference\NullDatatablePreferenceProvider;
 use Zhortein\DatatableBundle\Registry\DatatableRegistry;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 use Zhortein\DatatableBundle\Tests\Unit\Renderer\TranslatableRendererTestTrait;
@@ -60,9 +64,59 @@ final class DatatableTwigExtensionTest extends TestCase
         self::assertStringContainsString('Email', $html);
     }
 
-    private function createExtension(?Environment $twig = null): DatatableTwigExtension
+    public function test_it_applies_datatable_preferences_to_rendering_defaults(): void
     {
+        $extension = $this->createExtension(
+            preferenceProvider: new FixedDatatablePreferenceProvider(DatatablePreference::create(
+                pageSize: 50,
+                sortField: 'e.email',
+                sortDirection: SortDirection::Desc,
+                visibleColumns: ['e.email'],
+                hiddenColumns: ['e.displayName'],
+            )),
+        );
+
+        $html = $extension->renderDatatable('users');
+
+        self::assertStringContainsString('data-zhortein-datatable-page-size-value="50"', $html);
+        self::assertStringContainsString('data-zhortein-datatable-sort-field-value="e.email"', $html);
+        self::assertStringContainsString('data-zhortein-datatable-sort-direction-value="desc"', $html);
+        self::assertStringContainsString('Email', $html);
+        self::assertStringNotContainsString('data-zhortein-datatable-field-param="e.displayName"', $html);
+    }
+
+    public function test_runtime_options_override_datatable_preferences(): void
+    {
+        $extension = $this->createExtension(
+            preferenceProvider: new FixedDatatablePreferenceProvider(DatatablePreference::create(
+                pageSize: 50,
+                sortField: 'e.email',
+                sortDirection: SortDirection::Desc,
+                visibleColumns: ['e.email'],
+            )),
+        );
+
+        $html = $extension->renderDatatable('users', [
+            'pageSize' => 10,
+            'sortField' => 'e.displayName',
+            'sortDirection' => 'asc',
+            'visibleColumns' => ['e.displayName'],
+            'columnVisibility' => false,
+        ]);
+
+        self::assertStringContainsString('data-zhortein-datatable-page-size-value="10"', $html);
+        self::assertStringContainsString('data-zhortein-datatable-sort-field-value="e.displayName"', $html);
+        self::assertStringContainsString('data-zhortein-datatable-sort-direction-value="asc"', $html);
+        self::assertStringContainsString('Display name', $html);
+        self::assertStringNotContainsString('Email', $html);
+    }
+
+    private function createExtension(
+        ?Environment $twig = null,
+        ?DatatablePreferenceProviderInterface $preferenceProvider = null,
+    ): DatatableTwigExtension {
         $twig ??= $this->createTwigEnvironment();
+        $preferenceProvider ??= new NullDatatablePreferenceProvider();
 
         $datatable = new TwigExtensionTestDatatable();
 
@@ -76,6 +130,7 @@ final class DatatableTwigExtensionTest extends TestCase
         return new DatatableTwigExtension(
             definitionFactory: new DatatableDefinitionFactory($registry),
             renderer: new DatatableRenderer($twig),
+            preferenceProvider: $preferenceProvider,
         );
     }
 
@@ -103,6 +158,20 @@ final class TwigExtensionTestDatatable implements DatatableInterface
             ->setEntityClass(\stdClass::class)
             ->addColumn('e.id', visible: false)
             ->addColumn('e.email', label: 'Email')
+            ->addColumn('e.displayName', label: 'Display name')
         ;
+    }
+}
+
+final readonly class FixedDatatablePreferenceProvider implements DatatablePreferenceProviderInterface
+{
+    public function __construct(
+        private DatatablePreference $preference,
+    ) {
+    }
+
+    public function getPreference(string $datatableName): DatatablePreference
+    {
+        return $this->preference;
     }
 }
