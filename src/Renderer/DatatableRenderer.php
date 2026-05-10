@@ -266,7 +266,7 @@ final readonly class DatatableRenderer
     }
 
     /**
-     * @return array{name: string, label: string|null, icon: string|null, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>}
+     * @return array{name: string, label: string|null, icon: string|null, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>}
      */
     private function normalizeAction(ActionDefinition $action, string $url): array
     {
@@ -278,6 +278,7 @@ final readonly class DatatableRenderer
             'icon' => $action->getIcon(),
             'url' => $url,
             'httpMethod' => $httpMethod,
+            'confirmationMessage' => $action->getConfirmationMessage(),
             'csrfToken' => $this->generateCsrfToken($action, $httpMethod),
             'className' => $action->getClassName(),
             'attributes' => $action->getAttributes(),
