@@ -2,7 +2,18 @@
     <tr>
         {% for column in visibleColumns %}
             <th{% if column.className is not null %} class="{{ column.className }}"{% endif %} scope="col">
-                {{ column.label ?? column.name }}
+                {% if column.sortable %}
+                    <button
+                        type="button"
+                        class="btn btn-link p-0 text-decoration-none"
+                        data-action="zhortein-datatable#sort"
+                        data-zhortein-datatable-field-param="{{ column.name }}"
+                    >
+                        {{ column.label ?? column.name }}
+                    </button>
+                {% else %}
+                    {{ column.label ?? column.name }}
+                {% endif %}
             </th>
         {% endfor %}
 

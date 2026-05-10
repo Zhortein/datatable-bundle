@@ -532,6 +532,21 @@ Pagination controls include Stimulus-compatible attributes:
 
 Pagination markup remains accessible with disabled states and `aria-current` on the active page.
 
+### Sortable header rendering
+
+Sortable columns are rendered as button controls in the table header.
+
+The generated markup uses Stimulus parameters:
+
+```html
+data-action="zhortein-datatable#sort"
+data-zhortein-datatable-field-param="e.email"
+```
+
+Columns marked as non-sortable remain static header text.
+
+Current sort state rendering is handled separately.
+
 ---
 
 ## 9. Action rendering layer
