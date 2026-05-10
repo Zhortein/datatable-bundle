@@ -1843,3 +1843,22 @@ The checklist covers:
 - versioning;
 - Packagist publication;
 - fresh Symfony application smoke tests.
+
+### Documentation navigation
+
+The documentation entry point is [`index.md`](index.md).
+
+It groups documentation by:
+
+- getting started;
+- examples;
+- core concepts;
+- providers;
+- rendering/frontend;
+- actions/security;
+- preferences;
+- release and maintenance;
+- legacy reference;
+- architecture decisions.
+
+A documentation review checklist is available in [`documentation-review.md`](documentation-review.md).
