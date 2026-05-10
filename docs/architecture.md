@@ -995,6 +995,20 @@ The preference object can currently carry:
 - visible columns;
 - hidden columns.
 
+### Preferences applied to rendering defaults
+
+`DatatableTwigExtension` loads preferences from `DatatablePreferenceProviderInterface`.
+
+Preference values are converted to render options and merged before calling `DatatableRenderer`.
+
+Precedence rule:
+
+```text
+runtime Twig options > preference options > bundle defaults
+```
+
+This allows applications to provide user-specific defaults while keeping explicit render options authoritative.
+
 ---
 
 ## 9. Action rendering layer
