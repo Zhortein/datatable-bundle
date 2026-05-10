@@ -650,6 +650,25 @@ $definition->addFilter(
 
 These filters are rendered and applied by later steps of the advanced filtering milestone.
 
+### User-facing filters documentation
+
+User-facing filters are documented in [`filters.md`](filters.md).
+
+The documentation covers:
+
+- filter declaration;
+- request parameter format;
+- text filters;
+- choice filters;
+- boolean filters;
+- date and range filters;
+- filters on joined Doctrine fields;
+- toolbar rendering;
+- Stimulus refresh;
+- active filter summary;
+- security model;
+- current limitations.
+
 ### Filter request normalization
 
 `DatatableRequest` can carry normalized user-facing filter values.
