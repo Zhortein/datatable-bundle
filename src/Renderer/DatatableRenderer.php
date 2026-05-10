@@ -7,6 +7,8 @@ namespace Zhortein\DatatableBundle\Renderer;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Twig\Environment;
+use Zhortein\DatatableBundle\Action\ActionVisibilityCheckerInterface;
+use Zhortein\DatatableBundle\Action\ActionVisibilityContext;
 use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
 use Zhortein\DatatableBundle\Definition\ActionDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
@@ -23,6 +25,7 @@ final readonly class DatatableRenderer
         private Environment $twig,
         private ?UrlGeneratorInterface $urlGenerator = null,
         private ?RowActionRouteParameterResolver $routeParameterResolver = null,
+        private ?ActionVisibilityCheckerInterface $actionVisibilityChecker = null,
         private ?CsrfTokenManagerInterface $csrfTokenManager = null,
         private string $theme = 'bootstrap',
         private int $defaultPageSize = 25,
@@ -224,6 +227,10 @@ final readonly class DatatableRenderer
         $actions = [];
 
         foreach ($definition->getRowActions() as $action) {
+            if (!$this->isActionVisible($action, $definition, $row)) {
+                continue;
+            }
+
             $actions[] = $this->normalizeAction(
                 action: $action,
                 url: $this->urlGenerator->generate(
@@ -234,6 +241,24 @@ final readonly class DatatableRenderer
         }
 
         return $actions;
+    }
+
+    /**
+     * @param array<string, mixed>|null $row
+     */
+    private function isActionVisible(ActionDefinition $action, DatatableDefinition $definition, ?array $row): bool
+    {
+        if (null === $this->actionVisibilityChecker) {
+            return true;
+        }
+
+        return $this->actionVisibilityChecker->isVisible(
+            $action,
+            new ActionVisibilityContext(
+                definition: $definition,
+                row: $row,
+            ),
+        );
     }
 
     /**

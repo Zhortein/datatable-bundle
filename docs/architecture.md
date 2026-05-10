@@ -1232,6 +1232,20 @@ The context can contain:
 
 This extension point is independent from Symfony Security. Optional Symfony authorization integration is handled separately.
 
+### Row action visibility
+
+Row actions are filtered through `ActionVisibilityCheckerInterface` before URL generation.
+
+The renderer builds an `ActionVisibilityContext` with:
+
+- the current `DatatableDefinition`;
+- the current provider row;
+- runtime options.
+
+Hidden row actions are not rendered and their URLs are not generated.
+
+The default checker still allows all actions, preserving previous behavior unless the application replaces the service.
+
 ---
 
 ## 10. Ajax controller layer

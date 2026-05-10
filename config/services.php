@@ -6,6 +6,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use Zhortein\DatatableBundle\Action\ActionVisibilityCheckerInterface;
 use Zhortein\DatatableBundle\Action\AllowAllActionVisibilityChecker;
 use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
@@ -98,6 +99,7 @@ return static function (ContainerConfigurator $container): void {
         ->arg('$theme', param('zhortein_datatable.default_theme'))
         ->arg('$defaultPageSize', param('zhortein_datatable.default_page_size'))
         ->arg('$searchEnabled', param('zhortein_datatable.search_enabled'))
+        ->arg('$actionVisibilityChecker', service(ActionVisibilityCheckerInterface::class))
         ->arg('$defaultTableOptions', [
             'tableStriped' => param('zhortein_datatable.bootstrap.table_striped'),
             'tableHover' => param('zhortein_datatable.bootstrap.table_hover'),
