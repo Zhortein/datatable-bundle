@@ -38,6 +38,7 @@ final class DatatableRendererActionConfirmationTest extends TestCase
 
         self::assertStringContainsString('href="/users/42"', $html);
         self::assertStringContainsString('data-zhortein-datatable-confirmation-message="Open this user?"', $html);
+        self::assertStringContainsString('data-action="click->zhortein-datatable#confirmAction"', $html);
     }
 
     public function test_it_renders_confirmation_metadata_on_non_get_row_action_form(): void
@@ -61,6 +62,7 @@ final class DatatableRendererActionConfirmationTest extends TestCase
         self::assertStringContainsString('<form', $html);
         self::assertStringContainsString('action="/users/42/delete"', $html);
         self::assertStringContainsString('data-zhortein-datatable-confirmation-message="Delete this user?"', $html);
+        self::assertStringContainsString('data-action="submit->zhortein-datatable#confirmAction"', $html);
         self::assertStringContainsString('name="_method" value="DELETE"', $html);
     }
 
@@ -82,6 +84,7 @@ final class DatatableRendererActionConfirmationTest extends TestCase
 
         self::assertStringContainsString('href="/users/create"', $html);
         self::assertStringContainsString('data-zhortein-datatable-confirmation-message="Create a new user?"', $html);
+        self::assertStringContainsString('data-action="click->zhortein-datatable#confirmAction"', $html);
     }
 
     public function test_it_does_not_render_confirmation_metadata_when_message_is_missing(): void
@@ -101,6 +104,7 @@ final class DatatableRendererActionConfirmationTest extends TestCase
         $html = $this->createRenderer()->renderBody($definition, $this->createResult());
 
         self::assertStringNotContainsString('data-zhortein-datatable-confirmation-message', $html);
+        self::assertStringNotContainsString('confirmAction', $html);
     }
 
     private function createRenderer(): DatatableRenderer

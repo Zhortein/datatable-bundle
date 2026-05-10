@@ -104,6 +104,19 @@ export default class extends Controller {
             });
     }
 
+    confirmAction(event) {
+        const message = this.resolveConfirmationMessage(event.currentTarget);
+
+        if (message === null) {
+            return;
+        }
+
+        if (!window.confirm(message)) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    }
+
     search(event) {
         this.searchValue = event.target.value;
         this.pageValue = 1;
@@ -310,6 +323,20 @@ export default class extends Controller {
     getColumnVisibilityControls() {
         return Array.from(this.element.querySelectorAll('[data-zhortein-datatable-column-visibility-control="true"]'))
             .filter((control) => control instanceof HTMLInputElement && control.type === 'checkbox');
+    }
+
+    resolveConfirmationMessage(target) {
+        if (!(target instanceof HTMLElement)) {
+            return null;
+        }
+
+        const message = target.dataset.zhorteinDatatableConfirmationMessage;
+
+        if (typeof message !== 'string' || message.trim() === '') {
+            return null;
+        }
+
+        return message;
     }
 
     applyFragments(payload) {
