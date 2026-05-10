@@ -571,6 +571,31 @@ A shared `DoctrineSchemaMetadataTrait` provides metadata for both entities when 
 
 This prepares the next steps of the Doctrine joins milestone without changing provider behavior yet.
 
+### User-facing filter definitions
+
+`DatatableDefinition` can declare user-facing filters separately from backend-only permanent filters.
+
+The first filter API uses:
+
+- `FilterType`;
+- `UserFilterDefinition`;
+- `DatatableDefinition::addFilter()`;
+- `DatatableDefinition::getFilters()`.
+
+Example:
+
+```php
+$definition->addFilter(
+    name: 'email',
+    field: 'e.email',
+    label: 'Email',
+    type: FilterType::Text,
+    placeholder: 'Search an email',
+);
+```
+
+These filters are rendered and applied by later steps of the advanced filtering milestone.
+
 ---
 
 ## 8. Rendering layer
