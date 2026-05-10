@@ -358,10 +358,16 @@ Potential blockers to review:
 - no Flex recipe yet;
 - no fresh-app smoke test yet.
 
+## First pre-release checklist
+
+Before submitting the package to Packagist, review [`release-checklist.md`](release-checklist.md).
+
+The checklist includes fresh Symfony application smoke tests and known limitations that should be reviewed before publication.
+
 ## Related documentation
 
 - [`release.md`](release.md)
-- [`release-checklist.md`](release-checklist.md) once available
+- [`release-checklist.md`](release-checklist.md)
 - [`changelog.md`](changelog.md)
 - [`ci.md`](ci.md)
 - [`roadmap.md`](roadmap.md)

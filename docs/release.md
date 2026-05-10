@@ -140,3 +140,21 @@ Future work may include:
 - GitHub release to Packagist webhook documentation;
 - first pre-release checklist;
 - Symfony Flex recipe decision.
+
+## First pre-release checklist
+
+Before creating the first public pre-release, review [`release-checklist.md`](release-checklist.md).
+
+The checklist covers:
+
+- branch and repository state;
+- CI;
+- Composer metadata;
+- documentation;
+- changelog;
+- release workflow;
+- examples;
+- fresh Symfony app smoke test;
+- public API review;
+- known limitations;
+- tagging steps.
