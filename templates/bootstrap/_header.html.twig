@@ -6,7 +6,9 @@
         {% for column in visibleColumns %}
             {% set is_current_sort = column.name == current_sort_field %}
             <th
-                {% if column.className is not null %}class="{{ column.className }}"{% endif %}
+                {% if column.className is not null %}
+                    class="{{ column.className }}"
+                {% endif %}
                 scope="col"
                 {% if is_current_sort %}
                     aria-sort="{{ current_sort_direction == 'desc' ? 'descending' : 'ascending' }}"

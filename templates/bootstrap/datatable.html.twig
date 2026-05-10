@@ -9,18 +9,23 @@
 {% set table_small = options.tableSmall is defined ? options.tableSmall : false %}
 {% set table_responsive = options.tableResponsive is defined ? options.tableResponsive : true %}
 {% set table_classes = ['table', 'align-middle', 'mb-0'] %}
+
 {% if table_striped %}
     {% set table_classes = table_classes|merge(['table-striped']) %}
 {% endif %}
+
 {% if table_hover %}
     {% set table_classes = table_classes|merge(['table-hover']) %}
 {% endif %}
+
 {% if table_bordered %}
     {% set table_classes = table_classes|merge(['table-bordered']) %}
 {% endif %}
+
 {% if table_borderless %}
     {% set table_classes = table_classes|merge(['table-borderless']) %}
 {% endif %}
+
 {% if table_small %}
     {% set table_classes = table_classes|merge(['table-sm']) %}
 {% endif %}

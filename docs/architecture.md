@@ -1127,6 +1127,20 @@ The documentation covers:
 - Doctrine type enrichment;
 - current limitations.
 
+### Bootstrap template cleanup
+
+Bootstrap templates have been reviewed for readability and consistency.
+
+The cleanup focuses on:
+
+- indentation;
+- multiline attributes;
+- Twig condition formatting;
+- preserving existing behavior;
+- keeping TwigCS compliance.
+
+No functional behavior is intentionally changed by this cleanup.
+
 ---
 
 ## 9. Action rendering layer
