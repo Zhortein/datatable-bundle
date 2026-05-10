@@ -1,5 +1,7 @@
 {% set fragments_url = options.fragmentsUrl is defined ? options.fragmentsUrl : '/_zhortein/datatable/' ~ definition.name ~ '/fragments' %}
 {% set page_size = options.pageSize is defined ? options.pageSize : 25 %}
+{% set sort_field = options.sortField is defined ? options.sortField : '' %}
+{% set sort_direction = options.sortDirection is defined ? options.sortDirection : 'asc' %}
 
 <div
     id="{{ htmlId }}"
@@ -9,6 +11,8 @@
     data-zhortein-datatable-fragments-url-value="{{ fragments_url }}"
     data-zhortein-datatable-page-value="1"
     data-zhortein-datatable-page-size-value="{{ page_size }}"
+    data-zhortein-datatable-sort-field-value="{{ sort_field }}"
+    data-zhortein-datatable-sort-direction-value="{{ sort_direction }}"
 >
     {% include '@ZhorteinDatatable/bootstrap/_toolbar.html.twig' %}
 

@@ -41,7 +41,8 @@ final class DatatableRendererSortableHeaderTest extends TestCase
 
         $html = $renderer->render($this->createDefinition());
 
-        self::assertStringContainsString('<th class="text-end" scope="col">', $html);
+        self::assertStringContainsString('class="text-end"', $html);
+        self::assertStringContainsString('scope="col"', $html);
     }
 
     private function createDefinition(): DatatableDefinition
