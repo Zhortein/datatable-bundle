@@ -611,6 +611,20 @@ Only explicit join aliases can be used.
 
 The provider resolves Doctrine metadata for the joined alias before applying filter expressions.
 
+### Active filter summary and clear filters
+
+The filter toolbar renders an active filter summary area and a clear filters button.
+
+Stimulus keeps the active state synchronized by counting non-empty filter controls.
+
+The clear filters action:
+
+- clears all filter controls;
+- resets the current page to 1;
+- refreshes datatable fragments.
+
+This gives users visible feedback when filters are active and a simple way to reset the table.
+
 ### User-facing filter definitions
 
 `DatatableDefinition` can declare user-facing filters separately from backend-only permanent filters.

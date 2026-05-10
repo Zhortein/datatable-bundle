@@ -4,6 +4,9 @@ zhortein_datatable:
         placeholder: 'Search'
     page_size:
         label: 'Rows per page'
+    filters:
+        active: 'Filters are active.'
+        clear: 'Clear filters'
     loading: 'Loading...'
     error:
         generic: 'Unable to load datatable data.'

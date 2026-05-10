@@ -13,6 +13,8 @@ export default class extends Controller {
         'summary',
         'searchInput',
         'pageSizeInput',
+        'activeFilters',
+        'clearFiltersButton',
         'error',
         'loading',
         'globalActions',
@@ -32,6 +34,7 @@ export default class extends Controller {
         this.abortController = null;
         this.searchDebounceTimeout = null;
         this.filterDebounceTimeout = null;
+        this.updateActiveFilterState();
     }
 
     disconnect() {
@@ -80,6 +83,7 @@ export default class extends Controller {
             .then((payload) => {
                 this.applyFragments(payload);
                 this.applyState(payload);
+                this.updateActiveFilterState();
                 this.clearError();
             })
             .catch((error) => {
@@ -110,6 +114,7 @@ export default class extends Controller {
 
     changeFilter() {
         this.pageValue = 1;
+        this.updateActiveFilterState();
 
         if (this.filterDebounceTimeout !== null) {
             window.clearTimeout(this.filterDebounceTimeout);
@@ -118,6 +123,26 @@ export default class extends Controller {
         this.filterDebounceTimeout = window.setTimeout(() => {
             this.refresh();
         }, 300);
+    }
+
+    clearFilters(event = null) {
+        if (event !== null) {
+            event.preventDefault();
+        }
+
+        this.getFilterControls().forEach((control) => {
+            if (control instanceof HTMLInputElement && (control.type === 'checkbox' || control.type === 'radio')) {
+                control.checked = false;
+
+                return;
+            }
+
+            control.value = '';
+        });
+
+        this.pageValue = 1;
+        this.updateActiveFilterState();
+        this.refresh();
     }
 
     changePageSize(event) {
@@ -186,11 +211,7 @@ export default class extends Controller {
     }
 
     appendFilterParameters(searchParams) {
-        this.element.querySelectorAll('[data-zhortein-datatable-filter-control="true"]').forEach((control) => {
-            if (!(control instanceof HTMLInputElement) && !(control instanceof HTMLSelectElement)) {
-                return;
-            }
-
+        this.getFilterControls().forEach((control) => {
             if (!control.name || !control.name.startsWith('filters[')) {
                 return;
             }
@@ -207,6 +228,45 @@ export default class extends Controller {
 
             searchParams.set(control.name, value);
         });
+    }
+
+    updateActiveFilterState() {
+        const activeCount = this.getActiveFilterCount();
+
+        if (this.hasActiveFiltersTarget) {
+            this.activeFiltersTarget.hidden = activeCount === 0;
+            this.activeFiltersTarget.dataset.activeFilterCount = String(activeCount);
+        }
+
+        if (this.hasClearFiltersButtonTarget) {
+            this.clearFiltersButtonTarget.hidden = activeCount === 0;
+            this.clearFiltersButtonTarget.disabled = activeCount === 0;
+        }
+    }
+
+    getActiveFilterCount() {
+        let activeCount = 0;
+
+        this.getFilterControls().forEach((control) => {
+            if (control instanceof HTMLInputElement && (control.type === 'checkbox' || control.type === 'radio')) {
+                if (control.checked) {
+                    activeCount += 1;
+                }
+
+                return;
+            }
+
+            if (control.value.trim() !== '') {
+                activeCount += 1;
+            }
+        });
+
+        return activeCount;
+    }
+
+    getFilterControls() {
+        return Array.from(this.element.querySelectorAll('[data-zhortein-datatable-filter-control="true"]'))
+            .filter((control) => control instanceof HTMLInputElement || control instanceof HTMLSelectElement);
     }
 
     applyFragments(payload) {

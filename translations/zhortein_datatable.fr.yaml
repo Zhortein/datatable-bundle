@@ -4,6 +4,9 @@ zhortein_datatable:
         placeholder: 'Rechercher'
     page_size:
         label: 'Lignes par page'
+    filters:
+        active: 'Des filtres sont actifs.'
+        clear: 'Effacer les filtres'
     loading: 'Chargement...'
     error:
         generic: 'Impossible de charger les données du tableau.'
