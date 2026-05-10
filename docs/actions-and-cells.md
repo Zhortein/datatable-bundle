@@ -490,6 +490,33 @@ The first implementation uses `window.confirm()`.
 
 If the user cancels, navigation or form submission is prevented.
 
+## CSRF behavior
+
+GET actions are rendered as links and do not include CSRF tokens.
+
+Non-GET actions are rendered as forms:
+
+```html
+<form method="post" action="...">
+    <input type="hidden" name="_method" value="DELETE">
+    <input type="hidden" name="_token" value="...">
+</form>
+```
+
+The CSRF token field is rendered only when a `CsrfTokenManagerInterface` is available.
+
+Token ids follow this pattern:
+
+```text
+zhortein_datatable_action_{action_name}
+```
+
+Example:
+
+```text
+zhortein_datatable_action_delete
+```
+
 
 ## Current limitations
 

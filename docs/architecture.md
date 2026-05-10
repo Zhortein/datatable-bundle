@@ -1316,6 +1316,25 @@ The first implementation uses native `window.confirm()`.
 
 If the user cancels, navigation or form submission is prevented.
 
+### CSRF action rendering review
+
+Non-GET actions are rendered as POST forms.
+
+GET actions are rendered as links and never include CSRF tokens.
+
+Non-GET actions include:
+
+- hidden `_method`;
+- optional hidden `_token` when a CSRF token manager is available.
+
+CSRF token ids follow this strategy:
+
+```text
+zhortein_datatable_action_{action_name}
+```
+
+This behavior is covered by unit tests.
+
 ---
 
 ## 10. Ajax controller layer
