@@ -1772,3 +1772,18 @@ A minimal array-backed datatable example is available in [`examples/array-datata
 It demonstrates a datatable without Doctrine using `ArrayDataProvider`.
 
 The example is intended for demos, tests and early integration checks.
+
+### Doctrine datatable example
+
+A complete Doctrine-backed datatable example is available in [`examples/doctrine-datatable.md`](examples/doctrine-datatable.md).
+
+It demonstrates:
+
+- entity-class based declaration;
+- explicit joins;
+- permanent filters;
+- user-facing filters;
+- row and global actions;
+- typed cells;
+- column visibility;
+- CSV exports.

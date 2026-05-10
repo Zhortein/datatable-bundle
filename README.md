@@ -85,6 +85,7 @@ With runtime options:
 ## Examples
 
 - [Minimal array datatable example](docs/examples/array-datatable.md)
+- [Doctrine datatable example](docs/examples/doctrine-datatable.md)
 
 
 ## Documentation

@@ -634,6 +634,9 @@ Disable the responsive wrapper:
 
 For a complete minimal example without Doctrine, see [`examples/array-datatable.md`](examples/array-datatable.md).
 
+For a complete Doctrine-backed example, see [`examples/doctrine-datatable.md`](examples/doctrine-datatable.md).
+
+
 ---
 
 ## 19. Current limitations

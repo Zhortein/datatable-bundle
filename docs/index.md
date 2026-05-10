@@ -13,6 +13,7 @@ This bundle is in early development.
 ## Examples
 
 - [Minimal array datatable example](examples/array-datatable.md)
+- [Doctrine datatable example](examples/doctrine-datatable.md)
 
 ## Project documentation
 
