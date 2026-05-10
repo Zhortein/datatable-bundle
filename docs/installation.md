@@ -1,10 +1,18 @@
 # Installation
 
+This document explains how to install and wire `zhortein/datatable-bundle` in a Symfony 8+ application.
+
 ## Requirements
 
 - PHP 8.4+
 - Symfony 8+
 - Composer 2+
+- Twig
+- Symfony Translation
+- Symfony Routing
+- Symfony UX Stimulus / AssetMapper for frontend interactions
+
+Doctrine ORM is optional at package level, but required for Doctrine-backed datatables.
 
 ## Install the bundle
 
@@ -57,31 +65,24 @@ return [
 ];
 ```
 
-## Assets
+## Basic configuration
 
-The bundle will provide a Stimulus controller later.
+The bundle exposes configuration under the `zhortein_datatable` root key.
 
-The final asset installation strategy is not implemented yet.
+Example:
 
-Expected direction:
+```yaml
+# config/packages/zhortein_datatable.yaml
 
-- Symfony AssetMapper compatibility;
-- Symfony UX Stimulus integration;
-- vanilla JavaScript only;
-- no jQuery;
-- no DataTables.net.
-
-## Doctrine
-
-Doctrine ORM is optional at package level, but required for Doctrine-backed datatables.
-
-Expected future command:
-
-```bash
-composer require doctrine/orm
+zhortein_datatable:
+    default_provider: doctrine
+    default_theme: bootstrap
+    default_page_size: 25
+    max_page_size: 500
+    search_enabled: false
 ```
 
-The Doctrine provider is not implemented yet.
+See [`configuration.md`](configuration.md) for details.
 
 ## Routes
 
@@ -104,6 +105,8 @@ return static function (RoutingConfigurator $routes): void {
 YAML routing config example:
 
 ```yaml
+# config/routes/zhortein_datatable.yaml
+
 zhortein_datatable:
     resource: '@ZhorteinDatatableBundle/config/routes.php'
 ```
@@ -113,6 +116,25 @@ The default Ajax fragments route is:
 ```text
 /_zhortein/datatable/{name}/fragments
 ```
+
+More details are available in [`routes.md`](routes.md).
+
+## Translations
+
+The bundle provides built-in translations under the `zhortein_datatable` domain.
+
+Provided locales:
+
+- English;
+- French.
+
+The host application must have Symfony Translation enabled.
+
+In a normal Symfony application, translation files from bundles are discovered automatically.
+
+If the host application customizes translation paths, make sure bundle translations are still loaded.
+
+More details are available in [`configuration.md`](configuration.md#translations).
 
 ## Stimulus and AssetMapper
 
@@ -138,4 +160,113 @@ This registers the controller as:
 zhortein-datatable
 ```
 
+The rendered datatable shell uses:
+
+```html
+data-controller="zhortein-datatable"
+```
+
 More details are available in [`stimulus-assetmapper.md`](stimulus-assetmapper.md).
+
+## Doctrine-backed datatables
+
+Doctrine ORM is the first production-oriented provider.
+
+Install Doctrine in the host application:
+
+```bash
+composer require doctrine/orm doctrine/doctrine-bundle
+```
+
+Declare a Doctrine-backed datatable:
+
+```php
+#[AsDatatable(name: 'users', provider: 'doctrine')]
+final class UserDatatable implements DatatableInterface
+{
+    public function buildDatatable(DatatableDefinition $definition): void
+    {
+        $definition
+            ->setEntityClass(User::class)
+            ->addColumn('e.id', visible: false)
+            ->addColumn('e.email', label: 'Email')
+        ;
+    }
+}
+```
+
+Render it:
+
+```twig
+{{ zhortein_datatable('users', {
+    search: true,
+    pageSize: 25
+}) }}
+```
+
+More details are available in [`doctrine-provider.md`](doctrine-provider.md).
+
+## Array provider for demos/tests
+
+The array provider can be used for demos and tests without a database.
+
+```php
+$definition
+    ->addColumn('id', visible: false, sortable: false, searchable: false)
+    ->addColumn('email', label: 'Email')
+    ->setOption(ArrayDataProvider::OPTION_PROVIDER, ArrayDataProvider::PROVIDER_NAME)
+    ->setOption(ArrayDataProvider::OPTION_ROWS, [
+        [
+            'id' => 1,
+            'email' => 'alice@example.test',
+        ],
+    ])
+;
+```
+
+This provider is not intended to replace Doctrine in production applications.
+
+## Rendering a datatable
+
+Use the Twig function:
+
+```twig
+{{ zhortein_datatable('users') }}
+```
+
+With runtime options:
+
+```twig
+{{ zhortein_datatable('users', {
+    search: true,
+    pageSize: 25
+}) }}
+```
+
+## Current manual integration steps
+
+Until a Symfony Flex recipe exists, a host application should:
+
+1. install the bundle;
+2. register the bundle in `config/bundles.php`;
+3. import bundle routes;
+4. ensure translations are enabled;
+5. expose the Stimulus controller through a wrapper;
+6. declare one or more datatable services;
+7. render datatables with `zhortein_datatable()`.
+
+## Current limitations
+
+The package is still in development.
+
+Current limitations include:
+
+- no Symfony Flex recipe yet;
+- no automatic Stimulus controller registration yet;
+- route prefix is not configurable yet;
+- Doctrine provider supports only main alias `e`;
+- association traversal is not implemented yet;
+- custom joins are not implemented yet;
+- exports are not implemented yet;
+- advanced filters/search builder are not implemented yet;
+- frontend tests are not implemented yet.
