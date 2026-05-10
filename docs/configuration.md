@@ -402,6 +402,33 @@ table table-striped table-hover align-middle mb-0
 
 with a responsive wrapper enabled by default.
 
+## Theming
+
+The bundle currently supports one maintained theme:
+
+```yaml
+zhortein_datatable:
+    default_theme: bootstrap
+```
+
+Bootstrap table variants can be configured globally:
+
+```yaml
+zhortein_datatable:
+    bootstrap:
+        table:
+            striped: true
+            hover: true
+            bordered: false
+            borderless: false
+            small: false
+            responsive: true
+```
+
+Runtime Twig options can override these defaults.
+
+More details are available in [`theming.md`](theming.md).
+
 ## Configuration validation
 
 Invalid configuration values are rejected during Symfony container configuration.
