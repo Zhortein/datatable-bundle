@@ -11,4 +11,16 @@ return static function (RoutingConfigurator $routes): void {
         ->controller([DatatableController::class, 'fragments'])
         ->methods(['GET', 'POST'])
     ;
+
+    $routes
+        ->add('zhortein_datatable_export', '/_zhortein/datatable/{name}/export/{format}')
+        ->controller([DatatableController::class, 'export'])
+        ->methods(['GET', 'POST'])
+        ->defaults([
+            'format' => 'csv',
+        ])
+        ->requirements([
+            'format' => 'csv',
+        ])
+    ;
 };

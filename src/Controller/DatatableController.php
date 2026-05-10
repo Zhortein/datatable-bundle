@@ -7,6 +7,9 @@ namespace Zhortein\DatatableBundle\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Zhortein\DatatableBundle\Enum\ExportFormat;
+use Zhortein\DatatableBundle\Export\DatatableExportRequest;
+use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
@@ -20,6 +23,7 @@ final readonly class DatatableController
         private DatatableRequestFactory $requestFactory,
         private DataProviderRegistry $providerRegistry,
         private DatatableRenderer $renderer,
+        private ExportWriterRegistry $exportWriterRegistry,
     ) {
     }
 
@@ -31,7 +35,11 @@ final readonly class DatatableController
         $result = $provider->getData($definition, $datatableRequest);
 
         return new JsonResponse([
-            'body' => $this->renderer->renderBody($definition, $result),
+            'body' => $this->renderer->renderBody(
+                $definition,
+                $result,
+                $datatableRequest->getColumnVisibilityOptions(),
+            ),
             'pagination' => $this->renderer->renderPagination($definition, $result),
             'summary' => $this->createSummary($result),
             'page' => $result->getPage(),
@@ -40,6 +48,29 @@ final readonly class DatatableController
             'filteredItems' => $result->getFilteredItems(),
             'totalPages' => $result->getTotalPages(),
         ], Response::HTTP_OK);
+    }
+
+    public function export(Request $request, string $name, string $format = 'csv'): Response
+    {
+        $definition = $this->definitionFactory->create($name);
+        $datatableRequest = $this->requestFactory->createFromRequest($request);
+        $exportFormat = ExportFormat::fromString($format);
+        $mode = $request->query->get('mode', 'current');
+        $filename = $request->query->get('filename');
+
+        $exportRequest = DatatableExportRequest::create(
+            datatableName: $name,
+            format: $exportFormat,
+            mode: $mode,
+            filename: $filename,
+            datatableRequest: $datatableRequest,
+        );
+
+        $provider = $this->providerRegistry->resolve($definition);
+        $result = $provider->getData($definition, $datatableRequest);
+        $writer = $this->exportWriterRegistry->resolve($exportFormat);
+
+        return $writer->write($exportRequest, $definition, $result);
     }
 
     private function createSummary(DatatableResult $result): string

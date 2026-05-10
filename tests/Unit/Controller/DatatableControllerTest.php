@@ -12,17 +12,18 @@ use Twig\Loader\FilesystemLoader;
 use Zhortein\DatatableBundle\Contract\DatatableInterface;
 use Zhortein\DatatableBundle\Controller\DatatableController;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Export\CsvExportWriter;
+use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
 use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Registry\DatatableRegistry;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
-use Zhortein\DatatableBundle\Tests\Unit\Renderer\TranslatableRendererTestTrait;
 
 final class DatatableControllerTest extends TestCase
 {
-    use TranslatableRendererTestTrait;
+    use \Zhortein\DatatableBundle\Tests\Unit\Renderer\TranslatableRendererTestTrait;
 
     public function test_it_returns_rendered_fragments_from_provider_result(): void
     {
@@ -90,6 +91,27 @@ final class DatatableControllerTest extends TestCase
         self::assertStringContainsString('No data available.', $payload['body']);
     }
 
+    public function test_it_returns_csv_export_response(): void
+    {
+        $controller = $this->createController();
+
+        $response = $controller->export(new Request([
+            'page' => '1',
+            'pageSize' => '2',
+        ]), 'users', 'csv');
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('text/csv; charset=UTF-8', $response->headers->get('Content-Type'));
+        self::assertSame('attachment; filename="users.csv"', $response->headers->get('Content-Disposition'));
+
+        $content = (string) $response->getContent();
+
+        self::assertStringContainsString('Email', $content);
+        self::assertStringContainsString('alice@example.test', $content);
+        self::assertStringContainsString('bob@example.test', $content);
+        self::assertStringNotContainsString('charlie@example.test', $content);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -112,6 +134,9 @@ final class DatatableControllerTest extends TestCase
                 ArrayDataProvider::PROVIDER_NAME => new ArrayDataProvider(),
             ]),
             renderer: new DatatableRenderer($this->createTwigEnvironment()),
+            exportWriterRegistry: new ExportWriterRegistry([
+                CsvExportWriter::WRITER_NAME => new CsvExportWriter(),
+            ]),
         );
     }
 
