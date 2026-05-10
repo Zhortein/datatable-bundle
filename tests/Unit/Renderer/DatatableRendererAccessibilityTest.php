@@ -23,7 +23,7 @@ final class DatatableRendererAccessibilityTest extends TestCase
 
         self::assertStringContainsString('aria-busy="false"', $html);
         self::assertStringContainsString('aria-live="polite"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-target="summary"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="summary"', $html);
     }
 
     public function test_search_input_has_accessible_label(): void

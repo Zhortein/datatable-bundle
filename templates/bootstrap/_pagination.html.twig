@@ -1,6 +1,6 @@
 <div
     class="zhortein-datatable__pagination mt-3"
-    data-zhortein-datatable-target="pagination"
+    data-zhortein--datatable-bundle--datatable-target="pagination"
 >
     {% if result is defined and result.totalPages > 1 %}
         <nav aria-label="{{ 'zhortein_datatable.pagination.label'|trans({}, 'zhortein_datatable') }}">
@@ -9,8 +9,8 @@
                     <button
                         type="button"
                         class="page-link"
-                        data-action="zhortein-datatable#goToPage"
-                        data-zhortein-datatable-page-param="{{ result.page - 1 }}"
+                        data-action="zhortein--datatable-bundle--datatable#goToPage"
+                        data-zhortein--datatable-bundle--datatable-page-param="{{ result.page - 1 }}"
                         aria-label="{{ 'zhortein_datatable.pagination.previous'|trans({}, 'zhortein_datatable') }}"
                         {% if result.page <= 1 %}disabled aria-disabled="true"{% endif %}
                     >
@@ -23,8 +23,8 @@
                         <button
                             type="button"
                             class="page-link"
-                            data-action="zhortein-datatable#goToPage"
-                            data-zhortein-datatable-page-param="{{ page }}"
+                            data-action="zhortein--datatable-bundle--datatable#goToPage"
+                            data-zhortein--datatable-bundle--datatable-page-param="{{ page }}"
                             aria-label="{{ 'zhortein_datatable.pagination.page'|trans({
                                 '%page%': page
                             }, 'zhortein_datatable') }}"
@@ -39,8 +39,8 @@
                     <button
                         type="button"
                         class="page-link"
-                        data-action="zhortein-datatable#goToPage"
-                        data-zhortein-datatable-page-param="{{ result.page + 1 }}"
+                        data-action="zhortein--datatable-bundle--datatable#goToPage"
+                        data-zhortein--datatable-bundle--datatable-page-param="{{ result.page + 1 }}"
                         aria-label="{{ 'zhortein_datatable.pagination.next'|trans({}, 'zhortein_datatable') }}"
                         {% if result.page >= result.totalPages %}disabled aria-disabled="true"{% endif %}
                     >

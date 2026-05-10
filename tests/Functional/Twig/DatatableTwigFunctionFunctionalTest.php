@@ -28,8 +28,8 @@ final class DatatableTwigFunctionFunctionalTest extends FunctionalTestCase
         ;
 
         self::assertStringContainsString('id="zhortein-datatable-functional-users"', $html);
-        self::assertStringContainsString('data-controller="zhortein-datatable"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-fragments-url-value="/_zhortein/datatable/functional-users/fragments"', $html);
+        self::assertStringContainsString('data-controller="zhortein--datatable-bundle--datatable"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-fragments-url-value="/_zhortein/datatable/functional-users/fragments"', $html);
         self::assertStringContainsString('type="search"', $html);
         self::assertStringContainsString('Email', $html);
         self::assertStringContainsString('Created at', $html);

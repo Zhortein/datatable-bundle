@@ -26,12 +26,12 @@ final class DatatableRendererExportControlTest extends TestCase
         self::assertStringContainsString('/_zhortein/datatable/users/export/csv?mode=full', $html);
         self::assertStringContainsString('CSV current view', $html);
         self::assertStringContainsString('CSV full dataset', $html);
-        self::assertStringContainsString('data-zhortein-datatable-export-mode="current"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-export-mode="full"', $html);
-        self::assertStringContainsString('data-action="zhortein-datatable#export"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-export-mode-param="current"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-export-mode-param="full"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-export-format-param="csv"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-export-mode="current"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-export-mode="full"', $html);
+        self::assertStringContainsString('data-action="zhortein--datatable-bundle--datatable#export"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-export-mode-param="current"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-export-mode-param="full"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-export-format-param="csv"', $html);
     }
 
     public function test_it_uses_custom_export_url(): void

@@ -30,10 +30,10 @@ final class DatatableRendererTemplateContextTest extends TestCase
         ]);
 
         self::assertStringContainsString('id="zhortein-datatable-users"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-name-value="users"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-page-size-value="50"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-sort-field-value="e.email"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-sort-direction-value="asc"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-name-value="users"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-page-size-value="50"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-field-value="e.email"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-direction-value="asc"', $html);
         self::assertStringContainsString('type="search"', $html);
         self::assertStringContainsString('Email', $html);
     }

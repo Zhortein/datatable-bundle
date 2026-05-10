@@ -76,7 +76,7 @@ final class DatatableControllerTest extends TestCase
         self::assertArrayHasKey('header', $payload);
         self::assertIsString($payload['header']);
         self::assertStringContainsString('<thead', $payload['header']);
-        self::assertStringContainsString('data-zhortein-datatable-target="header"', $payload['header']);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="header"', $payload['header']);
         self::assertArrayHasKey('body', $payload);
         self::assertArrayHasKey('pagination', $payload);
         self::assertArrayHasKey('summary', $payload);
@@ -91,7 +91,7 @@ final class DatatableControllerTest extends TestCase
         self::assertStringContainsString('bob@example.test', $payload['body']);
         self::assertStringNotContainsString('charlie@example.test', $payload['body']);
         self::assertIsString($payload['pagination']);
-        self::assertStringContainsString('data-zhortein-datatable-page-param="2"', $payload['pagination']);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-page-param="2"', $payload['pagination']);
     }
 
     public function test_it_returns_header_fragment_with_column_visibility_state(): void

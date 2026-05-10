@@ -157,13 +157,13 @@ export { default } from '../../vendor/zhortein/datatable-bundle/assets/controlle
 This registers the controller as:
 
 ```text
-zhortein-datatable
+zhortein--datatable-bundle--datatable
 ```
 
 The rendered datatable shell uses:
 
 ```html
-data-controller="zhortein-datatable"
+data-controller="zhortein--datatable-bundle--datatable"
 ```
 
 More details are available in [`stimulus-assetmapper.md`](stimulus-assetmapper.md).

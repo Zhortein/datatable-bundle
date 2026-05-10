@@ -97,14 +97,14 @@ Disable it at runtime:
 The rendered controls expose:
 
 ```html
-data-zhortein-datatable-column-visibility-control="true"
-data-zhortein-datatable-column-name="e.email"
+data-zhortein--datatable-bundle--datatable-column-visibility-control="true"
+data-zhortein--datatable-bundle--datatable-column-name="e.email"
 ```
 
 Definition-hidden columns are marked with:
 
 ```html
-data-zhortein-datatable-definition-hidden="true"
+data-zhortein--datatable-bundle--datatable-definition-hidden="true"
 ```
 
 ## Stimulus behavior
@@ -112,7 +112,7 @@ data-zhortein-datatable-definition-hidden="true"
 Changing a column visibility checkbox calls:
 
 ```text
-zhortein-datatable#changeColumnVisibility
+zhortein--datatable-bundle--datatable#changeColumnVisibility
 ```
 
 The controller:

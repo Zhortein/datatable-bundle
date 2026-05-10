@@ -13,8 +13,8 @@
             id="{{ filter_id }}"
             name="filters[{{ filter.name }}]"
             class="form-select form-select-sm"
-            data-zhortein-datatable-filter-control="true"
-            data-action="change->zhortein-datatable#changeFilter"
+            data-zhortein--datatable-bundle--datatable-filter-control="true"
+            data-action="change->zhortein--datatable-bundle--datatable#changeFilter"
             {% if filter.required %}
                 required
             {% endif %}
@@ -29,8 +29,8 @@
             id="{{ filter_id }}"
             name="filters[{{ filter.name }}]"
             class="form-select form-select-sm"
-            data-zhortein-datatable-filter-control="true"
-            data-action="change->zhortein-datatable#changeFilter"
+            data-zhortein--datatable-bundle--datatable-filter-control="true"
+            data-action="change->zhortein--datatable-bundle--datatable#changeFilter"
             {% if filter.required %}
                 required
             {% endif %}
@@ -46,8 +46,8 @@
             type="date"
             class="form-control form-control-sm"
             placeholder="{{ filter_placeholder }}"
-            data-zhortein-datatable-filter-control="true"
-            data-action="change->zhortein-datatable#changeFilter"
+            data-zhortein--datatable-bundle--datatable-filter-control="true"
+            data-action="change->zhortein--datatable-bundle--datatable#changeFilter"
             {% if filter.required %}
                 required
             {% endif %}
@@ -60,8 +60,8 @@
                 type="date"
                 class="form-control form-control-sm"
                 aria-label="{{ filter_label }} from"
-                data-zhortein-datatable-filter-control="true"
-                data-action="change->zhortein-datatable#changeFilter"
+                data-zhortein--datatable-bundle--datatable-filter-control="true"
+                data-action="change->zhortein--datatable-bundle--datatable#changeFilter"
             >
             <input
                 id="{{ filter_id }}_to"
@@ -69,8 +69,8 @@
                 type="date"
                 class="form-control form-control-sm"
                 aria-label="{{ filter_label }} to"
-                data-zhortein-datatable-filter-control="true"
-                data-action="change->zhortein-datatable#changeFilter"
+                data-zhortein--datatable-bundle--datatable-filter-control="true"
+                data-action="change->zhortein--datatable-bundle--datatable#changeFilter"
             >
         </div>
     {% elseif filter_type == 'number' %}
@@ -80,8 +80,8 @@
             type="number"
             class="form-control form-control-sm"
             placeholder="{{ filter_placeholder }}"
-            data-zhortein-datatable-filter-control="true"
-            data-action="input->zhortein-datatable#changeFilter change->zhortein-datatable#changeFilter"
+            data-zhortein--datatable-bundle--datatable-filter-control="true"
+            data-action="input->zhortein--datatable-bundle--datatable#changeFilter change->zhortein--datatable-bundle--datatable#changeFilter"
             {% if filter.required %}
                 required
             {% endif %}
@@ -94,8 +94,8 @@
                 type="number"
                 class="form-control form-control-sm"
                 aria-label="{{ filter_label }} from"
-                data-zhortein-datatable-filter-control="true"
-                data-action="input->zhortein-datatable#changeFilter change->zhortein-datatable#changeFilter"
+                data-zhortein--datatable-bundle--datatable-filter-control="true"
+                data-action="input->zhortein--datatable-bundle--datatable#changeFilter change->zhortein--datatable-bundle--datatable#changeFilter"
             >
             <input
                 id="{{ filter_id }}_to"
@@ -103,8 +103,8 @@
                 type="number"
                 class="form-control form-control-sm"
                 aria-label="{{ filter_label }} to"
-                data-zhortein-datatable-filter-control="true"
-                data-action="input->zhortein-datatable#changeFilter change->zhortein-datatable#changeFilter"
+                data-zhortein--datatable-bundle--datatable-filter-control="true"
+                data-action="input->zhortein--datatable-bundle--datatable#changeFilter change->zhortein--datatable-bundle--datatable#changeFilter"
             >
         </div>
     {% else %}
@@ -114,8 +114,8 @@
             type="text"
             class="form-control form-control-sm"
             placeholder="{{ filter_placeholder }}"
-            data-zhortein-datatable-filter-control="true"
-            data-action="input->zhortein-datatable#changeFilter change->zhortein-datatable#changeFilter"
+            data-zhortein--datatable-bundle--datatable-filter-control="true"
+            data-action="input->zhortein--datatable-bundle--datatable#changeFilter change->zhortein--datatable-bundle--datatable#changeFilter"
             {% if filter.required %}
                 required
             {% endif %}

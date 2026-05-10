@@ -45,7 +45,7 @@ final class DatatableTwigExtensionTest extends TestCase
         $html = $extension->renderDatatable('users');
 
         self::assertStringContainsString('id="zhortein-datatable-users"', $html);
-        self::assertStringContainsString('data-controller="zhortein-datatable"', $html);
+        self::assertStringContainsString('data-controller="zhortein--datatable-bundle--datatable"', $html);
         self::assertStringContainsString('Email', $html);
         self::assertStringContainsString('No data available.', $html);
     }
@@ -60,7 +60,7 @@ final class DatatableTwigExtensionTest extends TestCase
 
         self::assertStringContainsString('id="zhortein-datatable-users"', $html);
         self::assertStringContainsString('type="search"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-target="searchInput"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="searchInput"', $html);
         self::assertStringContainsString('Email', $html);
     }
 
@@ -78,11 +78,11 @@ final class DatatableTwigExtensionTest extends TestCase
 
         $html = $extension->renderDatatable('users');
 
-        self::assertStringContainsString('data-zhortein-datatable-page-size-value="50"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-sort-field-value="e.email"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-sort-direction-value="desc"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-page-size-value="50"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-field-value="e.email"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-direction-value="desc"', $html);
         self::assertStringContainsString('Email', $html);
-        self::assertStringNotContainsString('data-zhortein-datatable-field-param="e.displayName"', $html);
+        self::assertStringNotContainsString('data-zhortein--datatable-bundle--datatable-field-param="e.displayName"', $html);
     }
 
     public function test_runtime_options_override_datatable_preferences(): void
@@ -104,9 +104,9 @@ final class DatatableTwigExtensionTest extends TestCase
             'columnVisibility' => false,
         ]);
 
-        self::assertStringContainsString('data-zhortein-datatable-page-size-value="10"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-sort-field-value="e.displayName"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-sort-direction-value="asc"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-page-size-value="10"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-field-value="e.displayName"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-direction-value="asc"', $html);
         self::assertStringContainsString('Display name', $html);
         self::assertStringNotContainsString('Email', $html);
     }

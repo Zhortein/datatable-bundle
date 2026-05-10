@@ -114,9 +114,9 @@ The exact Twig API is not final yet.
 The generated HTML should include enough data attributes for the Stimulus controller to load and refresh the datatable.
 ```html
 <div
-    data-controller="zhortein-datatable"
-    data-zhortein-datatable-name-value="users"
-    data-zhortein-datatable-data-url-value="/_zhortein/datatable/users/data"
+    data-controller="zhortein--datatable-bundle--datatable"
+    data-zhortein--datatable-bundle--datatable-name-value="users"
+    data-zhortein--datatable-bundle--datatable-data-url-value="/_zhortein/datatable/users/data"
 >
     <!-- Datatable markup -->
 </div>

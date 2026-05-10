@@ -18,8 +18,8 @@
                 class="form-control"
                 placeholder="{{ 'zhortein_datatable.search.placeholder'|trans({}, 'zhortein_datatable') }}"
                 aria-label="{{ 'zhortein_datatable.search.label'|trans({}, 'zhortein_datatable') }}"
-                data-zhortein-datatable-target="searchInput"
-                data-action="input->zhortein-datatable#search"
+                data-zhortein--datatable-bundle--datatable-target="searchInput"
+                data-action="input->zhortein--datatable-bundle--datatable#search"
             >
         {% endif %}
     </div>
@@ -33,7 +33,7 @@
         {% if definition.filters is not empty %}
             <div
                 class="zhortein-datatable__active-filters text-body-secondary small mt-2"
-                data-zhortein-datatable-target="activeFilters"
+                data-zhortein--datatable-bundle--datatable-target="activeFilters"
                 data-active-filter-count="0"
                 hidden
             >
@@ -43,8 +43,8 @@
             <button
                 type="button"
                 class="btn btn-sm btn-outline-secondary mt-2"
-                data-zhortein-datatable-target="clearFiltersButton"
-                data-action="zhortein-datatable#clearFilters"
+                data-zhortein--datatable-bundle--datatable-target="clearFiltersButton"
+                data-action="zhortein--datatable-bundle--datatable#clearFilters"
                 hidden
                 disabled
             >
@@ -78,8 +78,8 @@
                 id="{{ htmlId }}_page_size"
                 class="form-select form-select-sm w-auto"
                 aria-label="{{ 'zhortein_datatable.page_size.label'|trans({}, 'zhortein_datatable') }}"
-                data-zhortein-datatable-target="pageSizeInput"
-                data-action="change->zhortein-datatable#changePageSize"
+                data-zhortein--datatable-bundle--datatable-target="pageSizeInput"
+                data-action="change->zhortein--datatable-bundle--datatable#changePageSize"
             >
                 {% for page_size_option in allowed_page_sizes %}
                     <option value="{{ page_size_option }}"{% if page_size_option == page_size %} selected{% endif %}>
@@ -90,7 +90,7 @@
         {% endif %}
     </div>
 
-    <div class="zhortein-datatable__actions" data-zhortein-datatable-target="globalActions">
+    <div class="zhortein-datatable__actions" data-zhortein--datatable-bundle--datatable-target="globalActions">
         {% if globalActions is defined and globalActions is not empty %}
             <div class="btn-group btn-group-sm" role="group">
                 {% for action in globalActions %}

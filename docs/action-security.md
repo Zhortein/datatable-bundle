@@ -299,7 +299,7 @@ $definition->addRowAction(
 The renderer outputs:
 
 ```html
-data-zhortein-datatable-confirmation-message="Delete this user?"
+data-zhortein--datatable-bundle--datatable-confirmation-message="Delete this user?"
 ```
 
 For GET actions, the metadata is placed on the link.
@@ -311,19 +311,19 @@ For non-GET actions, the metadata is placed on the form.
 The Stimulus controller exposes:
 
 ```text
-zhortein-datatable#confirmAction
+zhortein--datatable-bundle--datatable#confirmAction
 ```
 
 GET action confirmation:
 
 ```html
-data-action="click->zhortein-datatable#confirmAction"
+data-action="click->zhortein--datatable-bundle--datatable#confirmAction"
 ```
 
 Non-GET form confirmation:
 
 ```html
-data-action="submit->zhortein-datatable#confirmAction"
+data-action="submit->zhortein--datatable-bundle--datatable#confirmAction"
 ```
 
 The first implementation uses:

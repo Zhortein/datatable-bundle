@@ -323,12 +323,12 @@ export default class extends Controller {
     }
 
     getFilterControls() {
-        return Array.from(this.element.querySelectorAll('[data-zhortein-datatable-filter-control="true"]'))
+        return Array.from(this.element.querySelectorAll('[data-zhortein--datatable-bundle--datatable-filter-control="true"]'))
             .filter((control) => control instanceof HTMLInputElement || control instanceof HTMLSelectElement);
     }
 
     getColumnVisibilityControls() {
-        return Array.from(this.element.querySelectorAll('[data-zhortein-datatable-column-visibility-control="true"]'))
+        return Array.from(this.element.querySelectorAll('[data-zhortein--datatable-bundle--datatable-column-visibility-control="true"]'))
             .filter((control) => control instanceof HTMLInputElement && control.type === 'checkbox');
     }
 

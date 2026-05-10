@@ -23,8 +23,8 @@ final class DatatableRendererSortingStateTest extends TestCase
             'sortDirection' => 'desc',
         ]);
 
-        self::assertStringContainsString('data-zhortein-datatable-sort-field-value="e.email"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-sort-direction-value="desc"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-field-value="e.email"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-direction-value="desc"', $html);
     }
 
     public function test_it_renders_ascending_sort_state_on_active_header(): void
@@ -37,9 +37,9 @@ final class DatatableRendererSortingStateTest extends TestCase
         ]);
 
         self::assertStringContainsString('aria-sort="ascending"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-field-param="e.email"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-current-sort-param="true"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-sort-direction-param="asc"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-field-param="e.email"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-current-sort-param="true"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-direction-param="asc"', $html);
         self::assertStringContainsString('sorted ascending', $html);
     }
 
@@ -53,7 +53,7 @@ final class DatatableRendererSortingStateTest extends TestCase
         ]);
 
         self::assertStringContainsString('aria-sort="descending"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-sort-direction-param="desc"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-direction-param="desc"', $html);
         self::assertStringContainsString('sorted descending', $html);
     }
 
@@ -63,10 +63,10 @@ final class DatatableRendererSortingStateTest extends TestCase
 
         $html = $renderer->render($this->createDefinition());
 
-        self::assertStringContainsString('data-zhortein-datatable-sort-field-value=""', $html);
-        self::assertStringContainsString('data-zhortein-datatable-sort-direction-value="asc"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-field-value=""', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-direction-value="asc"', $html);
         self::assertStringNotContainsString('aria-sort=', $html);
-        self::assertStringContainsString('data-zhortein-datatable-current-sort-param="false"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-current-sort-param="false"', $html);
     }
 
     private function createDefinition(): DatatableDefinition
