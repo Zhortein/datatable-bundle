@@ -547,6 +547,24 @@ Columns marked as non-sortable remain static header text.
 
 Current sort state rendering is handled separately.
 
+### Current sorting state rendering
+
+The datatable shell exposes the current sort state through Stimulus values:
+
+```html
+data-zhortein-datatable-sort-field-value="e.email"
+data-zhortein-datatable-sort-direction-value="asc"
+```
+
+Sortable headers render active state metadata when they match the current sort field:
+
+- `aria-sort="ascending"` or `aria-sort="descending"`;
+- `data-zhortein-datatable-current-sort-param`;
+- `data-zhortein-datatable-sort-direction-param`;
+- a visually hidden sorted-state label.
+
+This keeps sorting state accessible and synchronized with the Stimulus controller.
+
 ---
 
 ## 9. Action rendering layer
