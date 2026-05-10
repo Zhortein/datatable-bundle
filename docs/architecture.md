@@ -489,6 +489,16 @@ Initial supported types:
 
 The renderer uses the column `type` option when available and falls back to the default cell template for unknown types.
 
+### Datetime cell formatting
+
+Datetime cells are formatted through `DateTimeFormatterInterface`.
+
+The default implementation uses Symfony request locale when available and can use `IntlDateFormatter` when the PHP Intl extension is installed.
+
+If Intl is unavailable, it falls back to a deterministic PHP date format.
+
+Applications can replace the formatter service to apply project-specific locale, timezone and formatting rules.
+
 ### Custom column template rendering
 
 A column can define a custom Twig template through `ColumnDefinition::getTemplate()`.

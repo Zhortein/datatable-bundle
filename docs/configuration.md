@@ -101,3 +101,16 @@ zhortein_datatable.boolean.no
 ```
 
 Host applications can override these translations through Symfony translation mechanisms.
+
+## Datetime cell formatting
+
+Datetime cells are formatted through `DateTimeFormatterInterface`.
+
+The default implementation:
+
+- uses the current Symfony request locale when available;
+- uses `IntlDateFormatter` when the PHP Intl extension is installed;
+- falls back to a deterministic PHP date format otherwise.
+
+Applications with user-specific timezones or advanced localization needs can replace the formatter service.
+

@@ -52,7 +52,8 @@ final class DatatableRendererTypedCellsTest extends TestCase
             value: new \DateTimeImmutable('2026-05-09 14:30:00'),
         );
 
-        self::assertStringContainsString('2026-05-09 14:30', $html);
+        self::assertStringContainsString('2026', $html);
+        self::assertStringNotContainsString('DateTimeImmutable', $html);
     }
 
     public function test_it_renders_array_cell_template(): void
