@@ -1323,7 +1323,38 @@ Not implemented yet:
 
 ---
 
-## 14. Documentation map
+## Exports
+
+### Export request and format objects
+
+Server-side exports start with typed request and format objects.
+
+Current export model:
+
+- `ExportFormat`;
+- `ExportMode`;
+- `DatatableExportRequest`;
+- `DatatableExportResult`.
+
+Supported format:
+
+```text
+csv
+```
+
+Supported modes:
+
+```text
+current
+full
+```
+
+`current` keeps pagination while `full` is intended to export the whole filtered dataset.
+
+
+---
+
+## 15. Documentation map
 
 Related documentation:
 
