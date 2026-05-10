@@ -1011,7 +1011,7 @@ This allows applications to provide user-specific defaults while keeping explici
 
 ### Column visibility and preferences documentation
 
-Column visibility and preference extension points are documented in `docs/preferences.md`.
+Column visibility and preference extension points are documented in [`preferences.md`](preferences.md).
 
 The documentation covers:
 
@@ -1027,7 +1027,7 @@ The documentation covers:
 
 ### Twig template override strategy
 
-Twig template override strategy is documented in `docs/templates.md`.
+Twig template override strategy is documented in [`templates.md`](templates.md).
 
 The documentation covers:
 
@@ -1038,6 +1038,23 @@ The documentation covers:
 - row/header/toolbar/pagination contexts;
 - recommended override strategy;
 - current limitations.
+
+### Template context reference
+
+The current Twig template context is documented in [`template-context.md`](template-context.md).
+
+The documentation covers:
+
+- main datatable shell context;
+- toolbar context;
+- header context;
+- row and cell contexts;
+- action context;
+- filter context;
+- pagination context;
+- stable and evolving context keys.
+
+This document acts as the current public rendering contract for template overrides.
 
 ---
 
