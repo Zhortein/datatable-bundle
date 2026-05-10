@@ -28,6 +28,7 @@
                         value="1"
                         data-zhortein-datatable-column-visibility-control="true"
                         data-zhortein-datatable-column-name="{{ column.name }}"
+                        data-action="change->zhortein-datatable#changeColumnVisibility"
                         {% if checked %}checked{% endif %}
                         {% if not column.visible %}data-zhortein-datatable-definition-hidden="true"{% endif %}
                     >
