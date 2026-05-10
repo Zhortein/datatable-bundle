@@ -106,6 +106,7 @@ With runtime options:
 - [Optional icon rendering strategy](docs/icons.md)
 - [Cell template reference](docs/cell-templates.md)
 - [Theming and rendering customization](docs/theming.md)
+- [Action security and visibility](docs/action-security.md)
 
 ## Architecture decisions
 

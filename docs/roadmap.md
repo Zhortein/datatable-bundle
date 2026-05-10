@@ -402,37 +402,41 @@ Current limitations:
 
 ---
 
-# Next milestones
+## 0.13 - Security and action visibility ✅
 
-## 0.13 - Security and action visibility 🚧
+Delivered:
 
-Make actions safer and context-aware.
+- `ActionVisibilityCheckerInterface`.
+- `ActionVisibilityContext`.
+- Default allow-all visibility checker.
+- Row action visibility filtering.
+- Global action visibility filtering.
+- Optional Symfony authorization adapter.
+- Confirmation metadata rendering.
+- Vanilla Stimulus confirmation behavior.
+- CSRF action rendering review and tests.
+- Action security and visibility documentation.
 
-Planned:
-
-- Action visibility callbacks or strategy interface.
-- Optional Symfony authorization checker integration.
-- Per-action permission metadata.
-- Conditional row actions.
-- Safer confirmation handling.
-- CSRF documentation hardening.
-- Tests.
-
-Target outcome:
+Main outcome:
 
 ```text
-Actions can be rendered conditionally and securely according to application rules.
+Applications can control action visibility and render safer action forms without coupling the bundle to a specific security model.
 ```
 
-Out of scope:
+Current limitations:
 
-- built-in role system;
-- mandatory voters;
-- application-specific security assumptions.
+- no built-in voters;
+- no security expression language;
+- no per-action callback API;
+- no modal confirmation;
+- no controller-side action handling;
+- no batch action security yet.
 
 ---
 
-## 0.14 - Developer experience and release hardening 🕒
+# Next milestones
+
+## 0.14 - Developer experience and release hardening 🚧
 
 Prepare first public pre-release.
 
