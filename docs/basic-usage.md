@@ -444,7 +444,34 @@ More details are available in [`actions-and-cells.md`](actions-and-cells.md).
 
 ---
 
-## 11. Current limitations
+## 11. Table controls
+
+The bundle currently supports several table controls:
+
+- search input;
+- page size selector;
+- sortable headers;
+- pagination controls;
+- loading state;
+- error state;
+- summary updates.
+
+Example:
+
+```twig
+{{ zhortein_datatable('users', {
+    search: true,
+    pageSize: 25,
+    allowedPageSizes: [10, 25, 50, 100],
+    pageSizeSelector: true
+}) }}
+```
+
+More details are available in [`table-controls.md`](table-controls.md).
+
+---
+
+## 12. Current limitations
 
 The bundle is still under active development.
 

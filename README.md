@@ -97,6 +97,7 @@ With runtime options:
 - [Actions and typed cell rendering](docs/actions-and-cells.md)
 - [Routes](docs/routes.md)
 - [Stimulus and AssetMapper integration](docs/stimulus-assetmapper.md)
+- [Table controls and interactions](docs/table-controls.md)
 
 ## Architecture decisions
 

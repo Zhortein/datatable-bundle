@@ -924,3 +924,19 @@ Architecture decisions:
 - [`decisions/0003-bootstrap-rendering-strategy.md`](decisions/0003-bootstrap-rendering-strategy.md)
 - [`decisions/0004-vanilla-stimulus-interaction-model.md`](decisions/0004-vanilla-stimulus-interaction-model.md)
 - [`decisions/0005-doctrine-orm-provider-architecture.md`](decisions/0005-doctrine-orm-provider-architecture.md)
+
+### Table controls documentation
+
+Table controls and frontend interactions are documented in [`table-controls.md`](table-controls.md).
+
+The documentation covers:
+
+- search behavior;
+- page size selector;
+- sortable headers;
+- current sorting state;
+- pagination;
+- loading state;
+- error state;
+- accessibility notes;
+- current limitations.
