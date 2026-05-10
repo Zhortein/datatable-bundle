@@ -305,3 +305,29 @@ A pre-release can be tagged only if:
 - [ ] Known limitations are explicit.
 
 If any item is not true, postpone the tag.
+
+## 14. Smoke test report
+
+When running the fresh Symfony smoke test, copy:
+
+```text
+docs/smoke-test-report-template.md
+```
+
+to:
+
+```text
+docs/smoke-reports/YYYY-MM-DD-local-path-repository.md
+```
+
+The report should record:
+
+- environment metadata;
+- installation result;
+- array datatable checks;
+- Doctrine datatable checks;
+- actions/security checks;
+- export checks;
+- blockers;
+- documentation gaps;
+- go/no-go recommendation.

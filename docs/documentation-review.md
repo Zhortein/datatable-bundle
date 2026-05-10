@@ -264,3 +264,19 @@ Potential documentation tooling:
 - examples smoke tests;
 - automatic docs table of contents;
 - Symfony app smoke test using the docs examples.
+
+## Smoke test report review
+
+Before a pre-release, review the latest smoke test report under:
+
+```text
+docs/smoke-reports/
+```
+
+The report should identify:
+
+- setup issues;
+- documentation gaps;
+- blocking runtime errors;
+- non-blocking improvements;
+- go/no-go recommendation.
