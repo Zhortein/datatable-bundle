@@ -7,6 +7,8 @@ zhortein_datatable:
     filters:
         active: 'Filters are active.'
         clear: 'Clear filters'
+    columns:
+        visibility: 'Columns'
     loading: 'Loading...'
     error:
         generic: 'Unable to load datatable data.'

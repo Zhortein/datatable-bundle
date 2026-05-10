@@ -1,6 +1,9 @@
 {% set page_size = options.pageSize is defined ? options.pageSize : 25 %}
 {% set page_size_selector_enabled = options.pageSizeSelector is defined ? options.pageSizeSelector : true %}
 {% set allowed_page_sizes = options.allowedPageSizes is defined ? options.allowedPageSizes : [10, 25, 50, 100] %}
+{% set column_visibility_enabled = options.columnVisibility is defined ? options.columnVisibility : true %}
+{% set runtime_visible_columns = options.visibleColumns is defined ? options.visibleColumns : [] %}
+{% set runtime_hidden_columns = options.hiddenColumns is defined ? options.hiddenColumns : [] %}
 
 <div class="zhortein-datatable__toolbar d-flex flex-wrap justify-content-between align-items-end gap-3 mb-3">
     <div class="zhortein-datatable__search">
@@ -49,7 +52,16 @@
         {% endif %}
     </div>
 
-    <div class="zhortein-datatable__controls d-flex align-items-center gap-2">
+    <div class="zhortein-datatable__controls d-flex flex-wrap align-items-center gap-2">
+        {% if column_visibility_enabled %}
+            {% include '@ZhorteinDatatable/bootstrap/_column_visibility.html.twig' with {
+                definition: definition,
+                htmlId: htmlId,
+                runtime_visible_columns: runtime_visible_columns,
+                runtime_hidden_columns: runtime_hidden_columns
+            } only %}
+        {% endif %}
+
         {% if page_size_selector_enabled %}
             <label class="text-body-secondary small" for="{{ htmlId }}_page_size">
                 {{ 'zhortein_datatable.page_size.label'|trans({}, 'zhortein_datatable') }}

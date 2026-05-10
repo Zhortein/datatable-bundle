@@ -26,7 +26,9 @@ final class DatatableRendererTest extends TestCase
 
         $renderer = new DatatableRenderer($this->createTwigEnvironment());
 
-        $html = $renderer->render($definition);
+        $html = $renderer->render($definition, [
+            'columnVisibility' => false,
+        ]);
 
         self::assertStringContainsString('id="zhortein-datatable-users"', $html);
         self::assertStringContainsString('data-controller="zhortein-datatable"', $html);

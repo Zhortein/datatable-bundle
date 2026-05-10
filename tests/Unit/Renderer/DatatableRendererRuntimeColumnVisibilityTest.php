@@ -21,6 +21,7 @@ final class DatatableRendererRuntimeColumnVisibilityTest extends TestCase
 
         $html = $renderer->render($this->createDefinition(), [
             'hiddenColumns' => ['e.displayName'],
+            'columnVisibility' => false,
         ]);
 
         self::assertStringContainsString('Email', $html);
@@ -33,6 +34,7 @@ final class DatatableRendererRuntimeColumnVisibilityTest extends TestCase
 
         $html = $renderer->render($this->createDefinition(), [
             'visibleColumns' => ['e.email'],
+            'columnVisibility' => false,
         ]);
 
         self::assertStringContainsString('Email', $html);
@@ -46,6 +48,7 @@ final class DatatableRendererRuntimeColumnVisibilityTest extends TestCase
 
         $html = $renderer->render($this->createDefinition(), [
             'visibleColumns' => ['e.id', 'e.email'],
+            'columnVisibility' => false,
         ]);
 
         self::assertStringContainsString('Email', $html);
