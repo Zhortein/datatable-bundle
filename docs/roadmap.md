@@ -1,49 +1,493 @@
 # Roadmap
 
-## 0.1 - Foundation
+This roadmap reflects the current implementation state of `zhortein/datatable-bundle`.
+
+The project follows an incremental strategy: each milestone must keep the bundle usable, tested and documented.
+
+---
+
+## Legend
+
+- ✅ Completed
+- 🚧 In progress / next
+- 🕒 Planned
+- 🔭 Later
+
+---
+
+## 0.1 - Foundation ✅
+
+Initial repository and bundle foundation.
+
+Delivered:
 
 - Bundle skeleton.
-- Attribute declaration.
-- Public contracts.
-- Definition objects.
-- Registry skeleton.
-- Documentation.
-- CI.
+- Composer package metadata.
+- GitHub repository setup.
+- GitHub labels and milestones tooling.
+- GitHub Actions CI.
+- PHPUnit setup.
+- PHPStan max level setup.
+- PHP-CS-Fixer setup with Symfony-oriented rules.
+- twigcs setup.
+- `AGENTS.md`.
+- Initial architecture documentation.
+- Initial public API decision.
+- Sanitized legacy functional reference.
 
-## 0.2 - Rendering
+Main outcome:
 
-- Bootstrap table template.
-- Twig integration.
-- Empty state.
+```text
+The repository is ready for AI-assisted and human-reviewed development.
+```
+
+---
+
+## 0.2 - Rendering foundation ✅
+
+Initial rendering and frontend foundation.
+
+Delivered:
+
+- Typed `DatatableRequest`.
+- Typed `DatatableResult`.
+- `DataProviderInterface`.
+- `DataProviderRegistry`.
+- Initial Twig renderer.
+- Initial Bootstrap templates.
+- `zhortein_datatable()` Twig function.
+- Ajax controller skeleton.
+- Vanilla Stimulus controller skeleton.
+- Symfony test kernel foundation.
+- Twig-first rendering strategy.
+- Vanilla Stimulus interaction model.
+- Doctrine provider architecture decision.
+- First documentation structure.
+
+Main outcome:
+
+```text
+The bundle can render a Bootstrap datatable shell and expose the public Twig API.
+```
+
+---
+
+## 0.3 - Data pipeline foundation ✅
+
+First complete backend-to-frontend datatable flow.
+
+Delivered:
+
+- `DatatableDefinitionFactory`.
+- `DatatableRequestFactory`.
+- `ArrayDataProvider`.
+- Provider registry Symfony container wiring.
+- Row and cell rendering from `DatatableResult`.
+- Bootstrap pagination rendering.
+- Ajax fragments endpoint connected to provider and renderer.
+- Stimulus search and pagination fragment refresh.
+- End-to-end flow documentation.
+
+Main outcome:
+
+```text
+A datatable can flow from PHP declaration to provider data to rendered Ajax fragments.
+```
+
+---
+
+## 0.4 - Doctrine ORM provider foundation ✅
+
+Doctrine ORM as the first production-oriented data provider.
+
+Delivered:
+
+- Doctrine ORM functional test foundation.
+- SQLite in-memory test setup.
+- Doctrine test entity.
+- `DoctrineFieldTypeGuesser`.
+- `DoctrineFieldType` value object.
+- `DoctrineOrmDataProvider` skeleton.
+- Doctrine provider container wiring.
+- Doctrine permanent filters.
+- Doctrine global search.
+- Doctrine single-column sorting.
+- Doctrine-backed datatable documentation.
+
+Current Doctrine provider capabilities:
+
+- Entity-class based datatables.
+- Main alias `e`.
+- Visible scalar fields.
+- Offset pagination.
+- Total and filtered counts.
+- Permanent filters.
+- Simple global search.
+- Single-column sorting.
+- Type guessing foundation.
+
+Main outcome:
+
+```text
+Simple Doctrine-backed datatables are now usable.
+```
+
+---
+
+## 0.5 - Actions and cell rendering foundation ✅
+
+Declarative actions and cell rendering customization.
+
+Delivered:
+
+- `RowActionRouteParameterResolver`.
+- Row action rendering.
+- Global action rendering.
+- CSRF-aware non-GET action rendering.
+- Built-in typed cell templates.
+- `CellType` enum.
+- Doctrine type enrichment into column metadata.
+- Custom column template rendering.
+- Actions and typed cell rendering documentation.
+
+Current action capabilities:
+
+- GET row/global actions as links.
+- Non-GET row/global actions as forms.
+- CSRF token support when available.
+- Route parameters resolved from row data.
+- Bootstrap-compatible action markup.
+
+Current cell capabilities:
+
+- Default, string, numeric, boolean, datetime, array and enum templates.
+- Custom column template support.
+- Doctrine-inferred cell types.
+- Default Bootstrap alignment by type.
+
+Main outcome:
+
+```text
+Datatables now support practical row/global actions and customizable cell rendering.
+```
+
+---
+
+## 0.6 - Configuration and Symfony integration foundation ✅
+
+Configuration, translations and Symfony integration polish.
+
+Delivered:
+
+- Initial bundle configuration under `zhortein_datatable`.
+- Renderer and request factory configuration defaults.
+- Route loading documentation.
+- Built-in translation catalog.
+- English and French translations.
+- Datetime formatting strategy with `DateTimeFormatterInterface`.
+- Stimulus and AssetMapper integration documentation.
+- Installation documentation refresh.
+- Configuration documentation refresh.
+- Composer package metadata review.
+
+Current configuration options:
+
+```yaml
+zhortein_datatable:
+    default_provider: doctrine
+    default_theme: bootstrap
+    default_page_size: 25
+    max_page_size: 500
+    search_enabled: false
+```
+
+Main outcome:
+
+```text
+The bundle is easier to install, configure and integrate into a Symfony application.
+```
+
+---
+
+## 0.7 - Table controls and accessibility foundation ✅
+
+User-facing table controls and accessibility improvements.
+
+Delivered:
+
+- Sortable header rendering.
+- Current sorting state rendering.
+- Page size selector.
+- Improved loading state.
+- Improved error state.
+- Default column alignment by cell type.
+- Accessibility markup improvements.
+- Table controls and interactions documentation.
+
+Current table control capabilities:
+
+- Search input.
+- Page size selector.
+- Sortable headers.
+- Current sort state.
+- Pagination controls.
 - Loading state.
 - Error state.
+- Summary updates.
+- Accessible labels and ARIA attributes.
 
-## 0.3 - Ajax
+Main outcome:
 
-- Columns endpoint.
-- Data endpoint.
-- Datatable request object.
-- Datatable response object.
-- Stimulus controller.
+```text
+The generated datatable UI is now much closer to a usable professional back-office component.
+```
 
-## 0.4 - Doctrine
+---
 
-- Doctrine ORM provider.
-- Metadata inspection.
-- Pagination.
-- Sorting.
-- Search.
-- Persistent filters.
+# Next milestones
 
-## 0.5 - Actions
+## 0.8 - Doctrine associations and joins 🚧
 
-- Row actions.
-- Global actions.
-- Action rendering.
-- Confirmation support.
-- CSRF support.
+Improve Doctrine-backed datatables beyond simple scalar fields on the main alias.
 
-## 0.6 - Exports
+Planned:
 
+- Explicit Doctrine join definition object.
+- Join type enum.
+- Support for declared joins in `DatatableDefinition`.
+- Support for sorting joined fields.
+- Support for searching joined fields.
+- Support for permanent filters on joined fields.
+- Safer custom join API.
+- Tests for ManyToOne and OneToOne joins.
+- Documentation for joins and association fields.
+
+Target outcome:
+
+```text
+Doctrine datatables can display and query simple associated entity fields safely.
+```
+
+Out of scope:
+
+- automatic deep association traversal;
+- ManyToMany aggregation;
+- collection aggregation;
+- arbitrary raw DQL joins without explicit safeguards.
+
+---
+
+## 0.9 - Advanced filtering foundation 🕒
+
+Introduce user-facing filters beyond global search.
+
+Planned:
+
+- Filter definition objects for frontend filters.
+- Basic text filter.
+- Choice filter.
+- Boolean filter.
+- Date/date range filter.
+- Numeric range filter.
+- Filter request normalization.
+- Doctrine filter application.
+- Twig filter toolbar rendering.
+- Stimulus filter refresh.
+- Documentation.
+
+Target outcome:
+
+```text
+Datatables can expose explicit, typed, user-facing filters.
+```
+
+Out of scope:
+
+- complex nested search builder;
+- arbitrary frontend-generated expressions;
+- saved filter presets.
+
+---
+
+## 0.10 - Column visibility and user preferences 🕒
+
+Prepare per-user table experience.
+
+Planned:
+
+- Column visibility metadata.
+- Column visibility toggle UI.
+- Runtime column visibility options.
+- Page size preference model.
+- Sort preference model.
+- Search persistence strategy.
+- Extension points for application-level user preference storage.
+- Documentation.
+
+Target outcome:
+
+```text
+Applications can let users customize table display without coupling the bundle to a specific user system.
+```
+
+Out of scope:
+
+- built-in database persistence;
+- mandatory User entity integration;
+- application-specific preference storage.
+
+---
+
+## 0.11 - Export foundation 🕒
+
+Add server-side exports.
+
+Planned:
+
+- Export provider contract.
 - CSV export.
-- Optional XLSX export.
+- Export current filtered dataset.
+- Export full visible dataset.
+- Export filename strategy.
+- Streaming response.
+- Optional XLSX support decision.
+- Documentation.
+
+Target outcome:
+
+```text
+Applications can export datatable data safely from the server side.
+```
+
+Out of scope:
+
+- client-side exports;
+- PDF export;
+- asynchronous export queue;
+- very large export orchestration.
+
+---
+
+## 0.12 - Theming and template override polish 🕒
+
+Improve rendering customization.
+
+Planned:
+
+- Formal template override documentation.
+- Template context documentation.
+- Theme configuration cleanup.
+- Bootstrap template review.
+- Optional compact table variant.
+- Optional bordered/striped/hover options.
+- First CSS utility documentation.
+- Better icon strategy decision.
+
+Target outcome:
+
+```text
+Host applications can customize rendering predictably without forking bundle templates.
+```
+
+Out of scope:
+
+- Tailwind support;
+- multiple fully maintained themes;
+- complex design system abstraction.
+
+---
+
+## 0.13 - Security and action visibility 🕒
+
+Make actions safer and context-aware.
+
+Planned:
+
+- Action visibility callbacks or strategy interface.
+- Optional Symfony authorization checker integration.
+- Per-action permission metadata.
+- Conditional row actions.
+- Safer confirmation handling.
+- CSRF documentation hardening.
+- Tests.
+
+Target outcome:
+
+```text
+Actions can be rendered conditionally and securely according to application rules.
+```
+
+Out of scope:
+
+- built-in role system;
+- mandatory voters;
+- application-specific security assumptions.
+
+---
+
+## 0.14 - Developer experience and release hardening 🕒
+
+Prepare first public pre-release.
+
+Planned:
+
+- README final pass.
+- Full documentation review.
+- Changelog automation.
+- Release workflow.
+- Packagist readiness check.
+- Composer metadata review.
+- CI matrix review.
+- Lowest/highest dependency stability.
+- Symfony recipe decision.
+- Public examples.
+
+Target outcome:
+
+```text
+The bundle is ready for a first tagged development release.
+```
+
+---
+
+# Later milestones
+
+## 1.0 - First stable release 🔭
+
+Expected stable scope:
+
+- PHP-first datatable declarations.
+- Symfony service discovery.
+- Doctrine provider with simple joins.
+- Global search.
+- Typed filters.
+- Sorting.
+- Pagination.
+- Row/global actions.
+- CSRF-aware non-GET actions.
+- Twig/Bootstrap rendering.
+- Stimulus Ajax refresh.
+- Translation catalog.
+- Documentation.
+- CI and quality tooling.
+
+1.0 should not be tagged until the public API feels stable enough for real projects.
+
+---
+
+## Later ideas 🔭
+
+Potential future work:
+
+- multi-column sorting;
+- SearchBuilder-like advanced expressions;
+- async exports;
+- XLSX export;
+- user preference persistence adapters;
+- API/data-source providers;
+- Elasticsearch provider;
+- UX Icons integration;
+- richer enum badge/icon rendering;
+- accessibility audit;
+- frontend test suite;
+- Symfony Flex recipe.
