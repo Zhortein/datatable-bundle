@@ -45,8 +45,10 @@ final readonly class DatatableRequestFactory
             searchQuery: $this->readNullableString($parameters, 'search'),
             sortField: $this->readNullableString($parameters, 'sortField'),
             sortDirection: $this->readSortDirection($parameters),
-            filters: $this->readFilters($parameters),
-            options: $this->readOptions($parameters),
+            filters: $this->readArrayParameter($parameters, 'filters'),
+            visibleColumns: $this->readStringListParameter($parameters, 'visibleColumns'),
+            hiddenColumns: $this->readStringListParameter($parameters, 'hiddenColumns'),
+            options: $this->readArrayParameter($parameters, 'options'),
         );
     }
 
@@ -119,32 +121,51 @@ final readonly class DatatableRequestFactory
      *
      * @return array<string, mixed>
      */
-    private function readFilters(array $parameters): array
+    private function readArrayParameter(array $parameters, string $name): array
     {
-        $filters = $parameters['filters'] ?? [];
+        $value = $parameters[$name] ?? [];
 
-        if (!is_array($filters)) {
+        if (!is_array($value)) {
             return [];
         }
 
-        /** @var array<string, mixed> $filters */
-        return $filters;
+        /** @var array<string, mixed> $value */
+        return $value;
     }
 
     /**
      * @param array<string, mixed> $parameters
      *
-     * @return array<string, mixed>
+     * @return list<string>
      */
-    private function readOptions(array $parameters): array
+    private function readStringListParameter(array $parameters, string $name): array
     {
-        $options = $parameters['options'] ?? [];
+        $value = $parameters[$name] ?? [];
 
-        if (!is_array($options)) {
+        if (is_string($value)) {
+            $value = [$value];
+        }
+
+        if (!is_array($value)) {
             return [];
         }
 
-        /** @var array<string, mixed> $options */
-        return $options;
+        $values = [];
+
+        foreach ($value as $item) {
+            if (!is_scalar($item)) {
+                continue;
+            }
+
+            $item = trim((string) $item);
+
+            if ('' === $item) {
+                continue;
+            }
+
+            $values[] = $item;
+        }
+
+        return array_values(array_unique($values));
     }
 }

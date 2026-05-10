@@ -960,6 +960,25 @@ Definition-hidden columns are not serialized.
 
 Changing column visibility resets the current page to 1 and refreshes datatable fragments.
 
+### Column visibility request normalization
+
+`DatatableRequest` can carry runtime column visibility state.
+
+The request factory reads:
+
+```text
+visibleColumns[]=e.email
+hiddenColumns[]=e.createdAt
+```
+
+Normalized state is exposed through:
+
+- `DatatableRequest::getVisibleColumns()`;
+- `DatatableRequest::getHiddenColumns()`;
+- `DatatableRequest::getColumnVisibilityOptions()`.
+
+Providers and renderers still rely on declared columns. Frontend-provided column state only affects declared columns.
+
 ---
 
 ## 9. Action rendering layer
