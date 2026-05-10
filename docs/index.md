@@ -21,6 +21,7 @@ This bundle is in early development.
 - [Routes](routes.md)
 - [Stimulus and AssetMapper integration](stimulus-assetmapper.md)
 - [Table controls and interactions](table-controls.md)
+- [Column visibility and preferences](preferences.md)
 - [User-facing filters](filters.md)
 
 ## Legacy reference

@@ -308,38 +308,39 @@ Current limitations:
 
 ---
 
-# Next milestones
+## 0.10 - Column visibility and user preferences ✅
 
-## 0.10 - Column visibility and user preferences 🚧
+Delivered:
 
-Prepare per-user table experience.
+- Runtime column visibility state.
+- Column visibility toolbar controls.
+- Stimulus refresh for column visibility changes.
+- Column visibility request normalization.
+- `DatatablePreference` value object.
+- `DatatablePreferenceProviderInterface`.
+- `NullDatatablePreferenceProvider`.
+- Preferences applied to rendering defaults.
+- Documentation for column visibility and preferences.
 
-Planned:
-
-- Column visibility metadata.
-- Column visibility toggle UI.
-- Runtime column visibility options.
-- Page size preference model.
-- Sort preference model.
-- Search persistence strategy.
-- Extension points for application-level user preference storage.
-- Documentation.
-
-Target outcome:
+Main outcome:
 
 ```text
-Applications can let users customize table display without coupling the bundle to a specific user system.
+Applications can influence datatable display with runtime visibility options and provide user-specific defaults through a replaceable preference provider.
 ```
 
-Out of scope:
+Current limitations:
 
-- built-in database persistence;
-- mandatory User entity integration;
-- application-specific preference storage.
+- no built-in persistence;
+- no save/reset preferences action;
+- no user identity integration;
+- no column ordering;
+- no drag-and-drop.
 
 ---
 
-## 0.11 - Export foundation 🕒
+# Next milestones
+
+## 0.11 - Export foundation 🚧
 
 Add server-side exports.
 

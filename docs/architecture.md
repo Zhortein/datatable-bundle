@@ -1009,6 +1009,22 @@ runtime Twig options > preference options > bundle defaults
 
 This allows applications to provide user-specific defaults while keeping explicit render options authoritative.
 
+### Column visibility and preferences documentation
+
+Column visibility and preference extension points are documented in `docs/preferences.md`.
+
+The documentation covers:
+
+- runtime column visibility;
+- toolbar column visibility controls;
+- Stimulus visibility refresh;
+- request normalization;
+- `DatatablePreference`;
+- `DatatablePreferenceProviderInterface`;
+- the default null provider;
+- rendering precedence;
+- current limitations.
+
 ---
 
 ## 9. Action rendering layer
