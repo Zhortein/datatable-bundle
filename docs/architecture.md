@@ -40,6 +40,18 @@ This configuration is intentionally small and focused on defaults that can be ap
 
 Invalid values are rejected during Symfony container configuration.
 
+### Applying configuration defaults
+
+Runtime services consume bundle configuration values.
+
+Current usage:
+
+- `DatatableRenderer` receives the configured default theme, default page size and search enabled flag.
+- `DatatableRequestFactory` receives the configured default page size and maximum page size.
+
+Runtime options still override configured defaults when explicitly provided.
+
+
 ---
 
 ## 2. High-level flow

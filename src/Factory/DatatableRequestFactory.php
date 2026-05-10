@@ -14,6 +14,24 @@ final readonly class DatatableRequestFactory
     public const int DEFAULT_PAGE_SIZE = 25;
     public const int MAX_PAGE_SIZE = 500;
 
+    public function __construct(
+        private int $defaultPage = self::DEFAULT_PAGE,
+        private int $defaultPageSize = self::DEFAULT_PAGE_SIZE,
+        private int $maxPageSize = self::MAX_PAGE_SIZE,
+    ) {
+        if ($this->defaultPage < 1) {
+            throw new \InvalidArgumentException('The default datatable page must be greater than or equal to 1.');
+        }
+
+        if ($this->defaultPageSize < 1) {
+            throw new \InvalidArgumentException('The default datatable page size must be greater than or equal to 1.');
+        }
+
+        if ($this->maxPageSize < 1) {
+            throw new \InvalidArgumentException('The maximum datatable page size must be greater than or equal to 1.');
+        }
+    }
+
     public function createFromRequest(Request $request): DatatableRequest
     {
         $parameters = array_replace(
@@ -22,7 +40,7 @@ final readonly class DatatableRequestFactory
         );
 
         return DatatableRequest::create(
-            page: $this->readPositiveInteger($parameters, 'page', self::DEFAULT_PAGE),
+            page: $this->readPositiveInteger($parameters, 'page', $this->defaultPage),
             pageSize: $this->readPageSize($parameters),
             searchQuery: $this->readNullableString($parameters, 'search'),
             sortField: $this->readNullableString($parameters, 'sortField'),
@@ -56,9 +74,9 @@ final readonly class DatatableRequestFactory
      */
     private function readPageSize(array $parameters): int
     {
-        $pageSize = $this->readPositiveInteger($parameters, 'pageSize', self::DEFAULT_PAGE_SIZE);
+        $pageSize = $this->readPositiveInteger($parameters, 'pageSize', $this->defaultPageSize);
 
-        return min($pageSize, self::MAX_PAGE_SIZE);
+        return min($pageSize, $this->maxPageSize);
     }
 
     /**

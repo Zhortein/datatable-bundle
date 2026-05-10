@@ -22,6 +22,8 @@ final readonly class DatatableRenderer
         private ?RowActionRouteParameterResolver $routeParameterResolver = null,
         private ?CsrfTokenManagerInterface $csrfTokenManager = null,
         private string $theme = 'bootstrap',
+        private int $defaultPageSize = 25,
+        private bool $searchEnabled = false,
     ) {
     }
 
@@ -30,6 +32,11 @@ final readonly class DatatableRenderer
      */
     public function render(DatatableDefinition $definition, array $options = []): string
     {
+        $options = array_replace([
+            'search' => $this->searchEnabled,
+            'pageSize' => $this->defaultPageSize,
+        ], $options);
+
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/datatable.html.twig', $this->theme), [
             'definition' => $definition,
             'visibleColumns' => $this->getVisibleColumns($definition),

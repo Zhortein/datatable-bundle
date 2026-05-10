@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
 use Zhortein\DatatableBundle\Controller\DatatableController;
@@ -28,7 +29,11 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(DatatableDefinitionFactory::class);
 
-    $services->set(DatatableRequestFactory::class);
+    $services
+        ->set(DatatableRequestFactory::class)
+        ->arg('$defaultPageSize', param('zhortein_datatable.default_page_size'))
+        ->arg('$maxPageSize', param('zhortein_datatable.max_page_size'))
+    ;
 
     if (interface_exists(ManagerRegistry::class)) {
         $services->set(DoctrineFieldTypeGuesser::class);
@@ -55,7 +60,12 @@ return static function (ContainerConfigurator $container): void {
         ->arg('$providers', tagged_iterator('zhortein_datatable.data_provider', 'name'))
     ;
 
-    $services->set(DatatableRenderer::class);
+    $services
+        ->set(DatatableRenderer::class)
+        ->arg('$theme', param('zhortein_datatable.default_theme'))
+        ->arg('$defaultPageSize', param('zhortein_datatable.default_page_size'))
+        ->arg('$searchEnabled', param('zhortein_datatable.search_enabled'))
+    ;
 
     $services->set(DatatableTwigExtension::class);
 
