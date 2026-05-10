@@ -123,7 +123,7 @@ final readonly class DatatableRenderer
     }
 
     /**
-     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed, template: string}>, actions: list<array{name: string, label: string|null, icon: string|null, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>}>}>
+     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed, template: string, className: string|null}>, actions: list<array{name: string, label: string|null, icon: string|null, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>}>}>
      */
     private function normalizeRows(DatatableDefinition $definition, DatatableResult $result): array
     {
@@ -138,6 +138,7 @@ final readonly class DatatableRenderer
                     'column' => $column,
                     'value' => $this->readColumnValue($row, $column),
                     'template' => $this->resolveCellTemplate($column),
+                    'className' => $this->resolveCellClassName($column),
                 ];
             }
 
@@ -220,6 +221,19 @@ final readonly class DatatableRenderer
             $this->theme,
             $cellType->getTemplateName(),
         );
+    }
+
+    private function resolveCellClassName(ColumnDefinition $column): ?string
+    {
+        if (null !== $column->getClassName() && '' !== trim($column->getClassName())) {
+            return $column->getClassName();
+        }
+
+        return match (CellType::fromNullableString($column->getType())) {
+            CellType::Numeric => 'text-end',
+            CellType::Boolean, CellType::Enum => 'text-center',
+            default => null,
+        };
     }
 
     /**

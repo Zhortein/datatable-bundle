@@ -580,6 +580,19 @@ data-action="change->zhortein-datatable#changePageSize"
 
 Changing the page size resets the current page to 1 and refreshes Ajax fragments.
 
+### Default column alignment by cell type
+
+The renderer applies Bootstrap alignment classes when no explicit column class is provided.
+
+Current defaults:
+
+- `numeric` cells: `text-end`;
+- `boolean` cells: `text-center`;
+- `enum` cells: `text-center`;
+- all other cell types: no automatic class.
+
+Explicit `ColumnDefinition::getClassName()` values always take precedence over defaults.
+
 ---
 
 ## 9. Action rendering layer
