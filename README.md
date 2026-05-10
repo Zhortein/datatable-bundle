@@ -101,6 +101,7 @@ With runtime options:
 - [Column visibility and preferences](docs/preferences.md)
 - [User-facing filters](docs/filters.md)
 - [Server-side exports](docs/exports.md)
+- [Twig templates and overrides](docs/templates.md)
 
 ## Architecture decisions
 

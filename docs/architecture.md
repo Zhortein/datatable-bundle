@@ -1025,6 +1025,20 @@ The documentation covers:
 - rendering precedence;
 - current limitations.
 
+### Twig template override strategy
+
+Twig template override strategy is documented in `docs/templates.md`.
+
+The documentation covers:
+
+- current Bootstrap template tree;
+- public override templates;
+- cell template context;
+- action template context;
+- row/header/toolbar/pagination contexts;
+- recommended override strategy;
+- current limitations.
+
 ---
 
 ## 9. Action rendering layer

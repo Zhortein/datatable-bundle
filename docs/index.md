@@ -24,6 +24,7 @@ This bundle is in early development.
 - [Column visibility and preferences](preferences.md)
 - [User-facing filters](filters.md)
 - [Server-side exports](exports.md)
+- [Twig templates and overrides](templates.md)
 
 ## Legacy reference
 
