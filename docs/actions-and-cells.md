@@ -399,6 +399,20 @@ Hidden actions are not rendered, and their URLs are not generated.
 
 This allows applications to hide row actions based on row data or application-specific rules.
 
+## Global action visibility
+
+Global actions can be hidden by replacing `ActionVisibilityCheckerInterface`.
+
+The checker receives:
+
+- the `ActionDefinition`;
+- an `ActionVisibilityContext`;
+- no row data for global actions.
+
+Hidden global actions are not rendered, and their URLs are not generated.
+
+This allows applications to hide toolbar actions based on application-specific rules.
+
 
 ## Current limitations
 

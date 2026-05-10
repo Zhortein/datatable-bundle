@@ -165,6 +165,10 @@ final readonly class DatatableRenderer
         $actions = [];
 
         foreach ($definition->getGlobalActions() as $action) {
+            if (!$this->isActionVisible($action, $definition, null)) {
+                continue;
+            }
+
             $actions[] = $this->normalizeAction(
                 action: $action,
                 url: $this->urlGenerator->generate($action->getRoute(), $this->normalizeStaticRouteParameters($action)),
