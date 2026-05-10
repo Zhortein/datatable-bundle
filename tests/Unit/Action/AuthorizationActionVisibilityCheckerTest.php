@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Tests\Unit\Action;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Security\Core\Authorization\AccessDecision;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Action\ActionVisibilityContext;
 use Zhortein\DatatableBundle\Action\AllowAllActionVisibilityChecker;
@@ -16,13 +17,9 @@ final class AuthorizationActionVisibilityCheckerTest extends TestCase
 {
     public function test_it_allows_action_when_authorization_checker_grants_permission(): void
     {
-        $authorizationChecker = $this->createMock(AuthorizationCheckerInterface::class);
-        $authorizationChecker
-            ->expects($this->once())
-            ->method('isGranted')
-            ->with('USER_VIEW', ['e_id' => 42])
-            ->willReturn(true)
-        ;
+        $authorizationChecker = new RecordingAuthorizationChecker([
+            'USER_VIEW' => true,
+        ]);
 
         $checker = new AuthorizationActionVisibilityChecker($authorizationChecker);
 
@@ -40,17 +37,16 @@ final class AuthorizationActionVisibilityCheckerTest extends TestCase
         );
 
         self::assertTrue($checker->isVisible($action, $context));
+        self::assertSame(1, $authorizationChecker->getCallCount());
+        self::assertSame('USER_VIEW', $authorizationChecker->getLastAttribute());
+        self::assertSame(['e_id' => 42], $authorizationChecker->getLastSubject());
     }
 
     public function test_it_denies_action_when_authorization_checker_denies_permission(): void
     {
-        $authorizationChecker = $this->createMock(AuthorizationCheckerInterface::class);
-        $authorizationChecker
-            ->expects($this->once())
-            ->method('isGranted')
-            ->with('USER_DELETE', ['e_id' => 42])
-            ->willReturn(false)
-        ;
+        $authorizationChecker = new RecordingAuthorizationChecker([
+            'USER_DELETE' => false,
+        ]);
 
         $checker = new AuthorizationActionVisibilityChecker($authorizationChecker);
 
@@ -68,19 +64,18 @@ final class AuthorizationActionVisibilityCheckerTest extends TestCase
         );
 
         self::assertFalse($checker->isVisible($action, $context));
+        self::assertSame(1, $authorizationChecker->getCallCount());
+        self::assertSame('USER_DELETE', $authorizationChecker->getLastAttribute());
+        self::assertSame(['e_id' => 42], $authorizationChecker->getLastSubject());
     }
 
     public function test_it_uses_definition_as_subject_for_global_actions(): void
     {
         $definition = new DatatableDefinition('users');
 
-        $authorizationChecker = $this->createMock(AuthorizationCheckerInterface::class);
-        $authorizationChecker
-            ->expects($this->once())
-            ->method('isGranted')
-            ->with('USER_CREATE', $definition)
-            ->willReturn(true)
-        ;
+        $authorizationChecker = new RecordingAuthorizationChecker([
+            'USER_CREATE' => true,
+        ]);
 
         $checker = new AuthorizationActionVisibilityChecker($authorizationChecker);
 
@@ -95,15 +90,14 @@ final class AuthorizationActionVisibilityCheckerTest extends TestCase
         $context = new ActionVisibilityContext(definition: $definition);
 
         self::assertTrue($checker->isVisible($action, $context));
+        self::assertSame(1, $authorizationChecker->getCallCount());
+        self::assertSame('USER_CREATE', $authorizationChecker->getLastAttribute());
+        self::assertSame($definition, $authorizationChecker->getLastSubject());
     }
 
     public function test_it_uses_fallback_checker_when_no_permission_attribute_is_defined(): void
     {
-        $authorizationChecker = $this->createMock(AuthorizationCheckerInterface::class);
-        $authorizationChecker
-            ->expects($this->never())
-            ->method('isGranted')
-        ;
+        $authorizationChecker = new RecordingAuthorizationChecker();
 
         $checker = new AuthorizationActionVisibilityChecker(
             authorizationChecker: $authorizationChecker,
@@ -119,15 +113,13 @@ final class AuthorizationActionVisibilityCheckerTest extends TestCase
             $action,
             new ActionVisibilityContext(new DatatableDefinition('users')),
         ));
+
+        self::assertSame(0, $authorizationChecker->getCallCount());
     }
 
     public function test_it_uses_fallback_checker_when_permission_attribute_is_empty(): void
     {
-        $authorizationChecker = $this->createMock(AuthorizationCheckerInterface::class);
-        $authorizationChecker
-            ->expects($this->never())
-            ->method('isGranted')
-        ;
+        $authorizationChecker = new RecordingAuthorizationChecker();
 
         $checker = new AuthorizationActionVisibilityChecker($authorizationChecker);
 
@@ -143,5 +135,57 @@ final class AuthorizationActionVisibilityCheckerTest extends TestCase
             $action,
             new ActionVisibilityContext(new DatatableDefinition('users')),
         ));
+
+        self::assertSame(0, $authorizationChecker->getCallCount());
+    }
+}
+
+final class RecordingAuthorizationChecker implements AuthorizationCheckerInterface
+{
+    /**
+     * @var array<string, bool>
+     */
+    private array $grants;
+
+    private int $callCount = 0;
+
+    private mixed $lastAttribute = null;
+
+    private mixed $lastSubject = null;
+
+    /**
+     * @param array<string, bool> $grants
+     */
+    public function __construct(array $grants = [])
+    {
+        $this->grants = $grants;
+    }
+
+    public function isGranted(mixed $attribute, mixed $subject = null, ?AccessDecision $accessDecision = null): bool
+    {
+        ++$this->callCount;
+        $this->lastAttribute = $attribute;
+        $this->lastSubject = $subject;
+
+        if (!is_string($attribute)) {
+            return false;
+        }
+
+        return $this->grants[$attribute] ?? false;
+    }
+
+    public function getCallCount(): int
+    {
+        return $this->callCount;
+    }
+
+    public function getLastAttribute(): mixed
+    {
+        return $this->lastAttribute;
+    }
+
+    public function getLastSubject(): mixed
+    {
+        return $this->lastSubject;
     }
 }
