@@ -13,6 +13,7 @@
                 type="search"
                 class="form-control"
                 placeholder="{{ 'zhortein_datatable.search.placeholder'|trans({}, 'zhortein_datatable') }}"
+                aria-label="{{ 'zhortein_datatable.search.label'|trans({}, 'zhortein_datatable') }}"
                 data-zhortein-datatable-target="searchInput"
                 data-action="input->zhortein-datatable#search"
             >
@@ -27,6 +28,7 @@
             <select
                 id="{{ htmlId }}_page_size"
                 class="form-select form-select-sm w-auto"
+                aria-label="{{ 'zhortein_datatable.page_size.label'|trans({}, 'zhortein_datatable') }}"
                 data-zhortein-datatable-target="pageSizeInput"
                 data-action="change->zhortein-datatable#changePageSize"
             >

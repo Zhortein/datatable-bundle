@@ -9,10 +9,15 @@ zhortein_datatable:
         generic: 'Impossible de charger les données du tableau.'
     empty: 'Aucune donnée disponible.'
     actions: 'Actions'
+    sort:
+        label: 'Trier par %column%'
+        sorted_ascending: 'tri croissant'
+        sorted_descending: 'tri décroissant'
     pagination:
         label: 'Pagination du tableau'
         previous: 'Précédent'
         next: 'Suivant'
+        page: 'Aller à la page %page%'
     boolean:
         yes: 'Oui'
         no: 'Non'

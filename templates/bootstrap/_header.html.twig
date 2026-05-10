@@ -20,12 +20,15 @@
                         data-zhortein-datatable-field-param="{{ column.name }}"
                         data-zhortein-datatable-current-sort-param="{{ is_current_sort ? 'true' : 'false' }}"
                         data-zhortein-datatable-sort-direction-param="{{ is_current_sort ? current_sort_direction : '' }}"
+                        aria-label="{{ 'zhortein_datatable.sort.label'|trans({
+                            '%column%': column.label ?? column.name
+                        }, 'zhortein_datatable') }}"
                     >
                         {{ column.label ?? column.name }}
 
                         {% if is_current_sort %}
                             <span class="visually-hidden">
-                                {{ current_sort_direction == 'desc' ? 'sorted descending' : 'sorted ascending' }}
+                                {{ current_sort_direction == 'desc' ? 'zhortein_datatable.sort.sorted_descending'|trans({}, 'zhortein_datatable') : 'zhortein_datatable.sort.sorted_ascending'|trans({}, 'zhortein_datatable') }}
                             </span>
                         {% endif %}
                     </button>

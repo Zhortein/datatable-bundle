@@ -13,6 +13,7 @@
     data-zhortein-datatable-page-size-value="{{ page_size }}"
     data-zhortein-datatable-sort-field-value="{{ sort_field }}"
     data-zhortein-datatable-sort-direction-value="{{ sort_direction }}"
+    aria-busy="false"
 >
     {% include '@ZhorteinDatatable/bootstrap/_toolbar.html.twig' %}
 
@@ -49,6 +50,7 @@
 
     <div
         class="zhortein-datatable__summary text-body-secondary small mt-2"
+        aria-live="polite"
         data-zhortein-datatable-target="summary"
     ></div>
 

@@ -9,10 +9,15 @@ zhortein_datatable:
         generic: 'Unable to load datatable data.'
     empty: 'No data available.'
     actions: 'Actions'
+    sort:
+        label: 'Sort by %column%'
+        sorted_ascending: 'sorted ascending'
+        sorted_descending: 'sorted descending'
     pagination:
         label: 'Datatable pagination'
         previous: 'Previous'
         next: 'Next'
+        page: 'Go to page %page%'
     boolean:
         yes: 'Yes'
         no: 'No'
