@@ -158,3 +158,17 @@ The checklist covers:
 - public API review;
 - known limitations;
 - tagging steps.
+
+## Release hardening completion
+
+Milestone 0.14 completed the project release-preparation documentation layer:
+
+- CI strategy;
+- changelog strategy;
+- release workflow;
+- Packagist readiness;
+- documentation review;
+- public API review;
+- first pre-release checklist.
+
+The next recommended step is a fresh Symfony application smoke test before tagging a first alpha.
