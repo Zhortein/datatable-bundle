@@ -979,6 +979,22 @@ Normalized state is exposed through:
 
 Providers and renderers still rely on declared columns. Frontend-provided column state only affects declared columns.
 
+### Datatable preference extension point
+
+The bundle exposes `DatatablePreferenceProviderInterface`.
+
+The default implementation is `NullDatatablePreferenceProvider`, which returns an empty preference.
+
+Host applications can replace this service to provide user-specific preferences without the bundle depending on a User entity or storage model.
+
+The preference object can currently carry:
+
+- page size;
+- sort field;
+- sort direction;
+- visible columns;
+- hidden columns.
+
 ---
 
 ## 9. Action rendering layer

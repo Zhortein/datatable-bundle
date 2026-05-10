@@ -14,6 +14,8 @@ use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
+use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
+use Zhortein\DatatableBundle\Preference\NullDatatablePreferenceProvider;
 use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Provider\DoctrineOrmDataProvider;
@@ -41,6 +43,10 @@ return static function (ContainerConfigurator $container): void {
     $services->set(DefaultDateTimeFormatter::class);
 
     $services->alias(DateTimeFormatterInterface::class, DefaultDateTimeFormatter::class);
+
+    $services->set(NullDatatablePreferenceProvider::class);
+
+    $services->alias(DatatablePreferenceProviderInterface::class, NullDatatablePreferenceProvider::class);
 
     if (interface_exists(ManagerRegistry::class)) {
         $services->set(DoctrineFieldTypeGuesser::class);
