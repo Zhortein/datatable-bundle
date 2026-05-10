@@ -13,6 +13,8 @@ use Zhortein\DatatableBundle\Result\DatatableResult;
 
 final class DatatableRendererCustomColumnTemplateTest extends TestCase
 {
+    use TranslatableRendererTestTrait;
+
     public function test_it_uses_custom_column_template_when_configured(): void
     {
         $definition = new DatatableDefinition('users');
@@ -78,9 +80,13 @@ final class DatatableRendererCustomColumnTemplateTest extends TestCase
         $loader->addPath(__DIR__.'/../../../templates', 'ZhorteinDatatable');
         $loader->addPath(__DIR__.'/templates', 'RendererTest');
 
-        return new Environment($loader, [
+        $twig = new Environment($loader, [
             'strict_variables' => true,
             'autoescape' => 'html',
         ]);
+
+        $this->addTranslationExtension($twig);
+
+        return $twig;
     }
 }

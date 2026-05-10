@@ -75,3 +75,29 @@ templates/bundles/ZhorteinDatatableBundle/bootstrap/...
 The bundle will provide a vanilla Stimulus controller later.
 
 No jQuery or DataTables.net dependency is allowed.
+
+## Translations
+
+Built-in messages use the `zhortein_datatable` translation domain.
+
+Translation files are provided for:
+
+- English;
+- French.
+
+Current keys include:
+
+```text
+zhortein_datatable.search.label
+zhortein_datatable.search.placeholder
+zhortein_datatable.loading
+zhortein_datatable.empty
+zhortein_datatable.actions
+zhortein_datatable.pagination.label
+zhortein_datatable.pagination.previous
+zhortein_datatable.pagination.next
+zhortein_datatable.boolean.yes
+zhortein_datatable.boolean.no
+```
+
+Host applications can override these translations through Symfony translation mechanisms.

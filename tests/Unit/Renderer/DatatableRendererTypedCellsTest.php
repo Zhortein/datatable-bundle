@@ -13,6 +13,8 @@ use Zhortein\DatatableBundle\Result\DatatableResult;
 
 final class DatatableRendererTypedCellsTest extends TestCase
 {
+    use TranslatableRendererTestTrait;
+
     public function test_it_renders_string_cell_template(): void
     {
         $html = $this->renderSingleColumn(type: 'string', value: 'Alice');
@@ -97,9 +99,13 @@ final class DatatableRendererTypedCellsTest extends TestCase
         $loader = new FilesystemLoader();
         $loader->addPath(__DIR__.'/../../../templates', 'ZhorteinDatatable');
 
-        return new Environment($loader, [
+        $twig = new Environment($loader, [
             'strict_variables' => true,
             'autoescape' => 'html',
         ]);
+
+        $this->addTranslationExtension($twig);
+
+        return $twig;
     }
 }

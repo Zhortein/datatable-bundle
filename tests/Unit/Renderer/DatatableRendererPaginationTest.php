@@ -13,6 +13,8 @@ use Zhortein\DatatableBundle\Result\DatatableResult;
 
 final class DatatableRendererPaginationTest extends TestCase
 {
+    use TranslatableRendererTestTrait;
+
     public function test_it_renders_bootstrap_pagination_from_result(): void
     {
         $definition = $this->createDefinition();
@@ -115,9 +117,13 @@ final class DatatableRendererPaginationTest extends TestCase
         $loader = new FilesystemLoader();
         $loader->addPath(__DIR__.'/../../../templates', 'ZhorteinDatatable');
 
-        return new Environment($loader, [
+        $twig = new Environment($loader, [
             'strict_variables' => true,
             'autoescape' => 'html',
         ]);
+
+        $this->addTranslationExtension($twig);
+
+        return $twig;
     }
 }

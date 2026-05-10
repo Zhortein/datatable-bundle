@@ -27,6 +27,8 @@
     "symfony/http-kernel": "^8.0",
     "symfony/routing": "^8.0",
     "symfony/security-csrf": "^8.0",
+    "symfony/translation": "^8.0",
+    "symfony/yaml": "^8.0",
     "twig/twig": "^3.21"
   },
   "require-dev": {

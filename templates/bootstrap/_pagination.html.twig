@@ -3,7 +3,7 @@
     data-zhortein-datatable-target="pagination"
 >
     {% if result is defined and result.totalPages > 1 %}
-        <nav aria-label="Datatable pagination">
+        <nav aria-label="{{ 'zhortein_datatable.pagination.label'|trans({}, 'zhortein_datatable') }}">
             <ul class="pagination mb-0">
                 <li class="page-item{% if result.page <= 1 %} disabled{% endif %}">
                     <button
@@ -13,7 +13,7 @@
                         data-zhortein-datatable-page-param="{{ result.page - 1 }}"
                         {% if result.page <= 1 %}disabled aria-disabled="true"{% endif %}
                     >
-                        Previous
+                        {{ 'zhortein_datatable.pagination.previous'|trans({}, 'zhortein_datatable') }}
                     </button>
                 </li>
 
@@ -39,7 +39,7 @@
                         data-zhortein-datatable-page-param="{{ result.page + 1 }}"
                         {% if result.page >= result.totalPages %}disabled aria-disabled="true"{% endif %}
                     >
-                        Next
+                        {{ 'zhortein_datatable.pagination.next'|trans({}, 'zhortein_datatable') }}
                     </button>
                 </li>
             </ul>

@@ -1,0 +1,14 @@
+zhortein_datatable:
+    search:
+        label: 'Rechercher'
+        placeholder: 'Rechercher'
+    loading: 'Chargement...'
+    empty: 'Aucune donnée disponible.'
+    actions: 'Actions'
+    pagination:
+        label: 'Pagination du tableau'
+        previous: 'Précédent'
+        next: 'Suivant'
+    boolean:
+        yes: 'Oui'
+        no: 'Non'

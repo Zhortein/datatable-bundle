@@ -1,0 +1,14 @@
+zhortein_datatable:
+    search:
+        label: 'Search'
+        placeholder: 'Search'
+    loading: 'Loading...'
+    empty: 'No data available.'
+    actions: 'Actions'
+    pagination:
+        label: 'Datatable pagination'
+        previous: 'Previous'
+        next: 'Next'
+    boolean:
+        yes: 'Yes'
+        no: 'No'

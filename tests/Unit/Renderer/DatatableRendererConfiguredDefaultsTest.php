@@ -12,6 +12,8 @@ use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 
 final class DatatableRendererConfiguredDefaultsTest extends TestCase
 {
+    use TranslatableRendererTestTrait;
+
     public function test_it_uses_configured_default_page_size(): void
     {
         $renderer = new DatatableRenderer(
@@ -78,9 +80,13 @@ final class DatatableRendererConfiguredDefaultsTest extends TestCase
         $loader = new FilesystemLoader();
         $loader->addPath(__DIR__.'/../../../templates', 'ZhorteinDatatable');
 
-        return new Environment($loader, [
+        $twig = new Environment($loader, [
             'strict_variables' => true,
             'autoescape' => 'html',
         ]);
+
+        $this->addTranslationExtension($twig);
+
+        return $twig;
     }
 }
