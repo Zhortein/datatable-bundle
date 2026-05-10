@@ -25,6 +25,7 @@ final class DatatableRendererColumnVisibilityControlsTest extends TestCase
         self::assertStringContainsString('data-zhortein-datatable-column-visibility-control="true"', $html);
         self::assertStringContainsString('data-zhortein-datatable-column-name="e.email"', $html);
         self::assertStringContainsString('data-zhortein-datatable-column-name="e.createdAt"', $html);
+        self::assertStringContainsString('data-action="change->zhortein-datatable#changeColumnVisibility"', $html);
         self::assertStringContainsString('Email', $html);
         self::assertStringContainsString('Created at', $html);
     }

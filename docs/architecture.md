@@ -945,6 +945,21 @@ Rules:
 
 This is the first step toward user-controlled column visibility and preferences. HTTP request normalization, Stimulus controls and persistence are implemented separately.
 
+### Column visibility controls and Stimulus refresh
+
+Column visibility controls now call the Stimulus `changeColumnVisibility` action.
+
+The controller serializes checked and unchecked columns as:
+
+```text
+visibleColumns[]=e.email
+hiddenColumns[]=e.createdAt
+```
+
+Definition-hidden columns are not serialized.
+
+Changing column visibility resets the current page to 1 and refreshes datatable fragments.
+
 ---
 
 ## 9. Action rendering layer

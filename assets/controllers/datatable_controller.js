@@ -34,6 +34,7 @@ export default class extends Controller {
         this.abortController = null;
         this.searchDebounceTimeout = null;
         this.filterDebounceTimeout = null;
+        this.columnVisibilityDebounceTimeout = null;
         this.updateActiveFilterState();
     }
 
@@ -46,6 +47,10 @@ export default class extends Controller {
 
         if (this.filterDebounceTimeout !== null) {
             window.clearTimeout(this.filterDebounceTimeout);
+        }
+
+        if (this.columnVisibilityDebounceTimeout !== null) {
+            window.clearTimeout(this.columnVisibilityDebounceTimeout);
         }
     }
 
@@ -145,6 +150,18 @@ export default class extends Controller {
         this.refresh();
     }
 
+    changeColumnVisibility() {
+        this.pageValue = 1;
+
+        if (this.columnVisibilityDebounceTimeout !== null) {
+            window.clearTimeout(this.columnVisibilityDebounceTimeout);
+        }
+
+        this.columnVisibilityDebounceTimeout = window.setTimeout(() => {
+            this.refresh();
+        }, 150);
+    }
+
     changePageSize(event) {
         const pageSize = Number.parseInt(event.target.value, 10);
 
@@ -206,6 +223,7 @@ export default class extends Controller {
         }
 
         this.appendFilterParameters(url.searchParams);
+        this.appendColumnVisibilityParameters(url.searchParams);
 
         return url.toString();
     }
@@ -227,6 +245,26 @@ export default class extends Controller {
             }
 
             searchParams.set(control.name, value);
+        });
+    }
+
+    appendColumnVisibilityParameters(searchParams) {
+        this.getColumnVisibilityControls().forEach((control) => {
+            if (control.dataset.zhorteinDatatableDefinitionHidden === 'true') {
+                return;
+            }
+
+            const columnName = control.dataset.zhorteinDatatableColumnName;
+
+            if (!columnName) {
+                return;
+            }
+
+            if (control.checked) {
+                searchParams.append('visibleColumns[]', columnName);
+            } else {
+                searchParams.append('hiddenColumns[]', columnName);
+            }
         });
     }
 
@@ -267,6 +305,11 @@ export default class extends Controller {
     getFilterControls() {
         return Array.from(this.element.querySelectorAll('[data-zhortein-datatable-filter-control="true"]'))
             .filter((control) => control instanceof HTMLInputElement || control instanceof HTMLSelectElement);
+    }
+
+    getColumnVisibilityControls() {
+        return Array.from(this.element.querySelectorAll('[data-zhortein-datatable-column-visibility-control="true"]'))
+            .filter((control) => control instanceof HTMLInputElement && control.type === 'checkbox');
     }
 
     applyFragments(payload) {
