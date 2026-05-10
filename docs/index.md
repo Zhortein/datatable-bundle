@@ -22,6 +22,7 @@ This bundle is in early development.
 - [CI matrix and dependency strategy](ci.md)
 - [Changelog strategy](changelog.md)
 - [Release workflow](release.md)
+- [Packagist readiness](packagist.md)
 - [Roadmap](roadmap.md)
 - [Development workflow](development.md)
 - [Doctrine-backed datatables](doctrine-provider.md)

@@ -189,3 +189,16 @@ Example:
 ```
 
 More details are available in [`release.md`](release.md).
+
+## Packagist readiness
+
+Before creating a public release, review [`packagist.md`](packagist.md).
+
+The package should not be presented as stable until:
+
+- Composer metadata is final enough;
+- CI is green on highest and lowest dependencies;
+- documentation is coherent;
+- at least one fresh Symfony application smoke test has been performed;
+- `CHANGELOG.md` is ready;
+- a version tag is planned.
