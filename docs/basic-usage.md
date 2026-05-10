@@ -528,7 +528,34 @@ Definition-level hidden columns remain hidden even if requested in `visibleColum
 
 ---
 
-## 14. Current limitations
+## 14. Column visibility and preferences
+
+Runtime column visibility can be controlled through Twig options:
+
+```twig
+{{ zhortein_datatable('users', {
+    visibleColumns: ['e.email', 'e.displayName'],
+    hiddenColumns: ['e.createdAt']
+}) }}
+```
+
+The toolbar can render a column visibility dropdown by default.
+
+Disable it if needed:
+
+```twig
+{{ zhortein_datatable('users', {
+    columnVisibility: false
+}) }}
+```
+
+Applications can provide user-specific defaults by implementing `DatatablePreferenceProviderInterface`.
+
+More details are available in [`preferences.md`](preferences.md).
+
+---
+
+## 15. Current limitations
 
 The bundle is still under active development.
 
