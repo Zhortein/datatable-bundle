@@ -51,6 +51,18 @@ Current usage:
 
 Runtime options still override configured defaults when explicitly provided.
 
+### Built-in translation catalog
+
+The bundle provides built-in translation catalogs under the `zhortein_datatable` domain.
+
+Initial locales:
+
+- English;
+- French.
+
+Twig templates use stable translation keys for built-in labels such as search, loading, empty state, pagination, actions and boolean cells.
+
+The bundle does not depend on BazingaJsTranslationBundle.
 
 ---
 

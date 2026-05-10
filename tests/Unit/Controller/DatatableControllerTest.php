@@ -18,9 +18,12 @@ use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Registry\DatatableRegistry;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
+use Zhortein\DatatableBundle\Tests\Unit\Renderer\TranslatableRendererTestTrait;
 
 final class DatatableControllerTest extends TestCase
 {
+    use TranslatableRendererTestTrait;
+
     public function test_it_returns_rendered_fragments_from_provider_result(): void
     {
         $controller = $this->createController();
@@ -129,10 +132,14 @@ final class DatatableControllerTest extends TestCase
         $loader = new FilesystemLoader();
         $loader->addPath(__DIR__.'/../../../templates', 'ZhorteinDatatable');
 
-        return new Environment($loader, [
+        $twig = new Environment($loader, [
             'strict_variables' => true,
             'autoescape' => 'html',
         ]);
+
+        $this->addTranslationExtension($twig);
+
+        return $twig;
     }
 }
 

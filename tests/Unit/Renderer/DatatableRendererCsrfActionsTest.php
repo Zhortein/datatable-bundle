@@ -18,6 +18,8 @@ use Zhortein\DatatableBundle\Result\DatatableResult;
 
 final class DatatableRendererCsrfActionsTest extends TestCase
 {
+    use TranslatableRendererTestTrait;
+
     public function test_it_renders_non_get_row_action_as_form_with_csrf_token(): void
     {
         $definition = new DatatableDefinition('users');
@@ -227,9 +229,13 @@ final class DatatableRendererCsrfActionsTest extends TestCase
         $loader = new FilesystemLoader();
         $loader->addPath(__DIR__.'/../../../templates', 'ZhorteinDatatable');
 
-        return new Environment($loader, [
+        $twig = new Environment($loader, [
             'strict_variables' => true,
             'autoescape' => 'html',
         ]);
+
+        $this->addTranslationExtension($twig);
+
+        return $twig;
     }
 }

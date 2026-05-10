@@ -14,10 +14,13 @@ use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Registry\DatatableRegistry;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
+use Zhortein\DatatableBundle\Tests\Unit\Renderer\TranslatableRendererTestTrait;
 use Zhortein\DatatableBundle\Twig\DatatableTwigExtension;
 
 final class DatatableTwigExtensionTest extends TestCase
 {
+    use TranslatableRendererTestTrait;
+
     public function test_render_method_is_exposed_as_twig_function(): void
     {
         $reflectionMethod = new \ReflectionMethod(DatatableTwigExtension::class, 'renderDatatable');
@@ -81,10 +84,14 @@ final class DatatableTwigExtensionTest extends TestCase
         $loader = new FilesystemLoader();
         $loader->addPath(__DIR__.'/../../../templates', 'ZhorteinDatatable');
 
-        return new Environment($loader, [
+        $twig = new Environment($loader, [
             'strict_variables' => true,
             'autoescape' => 'html',
         ]);
+
+        $this->addTranslationExtension($twig);
+
+        return $twig;
     }
 }
 

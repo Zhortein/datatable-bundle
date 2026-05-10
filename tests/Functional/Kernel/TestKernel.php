@@ -43,6 +43,11 @@ final class TestKernel extends Kernel
             'test' => true,
             'secret' => 'zhortein-datatable-test-secret',
             'http_method_override' => false,
+            'default_locale' => 'en',
+            'translator' => [
+                'default_path' => __DIR__.'/../../../translations',
+                'fallbacks' => ['en'],
+            ],
             'router' => [
                 'utf8' => true,
             ],

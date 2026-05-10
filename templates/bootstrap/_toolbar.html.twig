@@ -2,13 +2,13 @@
     <div class="zhortein-datatable__search">
         {% if options.search is defined and options.search %}
             <label class="visually-hidden" for="{{ htmlId }}_search">
-                Search
+                {{ 'zhortein_datatable.search.label'|trans({}, 'zhortein_datatable') }}
             </label>
             <input
                 id="{{ htmlId }}_search"
                 type="search"
                 class="form-control"
-                placeholder="Search"
+                placeholder="{{ 'zhortein_datatable.search.placeholder'|trans({}, 'zhortein_datatable') }}"
                 data-zhortein-datatable-target="searchInput"
                 data-action="input->zhortein-datatable#search"
             >
