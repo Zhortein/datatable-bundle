@@ -14,7 +14,9 @@ use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Definition\FilterDefinition;
 use Zhortein\DatatableBundle\Definition\JoinDefinition;
+use Zhortein\DatatableBundle\Definition\UserFilterDefinition;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
+use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Enum\JoinType;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
 use Zhortein\DatatableBundle\Result\DatatableResult;
@@ -47,7 +49,7 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
 
         $rows = $this->loadRows($entityManager, $entityClass, $selectedColumns, $definition, $request);
         $totalItems = $this->countRows($entityManager, $entityClass, $definition);
-        $filteredItems = $request->hasSearchQuery()
+        $filteredItems = $request->hasSearchQuery() || $request->hasFilters()
             ? $this->countRows($entityManager, $entityClass, $definition, $request)
             : $totalItems;
 
@@ -116,6 +118,7 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         }
 
         $this->applyPermanentFilters($queryBuilder, $definition);
+        $this->applyUserFilters($queryBuilder, $entityManager, $entityClass, $definition, $request);
         $this->applySearch($queryBuilder, $entityManager, $entityClass, $definition, $request);
         $this->applySorting($queryBuilder, $entityManager, $entityClass, $definition, $request);
 
@@ -143,6 +146,7 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         $this->applyPermanentFilters($queryBuilder, $definition);
 
         if (null !== $request) {
+            $this->applyUserFilters($queryBuilder, $entityManager, $entityClass, $definition, $request);
             $this->applySearch($queryBuilder, $entityManager, $entityClass, $definition, $request);
         }
 
@@ -248,6 +252,198 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
             FilterOperator::NotLike => $queryBuilder
                 ->andWhere(sprintf('%s NOT LIKE :%s', $field, $parameterName))
                 ->setParameter($parameterName, $filter->getValue()),
+        };
+    }
+
+    /**
+     * @param class-string $entityClass
+     */
+    private function applyUserFilters(
+        QueryBuilder $queryBuilder,
+        EntityManagerInterface $entityManager,
+        string $entityClass,
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+    ): void {
+        if (!$request->hasFilters()) {
+            return;
+        }
+
+        foreach ($definition->getFilters() as $filter) {
+            if (!$request->hasFilter($filter->getName())) {
+                continue;
+            }
+
+            $filterValue = $request->getFilter($filter->getName());
+
+            if (null === $filterValue) {
+                continue;
+            }
+
+            $this->applyUserFilter(
+                queryBuilder: $queryBuilder,
+                entityManager: $entityManager,
+                entityClass: $entityClass,
+                definition: $definition,
+                filter: $filter,
+                value: $filterValue,
+            );
+        }
+    }
+
+    /**
+     * @param class-string $entityClass
+     */
+    private function applyUserFilter(
+        QueryBuilder $queryBuilder,
+        EntityManagerInterface $entityManager,
+        string $entityClass,
+        DatatableDefinition $definition,
+        UserFilterDefinition $filter,
+        mixed $value,
+    ): void {
+        $fieldReference = $this->normalizeFieldReference($filter->getField(), $definition);
+        [$alias, $fieldName] = $this->splitFieldReference($fieldReference);
+        $metadata = $this->getMetadataForAlias($entityManager, $entityClass, $definition, $alias);
+
+        if (!$metadata->hasField($fieldName)) {
+            return;
+        }
+
+        $parameterName = sprintf('datatable_filter_%s', preg_replace('/[^a-zA-Z0-9_]+/', '_', $filter->getName()));
+
+        match ($filter->getType()) {
+            FilterType::Text => $this->applyTextUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
+            FilterType::Choice => $this->applyChoiceUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
+            FilterType::Boolean => $this->applyBooleanUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
+            FilterType::Date => $this->applyDateUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
+            FilterType::DateRange => $this->applyRangeUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
+            FilterType::Number => $this->applyNumberUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
+            FilterType::NumberRange => $this->applyRangeUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
+        };
+    }
+
+    private function applyTextUserFilter(QueryBuilder $queryBuilder, string $field, string $parameterName, mixed $value): void
+    {
+        if (!is_scalar($value)) {
+            return;
+        }
+
+        $queryBuilder
+            ->andWhere(sprintf('LOWER(%s) LIKE :%s', $field, $parameterName))
+            ->setParameter($parameterName, '%'.mb_strtolower((string) $value).'%')
+        ;
+    }
+
+    private function applyChoiceUserFilter(QueryBuilder $queryBuilder, string $field, string $parameterName, mixed $value): void
+    {
+        if (is_array($value)) {
+            $queryBuilder
+                ->andWhere(sprintf('%s IN (:%s)', $field, $parameterName))
+                ->setParameter($parameterName, $value)
+            ;
+
+            return;
+        }
+
+        if (!is_scalar($value)) {
+            return;
+        }
+
+        $queryBuilder
+            ->andWhere(sprintf('%s = :%s', $field, $parameterName))
+            ->setParameter($parameterName, $value)
+        ;
+    }
+
+    private function applyBooleanUserFilter(QueryBuilder $queryBuilder, string $field, string $parameterName, mixed $value): void
+    {
+        $normalizedValue = $this->normalizeBooleanFilterValue($value);
+
+        if (null === $normalizedValue) {
+            return;
+        }
+
+        $queryBuilder
+            ->andWhere(sprintf('%s = :%s', $field, $parameterName))
+            ->setParameter($parameterName, $normalizedValue)
+        ;
+    }
+
+    private function applyDateUserFilter(QueryBuilder $queryBuilder, string $field, string $parameterName, mixed $value): void
+    {
+        if (!is_scalar($value)) {
+            return;
+        }
+
+        $date = \DateTimeImmutable::createFromFormat('Y-m-d', (string) $value);
+
+        if (!$date instanceof \DateTimeImmutable) {
+            return;
+        }
+
+        $queryBuilder
+            ->andWhere(sprintf('%s >= :%s_start', $field, $parameterName))
+            ->andWhere(sprintf('%s < :%s_end', $field, $parameterName))
+            ->setParameter(sprintf('%s_start', $parameterName), $date->setTime(0, 0))
+            ->setParameter(sprintf('%s_end', $parameterName), $date->modify('+1 day')->setTime(0, 0))
+        ;
+    }
+
+    private function applyNumberUserFilter(QueryBuilder $queryBuilder, string $field, string $parameterName, mixed $value): void
+    {
+        if (!is_numeric($value)) {
+            return;
+        }
+
+        $queryBuilder
+            ->andWhere(sprintf('%s = :%s', $field, $parameterName))
+            ->setParameter($parameterName, $value)
+        ;
+    }
+
+    private function applyRangeUserFilter(QueryBuilder $queryBuilder, string $field, string $parameterName, mixed $value): void
+    {
+        if (!is_array($value)) {
+            return;
+        }
+
+        $from = $value['from'] ?? null;
+        $to = $value['to'] ?? null;
+
+        if (is_scalar($from)) {
+            $queryBuilder
+                ->andWhere(sprintf('%s >= :%s_from', $field, $parameterName))
+                ->setParameter(sprintf('%s_from', $parameterName), $from)
+            ;
+        }
+
+        if (is_scalar($to)) {
+            $queryBuilder
+                ->andWhere(sprintf('%s <= :%s_to', $field, $parameterName))
+                ->setParameter(sprintf('%s_to', $parameterName), $to)
+            ;
+        }
+    }
+
+    private function normalizeBooleanFilterValue(mixed $value): ?bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value)) {
+            return 1 === $value ? true : (0 === $value ? false : null);
+        }
+
+        if (!is_string($value)) {
+            return null;
+        }
+
+        return match (strtolower(trim($value))) {
+            '1', 'true', 'yes', 'on' => true,
+            '0', 'false', 'no', 'off' => false,
+            default => null,
         };
     }
 
