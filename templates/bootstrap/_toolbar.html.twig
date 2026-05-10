@@ -82,7 +82,7 @@
                 data-action="change->zhortein-datatable#changePageSize"
             >
                 {% for page_size_option in allowed_page_sizes %}
-                    <option value="{{ page_size_option }}" {% if page_size_option == page_size %}selected{% endif %}>
+                    <option value="{{ page_size_option }}"{% if page_size_option == page_size %} selected{% endif %}>
                         {{ page_size_option }}
                     </option>
                 {% endfor %}

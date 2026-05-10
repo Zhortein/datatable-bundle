@@ -15,7 +15,9 @@
             class="form-select form-select-sm"
             data-zhortein-datatable-filter-control="true"
             data-action="change->zhortein-datatable#changeFilter"
-            {% if filter.required %}required{% endif %}
+            {% if filter.required %}
+                required
+            {% endif %}
         >
             <option value="">{{ filter_placeholder }}</option>
             {% for choice_label, choice_value in filter.choices %}
@@ -29,7 +31,9 @@
             class="form-select form-select-sm"
             data-zhortein-datatable-filter-control="true"
             data-action="change->zhortein-datatable#changeFilter"
-            {% if filter.required %}required{% endif %}
+            {% if filter.required %}
+                required
+            {% endif %}
         >
             <option value="">{{ filter_placeholder }}</option>
             <option value="1">{{ 'zhortein_datatable.boolean.yes'|trans({}, 'zhortein_datatable') }}</option>
@@ -44,7 +48,9 @@
             placeholder="{{ filter_placeholder }}"
             data-zhortein-datatable-filter-control="true"
             data-action="change->zhortein-datatable#changeFilter"
-            {% if filter.required %}required{% endif %}
+            {% if filter.required %}
+                required
+            {% endif %}
         >
     {% elseif filter_type == 'date_range' %}
         <div class="d-flex gap-1">
@@ -76,7 +82,9 @@
             placeholder="{{ filter_placeholder }}"
             data-zhortein-datatable-filter-control="true"
             data-action="input->zhortein-datatable#changeFilter change->zhortein-datatable#changeFilter"
-            {% if filter.required %}required{% endif %}
+            {% if filter.required %}
+                required
+            {% endif %}
         >
     {% elseif filter_type == 'number_range' %}
         <div class="d-flex gap-1">
@@ -108,7 +116,9 @@
             placeholder="{{ filter_placeholder }}"
             data-zhortein-datatable-filter-control="true"
             data-action="input->zhortein-datatable#changeFilter change->zhortein-datatable#changeFilter"
-            {% if filter.required %}required{% endif %}
+            {% if filter.required %}
+                required
+            {% endif %}
         >
     {% endif %}
 </div>

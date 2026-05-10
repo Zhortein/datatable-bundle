@@ -29,8 +29,12 @@
                         data-zhortein-datatable-column-visibility-control="true"
                         data-zhortein-datatable-column-name="{{ column.name }}"
                         data-action="change->zhortein-datatable#changeColumnVisibility"
-                        {% if checked %}checked{% endif %}
-                        {% if not column.visible %}data-zhortein-datatable-definition-hidden="true"{% endif %}
+                        {% if checked %}
+                            checked
+                        {% endif %}
+                        {% if not column.visible %}
+                            data-zhortein-datatable-definition-hidden="true"
+                        {% endif %}
                     >
                     <label class="form-check-label" for="{{ input_id }}">
                         {{ column.label ?? column.name }}
