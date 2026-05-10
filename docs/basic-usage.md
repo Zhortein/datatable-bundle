@@ -584,7 +584,30 @@ More details are available in [`exports.md`](exports.md).
 
 ---
 
-## 16. Current limitations
+## 16. Template overrides
+
+The bundle uses Twig-first rendering and Bootstrap templates.
+
+Host applications can override bundle templates with Symfony override paths:
+
+```text
+templates/bundles/ZhorteinDatatableBundle/bootstrap/_toolbar.html.twig
+```
+
+For a single custom cell, prefer a column template:
+
+```php
+$definition->addColumn(
+    name: 'e.status',
+    template: 'admin/datatable/cell/status.html.twig',
+);
+```
+
+More details are available in [`templates.md`](templates.md).
+
+---
+
+## 17. Current limitations
 
 The bundle is still under active development.
 
