@@ -1443,6 +1443,21 @@ The control can be disabled at render time with:
 }) }}
 ```
 
+### Export documentation
+
+Server-side exports are documented in [`exports.md`](exports.md).
+
+The documentation covers:
+
+- export route;
+- CSV format;
+- current and full export modes;
+- export request flow;
+- CSV writer behavior;
+- toolbar export controls;
+- value normalization;
+- current limitations.
+
 ---
 
 ## 15. Documentation map

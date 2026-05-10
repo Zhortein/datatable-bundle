@@ -338,39 +338,43 @@ Current limitations:
 
 ---
 
-# Next milestones
+## 0.11 - Export foundation ✅
 
-## 0.11 - Export foundation 🚧
+Delivered:
 
-Add server-side exports.
+- `ExportFormat` enum.
+- `ExportMode` enum.
+- `DatatableExportRequest`.
+- `DatatableExportResult`.
+- `ExportWriterInterface`.
+- `ExportWriterRegistry`.
+- `CsvExportWriter`.
+- CSV export endpoint.
+- Current-view export mode.
+- Full-dataset export mode.
+- CSV export toolbar control.
+- Server-side export documentation.
 
-Planned:
-
-- Export provider contract.
-- CSV export.
-- Export current filtered dataset.
-- Export full visible dataset.
-- Export filename strategy.
-- Streaming response.
-- Optional XLSX support decision.
-- Documentation.
-
-Target outcome:
+Main outcome:
 
 ```text
-Applications can export datatable data safely from the server side.
+Datatables can now export CSV files server-side without client-side export plugins.
 ```
 
-Out of scope:
+Current limitations:
 
-- client-side exports;
-- PDF export;
-- asynchronous export queue;
-- very large export orchestration.
+- CSV only;
+- no XLSX writer yet;
+- no asynchronous exports;
+- no export size limits;
+- no streaming provider support for very large datasets;
+- no built-in authorization layer.
 
 ---
 
-## 0.12 - Theming and template override polish 🕒
+# Next milestones
+
+## 0.12 - Theming and template override polish 🚧
 
 Improve rendering customization.
 

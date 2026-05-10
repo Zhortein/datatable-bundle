@@ -100,6 +100,7 @@ With runtime options:
 - [Table controls and interactions](docs/table-controls.md)
 - [Column visibility and preferences](docs/preferences.md)
 - [User-facing filters](docs/filters.md)
+- [Server-side exports](docs/exports.md)
 
 ## Architecture decisions
 

@@ -555,7 +555,36 @@ More details are available in [`preferences.md`](preferences.md).
 
 ---
 
-## 15. Current limitations
+## 15. Server-side exports
+
+CSV exports are available server-side.
+
+The default toolbar renders two CSV export links:
+
+- current view;
+- full dataset.
+
+Disable export controls:
+
+```twig
+{{ zhortein_datatable('users', {
+    export: false
+}) }}
+```
+
+Use a custom export URL:
+
+```twig
+{{ zhortein_datatable('users', {
+    exportUrl: path('custom_users_export')
+}) }}
+```
+
+More details are available in [`exports.md`](exports.md).
+
+---
+
+## 16. Current limitations
 
 The bundle is still under active development.
 
