@@ -1056,6 +1056,31 @@ The documentation covers:
 
 This document acts as the current public rendering contract for template overrides.
 
+### Bootstrap table display variants
+
+The Bootstrap datatable shell supports runtime display variants.
+
+Current options:
+
+```twig
+{{ zhortein_datatable('users', {
+    tableStriped: true,
+    tableHover: true,
+    tableBordered: false,
+    tableBorderless: false,
+    tableSmall: false,
+    tableResponsive: true
+}) }}
+```
+
+Defaults preserve the current rendering:
+
+```text
+table table-striped table-hover align-middle mb-0
+```
+
+The responsive wrapper is enabled by default through `table-responsive`.
+
 ---
 
 ## 9. Action rendering layer

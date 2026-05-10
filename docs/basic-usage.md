@@ -607,7 +607,30 @@ More details are available in [`templates.md`](templates.md).
 
 ---
 
-## 17. Current limitations
+## 17. Bootstrap table variants
+
+Table display variants can be configured at render time:
+
+```twig
+{{ zhortein_datatable('users', {
+    tableStriped: true,
+    tableHover: true,
+    tableBordered: true,
+    tableSmall: true
+}) }}
+```
+
+Disable the responsive wrapper:
+
+```twig
+{{ zhortein_datatable('users', {
+    tableResponsive: false
+}) }}
+```
+
+---
+
+## 18. Current limitations
 
 The bundle is still under active development.
 
