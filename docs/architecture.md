@@ -657,6 +657,20 @@ assets/controllers/datatable_controller.js
 
 It must not depend on jQuery or DataTables.net.
 
+### Stimulus and AssetMapper integration
+
+The frontend controller is designed for Symfony UX Stimulus and AssetMapper.
+
+The bundle ships a vanilla JavaScript controller under:
+
+```text
+assets/controllers/datatable_controller.js
+```
+
+Host applications can expose it through a local wrapper controller until an automatic registration or Flex recipe strategy is implemented.
+
+The controller does not depend on jQuery, DataTables.net or a Node build pipeline.
+
 ### Responsibilities
 
 The controller is responsible for:

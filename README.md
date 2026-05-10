@@ -96,6 +96,7 @@ With runtime options:
 - [Doctrine-backed datatables](docs/doctrine-provider.md)
 - [Actions and typed cell rendering](docs/actions-and-cells.md)
 - [Routes](docs/routes.md)
+- [Stimulus and AssetMapper integration](docs/stimulus-assetmapper.md)
 
 ## Architecture decisions
 
