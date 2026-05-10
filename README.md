@@ -114,6 +114,7 @@ With runtime options:
 - [Cell template reference](docs/cell-templates.md)
 - [Theming and rendering customization](docs/theming.md)
 - [Action security and visibility](docs/action-security.md)
+- [Changelog strategy](docs/changelog.md)
 
 ## Architecture decisions
 

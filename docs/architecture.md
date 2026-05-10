@@ -1803,3 +1803,17 @@ Quality gates include:
 - twigcs.
 
 Temporary debug output should not remain in CI workflows after investigation.
+
+### Changelog strategy
+
+Changelog automation strategy is documented in `docs/changelog.md`.
+
+The project uses dependency-free Markdown fragments under `changelog/unreleased/`.
+
+The unreleased section of `CHANGELOG.md` can be rebuilt with:
+
+```bash
+composer changelog
+```
+
+This keeps changelog updates reviewable in pull requests while avoiding a heavy release tool too early.
