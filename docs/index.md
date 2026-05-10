@@ -21,6 +21,7 @@ This bundle is in early development.
 - [Architecture](architecture.md)
 - [CI matrix and dependency strategy](ci.md)
 - [Changelog strategy](changelog.md)
+- [Release workflow](release.md)
 - [Roadmap](roadmap.md)
 - [Development workflow](development.md)
 - [Doctrine-backed datatables](doctrine-provider.md)

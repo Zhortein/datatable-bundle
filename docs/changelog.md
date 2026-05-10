@@ -173,3 +173,19 @@ It does not yet:
 - publish to Packagist.
 
 Those tasks belong to the release workflow milestone.
+
+## GitHub release workflow
+
+GitHub Releases are created from tags by `.github/workflows/release.yaml`.
+
+The workflow extracts release notes from `CHANGELOG.md`.
+
+Before creating a tag, move relevant entries from `Unreleased` to a versioned section.
+
+Example:
+
+```md
+## [0.1.0] - 2026-05-09
+```
+
+More details are available in [`release.md`](release.md).
