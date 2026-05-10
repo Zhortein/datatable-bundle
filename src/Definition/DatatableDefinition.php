@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Definition;
 
 use Zhortein\DatatableBundle\Enum\FilterOperator;
+use Zhortein\DatatableBundle\Enum\JoinType;
 
 final class DatatableDefinition
 {
@@ -34,6 +35,11 @@ final class DatatableDefinition
      * @var list<FilterDefinition>
      */
     private array $permanentFilters = [];
+
+    /**
+     * @var array<string, JoinDefinition>
+     */
+    private array $joins = [];
 
     /**
      * @var array<string, mixed>
@@ -117,6 +123,28 @@ final class DatatableDefinition
     public function getColumns(): array
     {
         return $this->columns;
+    }
+
+    public function addJoin(
+        string $alias,
+        string $join,
+        JoinType $type = JoinType::Left,
+    ): self {
+        $this->joins[$alias] = new JoinDefinition(
+            alias: $alias,
+            join: $join,
+            type: $type,
+        );
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, JoinDefinition>
+     */
+    public function getJoins(): array
+    {
+        return $this->joins;
     }
 
     /**
