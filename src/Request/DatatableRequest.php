@@ -9,6 +9,7 @@ use Zhortein\DatatableBundle\Enum\SortDirection;
 final readonly class DatatableRequest
 {
     /**
+     * @param array<string, mixed> $filters
      * @param array<string, mixed> $options
      */
     public function __construct(
@@ -17,6 +18,7 @@ final readonly class DatatableRequest
         private ?string $searchQuery = null,
         private ?string $sortField = null,
         private SortDirection $sortDirection = SortDirection::Asc,
+        private array $filters = [],
         private array $options = [],
     ) {
         if ($this->page < 1) {
@@ -29,6 +31,7 @@ final readonly class DatatableRequest
     }
 
     /**
+     * @param array<string, mixed> $filters
      * @param array<string, mixed> $options
      */
     public static function create(
@@ -37,6 +40,7 @@ final readonly class DatatableRequest
         ?string $searchQuery = null,
         ?string $sortField = null,
         SortDirection|string $sortDirection = SortDirection::Asc,
+        array $filters = [],
         array $options = [],
     ): self {
         return new self(
@@ -45,6 +49,7 @@ final readonly class DatatableRequest
             searchQuery: self::normalizeNullableString($searchQuery),
             sortField: self::normalizeNullableString($sortField),
             sortDirection: is_string($sortDirection) ? SortDirection::fromString($sortDirection) : $sortDirection,
+            filters: self::normalizeFilters($filters),
             options: $options,
         );
     }
@@ -92,6 +97,29 @@ final readonly class DatatableRequest
     /**
      * @return array<string, mixed>
      */
+    public function getFilters(): array
+    {
+        return $this->filters;
+    }
+
+    public function hasFilters(): bool
+    {
+        return [] !== $this->filters;
+    }
+
+    public function hasFilter(string $name): bool
+    {
+        return array_key_exists($name, $this->filters);
+    }
+
+    public function getFilter(string $name, mixed $default = null): mixed
+    {
+        return $this->filters[$name] ?? $default;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     public function getOptions(): array
     {
         return $this->options;
@@ -111,5 +139,70 @@ final readonly class DatatableRequest
         $value = trim($value);
 
         return '' === $value ? null : $value;
+    }
+
+    /**
+     * @param array<string, mixed> $filters
+     *
+     * @return array<string, mixed>
+     */
+    private static function normalizeFilters(array $filters): array
+    {
+        $normalizedFilters = [];
+
+        foreach ($filters as $name => $value) {
+            if ('' === trim($name)) {
+                continue;
+            }
+
+            $normalizedValue = self::normalizeFilterValue($value);
+
+            if (null === $normalizedValue) {
+                continue;
+            }
+
+            $normalizedFilters[$name] = $normalizedValue;
+        }
+
+        return $normalizedFilters;
+    }
+
+    private static function normalizeFilterValue(mixed $value): mixed
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        if (is_string($value)) {
+            $value = trim($value);
+
+            return '' === $value ? null : $value;
+        }
+
+        if (is_array($value)) {
+            $normalizedValues = [];
+
+            foreach ($value as $itemKey => $itemValue) {
+                $normalizedItemValue = self::normalizeFilterValue($itemValue);
+
+                if (null === $normalizedItemValue) {
+                    continue;
+                }
+
+                if (is_string($itemKey)) {
+                    $normalizedValues[$itemKey] = $normalizedItemValue;
+                } else {
+                    $normalizedValues[] = $normalizedItemValue;
+                }
+            }
+
+            return [] === $normalizedValues ? null : $normalizedValues;
+        }
+
+        if (is_scalar($value)) {
+            return $value;
+        }
+
+        return null;
     }
 }

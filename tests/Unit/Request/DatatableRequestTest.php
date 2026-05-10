@@ -22,6 +22,8 @@ final class DatatableRequestTest extends TestCase
         self::assertNull($request->getSortField());
         self::assertFalse($request->hasSort());
         self::assertSame(SortDirection::Asc, $request->getSortDirection());
+        self::assertSame([], $request->getFilters());
+        self::assertFalse($request->hasFilters());
         self::assertSame([], $request->getOptions());
     }
 
@@ -33,6 +35,7 @@ final class DatatableRequestTest extends TestCase
             searchQuery: 'john',
             sortField: 'e.email',
             sortDirection: SortDirection::Desc,
+            filters: ['status' => 'enabled'],
             options: ['foo' => 'bar'],
         );
 
@@ -44,6 +47,11 @@ final class DatatableRequestTest extends TestCase
         self::assertSame('e.email', $request->getSortField());
         self::assertTrue($request->hasSort());
         self::assertSame(SortDirection::Desc, $request->getSortDirection());
+        self::assertSame(['status' => 'enabled'], $request->getFilters());
+        self::assertTrue($request->hasFilters());
+        self::assertTrue($request->hasFilter('status'));
+        self::assertSame('enabled', $request->getFilter('status'));
+        self::assertSame('fallback', $request->getFilter('missing', 'fallback'));
         self::assertSame(['foo' => 'bar'], $request->getOptions());
         self::assertSame('bar', $request->getOption('foo'));
         self::assertSame('fallback', $request->getOption('missing', 'fallback'));
@@ -77,6 +85,26 @@ final class DatatableRequestTest extends TestCase
         self::assertFalse($request->hasSearchQuery());
         self::assertNull($request->getSortField());
         self::assertFalse($request->hasSort());
+    }
+
+    public function test_it_normalizes_filter_values(): void
+    {
+        $request = DatatableRequest::create(filters: [
+            'email' => '  alice@example.test  ',
+            'status' => '',
+            'roles' => ['admin', '', 'user'],
+            'range' => [
+                'from' => ' 10 ',
+                'to' => ' ',
+            ],
+            'invalid' => new \stdClass(),
+        ]);
+
+        self::assertSame([
+            'email' => 'alice@example.test',
+            'roles' => ['admin', 'user'],
+            'range' => ['from' => '10'],
+        ], $request->getFilters());
     }
 
     public function test_it_rejects_invalid_page(): void
