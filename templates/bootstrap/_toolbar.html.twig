@@ -2,7 +2,7 @@
 {% set page_size_selector_enabled = options.pageSizeSelector is defined ? options.pageSizeSelector : true %}
 {% set allowed_page_sizes = options.allowedPageSizes is defined ? options.allowedPageSizes : [10, 25, 50, 100] %}
 
-<div class="zhortein-datatable__toolbar d-flex justify-content-between align-items-center gap-2 mb-3">
+<div class="zhortein-datatable__toolbar d-flex flex-wrap justify-content-between align-items-end gap-3 mb-3">
     <div class="zhortein-datatable__search">
         {% if options.search is defined and options.search %}
             <label class="visually-hidden" for="{{ htmlId }}_search">
@@ -19,6 +19,11 @@
             >
         {% endif %}
     </div>
+
+    {% include '@ZhorteinDatatable/bootstrap/_filters.html.twig' with {
+        definition: definition,
+        htmlId: htmlId
+    } only %}
 
     <div class="zhortein-datatable__controls d-flex align-items-center gap-2">
         {% if page_size_selector_enabled %}

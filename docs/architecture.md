@@ -789,6 +789,30 @@ Current improvements:
 
 This is not a full WCAG audit, but it provides a stronger baseline for professional back-office usage.
 
+### Filter toolbar rendering
+
+Declared user-facing filters are rendered in the datatable toolbar.
+
+The first rendering layer supports:
+
+- text filters;
+- choice filters;
+- boolean filters;
+- date filters;
+- date range filters;
+- number filters;
+- number range filters.
+
+Rendered controls use stable request names:
+
+```text
+filters[filterName]
+filters[filterName][from]
+filters[filterName][to]
+```
+
+Stimulus integration and provider application are handled in later steps.
+
 ---
 
 ## 9. Action rendering layer
