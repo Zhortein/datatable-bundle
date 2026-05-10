@@ -906,6 +906,28 @@ filters[createdAt][to]
 
 Changing a filter resets the current page to 1 and refreshes Ajax fragments.
 
+### Runtime column visibility state
+
+The renderer supports runtime column visibility through rendering options.
+
+Supported options:
+
+```php
+[
+    'visibleColumns' => ['e.email', 'e.displayName'],
+    'hiddenColumns' => ['e.createdAt'],
+]
+```
+
+Rules:
+
+- definition-level hidden columns remain hidden;
+- `visibleColumns` restricts rendering to a whitelist;
+- `hiddenColumns` excludes matching columns;
+- explicit `visibleColumns` and `hiddenColumns` use column names as declared in `DatatableDefinition`.
+
+This is the first step toward user-controlled column visibility and preferences. HTTP request normalization, Stimulus controls and persistence are implemented separately.
+
 ---
 
 ## 9. Action rendering layer
