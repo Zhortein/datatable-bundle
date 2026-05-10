@@ -5,6 +5,8 @@ zhortein_datatable:
     page_size:
         label: 'Rows per page'
     loading: 'Loading...'
+    error:
+        generic: 'Unable to load datatable data.'
     empty: 'No data available.'
     actions: 'Actions'
     pagination:

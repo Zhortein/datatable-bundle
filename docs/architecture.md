@@ -760,6 +760,26 @@ The controller sends these values as query parameters:
 - `sortField`;
 - `sortDirection`.
 
+### Loading and error states
+
+The datatable shell renders accessible loading and error targets.
+
+Loading state:
+
+- uses `role="status"`;
+- uses `aria-live="polite"`;
+- includes a Bootstrap spinner;
+- is toggled by the Stimulus controller.
+
+Error state:
+
+- uses a Bootstrap danger alert;
+- uses `role="alert"`;
+- uses `aria-live="polite"`;
+- is cleared before refresh and after successful fragment application.
+
+The Stimulus controller toggles `aria-busy` on the datatable root element during refresh.
+
 ---
 
 ## 12. Test and quality architecture

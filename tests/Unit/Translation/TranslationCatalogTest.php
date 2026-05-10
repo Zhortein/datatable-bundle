@@ -17,6 +17,7 @@ final class TranslationCatalogTest extends TestCase
         self::assertSame('Search', $translator->trans('zhortein_datatable.search.label', [], 'zhortein_datatable'));
         self::assertSame('Rows per page', $translator->trans('zhortein_datatable.page_size.label', [], 'zhortein_datatable'));
         self::assertSame('Loading...', $translator->trans('zhortein_datatable.loading', [], 'zhortein_datatable'));
+        self::assertSame('Unable to load datatable data.', $translator->trans('zhortein_datatable.error.generic', [], 'zhortein_datatable'));
         self::assertSame('No data available.', $translator->trans('zhortein_datatable.empty', [], 'zhortein_datatable'));
         self::assertSame('Actions', $translator->trans('zhortein_datatable.actions', [], 'zhortein_datatable'));
         self::assertSame('Previous', $translator->trans('zhortein_datatable.pagination.previous', [], 'zhortein_datatable'));
@@ -32,6 +33,7 @@ final class TranslationCatalogTest extends TestCase
         self::assertSame('Rechercher', $translator->trans('zhortein_datatable.search.label', [], 'zhortein_datatable'));
         self::assertSame('Lignes par page', $translator->trans('zhortein_datatable.page_size.label', [], 'zhortein_datatable'));
         self::assertSame('Chargement...', $translator->trans('zhortein_datatable.loading', [], 'zhortein_datatable'));
+        self::assertSame('Impossible de charger les données du tableau.', $translator->trans('zhortein_datatable.error.generic', [], 'zhortein_datatable'));
         self::assertSame('Aucune donnée disponible.', $translator->trans('zhortein_datatable.empty', [], 'zhortein_datatable'));
         self::assertSame('Précédent', $translator->trans('zhortein_datatable.pagination.previous', [], 'zhortein_datatable'));
         self::assertSame('Suivant', $translator->trans('zhortein_datatable.pagination.next', [], 'zhortein_datatable'));
