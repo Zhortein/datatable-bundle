@@ -56,6 +56,10 @@ final class DatatableControllerTest extends TestCase
 
         $payload = $this->decodeResponse($response->getContent());
 
+        self::assertArrayHasKey('header', $payload);
+        self::assertIsString($payload['header']);
+        self::assertStringContainsString('<thead', $payload['header']);
+        self::assertStringContainsString('data-zhortein-datatable-target="header"', $payload['header']);
         self::assertArrayHasKey('body', $payload);
         self::assertArrayHasKey('pagination', $payload);
         self::assertArrayHasKey('summary', $payload);
@@ -71,6 +75,23 @@ final class DatatableControllerTest extends TestCase
         self::assertStringNotContainsString('charlie@example.test', $payload['body']);
         self::assertIsString($payload['pagination']);
         self::assertStringContainsString('data-zhortein-datatable-page-param="2"', $payload['pagination']);
+    }
+
+    public function test_it_returns_header_fragment_with_column_visibility_state(): void
+    {
+        $controller = $this->createController();
+
+        $response = $controller->fragments(new Request([
+            'visibleColumns' => ['e.email'],
+            'page' => '1',
+            'pageSize' => '10',
+        ]), 'users');
+
+        $payload = $this->decodeResponse($response->getContent());
+
+        self::assertIsString($payload['header']);
+        self::assertStringContainsString('Email', $payload['header']);
+        self::assertStringNotContainsString('Display name', $payload['header']);
     }
 
     public function test_it_applies_search_request_to_provider(): void
