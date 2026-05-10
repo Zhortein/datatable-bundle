@@ -555,7 +555,6 @@ Joined permanent filters are applied to both rows and counts.
 
 Only explicit join aliases can be used.
 
-
 ### Doctrine association test fixtures
 
 The Doctrine functional test foundation includes associated entities for join-related tests.
@@ -570,6 +569,26 @@ Current fixtures:
 A shared `DoctrineSchemaMetadataTrait` provides metadata for both entities when creating in-memory SQLite schemas in functional tests.
 
 This prepares the next steps of the Doctrine joins milestone without changing provider behavior yet.
+
+### Applying user filters in Doctrine provider
+
+`DoctrineOrmDataProvider` applies user-facing filters declared on `DatatableDefinition`.
+
+Only declared filters are read from `DatatableRequest`.
+
+Supported initial filter types:
+
+- text;
+- choice;
+- boolean;
+- date;
+- date range;
+- number;
+- number range.
+
+All values are bound as Doctrine parameters.
+
+Unknown frontend filter input is ignored safely.
 
 ### User-facing filter definitions
 
