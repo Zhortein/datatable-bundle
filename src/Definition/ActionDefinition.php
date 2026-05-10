@@ -73,4 +73,9 @@ final readonly class ActionDefinition
     {
         return $this->attributes;
     }
+
+    public function getAttribute(string $name, ?string $default = null): ?string
+    {
+        return $this->attributes[$name] ?? $default;
+    }
 }

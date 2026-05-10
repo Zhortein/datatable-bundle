@@ -413,6 +413,33 @@ Hidden global actions are not rendered, and their URLs are not generated.
 
 This allows applications to hide toolbar actions based on application-specific rules.
 
+## Optional Symfony authorization integration
+
+Applications using Symfony Security can use `AuthorizationActionVisibilityChecker`.
+
+It checks an action attribute named `permission`.
+
+```php
+$definition->addRowAction(
+    name: 'delete',
+    route: 'app_user_delete',
+    label: 'Delete',
+    httpMethod: 'DELETE',
+    routeParameters: [
+        'id' => 'e.id',
+    ],
+    attributes: [
+        'permission' => 'USER_DELETE',
+    ],
+);
+```
+
+For row actions, row data is used as the authorization subject.
+
+For global actions, the `DatatableDefinition` is used as the subject.
+
+This adapter is optional. Applications can still provide their own `ActionVisibilityCheckerInterface`.
+
 
 ## Current limitations
 

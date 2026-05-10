@@ -1256,6 +1256,30 @@ Hidden global actions are not rendered and their URLs are not generated.
 
 The default checker still allows all actions, preserving previous behavior unless the application replaces the service.
 
+### Optional Symfony authorization action visibility adapter
+
+`AuthorizationActionVisibilityChecker` provides an optional adapter for applications using Symfony Security.
+
+It reads a `permission` action attribute and delegates to `AuthorizationCheckerInterface`.
+
+Example action metadata:
+
+```php
+$definition->addRowAction(
+    name: 'view',
+    route: 'app_user_show',
+    label: 'View',
+    routeParameters: ['id' => 'e.id'],
+    attributes: [
+        'permission' => 'USER_VIEW',
+    ],
+);
+```
+
+If no permission attribute is defined, the checker delegates to a fallback checker.
+
+This adapter is optional and does not replace the generic `ActionVisibilityCheckerInterface` extension point.
+
 ---
 
 ## 10. Ajax controller layer
