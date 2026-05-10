@@ -2,6 +2,9 @@
     <a
         href="{{ action.url }}"
         class="{{ action.className ?? 'btn btn-outline-secondary' }}"
+        {% if action.confirmationMessage is not null %}
+            data-zhortein-datatable-confirmation-message="{{ action.confirmationMessage }}"
+        {% endif %}
         {% for attribute_name, attribute_value in action.attributes %}
             {{ attribute_name }}="{{ attribute_value }}"
         {% endfor %}
@@ -13,7 +16,14 @@
         {{ action.label ?? action.name }}
     </a>
 {% else %}
-    <form method="post" action="{{ action.url }}" class="d-inline">
+    <form
+        method="post"
+        action="{{ action.url }}"
+        class="d-inline"
+        {% if action.confirmationMessage is not null %}
+            data-zhortein-datatable-confirmation-message="{{ action.confirmationMessage }}"
+        {% endif %}
+    >
         <input type="hidden" name="_method" value="{{ action.httpMethod }}">
 
         {% if action.csrfToken is not null %}

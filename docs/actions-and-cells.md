@@ -440,6 +440,31 @@ For global actions, the `DatatableDefinition` is used as the subject.
 
 This adapter is optional. Applications can still provide their own `ActionVisibilityCheckerInterface`.
 
+## Action confirmation metadata
+
+Actions can declare a confirmation message:
+
+```php
+$definition->addRowAction(
+    name: 'delete',
+    route: 'app_user_delete',
+    label: 'Delete',
+    httpMethod: 'DELETE',
+    confirmationMessage: 'Delete this user?',
+    routeParameters: [
+        'id' => 'e.id',
+    ],
+);
+```
+
+The renderer outputs:
+
+```html
+data-zhortein-datatable-confirmation-message="Delete this user?"
+```
+
+The metadata is passive until JavaScript confirmation behavior is enabled.
+
 
 ## Current limitations
 

@@ -56,7 +56,9 @@ final class DatatableRendererCsrfActionsTest extends TestCase
 
         $html = $renderer->renderBody($definition, $result);
 
-        self::assertStringContainsString('<form method="post" action="/users/42/delete"', $html);
+        self::assertStringContainsString('<form', $html);
+        self::assertStringContainsString('method="post"', $html);
+        self::assertStringContainsString('action="/users/42/delete"', $html);
         self::assertStringContainsString('name="_method" value="DELETE"', $html);
         self::assertStringContainsString('name="_token" value="csrf-token-for-zhortein_datatable_action_delete"', $html);
         self::assertStringContainsString('type="submit"', $html);
@@ -128,7 +130,9 @@ final class DatatableRendererCsrfActionsTest extends TestCase
 
         $html = $renderer->render($definition);
 
-        self::assertStringContainsString('<form method="post" action="/users/bulk-delete"', $html);
+        self::assertStringContainsString('<form', $html);
+        self::assertStringContainsString('method="post"', $html);
+        self::assertStringContainsString('action="/users/bulk-delete"', $html);
         self::assertStringContainsString('name="_method" value="POST"', $html);
         self::assertStringContainsString('name="_token" value="csrf-token-for-zhortein_datatable_action_bulk-delete"', $html);
         self::assertStringContainsString('Bulk delete', $html);
@@ -156,7 +160,9 @@ final class DatatableRendererCsrfActionsTest extends TestCase
 
         $html = $renderer->render($definition);
 
-        self::assertStringContainsString('<form method="post" action="/users/bulk-delete"', $html);
+        self::assertStringContainsString('<form', $html);
+        self::assertStringContainsString('method="post"', $html);
+        self::assertStringContainsString('action="/users/bulk-delete"', $html);
         self::assertStringNotContainsString('name="_token"', $html);
     }
 

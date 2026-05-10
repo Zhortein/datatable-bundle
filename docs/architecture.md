@@ -1280,6 +1280,22 @@ If no permission attribute is defined, the checker delegates to a fallback check
 
 This adapter is optional and does not replace the generic `ActionVisibilityCheckerInterface` extension point.
 
+### Action confirmation metadata
+
+Actions can expose passive confirmation metadata in rendered markup.
+
+When `ActionDefinition::getConfirmationMessage()` returns a message, the renderer adds:
+
+```html
+data-zhortein-datatable-confirmation-message="..."
+```
+
+GET actions expose the metadata on the link.
+
+Non-GET actions expose the metadata on the generated form.
+
+This issue only renders metadata. JavaScript confirmation behavior is implemented separately.
+
 ---
 
 ## 10. Ajax controller layer
