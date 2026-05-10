@@ -431,6 +431,28 @@ Sorting is applied only when:
 
 Unknown or non-sortable fields are ignored safely.
 
+### Doctrine join definitions
+
+Datatable definitions can declare explicit Doctrine joins.
+
+The first join API uses:
+
+- `JoinType`;
+- `JoinDefinition`;
+- `DatatableDefinition::addJoin()`;
+- `DatatableDefinition::getJoins()`.
+
+Example:
+
+```php
+$definition
+    ->addJoin('organization', 'e.organization', JoinType::Left)
+    ->addColumn('organization.name', label: 'Organization')
+;
+```
+
+Join application in Doctrine queries is implemented in later steps of the milestone.
+
 ---
 
 ## 8. Rendering layer
