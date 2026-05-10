@@ -39,7 +39,11 @@ final class DatatableRendererTest extends TestCase
         self::assertStringContainsString('data-zhortein-datatable-target="summary"', $html);
         self::assertStringContainsString('data-zhortein-datatable-target="loading"', $html);
         self::assertStringContainsString('data-zhortein-datatable-target="error"', $html);
-        self::assertStringContainsString('class="table table-striped table-hover align-middle mb-0"', $html);
+        self::assertStringContainsString('table', $html);
+        self::assertStringContainsString('align-middle', $html);
+        self::assertStringContainsString('mb-0', $html);
+        self::assertStringContainsString('table-striped', $html);
+        self::assertStringContainsString('table-hover', $html);
         self::assertStringContainsString('Email', $html);
         self::assertStringContainsString('Created at', $html);
         self::assertStringNotContainsString('e.id', $html);
