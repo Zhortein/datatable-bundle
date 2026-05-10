@@ -30,3 +30,9 @@ zhortein_datatable:
     boolean:
         yes: 'Yes'
         no: 'No'
+    summary:
+        empty: 'No result.'
+        single: '1 result.'
+        multiple: 'Showing %start% to %end% of %total% results.'
+        filtered_single: '1 result found, filtered from %total% total.'
+        filtered_multiple: 'Showing %start% to %end% of %filtered% results, filtered from %total% total.'

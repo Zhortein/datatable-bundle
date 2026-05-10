@@ -30,3 +30,9 @@ zhortein_datatable:
     boolean:
         yes: 'Oui'
         no: 'Non'
+    summary:
+        empty: 'Aucun résultat.'
+        single: '1 résultat.'
+        multiple: 'Affichage de %start% à %end% sur %total% résultats.'
+        filtered_single: '1 résultat trouvé, filtré sur %total% au total.'
+        filtered_multiple: 'Affichage de %start% à %end% sur %filtered% résultats, filtrés sur %total% au total.'
