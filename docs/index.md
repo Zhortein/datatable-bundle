@@ -26,6 +26,7 @@ This bundle is in early development.
 - [Server-side exports](exports.md)
 - [Twig templates and overrides](templates.md)
 - [Template context reference](template-context.md)
+- [Optional icon rendering strategy](icons.md)
 
 ## Legacy reference
 

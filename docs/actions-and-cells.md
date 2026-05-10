@@ -203,7 +203,7 @@ Attributes are rendered on the link or button element.
 
 ## Action icons
 
-Actions can define an icon CSS class:
+Actions can define an optional icon CSS class:
 
 ```php
 $definition->addRowAction(
@@ -217,13 +217,11 @@ $definition->addRowAction(
 );
 ```
 
-The current implementation renders icons as CSS classes:
+The bundle does not require a specific icon library.
 
-```html
-<span class="bi bi-eye" aria-hidden="true"></span>
-```
+The host application must load the icon CSS if it wants icons to appear.
 
-A richer icon abstraction may be introduced later.
+More details are available in [`icons.md`](icons.md).
 
 ## Typed cell templates
 
