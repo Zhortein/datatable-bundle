@@ -13,6 +13,7 @@ use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
+use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
 use Zhortein\DatatableBundle\ZhorteinDatatableBundle;
@@ -105,6 +106,11 @@ final class TestKernel extends Kernel
 
         $services
             ->alias('test.'.DoctrineDatatableDefinitionEnricher::class, DoctrineDatatableDefinitionEnricher::class)
+            ->public()
+        ;
+
+        $services
+            ->alias('test.'.DatatablePreferenceProviderInterface::class, DatatablePreferenceProviderInterface::class)
             ->public()
         ;
     }
