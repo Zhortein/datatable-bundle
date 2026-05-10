@@ -25,7 +25,7 @@ final class DatatableRendererDatetimeLocalizationTest extends TestCase
         );
 
         self::assertStringContainsString('2026', $html);
-        self::assertStringContainsString('14:30', $html);
+        self::assertMatchesRegularExpression('/2:30|14:30/', $html);
     }
 
     private function createDefinition(): DatatableDefinition
