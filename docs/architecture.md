@@ -507,6 +507,23 @@ The provider resolves metadata for the joined alias and validates the target fie
 
 Only declared sortable columns can be used for sorting.
 
+### Search on joined Doctrine fields
+
+`DoctrineOrmDataProvider` supports global search on fields from explicitly declared joins.
+
+Example:
+
+```php
+$definition
+    ->addJoin('organization', 'e.organization', JoinType::Left)
+    ->addColumn('organization.name', label: 'Organization')
+;
+```
+
+The provider resolves Doctrine metadata for the joined alias before applying search expressions.
+
+Only declared searchable columns participate in global search.
+
 ### Doctrine association test fixtures
 
 The Doctrine functional test foundation includes associated entities for join-related tests.

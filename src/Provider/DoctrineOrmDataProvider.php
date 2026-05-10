@@ -265,7 +265,6 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
             return;
         }
 
-        $metadata = $entityManager->getClassMetadata($entityClass);
         $searchQuery = (string) $request->getSearchQuery();
         $expressions = [];
         $parameterIndex = 0;
@@ -276,7 +275,8 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
             }
 
             $fieldReference = $this->normalizeFieldReference($column->getName(), $definition);
-            $fieldName = $this->extractFieldName($fieldReference);
+            [$alias, $fieldName] = $this->splitFieldReference($fieldReference);
+            $metadata = $this->getMetadataForAlias($entityManager, $entityClass, $definition, $alias);
 
             if (!$metadata->hasField($fieldName)) {
                 continue;
@@ -375,13 +375,6 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         }
 
         return (int) $searchQuery;
-    }
-
-    private function extractFieldName(string $fieldReference): string
-    {
-        [, $fieldName] = $this->splitFieldReference($fieldReference);
-
-        return $fieldName;
     }
 
     /**
