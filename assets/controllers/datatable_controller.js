@@ -8,6 +8,7 @@ import { Controller } from '@hotwired/stimulus';
  */
 export default class extends Controller {
     static targets = [
+        'header',
         'body',
         'pagination',
         'summary',
@@ -345,6 +346,10 @@ export default class extends Controller {
     }
 
     applyFragments(payload) {
+        if (this.hasHeaderTarget && typeof payload.header === 'string') {
+            this.headerTarget.outerHTML = payload.header;
+        }
+
         if (this.hasBodyTarget && typeof payload.body === 'string') {
             this.bodyTarget.innerHTML = payload.body;
         }

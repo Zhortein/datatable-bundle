@@ -34,12 +34,11 @@ final readonly class DatatableController
         $provider = $this->providerRegistry->resolve($definition);
         $result = $provider->getData($definition, $datatableRequest);
 
+        $renderOptions = $datatableRequest->getColumnVisibilityOptions();
+
         return new JsonResponse([
-            'body' => $this->renderer->renderBody(
-                $definition,
-                $result,
-                $datatableRequest->getColumnVisibilityOptions(),
-            ),
+            'header' => $this->renderer->renderHeader($definition, $renderOptions),
+            'body' => $this->renderer->renderBody($definition, $result, $renderOptions),
             'pagination' => $this->renderer->renderPagination($definition, $result),
             'summary' => $this->createSummary($result),
             'page' => $result->getPage(),

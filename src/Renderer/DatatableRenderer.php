@@ -62,6 +62,18 @@ final readonly class DatatableRenderer
     /**
      * @param array<string, mixed> $options
      */
+    public function renderHeader(DatatableDefinition $definition, array $options = []): string
+    {
+        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_header.html.twig', $this->theme), [
+            'visibleColumns' => $this->getVisibleColumns($definition, $options),
+            'hasRowActions' => [] !== $definition->getRowActions(),
+            'options' => $options,
+        ]);
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
     public function renderBody(DatatableDefinition $definition, DatatableResult $result, array $options = []): string
     {
         if ($result->isEmpty()) {

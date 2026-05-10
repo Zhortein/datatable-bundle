@@ -1,7 +1,7 @@
 {% set current_sort_field = options.sortField is defined ? options.sortField : null %}
 {% set current_sort_direction = options.sortDirection is defined ? options.sortDirection : 'asc' %}
 
-<thead>
+<thead data-zhortein-datatable-target="header">
     <tr>
         {% for column in visibleColumns %}
             {% set is_current_sort = column.name == current_sort_field %}
