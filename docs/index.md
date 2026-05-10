@@ -19,6 +19,7 @@ This bundle is in early development.
 - [Doctrine-backed datatables](doctrine-provider.md)
 - [Actions and typed cell rendering](actions-and-cells.md)
 - [Routes](routes.md)
+- [Stimulus and AssetMapper integration](stimulus-assetmapper.md)
 
 ## Legacy reference
 

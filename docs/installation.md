@@ -113,3 +113,29 @@ The default Ajax fragments route is:
 ```text
 /_zhortein/datatable/{name}/fragments
 ```
+
+## Stimulus and AssetMapper
+
+The bundle provides a vanilla Stimulus controller.
+
+Install Symfony UX Stimulus and AssetMapper in the host application if they are not already installed:
+
+```bash
+composer require symfony/asset-mapper symfony/stimulus-bundle
+```
+
+Until automatic controller registration is provided, create a wrapper controller in the host application:
+
+```js
+// assets/controllers/zhortein_datatable_controller.js
+
+export { default } from '../../vendor/zhortein/datatable-bundle/assets/controllers/datatable_controller.js';
+```
+
+This registers the controller as:
+
+```text
+zhortein-datatable
+```
+
+More details are available in [`stimulus-assetmapper.md`](stimulus-assetmapper.md).
