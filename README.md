@@ -104,6 +104,7 @@ With runtime options:
 - [Twig templates and overrides](docs/templates.md)
 - [Template context reference](docs/template-context.md)
 - [Optional icon rendering strategy](docs/icons.md)
+- [Cell template reference](docs/cell-templates.md)
 
 ## Architecture decisions
 
