@@ -95,6 +95,7 @@ With runtime options:
 - [First end-to-end flow](docs/end-to-end-flow.md)
 - [Doctrine-backed datatables](docs/doctrine-provider.md)
 - [Actions and typed cell rendering](docs/actions-and-cells.md)
+- [Routes](docs/routes.md)
 
 ## Architecture decisions
 
