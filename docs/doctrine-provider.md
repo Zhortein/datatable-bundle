@@ -413,3 +413,253 @@ For now, use Doctrine-backed datatables for simple back-office tables with:
 - backend-defined permanent filters.
 
 More advanced cases should wait for association support, custom joins and action rendering.
+
+## Explicit Doctrine joins
+
+The Doctrine provider supports explicit joins for simple association fields.
+
+Joins must be declared in PHP. The provider does not automatically traverse Doctrine associations.
+
+## Declaring a join
+
+Use `addJoin()` on the datatable definition.
+
+```php
+use Zhortein\DatatableBundle\Enum\JoinType;
+
+$definition
+    ->setEntityClass(User::class)
+    ->addJoin('organization', 'e.organization', JoinType::Left)
+;
+```
+
+Arguments:
+
+```php
+addJoin(
+    alias: 'organization',
+    join: 'e.organization',
+    type: JoinType::Left,
+)
+```
+
+### `alias`
+
+The alias used later in columns, filters, sorting and search.
+
+Example:
+
+```php
+organization.name
+```
+
+### `join`
+
+The Doctrine association path.
+
+Example:
+
+```php
+e.organization
+```
+
+### `type`
+
+Supported join types:
+
+```php
+JoinType::Left
+JoinType::Inner
+```
+
+## Displaying joined fields
+
+After declaring the join, columns can target the joined alias.
+
+```php
+$definition
+    ->addJoin('organization', 'e.organization', JoinType::Left)
+    ->addColumn('e.email', label: 'Email')
+    ->addColumn('organization.name', label: 'Organization')
+;
+```
+
+The provider returns joined fields with stable aliases such as:
+
+```text
+organization_name
+```
+
+The renderer can display these fields automatically.
+
+## Sorting joined fields
+
+Joined fields can be sorted when the column is declared sortable.
+
+```php
+$definition
+    ->addJoin('organization', 'e.organization', JoinType::Left)
+    ->addColumn('organization.name', label: 'Organization', sortable: true)
+;
+```
+
+The frontend can request:
+
+```text
+sortField=organization.name
+sortDirection=asc
+```
+
+Rules:
+
+- the join alias must be declared;
+- the column must be declared;
+- the column must be sortable;
+- the target field must exist in Doctrine metadata.
+
+Unknown or non-sortable fields are ignored safely.
+
+## Searching joined fields
+
+Joined fields participate in global search when declared searchable.
+
+```php
+$definition
+    ->addJoin('organization', 'e.organization', JoinType::Left)
+    ->addColumn('organization.name', label: 'Organization', searchable: true)
+;
+```
+
+The provider resolves Doctrine metadata for the joined alias before applying search expressions.
+
+Current search behavior:
+
+- string-like joined fields use portable `LIKE`;
+- numeric joined fields are searched only when the query is numeric;
+- unsupported field types are ignored;
+- non-searchable joined columns are ignored.
+
+## Permanent filters on joined fields
+
+Permanent filters can target fields from explicitly declared joins.
+
+```php
+use Zhortein\DatatableBundle\Enum\FilterOperator;
+use Zhortein\DatatableBundle\Enum\JoinType;
+
+$definition
+    ->setEntityClass(User::class)
+    ->addJoin('organization', 'e.organization', JoinType::Left)
+    ->addPermanentFilter('organization.enabled', FilterOperator::Equals, true)
+;
+```
+
+Joined permanent filters apply to:
+
+- loaded rows;
+- total visible item count;
+- filtered item count.
+
+Only explicit join aliases can be used.
+
+## Left join vs inner join
+
+### Left join
+
+`JoinType::Left` keeps rows even when the association is missing.
+
+```php
+$definition->addJoin('organization', 'e.organization', JoinType::Left);
+```
+
+This is useful for optional associations.
+
+### Inner join
+
+`JoinType::Inner` excludes rows where the association is missing.
+
+```php
+$definition->addJoin('organization', 'e.organization', JoinType::Inner);
+```
+
+This is useful when the association is required by the datatable context.
+
+## Example
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Datatable;
+
+use App\Entity\User;
+use Zhortein\DatatableBundle\Attribute\AsDatatable;
+use Zhortein\DatatableBundle\Contract\DatatableInterface;
+use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\FilterOperator;
+use Zhortein\DatatableBundle\Enum\JoinType;
+
+#[AsDatatable(name: 'users', provider: 'doctrine')]
+final class UserDatatable implements DatatableInterface
+{
+    public function buildDatatable(DatatableDefinition $definition): void
+    {
+        $definition
+            ->setEntityClass(User::class)
+            ->addJoin('organization', 'e.organization', JoinType::Left)
+            ->addColumn('e.email', label: 'Email')
+            ->addColumn('e.displayName', label: 'Display name')
+            ->addColumn('organization.name', label: 'Organization')
+            ->addPermanentFilter('organization.enabled', FilterOperator::Equals, true)
+        ;
+    }
+}
+```
+
+Render it:
+
+```twig
+{{ zhortein_datatable('users', {
+    search: true,
+    pageSize: 25,
+    sortField: 'organization.name',
+    sortDirection: 'asc'
+}) }}
+```
+
+## Current limitations
+
+### No automatic association traversal
+
+Associations must be declared explicitly.
+
+The provider does not automatically infer joins from column names.
+
+### No deep joins yet
+
+Simple joins such as `e.organization` are supported.
+
+Deep paths such as `organization.group.owner` are not supported yet.
+
+### No collection joins
+
+Collection-valued associations are not supported yet.
+
+This means no ManyToMany or OneToMany aggregation support for now.
+
+### No custom join expressions
+
+The current API supports mapped Doctrine association paths only.
+
+Custom non-mapped joins are not implemented yet.
+
+### No aggregate fields
+
+Aggregated joined values such as counts, sums or string aggregations are not implemented yet.
+
+## Related documentation
+
+- [`architecture.md`](architecture.md)
+- [`end-to-end-flow.md`](end-to-end-flow.md)
+- [`actions-and-cells.md`](actions-and-cells.md)

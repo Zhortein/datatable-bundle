@@ -244,40 +244,40 @@ The generated datatable UI is now much closer to a usable professional back-offi
 
 ---
 
-# Next milestones
+## 0.8 - Doctrine associations and joins ✅
 
-## 0.8 - Doctrine associations and joins 🚧
+Delivered:
 
-Improve Doctrine-backed datatables beyond simple scalar fields on the main alias.
-
-Planned:
-
-- Explicit Doctrine join definition object.
-- Join type enum.
-- Support for declared joins in `DatatableDefinition`.
-- Support for sorting joined fields.
-- Support for searching joined fields.
-- Support for permanent filters on joined fields.
-- Safer custom join API.
-- Tests for ManyToOne and OneToOne joins.
+- `JoinType` enum.
+- `JoinDefinition` value object.
+- Explicit `DatatableDefinition::addJoin()`.
+- Doctrine association test fixtures.
+- Explicit joins applied in Doctrine provider.
+- Joined entity column selection.
+- Sorting on joined Doctrine fields.
+- Search on joined Doctrine fields.
+- Permanent filters on joined Doctrine fields.
 - Documentation for joins and association fields.
 
-Target outcome:
+Main outcome:
 
 ```text
-Doctrine datatables can display and query simple associated entity fields safely.
+Doctrine datatables can now display and query simple associated entity fields through explicit joins.
 ```
 
-Out of scope:
+Current limitations:
 
-- automatic deep association traversal;
-- ManyToMany aggregation;
-- collection aggregation;
-- arbitrary raw DQL joins without explicit safeguards.
+- no automatic association traversal;
+- no deep joins;
+- no collection joins;
+- no custom non-mapped joins;
+- no aggregate fields.
 
 ---
 
-## 0.9 - Advanced filtering foundation 🕒
+# Next milestones
+
+## 0.9 - Advanced filtering foundation 🚧
 
 Introduce user-facing filters beyond global search.
 
