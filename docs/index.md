@@ -25,6 +25,7 @@ This bundle is in early development.
 - [User-facing filters](filters.md)
 - [Server-side exports](exports.md)
 - [Twig templates and overrides](templates.md)
+- [Template context reference](template-context.md)
 
 ## Legacy reference
 

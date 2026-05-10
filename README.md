@@ -102,6 +102,7 @@ With runtime options:
 - [User-facing filters](docs/filters.md)
 - [Server-side exports](docs/exports.md)
 - [Twig templates and overrides](docs/templates.md)
+- [Template context reference](docs/template-context.md)
 
 ## Architecture decisions
 
