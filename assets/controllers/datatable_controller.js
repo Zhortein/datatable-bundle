@@ -24,6 +24,7 @@ export default class extends Controller {
     static values = {
         name: String,
         fragmentsUrl: String,
+        exportUrl: String,
         page: { type: Number, default: 1 },
         pageSize: { type: Number, default: 25 },
         search: { type: String, default: '' },
@@ -418,5 +419,47 @@ export default class extends Controller {
             this.abortController.abort();
             this.abortController = null;
         }
+    }
+
+    export(event) {
+        event.preventDefault();
+
+        const target = event.currentTarget;
+
+        if (!(target instanceof HTMLAnchorElement)) {
+            return;
+        }
+
+        const mode = event.params.mode || 'current';
+        const exportUrl = this.hasExportUrlValue && this.exportUrlValue !== ''
+            ? this.exportUrlValue
+            : target.href;
+
+        const url = new URL(exportUrl, window.location.origin);
+
+        url.searchParams.set('mode', mode);
+
+        this.appendExportStateParameters(url.searchParams, mode);
+
+        window.location.href = url.toString();
+    }
+
+    appendExportStateParameters(searchParams, mode) {
+        if (mode === 'current') {
+            searchParams.set('page', String(this.pageValue));
+            searchParams.set('pageSize', String(this.pageSizeValue));
+        }
+
+        if (this.searchValue !== '') {
+            searchParams.set('search', this.searchValue);
+        }
+
+        if (this.sortFieldValue !== '') {
+            searchParams.set('sortField', this.sortFieldValue);
+            searchParams.set('sortDirection', this.sortDirectionValue);
+        }
+
+        this.appendFilterParameters(searchParams);
+        this.appendColumnVisibilityParameters(searchParams);
     }
 }
