@@ -30,15 +30,15 @@ final class DatatableRendererColumnVisibilityControlsTest extends TestCase
         self::assertStringContainsString('Created at', $html);
     }
 
-    public function test_it_represents_definition_hidden_columns(): void
+    public function test_it_does_not_render_definition_hidden_columns_as_toggleable_controls(): void
     {
         $renderer = new DatatableRenderer($this->createTwigEnvironment());
 
         $html = $renderer->render($this->createDefinition());
 
-        self::assertStringContainsString('data-zhortein-datatable-column-name="e.id"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-definition-hidden="true"', $html);
-        self::assertStringContainsString('Identifier', $html);
+        self::assertStringNotContainsString('data-zhortein-datatable-column-name="e.id"', $html);
+        self::assertStringNotContainsString('data-zhortein-datatable-definition-hidden="true"', $html);
+        self::assertStringNotContainsString('Identifier', $html);
     }
 
     public function test_it_can_disable_column_visibility_controls(): void
