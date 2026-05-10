@@ -74,6 +74,59 @@ final class CsvExportWriterTest extends TestCase
         self::assertStringNotContainsString('Alice', $content);
     }
 
+    public function test_it_can_use_semicolon_delimiter(): void
+    {
+        $writer = new CsvExportWriter(delimiter: ';');
+
+        $definition = new DatatableDefinition('users');
+        $definition
+            ->addColumn('e.email', label: 'Email')
+            ->addColumn('e.displayName', label: 'Display name')
+        ;
+
+        $result = new DatatableResult(
+            rows: [
+                [
+                    'e_email' => 'alice@example.test',
+                    'e_displayName' => 'Alice',
+                ],
+            ],
+            totalItems: 1,
+        );
+
+        $response = $writer->write(
+            request: new DatatableExportRequest('users'),
+            definition: $definition,
+            result: $result,
+        );
+
+        self::assertStringContainsString("Email;\"Display name\"\n", (string) $response->getContent());
+        self::assertStringContainsString("alice@example.test;Alice\n", (string) $response->getContent());
+    }
+
+    public function test_it_can_prefix_csv_with_utf8_bom(): void
+    {
+        $writer = new CsvExportWriter(withBom: true);
+
+        $definition = new DatatableDefinition('users');
+        $definition->addColumn('e.email', label: 'Email');
+
+        $result = new DatatableResult(
+            rows: [
+                ['e_email' => 'alice@example.test'],
+            ],
+            totalItems: 1,
+        );
+
+        $response = $writer->write(
+            request: new DatatableExportRequest('users'),
+            definition: $definition,
+            result: $result,
+        );
+
+        self::assertStringStartsWith("\xEF\xBB\xBF", (string) $response->getContent());
+    }
+
     public function test_it_writes_csv_response(): void
     {
         $writer = new CsvExportWriter();

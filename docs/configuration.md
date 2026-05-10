@@ -17,6 +17,12 @@ zhortein_datatable:
     default_page_size: 25
     max_page_size: 500
     search_enabled: false
+    export:
+      csv:
+        delimiter: ';'
+        enclosure: '"'
+        escape: '\\'
+        bom: false
 ```
 
 This configuration is intentionally small.
@@ -193,6 +199,18 @@ A runtime option can still override it:
     search: false
 }) }}
 ```
+
+## Default export values
+```yaml
+zhortein_datatable:
+  export:
+    csv:
+      delimiter: ','
+      enclosure: '"'
+      escape: '\\'
+      bom: false
+```
+For French/European spreadsheet workflows, a semicolon delimiter is often convenient.
 
 ## Runtime options
 

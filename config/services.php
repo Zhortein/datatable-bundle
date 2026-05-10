@@ -85,6 +85,10 @@ return static function (ContainerConfigurator $container): void {
 
     $services
         ->set(CsvExportWriter::class)
+        ->arg('$delimiter', param('zhortein_datatable.export.csv.delimiter'))
+        ->arg('$enclosure', param('zhortein_datatable.export.csv.enclosure'))
+        ->arg('$escape', param('zhortein_datatable.export.csv.escape'))
+        ->arg('$withBom', param('zhortein_datatable.export.csv.bom'))
         ->tag('zhortein_datatable.export_writer', [
             'name' => CsvExportWriter::WRITER_NAME,
         ])
