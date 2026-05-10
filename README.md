@@ -118,6 +118,7 @@ With runtime options:
 - [Theming and rendering customization](docs/theming.md)
 - [Action security and visibility](docs/action-security.md)
 - [Changelog strategy](docs/changelog.md)
+- [Public API review](docs/public-api-review.md)
 
 ## Architecture decisions
 
