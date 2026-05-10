@@ -1764,3 +1764,11 @@ The documentation covers:
 - error state;
 - accessibility notes;
 - current limitations.
+
+### Minimal array datatable example
+
+A minimal array-backed datatable example is available in [`examples/array-datatable.md`](examples/array-datatable.md).
+
+It demonstrates a datatable without Doctrine using `ArrayDataProvider`.
+
+The example is intended for demos, tests and early integration checks.

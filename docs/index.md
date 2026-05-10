@@ -10,6 +10,10 @@ This bundle is in early development.
 - [Basic usage](basic-usage.md)
 - [Configuration](configuration.md)
 
+## Examples
+
+- [Minimal array datatable example](examples/array-datatable.md)
+
 ## Project documentation
 
 - [Features](features.md)

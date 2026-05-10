@@ -630,7 +630,13 @@ Disable the responsive wrapper:
 
 ---
 
-## 18. Current limitations
+## 18. Examples
+
+For a complete minimal example without Doctrine, see [`examples/array-datatable.md`](examples/array-datatable.md).
+
+---
+
+## 19. Current limitations
 
 The bundle is still under active development.
 
