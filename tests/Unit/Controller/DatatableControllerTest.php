@@ -20,10 +20,28 @@ use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Registry\DatatableRegistry;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
+use Zhortein\DatatableBundle\Tests\Unit\Renderer\TranslatableRendererTestTrait;
 
 final class DatatableControllerTest extends TestCase
 {
-    use \Zhortein\DatatableBundle\Tests\Unit\Renderer\TranslatableRendererTestTrait;
+    use TranslatableRendererTestTrait;
+
+    public function test_full_csv_export_response_ignores_pagination(): void
+    {
+        $controller = $this->createController();
+
+        $response = $controller->export(new Request([
+            'page' => '1',
+            'pageSize' => '2',
+            'mode' => 'full',
+        ]), 'users', 'csv');
+
+        $content = (string) $response->getContent();
+
+        self::assertStringContainsString('alice@example.test', $content);
+        self::assertStringContainsString('bob@example.test', $content);
+        self::assertStringContainsString('charlie@example.test', $content);
+    }
 
     public function test_it_returns_rendered_fragments_from_provider_result(): void
     {

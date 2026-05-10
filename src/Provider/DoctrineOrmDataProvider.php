@@ -102,9 +102,14 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
     ): array {
         $queryBuilder = $entityManager->createQueryBuilder()
             ->from($entityClass, self::MAIN_ALIAS)
-            ->setFirstResult($request->getOffset())
-            ->setMaxResults($request->getPageSize())
         ;
+
+        if ($request->isPaginationEnabled()) {
+            $queryBuilder
+                ->setFirstResult($request->getOffset())
+                ->setMaxResults($request->getPageSize())
+            ;
+        }
 
         $this->applyJoins($queryBuilder, $definition);
 
