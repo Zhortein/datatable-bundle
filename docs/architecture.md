@@ -565,6 +565,21 @@ Sortable headers render active state metadata when they match the current sort f
 
 This keeps sorting state accessible and synchronized with the Stimulus controller.
 
+### Page size selector
+
+The datatable toolbar can render a page size selector.
+
+The selector is enabled by default and can be disabled through runtime options.
+
+Rendered markup uses:
+
+```html
+data-zhortein-datatable-target="pageSizeInput"
+data-action="change->zhortein-datatable#changePageSize"
+```
+
+Changing the page size resets the current page to 1 and refreshes Ajax fragments.
+
 ---
 
 ## 9. Action rendering layer

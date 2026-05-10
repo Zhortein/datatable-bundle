@@ -2,6 +2,8 @@ zhortein_datatable:
     search:
         label: 'Rechercher'
         placeholder: 'Rechercher'
+    page_size:
+        label: 'Lignes par page'
     loading: 'Chargement...'
     empty: 'Aucune donnée disponible.'
     actions: 'Actions'

@@ -12,6 +12,7 @@ export default class extends Controller {
         'pagination',
         'summary',
         'searchInput',
+        'pageSizeInput',
         'error',
         'loading',
         'globalActions',
@@ -101,6 +102,18 @@ export default class extends Controller {
         }, 300);
     }
 
+    changePageSize(event) {
+        const pageSize = Number.parseInt(event.target.value, 10);
+
+        if (Number.isNaN(pageSize) || pageSize < 1) {
+            return;
+        }
+
+        this.pageSizeValue = pageSize;
+        this.pageValue = 1;
+        this.refresh();
+    }
+
     sort(event) {
         event.preventDefault();
 
@@ -173,6 +186,10 @@ export default class extends Controller {
 
         if (typeof payload.pageSize === 'number' && payload.pageSize >= 1) {
             this.pageSizeValue = payload.pageSize;
+
+            if (this.hasPageSizeInputTarget) {
+                this.pageSizeInputTarget.value = String(payload.pageSize);
+            }
         }
     }
 
