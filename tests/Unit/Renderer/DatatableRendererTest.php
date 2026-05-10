@@ -49,6 +49,21 @@ final class DatatableRendererTest extends TestCase
         self::assertStringNotContainsString('e.id', $html);
         self::assertStringContainsString('No data available.', $html);
         self::assertStringContainsString('colspan="2"', $html);
+        self::assertStringContainsString('data-zhortein-datatable-export-url-value="/_zhortein/datatable/users/export/csv"', $html);
+    }
+
+    public function test_it_exposes_runtime_export_url(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition->addColumn('e.email', label: 'Email');
+
+        $renderer = new DatatableRenderer($this->createTwigEnvironment());
+
+        $html = $renderer->render($definition, [
+            'exportUrl' => '/custom/users/export',
+        ]);
+
+        self::assertStringContainsString('data-zhortein-datatable-export-url-value="/custom/users/export"', $html);
     }
 
     public function test_it_renders_optional_search_input(): void
