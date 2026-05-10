@@ -92,6 +92,14 @@ return static function (ContainerConfigurator $container): void {
         ->arg('$theme', param('zhortein_datatable.default_theme'))
         ->arg('$defaultPageSize', param('zhortein_datatable.default_page_size'))
         ->arg('$searchEnabled', param('zhortein_datatable.search_enabled'))
+        ->arg('$defaultTableOptions', [
+            'tableStriped' => param('zhortein_datatable.bootstrap.table_striped'),
+            'tableHover' => param('zhortein_datatable.bootstrap.table_hover'),
+            'tableBordered' => param('zhortein_datatable.bootstrap.table_bordered'),
+            'tableBorderless' => param('zhortein_datatable.bootstrap.table_borderless'),
+            'tableSmall' => param('zhortein_datatable.bootstrap.table_small'),
+            'tableResponsive' => param('zhortein_datatable.bootstrap.table_responsive'),
+        ])
     ;
 
     $services->set(DatatableTwigExtension::class);

@@ -16,6 +16,9 @@ use Zhortein\DatatableBundle\Result\DatatableResult;
 
 final readonly class DatatableRenderer
 {
+    /**
+     * @param array<string, bool> $defaultTableOptions
+     */
     public function __construct(
         private Environment $twig,
         private ?UrlGeneratorInterface $urlGenerator = null,
@@ -24,6 +27,7 @@ final readonly class DatatableRenderer
         private string $theme = 'bootstrap',
         private int $defaultPageSize = 25,
         private bool $searchEnabled = false,
+        private array $defaultTableOptions = [],
     ) {
     }
 
@@ -32,10 +36,14 @@ final readonly class DatatableRenderer
      */
     public function render(DatatableDefinition $definition, array $options = []): string
     {
-        $options = array_replace([
-            'search' => $this->searchEnabled,
-            'pageSize' => $this->defaultPageSize,
-        ], $options);
+        $options = array_replace(
+            $this->defaultTableOptions,
+            [
+                'search' => $this->searchEnabled,
+                'pageSize' => $this->defaultPageSize,
+            ],
+            $options,
+        );
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/datatable.html.twig', $this->theme), [
             'definition' => $definition,

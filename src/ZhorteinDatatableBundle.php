@@ -17,17 +17,44 @@ final class ZhorteinDatatableBundle extends AbstractBundle
     /**
      * @param array<array-key, mixed> $config
      */
-    public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
+    public function loadExtension(array $config, ContainerConfigurator $configurator, ContainerBuilder $container): void
     {
-        $container->parameters()
+        $bootstrapConfig = $config['bootstrap'] ?? [];
+
+        if (!is_array($bootstrapConfig)) {
+            throw new \LogicException('The bootstrap configuration must be an array.');
+        }
+
+        $tableConfig = $bootstrapConfig['table'] ?? [];
+
+        if (!is_array($tableConfig)) {
+            throw new \LogicException('The bootstrap table configuration must be an array.');
+        }
+
+        /** @var array{
+         *     striped: bool,
+         *     hover: bool,
+         *     bordered: bool,
+         *     borderless: bool,
+         *     small: bool,
+         *     responsive: bool
+         * } $tableConfig
+         */
+        $configurator->parameters()
             ->set('zhortein_datatable.default_provider', $config['default_provider'])
             ->set('zhortein_datatable.default_theme', $config['default_theme'])
             ->set('zhortein_datatable.default_page_size', $config['default_page_size'])
             ->set('zhortein_datatable.max_page_size', $config['max_page_size'])
             ->set('zhortein_datatable.search_enabled', $config['search_enabled'])
+            ->set('zhortein_datatable.bootstrap.table_striped', $tableConfig['striped'])
+            ->set('zhortein_datatable.bootstrap.table_hover', $tableConfig['hover'])
+            ->set('zhortein_datatable.bootstrap.table_bordered', $tableConfig['bordered'])
+            ->set('zhortein_datatable.bootstrap.table_borderless', $tableConfig['borderless'])
+            ->set('zhortein_datatable.bootstrap.table_small', $tableConfig['small'])
+            ->set('zhortein_datatable.bootstrap.table_responsive', $tableConfig['responsive'])
         ;
 
-        $container->import('../config/services.php');
+        $configurator->import('../config/services.php');
     }
 
     public function configure(DefinitionConfigurator $definition): void
@@ -42,27 +69,55 @@ final class ZhorteinDatatableBundle extends AbstractBundle
     {
         $definition
             ->rootNode()
-            ->children()
-            ->enumNode('default_provider')
-            ->values(['array', 'doctrine'])
-            ->defaultValue('doctrine')
-            ->end()
-            ->enumNode('default_theme')
-            ->values(['bootstrap'])
-            ->defaultValue('bootstrap')
-            ->end()
-            ->integerNode('default_page_size')
-            ->min(1)
-            ->defaultValue(25)
-            ->end()
-            ->integerNode('max_page_size')
-            ->min(1)
-            ->defaultValue(500)
-            ->end()
-            ->booleanNode('search_enabled')
-            ->defaultFalse()
-            ->end()
-            ->end()
+                ->children()
+                    ->enumNode('default_provider')
+                        ->values(['array', 'doctrine'])
+                        ->defaultValue('doctrine')
+                    ->end()
+                    ->enumNode('default_theme')
+                        ->values(['bootstrap'])
+                        ->defaultValue('bootstrap')
+                    ->end()
+                        ->integerNode('default_page_size')
+                        ->min(1)
+                        ->defaultValue(25)
+                    ->end()
+                    ->integerNode('max_page_size')
+                        ->min(1)
+                        ->defaultValue(500)
+                    ->end()
+                        ->booleanNode('search_enabled')
+                        ->defaultFalse()
+                    ->end()
+                    ->arrayNode('bootstrap')
+                        ->addDefaultsIfNotSet()
+                        ->children()
+                            ->arrayNode('table')
+                                ->addDefaultsIfNotSet()
+                                ->children()
+                                    ->booleanNode('striped')
+                                        ->defaultTrue()
+                                    ->end()
+                                    ->booleanNode('hover')
+                                        ->defaultTrue()
+                                    ->end()
+                                    ->booleanNode('bordered')
+                                        ->defaultFalse()
+                                    ->end()
+                                    ->booleanNode('borderless')
+                                        ->defaultFalse()
+                                    ->end()
+                                    ->booleanNode('small')
+                                        ->defaultFalse()
+                                    ->end()
+                                    ->booleanNode('responsive')
+                                        ->defaultTrue()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
             ->end()
         ;
     }

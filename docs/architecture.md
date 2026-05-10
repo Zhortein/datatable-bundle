@@ -1081,6 +1081,29 @@ table table-striped table-hover align-middle mb-0
 
 The responsive wrapper is enabled by default through `table-responsive`.
 
+### Bootstrap rendering defaults
+
+Bootstrap table display variants can be configured globally.
+
+Configuration:
+
+```yaml
+zhortein_datatable:
+    bootstrap:
+        table:
+            striped: true
+            hover: true
+            bordered: false
+            borderless: false
+            small: false
+            responsive: true
+```
+
+These values are injected into `DatatableRenderer` as default render options.
+
+Runtime Twig options still take precedence over configuration.
+
+
 ---
 
 ## 9. Action rendering layer

@@ -369,6 +369,38 @@ $definition->addColumn(
     template: 'admin/datatable/cell/status.html.twig',
 );
 ```
+## Bootstrap rendering defaults
+
+Bootstrap table display variants can be configured globally:
+
+```yaml
+zhortein_datatable:
+    bootstrap:
+        table:
+            striped: true
+            hover: true
+            bordered: false
+            borderless: false
+            small: false
+            responsive: true
+```
+
+Runtime options override configuration:
+
+```twig
+{{ zhortein_datatable('users', {
+    tableBordered: true,
+    tableSmall: true
+}) }}
+```
+
+Current defaults preserve the standard rendering:
+
+```text
+table table-striped table-hover align-middle mb-0
+```
+
+with a responsive wrapper enabled by default.
 
 ## Configuration validation
 
