@@ -27,7 +27,7 @@ final readonly class CsvExportWriter implements ExportWriterInterface
         DatatableDefinition $definition,
         DatatableResult $result,
     ): Response {
-        $content = $this->createCsvContent($definition, $result);
+        $content = $this->createCsvContent($request, $definition, $result);
 
         return new Response(
             content: $content,
@@ -39,15 +39,18 @@ final readonly class CsvExportWriter implements ExportWriterInterface
         );
     }
 
-    private function createCsvContent(DatatableDefinition $definition, DatatableResult $result): string
-    {
-        $handle = fopen('php://temp', 'rb+');
+    private function createCsvContent(
+        DatatableExportRequest $request,
+        DatatableDefinition $definition,
+        DatatableResult $result,
+    ): string {
+        $handle = fopen('php://temp', 'r+');
 
         if (false === $handle) {
             throw new \RuntimeException('Unable to open temporary CSV stream.');
         }
 
-        $columns = $this->getExportableColumns($definition);
+        $columns = $this->getExportableColumns($request, $definition);
 
         $this->writeRow($handle, array_map(
             static fn (ColumnDefinition $column): string => $column->getLabel() ?? $column->getName(),
@@ -72,11 +75,28 @@ final readonly class CsvExportWriter implements ExportWriterInterface
     /**
      * @return list<ColumnDefinition>
      */
-    private function getExportableColumns(DatatableDefinition $definition): array
-    {
+    private function getExportableColumns(
+        DatatableExportRequest $request,
+        DatatableDefinition $definition,
+    ): array {
+        $datatableRequest = $request->getDatatableRequest();
+
+        $visibleColumns = $datatableRequest?->getVisibleColumns() ?? [];
+        $hiddenColumns = $datatableRequest?->getHiddenColumns() ?? [];
+
         return array_values(array_filter(
             $definition->getColumns(),
-            static fn (ColumnDefinition $column): bool => $column->isVisible(),
+            static function (ColumnDefinition $column) use ($visibleColumns, $hiddenColumns): bool {
+                if (!$column->isVisible()) {
+                    return false;
+                }
+
+                if ([] !== $visibleColumns && !in_array($column->getName(), $visibleColumns, true)) {
+                    return false;
+                }
+
+                return !in_array($column->getName(), $hiddenColumns, true);
+            },
         ));
     }
 

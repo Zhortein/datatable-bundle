@@ -10,6 +10,7 @@ use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
 use Zhortein\DatatableBundle\Export\CsvExportWriter;
 use Zhortein\DatatableBundle\Export\DatatableExportRequest;
+use Zhortein\DatatableBundle\Request\DatatableRequest;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
 final class CsvExportWriterTest extends TestCase
@@ -19,6 +20,58 @@ final class CsvExportWriterTest extends TestCase
         $writer = new CsvExportWriter();
 
         self::assertTrue($writer->supports(ExportFormat::Csv));
+    }
+
+    public function test_it_respects_runtime_column_visibility(): void
+    {
+        $writer = new CsvExportWriter();
+
+        $definition = new DatatableDefinition('users');
+
+        $definition
+            ->addColumn('e.id', label: 'Identifier', visible: false)
+            ->addColumn('e.email', label: 'Email')
+            ->addColumn('e.displayName', label: 'Display name')
+            ->addColumn('e.enabled', label: 'Enabled')
+        ;
+
+        $datatableRequest = DatatableRequest::create(
+            visibleColumns: ['e.email', 'e.displayName'],
+            hiddenColumns: ['e.displayName'],
+        );
+
+        $exportRequest = new DatatableExportRequest(
+            datatableName: 'users',
+            datatableRequest: $datatableRequest,
+        );
+
+        $result = new DatatableResult(
+            rows: [
+                [
+                    'e_id' => 1,
+                    'e_email' => 'alice@example.test',
+                    'e_displayName' => 'Alice',
+                    'e_enabled' => true,
+                ],
+            ],
+            totalItems: 1,
+        );
+
+        $response = $writer->write(
+            request: $exportRequest,
+            definition: $definition,
+            result: $result,
+        );
+
+        $content = (string) $response->getContent();
+
+        self::assertStringContainsString('Email', $content);
+        self::assertStringContainsString('alice@example.test', $content);
+
+        self::assertStringNotContainsString('Identifier', $content);
+        self::assertStringNotContainsString('Display name', $content);
+        self::assertStringNotContainsString('Enabled', $content);
+        self::assertStringNotContainsString('Alice', $content);
     }
 
     public function test_it_writes_csv_response(): void
