@@ -593,6 +593,22 @@ Current defaults:
 
 Explicit `ColumnDefinition::getClassName()` values always take precedence over defaults.
 
+### Accessibility markup
+
+The datatable renderer provides accessibility-friendly markup for core controls.
+
+Current improvements:
+
+- search input has an explicit accessible label;
+- page size selector has an accessible label;
+- sortable headers expose accessible sort labels;
+- active sort state uses `aria-sort`;
+- pagination buttons expose page-specific labels;
+- summary, loading and error areas use polite live regions;
+- the datatable root exposes `aria-busy`.
+
+This is not a full WCAG audit, but it provides a stronger baseline for professional back-office usage.
+
 ---
 
 ## 9. Action rendering layer
