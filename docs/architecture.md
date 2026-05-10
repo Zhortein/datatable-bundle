@@ -453,6 +453,21 @@ $definition
 
 Join application in Doctrine queries is implemented in later steps of the milestone.
 
+### Explicit Doctrine joins in provider
+
+`DoctrineOrmDataProvider` can apply explicit joins declared on `DatatableDefinition`.
+
+Supported join types:
+
+- inner join;
+- left join.
+
+Joins are applied to row queries and count queries.
+
+Only declared join aliases can be referenced by non-main fields. The main Doctrine alias remains `e`.
+
+Joined column selection, sorting, search and filters are implemented in later issues of the milestone.
+
 ### Doctrine association test fixtures
 
 The Doctrine functional test foundation includes associated entities for join-related tests.
