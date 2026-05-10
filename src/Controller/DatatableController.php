@@ -66,8 +66,12 @@ final readonly class DatatableController
             datatableRequest: $datatableRequest,
         );
 
+        $effectiveDatatableRequest = $exportRequest->shouldKeepPagination()
+            ? $datatableRequest
+            : $datatableRequest->withoutPagination();
+
         $provider = $this->providerRegistry->resolve($definition);
-        $result = $provider->getData($definition, $datatableRequest);
+        $result = $provider->getData($definition, $effectiveDatatableRequest);
         $writer = $this->exportWriterRegistry->resolve($exportFormat);
 
         return $writer->write($exportRequest, $definition, $result);

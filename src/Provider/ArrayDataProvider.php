@@ -32,7 +32,9 @@ final readonly class ArrayDataProvider implements DataProviderInterface
         $filteredItems = count($rows);
 
         $rows = $this->applySorting($rows, $definition, $request);
-        $rows = array_slice($rows, $request->getOffset(), $request->getPageSize());
+        if ($request->isPaginationEnabled()) {
+            $rows = array_slice($rows, $request->getOffset(), $request->getPageSize());
+        }
 
         return new DatatableResult(
             rows: $rows,

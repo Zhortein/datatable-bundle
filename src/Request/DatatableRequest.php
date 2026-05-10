@@ -64,6 +64,23 @@ final readonly class DatatableRequest
         );
     }
 
+    public function withoutPagination(): self
+    {
+        return new self(
+            page: 1,
+            pageSize: $this->pageSize,
+            searchQuery: $this->searchQuery,
+            sortField: $this->sortField,
+            sortDirection: $this->sortDirection,
+            filters: $this->filters,
+            visibleColumns: $this->visibleColumns,
+            hiddenColumns: $this->hiddenColumns,
+            options: array_replace($this->options, [
+                'disablePagination' => true,
+            ]),
+        );
+    }
+
     public function getPage(): int
     {
         return $this->page;
@@ -77,6 +94,11 @@ final readonly class DatatableRequest
     public function getOffset(): int
     {
         return ($this->page - 1) * $this->pageSize;
+    }
+
+    public function isPaginationEnabled(): bool
+    {
+        return true !== $this->getOption('disablePagination', false);
     }
 
     public function getSearchQuery(): ?string
