@@ -159,4 +159,53 @@ final class ZhorteinDatatableBundle extends AbstractBundle
 
         return strtolower($name);
     }
+
+    public function prependExtension(ContainerConfigurator $configurator, ContainerBuilder $container): void
+    {
+        if (!$this->isAssetMapperAvailable($container)) {
+            return;
+        }
+
+        $container->prependExtensionConfig('framework', [
+            'asset_mapper' => [
+                'paths' => [
+                    dirname(__DIR__).'/assets' => '@zhortein/datatable-bundle',
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * AssetMapper is optional for host applications.
+     */
+    private function isAssetMapperAvailable(ContainerBuilder $builder): bool
+    {
+        if (!interface_exists('Symfony\Component\AssetMapper\AssetMapperInterface')) {
+            return false;
+        }
+
+        if (!$builder->hasParameter('kernel.bundles_metadata')) {
+            return false;
+        }
+
+        $bundlesMetadata = $builder->getParameter('kernel.bundles_metadata');
+
+        if (!is_array($bundlesMetadata)) {
+            return false;
+        }
+
+        $frameworkBundle = $bundlesMetadata['FrameworkBundle'] ?? null;
+
+        if (!is_array($frameworkBundle)) {
+            return false;
+        }
+
+        $frameworkBundlePath = $frameworkBundle['path'] ?? null;
+
+        if (!is_string($frameworkBundlePath)) {
+            return false;
+        }
+
+        return is_file($frameworkBundlePath.'/Resources/config/asset_mapper.php');
+    }
 }
