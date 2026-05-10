@@ -524,6 +524,20 @@ The provider resolves Doctrine metadata for the joined alias before applying sea
 
 Only declared searchable columns participate in global search.
 
+### Doctrine joins documentation
+
+Doctrine joins and association fields are documented in `docs/doctrine-provider.md`.
+
+The documentation covers:
+
+- explicit join declaration;
+- left and inner joins;
+- joined columns;
+- sorting on joined fields;
+- search on joined fields;
+- permanent filters on joined fields;
+- current limitations.
+
 ### Permanent filters on joined Doctrine fields
 
 `DoctrineOrmDataProvider` supports permanent filters on fields from explicitly declared joins.
