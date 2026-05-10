@@ -64,6 +64,15 @@ Twig templates use stable translation keys for built-in labels such as search, l
 
 The bundle does not depend on BazingaJsTranslationBundle.
 
+### Installation and configuration documentation
+
+Installation and configuration documentation is maintained in:
+
+- `docs/installation.md`;
+- `docs/configuration.md`.
+
+These documents describe bundle registration, route loading, translations, Stimulus/AssetMapper integration, Doctrine provider setup and current configuration options.
+
 ---
 
 ## 2. High-level flow
