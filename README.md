@@ -105,6 +105,7 @@ With runtime options:
 - [Template context reference](docs/template-context.md)
 - [Optional icon rendering strategy](docs/icons.md)
 - [Cell template reference](docs/cell-templates.md)
+- [Theming and rendering customization](docs/theming.md)
 
 ## Architecture decisions
 

@@ -1141,6 +1141,24 @@ The cleanup focuses on:
 
 No functional behavior is intentionally changed by this cleanup.
 
+### Theming and rendering limitations
+
+The current rendering layer is Bootstrap-first.
+
+The only supported theme is `bootstrap`.
+
+Customization is currently handled through:
+
+- runtime Bootstrap options;
+- bundle configuration defaults;
+- column `className`;
+- custom column templates;
+- Symfony template overrides.
+
+There is no theme registry, Tailwind theme, CSS asset package or icon provider abstraction yet.
+
+The current strategy and limitations are documented in `docs/theming.md`.
+
 ---
 
 ## 9. Action rendering layer

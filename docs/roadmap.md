@@ -372,38 +372,39 @@ Current limitations:
 
 ---
 
-# Next milestones
+## 0.12 - Theming and template override polish ✅
 
-## 0.12 - Theming and template override polish 🚧
+Delivered:
 
-Improve rendering customization.
+- Twig template override documentation.
+- Template context reference.
+- Bootstrap table display variants.
+- Configurable Bootstrap rendering defaults.
+- Optional icon rendering strategy documentation.
+- Cell template reference.
+- Bootstrap template cleanup.
+- Theming limitations documentation.
 
-Planned:
-
-- Formal template override documentation.
-- Template context documentation.
-- Theme configuration cleanup.
-- Bootstrap template review.
-- Optional compact table variant.
-- Optional bordered/striped/hover options.
-- First CSS utility documentation.
-- Better icon strategy decision.
-
-Target outcome:
+Main outcome:
 
 ```text
-Host applications can customize rendering predictably without forking bundle templates.
+Applications can customize Bootstrap-first rendering predictably without forking the bundle.
 ```
 
-Out of scope:
+Current limitations:
 
-- Tailwind support;
-- multiple fully maintained themes;
-- complex design system abstraction.
+- Bootstrap is the only maintained theme;
+- no Tailwind support;
+- no theme registry;
+- no CSS asset package;
+- no icon provider abstraction;
+- template context may still evolve before 1.0.
 
 ---
 
-## 0.13 - Security and action visibility 🕒
+# Next milestones
+
+## 0.13 - Security and action visibility 🚧
 
 Make actions safer and context-aware.
 
