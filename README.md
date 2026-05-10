@@ -82,6 +82,11 @@ With runtime options:
 }) }}
 ```
 
+## Examples
+
+- [Minimal array datatable example](docs/examples/array-datatable.md)
+
+
 ## Documentation
 
 - [Documentation index](docs/index.md)
