@@ -1891,3 +1891,11 @@ The review covers:
 The first pre-release checklist is documented in [`release-checklist.md`](release-checklist.md).
 
 It defines the go/no-go criteria for the first alpha tag, including CI, documentation, changelog, release workflow, Packagist readiness and smoke testing.
+
+### Fresh Symfony smoke test
+
+The fresh Symfony smoke test plan is documented in [`smoke-test.md`](smoke-test.md).
+
+It validates the bundle in a clean Symfony application outside the bundle test suite.
+
+The smoke test covers installation, routing, translations, Stimulus integration, array and Doctrine datatables, actions, filters, preferences and CSV exports.

@@ -172,3 +172,25 @@ Milestone 0.14 completed the project release-preparation documentation layer:
 - first pre-release checklist.
 
 The next recommended step is a fresh Symfony application smoke test before tagging a first alpha.
+
+## Fresh Symfony smoke test
+
+Before tagging the first alpha, run the smoke test plan:
+
+- [Fresh Symfony smoke test plan](smoke-test.md)
+
+The smoke test must validate:
+
+- installation through a local path repository;
+- bundle registration;
+- route import;
+- Stimulus controller exposure;
+- translations;
+- minimal array datatable;
+- Doctrine datatable;
+- actions;
+- filters;
+- column visibility;
+- CSV exports.
+
+Blocking issues must be resolved before tagging.
