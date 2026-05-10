@@ -21,7 +21,7 @@ final class DatatableRendererHeaderFragmentTest extends TestCase
         $html = $renderer->renderHeader($this->createDefinition());
 
         self::assertStringContainsString('<thead', $html);
-        self::assertStringContainsString('data-zhortein-datatable-target="header"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="header"', $html);
         self::assertStringContainsString('Email', $html);
         self::assertStringContainsString('Display name', $html);
     }

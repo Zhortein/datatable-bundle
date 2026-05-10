@@ -38,52 +38,20 @@ assets/controllers/datatable_controller.js
 The controller identifier is expected to be:
 
 ```text
-zhortein-datatable
+zhortein--datatable-bundle--datatable
 ```
 
 Generated datatable markup uses:
 
 ```html
 <div
-    data-controller="zhortein-datatable"
-    data-zhortein-datatable-name-value="users"
-    data-zhortein-datatable-fragments-url-value="/_zhortein/datatable/users/fragments"
+    data-controller="zhortein--datatable-bundle--datatable"
+    data-zhortein--datatable-bundle--datatable-name-value="users"
+    data-zhortein--datatable-bundle--datatable-fragments-url-value="/_zhortein/datatable/users/fragments"
 >
     <!-- Datatable markup -->
 </div>
 ```
-
-## Importing the controller in the host application
-
-Until a Symfony Flex recipe or automatic controller registration strategy is added, the host application can import the controller manually.
-
-Example:
-
-```js
-// assets/controllers/zhortein_datatable_controller.js
-
-export { default } from '../../vendor/zhortein/datatable-bundle/assets/controllers/datatable_controller.js';
-```
-
-Depending on the project structure, the relative path may need to be adjusted.
-
-## Registering the controller
-
-In a standard Symfony UX Stimulus setup, controllers placed in `assets/controllers` are automatically discovered.
-
-The local wrapper file:
-
-```text
-assets/controllers/zhortein_datatable_controller.js
-```
-
-should register the controller as:
-
-```text
-zhortein-datatable
-```
-
-This matches the `data-controller="zhortein-datatable"` attribute rendered by the bundle.
 
 ## AssetMapper importmap
 
@@ -100,10 +68,10 @@ Most Symfony UX projects already have Stimulus configured.
 The rendered datatable shell exposes Stimulus values:
 
 ```html
-data-zhortein-datatable-name-value="users"
-data-zhortein-datatable-fragments-url-value="/_zhortein/datatable/users/fragments"
-data-zhortein-datatable-page-value="1"
-data-zhortein-datatable-page-size-value="25"
+data-zhortein--datatable-bundle--datatable-name-value="users"
+data-zhortein--datatable-bundle--datatable-fragments-url-value="/_zhortein/datatable/users/fragments"
+data-zhortein--datatable-bundle--datatable-page-value="1"
+data-zhortein--datatable-bundle--datatable-page-size-value="25"
 ```
 
 These values are read by the controller.
@@ -113,13 +81,13 @@ These values are read by the controller.
 The controller expects several optional targets:
 
 ```html
-data-zhortein-datatable-target="body"
-data-zhortein-datatable-target="pagination"
-data-zhortein-datatable-target="summary"
-data-zhortein-datatable-target="searchInput"
-data-zhortein-datatable-target="loading"
-data-zhortein-datatable-target="error"
-data-zhortein-datatable-target="globalActions"
+data-zhortein--datatable-bundle--datatable-target="body"
+data-zhortein--datatable-bundle--datatable-target="pagination"
+data-zhortein--datatable-bundle--datatable-target="summary"
+data-zhortein--datatable-bundle--datatable-target="searchInput"
+data-zhortein--datatable-bundle--datatable-target="loading"
+data-zhortein--datatable-bundle--datatable-target="error"
+data-zhortein--datatable-bundle--datatable-target="globalActions"
 ```
 
 The bundle templates already render the required targets.
@@ -168,7 +136,7 @@ It does not render business cells manually.
 When a search input is rendered, it is wired to:
 
 ```html
-data-action="input->zhortein-datatable#search"
+data-action="input->zhortein--datatable-bundle--datatable#search"
 ```
 
 Search is debounced before refreshing fragments.
@@ -178,8 +146,8 @@ Search is debounced before refreshing fragments.
 Pagination buttons use:
 
 ```html
-data-action="zhortein-datatable#goToPage"
-data-zhortein-datatable-page-param="2"
+data-action="zhortein--datatable-bundle--datatable#goToPage"
+data-zhortein--datatable-bundle--datatable-page-param="2"
 ```
 
 The controller updates the page value and refreshes fragments.
@@ -191,8 +159,8 @@ Sorting support is prepared in the controller but the current UI markup is still
 Expected action direction:
 
 ```html
-data-action="zhortein-datatable#sort"
-data-zhortein-datatable-field-param="e.email"
+data-action="zhortein--datatable-bundle--datatable#sort"
+data-zhortein--datatable-bundle--datatable-field-param="e.email"
 ```
 
 Sorting UI will be improved later.
@@ -248,7 +216,7 @@ Check that Symfony UX Stimulus is installed and enabled.
 Check the generated HTML contains:
 
 ```html
-data-controller="zhortein-datatable"
+data-controller="zhortein--datatable-bundle--datatable"
 ```
 
 ### Ajax endpoint returns 404
@@ -262,7 +230,7 @@ See [`routes.md`](routes.md).
 Check that the rendered search input contains:
 
 ```html
-data-action="input->zhortein-datatable#search"
+data-action="input->zhortein--datatable-bundle--datatable#search"
 ```
 
 Check that the root element contains a valid fragments URL value.

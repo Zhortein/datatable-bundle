@@ -86,8 +86,8 @@ The backend supports single-column sorting and the Stimulus controller already e
 
 - Update header template.
 - Render sortable columns as buttons.
-- Add `data-action="zhortein-datatable#sort"`.
-- Add `data-zhortein-datatable-field-param`.
+- Add `data-action="zhortein--datatable-bundle--datatable#sort"`.
+- Add `data-zhortein--datatable-bundle--datatable-field-param`.
 - Add visual state hooks for current sort field/direction.
 - Add tests.
 

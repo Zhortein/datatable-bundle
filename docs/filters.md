@@ -442,13 +442,13 @@ filters[filterName][to]
 Filter controls expose:
 
 ```html
-data-zhortein-datatable-filter-control="true"
+data-zhortein--datatable-bundle--datatable-filter-control="true"
 ```
 
 and call:
 
 ```html
-data-action="...->zhortein-datatable#changeFilter"
+data-action="...->zhortein--datatable-bundle--datatable#changeFilter"
 ```
 
 When a filter changes:

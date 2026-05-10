@@ -25,8 +25,8 @@ final class DatatableRendererFilterToolbarTest extends TestCase
         self::assertStringContainsString('type="text"', $html);
         self::assertStringContainsString('placeholder="Search an email"', $html);
         self::assertStringContainsString('Email', $html);
-        self::assertStringContainsString('data-zhortein-datatable-filter-control="true"', $html);
-        self::assertStringContainsString('data-action="input->zhortein-datatable#changeFilter change->zhortein-datatable#changeFilter"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-filter-control="true"', $html);
+        self::assertStringContainsString('data-action="input->zhortein--datatable-bundle--datatable#changeFilter change->zhortein--datatable-bundle--datatable#changeFilter"', $html);
     }
 
     public function test_it_renders_choice_filter(): void
@@ -38,7 +38,7 @@ final class DatatableRendererFilterToolbarTest extends TestCase
         self::assertStringContainsString('name="filters[status]"', $html);
         self::assertStringContainsString('<option value="enabled">Enabled</option>', $html);
         self::assertStringContainsString('<option value="disabled">Disabled</option>', $html);
-        self::assertStringContainsString('data-action="change->zhortein-datatable#changeFilter"', $html);
+        self::assertStringContainsString('data-action="change->zhortein--datatable-bundle--datatable#changeFilter"', $html);
     }
 
     public function test_it_renders_boolean_filter(): void
@@ -70,11 +70,11 @@ final class DatatableRendererFilterToolbarTest extends TestCase
 
         $html = $renderer->render($this->createDefinition());
 
-        self::assertStringContainsString('data-zhortein-datatable-target="activeFilters"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="activeFilters"', $html);
         self::assertStringContainsString('data-active-filter-count="0"', $html);
         self::assertStringContainsString('Filters are active.', $html);
-        self::assertStringContainsString('data-zhortein-datatable-target="clearFiltersButton"', $html);
-        self::assertStringContainsString('data-action="zhortein-datatable#clearFilters"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="clearFiltersButton"', $html);
+        self::assertStringContainsString('data-action="zhortein--datatable-bundle--datatable#clearFilters"', $html);
         self::assertStringContainsString('Clear filters', $html);
     }
 

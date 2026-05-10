@@ -460,7 +460,7 @@ $definition->addRowAction(
 The renderer outputs:
 
 ```html
-data-zhortein-datatable-confirmation-message="Delete this user?"
+data-zhortein--datatable-bundle--datatable-confirmation-message="Delete this user?"
 ```
 
 The metadata is passive until JavaScript confirmation behavior is enabled.

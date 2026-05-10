@@ -780,8 +780,8 @@ The renderer renders Bootstrap pagination from a `DatatableResult`.
 
 Pagination controls include Stimulus-compatible attributes:
 
-- `data-action="zhortein-datatable#goToPage"`;
-- `data-zhortein-datatable-page-param`.
+- `data-action="zhortein--datatable-bundle--datatable#goToPage"`;
+- `data-zhortein--datatable-bundle--datatable-page-param`.
 
 Pagination markup remains accessible with disabled states and `aria-current` on the active page.
 
@@ -792,8 +792,8 @@ Sortable columns are rendered as button controls in the table header.
 The generated markup uses Stimulus parameters:
 
 ```html
-data-action="zhortein-datatable#sort"
-data-zhortein-datatable-field-param="e.email"
+data-action="zhortein--datatable-bundle--datatable#sort"
+data-zhortein--datatable-bundle--datatable-field-param="e.email"
 ```
 
 Columns marked as non-sortable remain static header text.
@@ -805,15 +805,15 @@ Current sort state rendering is handled separately.
 The datatable shell exposes the current sort state through Stimulus values:
 
 ```html
-data-zhortein-datatable-sort-field-value="e.email"
-data-zhortein-datatable-sort-direction-value="asc"
+data-zhortein--datatable-bundle--datatable-sort-field-value="e.email"
+data-zhortein--datatable-bundle--datatable-sort-direction-value="asc"
 ```
 
 Sortable headers render active state metadata when they match the current sort field:
 
 - `aria-sort="ascending"` or `aria-sort="descending"`;
-- `data-zhortein-datatable-current-sort-param`;
-- `data-zhortein-datatable-sort-direction-param`;
+- `data-zhortein--datatable-bundle--datatable-current-sort-param`;
+- `data-zhortein--datatable-bundle--datatable-sort-direction-param`;
 - a visually hidden sorted-state label.
 
 This keeps sorting state accessible and synchronized with the Stimulus controller.
@@ -827,8 +827,8 @@ The selector is enabled by default and can be disabled through runtime options.
 Rendered markup uses:
 
 ```html
-data-zhortein-datatable-target="pageSizeInput"
-data-action="change->zhortein-datatable#changePageSize"
+data-zhortein--datatable-bundle--datatable-target="pageSizeInput"
+data-action="change->zhortein--datatable-bundle--datatable#changePageSize"
 ```
 
 Changing the page size resets the current page to 1 and refreshes Ajax fragments.
@@ -891,7 +891,7 @@ Stimulus integration and provider application are handled in later steps.
 Filter controls rendered in the toolbar now expose:
 
 ```html
-data-zhortein-datatable-filter-control="true"
+data-zhortein--datatable-bundle--datatable-filter-control="true"
 ```
 
 and call the Stimulus `changeFilter` action.
@@ -912,13 +912,13 @@ The toolbar can render a column visibility control.
 
 The control lists declared columns and exposes stable metadata:
 
-- `data-zhortein-datatable-column-visibility-control="true"`;
-- `data-zhortein-datatable-column-name`.
+- `data-zhortein--datatable-bundle--datatable-column-visibility-control="true"`;
+- `data-zhortein--datatable-bundle--datatable-column-name`.
 
 Definition-hidden columns are represented but marked with:
 
 ```html
-data-zhortein-datatable-definition-hidden="true"
+data-zhortein--datatable-bundle--datatable-definition-hidden="true"
 ```
 
 Stimulus wiring and backend request normalization are implemented in later steps.
@@ -1287,7 +1287,7 @@ Actions can expose passive confirmation metadata in rendered markup.
 When `ActionDefinition::getConfirmationMessage()` returns a message, the renderer adds:
 
 ```html
-data-zhortein-datatable-confirmation-message="..."
+data-zhortein--datatable-bundle--datatable-confirmation-message="..."
 ```
 
 GET actions expose the metadata on the link.
@@ -1303,13 +1303,13 @@ Actions with confirmation metadata call the Stimulus `confirmAction` method.
 GET actions use:
 
 ```html
-data-action="click->zhortein-datatable#confirmAction"
+data-action="click->zhortein--datatable-bundle--datatable#confirmAction"
 ```
 
 Non-GET forms use:
 
 ```html
-data-action="submit->zhortein-datatable#confirmAction"
+data-action="submit->zhortein--datatable-bundle--datatable#confirmAction"
 ```
 
 The first implementation uses native `window.confirm()`.

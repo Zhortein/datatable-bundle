@@ -27,13 +27,13 @@ assets/controllers/datatable_controller.js
 Current controller identifier:
 
 ```text
-zhortein-datatable
+zhortein--datatable-bundle--datatable
 ```
 
 The rendered datatable shell contains:
 
 ```html
-data-controller="zhortein-datatable"
+data-controller="zhortein--datatable-bundle--datatable"
 ```
 
 ## Datatable shell values
@@ -41,12 +41,12 @@ data-controller="zhortein-datatable"
 The datatable shell exposes Stimulus values:
 
 ```html
-data-zhortein-datatable-name-value="users"
-data-zhortein-datatable-fragments-url-value="/_zhortein/datatable/users/fragments"
-data-zhortein-datatable-page-value="1"
-data-zhortein-datatable-page-size-value="25"
-data-zhortein-datatable-sort-field-value=""
-data-zhortein-datatable-sort-direction-value="asc"
+data-zhortein--datatable-bundle--datatable-name-value="users"
+data-zhortein--datatable-bundle--datatable-fragments-url-value="/_zhortein/datatable/users/fragments"
+data-zhortein--datatable-bundle--datatable-page-value="1"
+data-zhortein--datatable-bundle--datatable-page-size-value="25"
+data-zhortein--datatable-bundle--datatable-sort-field-value=""
+data-zhortein--datatable-bundle--datatable-sort-direction-value="asc"
 ```
 
 These values are used to build Ajax fragment requests.
@@ -108,8 +108,8 @@ Runtime example:
 The search input uses:
 
 ```html
-data-zhortein-datatable-target="searchInput"
-data-action="input->zhortein-datatable#search"
+data-zhortein--datatable-bundle--datatable-target="searchInput"
+data-action="input->zhortein--datatable-bundle--datatable#search"
 ```
 
 Search behavior:
@@ -151,8 +151,8 @@ Disable the selector:
 The selector uses:
 
 ```html
-data-zhortein-datatable-target="pageSizeInput"
-data-action="change->zhortein-datatable#changePageSize"
+data-zhortein--datatable-bundle--datatable-target="pageSizeInput"
+data-action="change->zhortein--datatable-bundle--datatable#changePageSize"
 ```
 
 Page size behavior:
@@ -171,8 +171,8 @@ Example generated direction:
 ```html
 <button
     type="button"
-    data-action="zhortein-datatable#sort"
-    data-zhortein-datatable-field-param="e.email"
+    data-action="zhortein--datatable-bundle--datatable#sort"
+    data-zhortein--datatable-bundle--datatable-field-param="e.email"
 >
     Email
 </button>
@@ -191,8 +191,8 @@ Sorting behavior:
 The current sorting state is rendered in the datatable shell:
 
 ```html
-data-zhortein-datatable-sort-field-value="e.email"
-data-zhortein-datatable-sort-direction-value="asc"
+data-zhortein--datatable-bundle--datatable-sort-field-value="e.email"
+data-zhortein--datatable-bundle--datatable-sort-direction-value="asc"
 ```
 
 The active header renders:
@@ -226,8 +226,8 @@ Pagination is rendered server-side from `DatatableResult`.
 Controls use Bootstrap pagination markup and Stimulus actions:
 
 ```html
-data-action="zhortein-datatable#goToPage"
-data-zhortein-datatable-page-param="2"
+data-action="zhortein--datatable-bundle--datatable#goToPage"
+data-zhortein--datatable-bundle--datatable-page-param="2"
 ```
 
 Pagination behavior:

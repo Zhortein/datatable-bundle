@@ -20,8 +20,8 @@ final class DatatableRendererSortableHeaderTest extends TestCase
 
         $html = $renderer->render($this->createDefinition());
 
-        self::assertStringContainsString('data-action="zhortein-datatable#sort"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-field-param="e.email"', $html);
+        self::assertStringContainsString('data-action="zhortein--datatable-bundle--datatable#sort"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-field-param="e.email"', $html);
         self::assertStringContainsString('Email', $html);
     }
 
@@ -31,7 +31,7 @@ final class DatatableRendererSortableHeaderTest extends TestCase
 
         $html = $renderer->render($this->createDefinition());
 
-        self::assertStringNotContainsString('data-zhortein-datatable-field-param="e.createdAt"', $html);
+        self::assertStringNotContainsString('data-zhortein--datatable-bundle--datatable-field-param="e.createdAt"', $html);
         self::assertStringContainsString('Created at', $html);
     }
 

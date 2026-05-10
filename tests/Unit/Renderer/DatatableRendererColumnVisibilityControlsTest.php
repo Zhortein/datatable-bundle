@@ -22,10 +22,10 @@ final class DatatableRendererColumnVisibilityControlsTest extends TestCase
 
         self::assertStringContainsString('zhortein-datatable__column-visibility', $html);
         self::assertStringContainsString('Columns', $html);
-        self::assertStringContainsString('data-zhortein-datatable-column-visibility-control="true"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-column-name="e.email"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-column-name="e.createdAt"', $html);
-        self::assertStringContainsString('data-action="change->zhortein-datatable#changeColumnVisibility"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-column-visibility-control="true"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-column-name="e.email"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-column-name="e.createdAt"', $html);
+        self::assertStringContainsString('data-action="change->zhortein--datatable-bundle--datatable#changeColumnVisibility"', $html);
         self::assertStringContainsString('Email', $html);
         self::assertStringContainsString('Created at', $html);
     }
@@ -36,8 +36,8 @@ final class DatatableRendererColumnVisibilityControlsTest extends TestCase
 
         $html = $renderer->render($this->createDefinition());
 
-        self::assertStringNotContainsString('data-zhortein-datatable-column-name="e.id"', $html);
-        self::assertStringNotContainsString('data-zhortein-datatable-definition-hidden="true"', $html);
+        self::assertStringNotContainsString('data-zhortein--datatable-bundle--datatable-column-name="e.id"', $html);
+        self::assertStringNotContainsString('data-zhortein--datatable-bundle--datatable-definition-hidden="true"', $html);
         self::assertStringNotContainsString('Identifier', $html);
     }
 
@@ -50,7 +50,7 @@ final class DatatableRendererColumnVisibilityControlsTest extends TestCase
         ]);
 
         self::assertStringNotContainsString('zhortein-datatable__column-visibility', $html);
-        self::assertStringNotContainsString('data-zhortein-datatable-column-visibility-control="true"', $html);
+        self::assertStringNotContainsString('data-zhortein--datatable-bundle--datatable-column-visibility-control="true"', $html);
     }
 
     public function test_it_uses_runtime_visibility_state_for_checked_columns(): void
@@ -62,8 +62,8 @@ final class DatatableRendererColumnVisibilityControlsTest extends TestCase
             'hiddenColumns' => ['e.createdAt'],
         ]);
 
-        self::assertStringContainsString('data-zhortein-datatable-column-name="e.email"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-column-name="e.createdAt"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-column-name="e.email"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-column-name="e.createdAt"', $html);
         self::assertStringContainsString('name="columns[e.email]"', $html);
         self::assertStringContainsString('name="columns[e.createdAt]"', $html);
     }

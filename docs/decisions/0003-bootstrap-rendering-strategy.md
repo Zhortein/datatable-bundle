@@ -102,9 +102,9 @@ The generated HTML should follow this general structure:
 ```html
 <div
     class="zhortein-datatable"
-    data-controller="zhortein-datatable"
-    data-zhortein-datatable-name-value="users"
-    data-zhortein-datatable-data-url-value="/_zhortein/datatable/users/data"
+    data-controller="zhortein--datatable-bundle--datatable"
+    data-zhortein--datatable-bundle--datatable-name-value="users"
+    data-zhortein--datatable-bundle--datatable-data-url-value="/_zhortein/datatable/users/data"
 >
     <div class="zhortein-datatable__toolbar">
         <!-- Search, global actions, page size selector -->
@@ -116,13 +116,13 @@ The generated HTML should follow this general structure:
                 <!-- Headers rendered by Twig -->
             </thead>
 
-            <tbody data-zhortein-datatable-target="body">
+            <tbody data-zhortein--datatable-bundle--datatable-target="body">
                 <!-- Rows rendered by Twig -->
             </tbody>
         </table>
     </div>
 
-    <div data-zhortein-datatable-target="pagination">
+    <div data-zhortein--datatable-bundle--datatable-target="pagination">
         <!-- Pagination rendered by Twig -->
     </div>
 </div>
@@ -234,8 +234,8 @@ Example direction:
 <button
     type="button"
     class="btn btn-link p-0 text-decoration-none"
-    data-action="zhortein-datatable#sort"
-    data-zhortein-datatable-sort-field-param="e.email"
+    data-action="zhortein--datatable-bundle--datatable#sort"
+    data-zhortein--datatable-bundle--datatable-sort-field-param="e.email"
 >
     Email
 </button>

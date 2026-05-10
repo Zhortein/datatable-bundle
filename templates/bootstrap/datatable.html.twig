@@ -35,15 +35,15 @@
 <div
     id="{{ htmlId }}"
     class="zhortein-datatable"
-    data-controller="zhortein-datatable"
-    data-zhortein-datatable-name-value="{{ definition.name }}"
-    data-zhortein-datatable-fragments-url-value="{{ fragments_url }}"
-    data-zhortein-datatable-export-url-value="{{ export_url }}"
-    data-zhortein-datatable-page-value="1"
-    data-zhortein-datatable-page-size-value="{{ page_size }}"
-    data-zhortein-datatable-sort-field-value="{{ sort_field }}"
-    data-zhortein-datatable-sort-direction-value="{{ sort_direction }}"
-    data-zhortein-datatable-auto-load-value="{{ auto_load ? 'true' : 'false' }}"
+    data-controller="zhortein--datatable-bundle--datatable"
+    data-zhortein--datatable-bundle--datatable-name-value="{{ definition.name }}"
+    data-zhortein--datatable-bundle--datatable-fragments-url-value="{{ fragments_url }}"
+    data-zhortein--datatable-bundle--datatable-export-url-value="{{ export_url }}"
+    data-zhortein--datatable-bundle--datatable-page-value="1"
+    data-zhortein--datatable-bundle--datatable-page-size-value="{{ page_size }}"
+    data-zhortein--datatable-bundle--datatable-sort-field-value="{{ sort_field }}"
+    data-zhortein--datatable-bundle--datatable-sort-direction-value="{{ sort_direction }}"
+    data-zhortein--datatable-bundle--datatable-auto-load-value="{{ auto_load ? 'true' : 'false' }}"
     aria-busy="false"
 >
     {% include '@ZhorteinDatatable/bootstrap/_toolbar.html.twig' %}
@@ -53,7 +53,7 @@
         role="alert"
         aria-live="polite"
         aria-hidden="true"
-        data-zhortein-datatable-target="error"
+        data-zhortein--datatable-bundle--datatable-target="error"
         hidden
     ></div>
 
@@ -62,7 +62,7 @@
             role="status"
             aria-live="polite"
             aria-hidden="true"
-            data-zhortein-datatable-target="loading"
+            data-zhortein--datatable-bundle--datatable-target="loading"
     >
         <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
         <span>{{ 'zhortein_datatable.loading'|trans({}, 'zhortein_datatable') }}</span>
@@ -72,7 +72,7 @@
         <table class="{{ table_classes|join(' ') }}">
             {% include '@ZhorteinDatatable/bootstrap/_header.html.twig' %}
 
-            <tbody data-zhortein-datatable-target="body">
+            <tbody data-zhortein--datatable-bundle--datatable-target="body">
                 {% include '@ZhorteinDatatable/bootstrap/_empty.html.twig' %}
             </tbody>
         </table>
@@ -81,7 +81,7 @@
     <div
         class="zhortein-datatable__summary text-body-secondary small mt-2"
         aria-live="polite"
-        data-zhortein-datatable-target="summary"
+        data-zhortein--datatable-bundle--datatable-target="summary"
     ></div>
 
     {% include '@ZhorteinDatatable/bootstrap/_pagination.html.twig' %}

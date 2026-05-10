@@ -37,7 +37,7 @@ final class DatatableRendererFragmentsTest extends TestCase
         $html = $renderer->renderPaginationPlaceholder($definition);
 
         self::assertStringContainsString('zhortein-datatable__pagination', $html);
-        self::assertStringContainsString('data-zhortein-datatable-target="pagination"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="pagination"', $html);
     }
 
     private function createTwigEnvironment(): Environment

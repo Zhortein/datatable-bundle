@@ -31,14 +31,14 @@ final class DatatableRendererTest extends TestCase
         ]);
 
         self::assertStringContainsString('id="zhortein-datatable-users"', $html);
-        self::assertStringContainsString('data-controller="zhortein-datatable"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-name-value="users"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-fragments-url-value="/_zhortein/datatable/users/fragments"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-page-value="1"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-page-size-value="25"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-target="summary"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-target="loading"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-target="error"', $html);
+        self::assertStringContainsString('data-controller="zhortein--datatable-bundle--datatable"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-name-value="users"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-fragments-url-value="/_zhortein/datatable/users/fragments"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-page-value="1"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-page-size-value="25"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="summary"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="loading"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="error"', $html);
         self::assertStringContainsString('table', $html);
         self::assertStringContainsString('align-middle', $html);
         self::assertStringContainsString('mb-0', $html);
@@ -49,7 +49,7 @@ final class DatatableRendererTest extends TestCase
         self::assertStringNotContainsString('e.id', $html);
         self::assertStringContainsString('No data available.', $html);
         self::assertStringContainsString('colspan="2"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-export-url-value="/_zhortein/datatable/users/export/csv"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-export-url-value="/_zhortein/datatable/users/export/csv"', $html);
     }
 
     public function test_it_exposes_runtime_export_url(): void
@@ -63,7 +63,7 @@ final class DatatableRendererTest extends TestCase
             'exportUrl' => '/custom/users/export',
         ]);
 
-        self::assertStringContainsString('data-zhortein-datatable-export-url-value="/custom/users/export"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-export-url-value="/custom/users/export"', $html);
     }
 
     public function test_it_renders_optional_search_input(): void
@@ -78,7 +78,7 @@ final class DatatableRendererTest extends TestCase
         ]);
 
         self::assertStringContainsString('type="search"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-target="searchInput"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="searchInput"', $html);
     }
 
     public function test_it_renders_runtime_fragments_url_and_page_size(): void
@@ -93,8 +93,8 @@ final class DatatableRendererTest extends TestCase
             'pageSize' => 50,
         ]);
 
-        self::assertStringContainsString('data-zhortein-datatable-fragments-url-value="/custom/users/fragments"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-page-size-value="50"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-fragments-url-value="/custom/users/fragments"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-page-size-value="50"', $html);
     }
 
     private function createTwigEnvironment(): Environment

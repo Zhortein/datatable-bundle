@@ -23,7 +23,7 @@ final class DatatableRendererConfiguredDefaultsTest extends TestCase
 
         $html = $renderer->render($this->createDefinition());
 
-        self::assertStringContainsString('data-zhortein-datatable-page-size-value="50"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-page-size-value="50"', $html);
     }
 
     public function test_runtime_options_override_configured_page_size(): void
@@ -37,7 +37,7 @@ final class DatatableRendererConfiguredDefaultsTest extends TestCase
             'pageSize' => 10,
         ]);
 
-        self::assertStringContainsString('data-zhortein-datatable-page-size-value="10"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-page-size-value="10"', $html);
     }
 
     public function test_it_uses_configured_search_default(): void
@@ -50,7 +50,7 @@ final class DatatableRendererConfiguredDefaultsTest extends TestCase
         $html = $renderer->render($this->createDefinition());
 
         self::assertStringContainsString('type="search"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-target="searchInput"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="searchInput"', $html);
     }
 
     public function test_runtime_options_override_configured_search_default(): void

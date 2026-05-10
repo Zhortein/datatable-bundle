@@ -21,8 +21,8 @@ final class DatatableRendererPageSizeSelectorTest extends TestCase
         $html = $renderer->render($this->createDefinition());
 
         self::assertStringContainsString('Rows per page', $html);
-        self::assertStringContainsString('data-zhortein-datatable-target="pageSizeInput"', $html);
-        self::assertStringContainsString('data-action="change->zhortein-datatable#changePageSize"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="pageSizeInput"', $html);
+        self::assertStringContainsString('data-action="change->zhortein--datatable-bundle--datatable#changePageSize"', $html);
         self::assertStringContainsString('<option value="25" selected>', $html);
     }
 
@@ -59,7 +59,7 @@ final class DatatableRendererPageSizeSelectorTest extends TestCase
             'pageSizeSelector' => false,
         ]);
 
-        self::assertStringNotContainsString('data-zhortein-datatable-target="pageSizeInput"', $html);
+        self::assertStringNotContainsString('data-zhortein--datatable-bundle--datatable-target="pageSizeInput"', $html);
         self::assertStringNotContainsString('Rows per page', $html);
     }
 

@@ -36,11 +36,11 @@ final class DatatableRendererPaginationTest extends TestCase
         self::assertStringContainsString('zhortein-datatable__pagination', $html);
         self::assertStringContainsString('<nav aria-label="Datatable pagination">', $html);
         self::assertStringContainsString('class="pagination mb-0"', $html);
-        self::assertStringContainsString('data-action="zhortein-datatable#goToPage"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-page-param="1"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-page-param="2"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-page-param="3"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-page-param="4"', $html);
+        self::assertStringContainsString('data-action="zhortein--datatable-bundle--datatable#goToPage"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-page-param="1"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-page-param="2"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-page-param="3"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-page-param="4"', $html);
         self::assertStringContainsString('aria-current="page"', $html);
         self::assertStringContainsString('Previous', $html);
         self::assertStringContainsString('Next', $html);
@@ -100,7 +100,7 @@ final class DatatableRendererPaginationTest extends TestCase
         $html = $renderer->renderPaginationPlaceholder($definition);
 
         self::assertStringContainsString('zhortein-datatable__pagination', $html);
-        self::assertStringContainsString('data-zhortein-datatable-target="pagination"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="pagination"', $html);
         self::assertStringNotContainsString('<nav', $html);
     }
 

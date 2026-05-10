@@ -37,16 +37,16 @@ The controller will not:
 The initial controller name should be:
 
 ```text
-zhortein-datatable
+zhortein--datatable-bundle--datatable
 ```
 
 Usage example:
 
 ```html
 <div
-    data-controller="zhortein-datatable"
-    data-zhortein-datatable-name-value="users"
-    data-zhortein-datatable-data-url-value="/_zhortein/datatable/users/data"
+    data-controller="zhortein--datatable-bundle--datatable"
+    data-zhortein--datatable-bundle--datatable-name-value="users"
+    data-zhortein--datatable-bundle--datatable-data-url-value="/_zhortein/datatable/users/data"
 >
     <!-- Datatable markup -->
 </div>
@@ -169,7 +169,7 @@ Before sending a request, the controller should:
 Expected markup behavior:
 
 ```html
-<div data-controller="zhortein-datatable" aria-busy="true">
+<div data-controller="zhortein--datatable-bundle--datatable" aria-busy="true">
     ...
 </div>
 ```
@@ -210,8 +210,8 @@ Example markup:
 <input
     type="search"
     class="form-control"
-    data-zhortein-datatable-target="searchInput"
-    data-action="input->zhortein-datatable#search"
+    data-zhortein--datatable-bundle--datatable-target="searchInput"
+    data-action="input->zhortein--datatable-bundle--datatable#search"
 />
 ```
 
@@ -225,8 +225,8 @@ Example markup:
 <button
     type="button"
     class="btn btn-link p-0 text-decoration-none"
-    data-action="zhortein-datatable#sort"
-    data-zhortein-datatable-sort-field-param="e.email"
+    data-action="zhortein--datatable-bundle--datatable#sort"
+    data-zhortein--datatable-bundle--datatable-sort-field-param="e.email"
 >
     Email
 </button>
@@ -251,8 +251,8 @@ Example markup:
 <button
     type="button"
     class="page-link"
-    data-action="zhortein-datatable#goToPage"
-    data-zhortein-datatable-page-param="2"
+    data-action="zhortein--datatable-bundle--datatable#goToPage"
+    data-zhortein--datatable-bundle--datatable-page-param="2"
 >
     2
 </button>
@@ -273,8 +273,8 @@ Example markup:
 ```html
 <select
     class="form-select"
-    data-zhortein-datatable-target="pageSize"
-    data-action="change->zhortein-datatable#changePageSize"
+    data-zhortein--datatable-bundle--datatable-target="pageSize"
+    data-action="change->zhortein--datatable-bundle--datatable#changePageSize"
 >
     <option value="10">10</option>
     <option value="25">25</option>
@@ -320,9 +320,9 @@ The controller may dispatch custom events for extension points.
 Initial event names:
 
 ```text
-zhortein-datatable:before-load
-zhortein-datatable:after-load
-zhortein-datatable:error
+zhortein--datatable-bundle--datatable:before-load
+zhortein--datatable-bundle--datatable:after-load
+zhortein--datatable-bundle--datatable:error
 ```
 
 These events should be documented when implemented.

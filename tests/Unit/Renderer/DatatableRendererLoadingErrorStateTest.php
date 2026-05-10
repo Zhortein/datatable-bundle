@@ -23,7 +23,7 @@ final class DatatableRendererLoadingErrorStateTest extends TestCase
         self::assertStringContainsString('role="alert"', $html);
         self::assertStringContainsString('aria-live="polite"', $html);
         self::assertStringContainsString('aria-hidden="true"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-target="error"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="error"', $html);
         self::assertStringContainsString('alert alert-danger', $html);
     }
 
@@ -34,7 +34,7 @@ final class DatatableRendererLoadingErrorStateTest extends TestCase
         $html = $renderer->render($this->createDefinition());
 
         self::assertStringContainsString('role="status"', $html);
-        self::assertStringContainsString('data-zhortein-datatable-target="loading"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="loading"', $html);
         self::assertStringContainsString('spinner-border spinner-border-sm', $html);
         self::assertStringContainsString('Loading...', $html);
     }
