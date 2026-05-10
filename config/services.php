@@ -6,14 +6,16 @@ use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
+use Zhortein\DatatableBundle\Action\ActionVisibilityCheckerInterface;
+use Zhortein\DatatableBundle\Action\AllowAllActionVisibilityChecker;
 use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
 use Zhortein\DatatableBundle\Controller\DatatableController;
 use Zhortein\DatatableBundle\DateTime\DateTimeFormatterInterface;
 use Zhortein\DatatableBundle\DateTime\DefaultDateTimeFormatter;
 use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
-use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
 use Zhortein\DatatableBundle\Export\CsvExportWriter;
+use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
 use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
@@ -33,6 +35,10 @@ return static function (ContainerConfigurator $container): void {
     ;
 
     $services->set(RowActionRouteParameterResolver::class);
+
+    $services->set(AllowAllActionVisibilityChecker::class);
+
+    $services->alias(ActionVisibilityCheckerInterface::class, AllowAllActionVisibilityChecker::class);
 
     $services->set(DatatableDefinitionFactory::class);
 

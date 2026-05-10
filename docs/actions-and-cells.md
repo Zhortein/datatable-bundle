@@ -371,6 +371,20 @@ For example:
 
 Explicit column types are preserved.
 
+## Action visibility extension point
+
+Applications can replace `ActionVisibilityCheckerInterface` to control action visibility.
+
+The default implementation allows all actions.
+
+The checker receives an `ActionDefinition` and an `ActionVisibilityContext`.
+
+For row actions, the context contains row data.
+
+For global actions, the context has no row.
+
+The extension point does not require Symfony Security.
+
 ## Current limitations
 
 ### No action visibility conditions
