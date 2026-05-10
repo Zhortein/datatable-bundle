@@ -1369,6 +1369,19 @@ The tag must define a `name` attribute.
 
 CSV is implemented in the next export step.
 
+### CSV export writer
+
+`CsvExportWriter` implements server-side CSV export without adding external dependencies.
+
+It writes visible datatable columns to CSV:
+
+- column labels are used as headers;
+- hidden columns are not exported;
+- row values are normalized safely;
+- CSV escaping uses PHP built-ins.
+
+The writer is registered as an export writer named `csv`.
+
 ---
 
 ## 15. Documentation map
