@@ -20,6 +20,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 
 - [Architecture](architecture.md)
 - [Features](features.md)
+- [Public API review](public-api-review.md)
 - [Roadmap](roadmap.md)
 - [Routes](routes.md)
 - [CI matrix and dependency strategy](ci.md)

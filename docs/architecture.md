@@ -1862,3 +1862,26 @@ It groups documentation by:
 - architecture decisions.
 
 A documentation review checklist is available in [`documentation-review.md`](documentation-review.md).
+
+### Public API review
+
+The public API review is documented in [`public-api-review.md`](public-api-review.md).
+
+The review covers:
+
+- namespaces;
+- public contracts;
+- definition objects;
+- enums;
+- request/result objects;
+- registries and factories;
+- providers;
+- renderer services;
+- action/security extension points;
+- preferences;
+- export services;
+- Twig functions;
+- routes;
+- service tags;
+- configuration keys;
+- current API risks before stable 1.0.

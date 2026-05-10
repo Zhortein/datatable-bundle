@@ -517,3 +517,15 @@ Key entry points:
 - [`roadmap.md`](roadmap.md).
 
 A dedicated documentation review checklist exists in [`documentation-review.md`](documentation-review.md).
+
+## Public API review notes
+
+A public API review exists in [`public-api-review.md`](public-api-review.md).
+
+Before a stable 1.0 release, revisit:
+
+- `DatatableRenderer` size;
+- action metadata vs HTML attributes;
+- `JoinDefinition` naming and namespace;
+- `DatatableExportResult` usefulness;
+- template context stability.
