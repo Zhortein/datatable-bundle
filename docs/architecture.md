@@ -813,6 +813,26 @@ filters[filterName][to]
 
 Stimulus integration and provider application are handled in later steps.
 
+### Filter controls and Stimulus refresh
+
+Filter controls rendered in the toolbar now expose:
+
+```html
+data-zhortein-datatable-filter-control="true"
+```
+
+and call the Stimulus `changeFilter` action.
+
+The controller serializes filter controls by their names:
+
+```text
+filters[email]
+filters[createdAt][from]
+filters[createdAt][to]
+```
+
+Changing a filter resets the current page to 1 and refreshes Ajax fragments.
+
 ---
 
 ## 9. Action rendering layer
