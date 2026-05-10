@@ -1806,7 +1806,7 @@ Temporary debug output should not remain in CI workflows after investigation.
 
 ### Changelog strategy
 
-Changelog automation strategy is documented in `docs/changelog.md`.
+Changelog automation strategy is documented in [`changelog.md`](changelog.md).
 
 The project uses dependency-free Markdown fragments under `changelog/unreleased/`.
 
@@ -1820,10 +1820,26 @@ This keeps changelog updates reviewable in pull requests while avoiding a heavy 
 
 ### GitHub release workflow
 
-The release workflow is documented in `docs/release.md`.
+The release workflow is documented in [`release.md`](release.md).
 
 The GitHub Actions workflow is tag-based and creates GitHub Releases only for tags matching the expected semantic version format.
 
 It extracts release notes from `CHANGELOG.md` through `tools/changelog/extract-release-notes.php`.
 
 It does not publish to Packagist automatically.
+
+### Packagist readiness
+
+Packagist readiness is documented in [`packagist.md`](packagist.md).
+
+The checklist covers:
+
+- Composer metadata;
+- runtime and dev dependencies;
+- support metadata;
+- GitHub repository settings;
+- documentation requirements;
+- CI requirements;
+- versioning;
+- Packagist publication;
+- fresh Symfony application smoke tests.
