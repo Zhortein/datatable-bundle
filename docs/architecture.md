@@ -1351,6 +1351,23 @@ full
 
 `current` keeps pagination while `full` is intended to export the whole filtered dataset.
 
+### Export writer contract
+
+Server-side exports are abstracted behind `ExportWriterInterface`.
+
+A writer declares whether it supports an `ExportFormat` and writes a `Response`.
+
+`ExportWriterRegistry` resolves writers by name or by supported format.
+
+Writers are registered as Symfony services tagged with:
+
+```text
+zhortein_datatable.export_writer
+```
+
+The tag must define a `name` attribute.
+
+CSV is implemented in the next export step.
 
 ---
 
