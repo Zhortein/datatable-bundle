@@ -434,30 +434,112 @@ Current limitations:
 
 ---
 
-# Next milestones
+## 0.14 - Developer experience and release hardening ✅
 
-## 0.14 - Developer experience and release hardening 🚧
+Delivered:
 
-Prepare first public pre-release.
+- Minimal array-backed datatable example.
+- Complete Doctrine-backed datatable example.
+- CI matrix and dependency strategy documentation.
+- Changelog fragment strategy and automation script.
+- GitHub release workflow.
+- Packagist readiness checklist.
+- Documentation navigation review checklist.
+- Public API review before pre-release.
+- First pre-release checklist.
+- Release hardening roadmap update.
 
-Planned:
-
-- README final pass.
-- Full documentation review.
-- Changelog automation.
-- Release workflow.
-- Packagist readiness check.
-- Composer metadata review.
-- CI matrix review.
-- Lowest/highest dependency stability.
-- Symfony recipe decision.
-- Public examples.
-
-Target outcome:
+Main outcome:
 
 ```text
-The bundle is ready for a first tagged development release.
+The project is now structured enough to prepare a first alpha/pre-release with clear documentation, CI expectations, release workflow and known limitations.
 ```
+
+Current release readiness status:
+
+- CI strategy is documented.
+- Changelog strategy is documented.
+- GitHub release workflow is prepared.
+- Packagist readiness is documented.
+- Public API risks are documented.
+- First pre-release checklist exists.
+- Fresh Symfony application smoke test still needs to be performed before tagging.
+
+Known limitations before first alpha:
+
+- no Symfony Flex recipe yet;
+- Stimulus controller import is still manual;
+- no Packagist publication yet;
+- no real-world smoke test has been recorded yet;
+- public API is still allowed to change before stable 1.0.
+
+---
+
+# Next roadmap direction
+
+After milestone 0.14, the project enters a release preparation phase.
+
+## Recommended next step: first alpha preparation
+
+Before adding more features, the recommended next milestone is:
+
+```text
+0.15 - First alpha preparation
+```
+
+Goal:
+
+```text
+Validate the bundle in a fresh Symfony application and prepare the first public alpha tag.
+```
+
+Suggested work:
+
+- run a fresh Symfony 8 smoke test;
+- install the bundle through a path repository;
+- test the minimal array datatable example;
+- test the Doctrine datatable example;
+- verify route import;
+- verify translations;
+- verify Stimulus/AssetMapper manual integration;
+- verify Ajax fragments;
+- verify row/global actions;
+- verify filters;
+- verify column visibility;
+- verify CSV export;
+- record findings as issues;
+- resolve blockers;
+- prepare `CHANGELOG.md` for `v0.1.0-alpha.1`;
+- decide whether to publish to Packagist immediately or after smoke-test fixes.
+
+## After alpha
+
+After a first alpha exists, possible next feature milestones are:
+
+### 0.16 - Stabilization from smoke tests
+
+Fix issues discovered during fresh-app integration.
+
+### 0.17 - Symfony Flex recipe decision
+
+Decide whether to add a Flex recipe or document manual setup for longer.
+
+### 0.18 - Frontend test foundation
+
+Add JS tests for the Stimulus controller.
+
+### 0.19 - Advanced Doctrine capabilities
+
+Possible work:
+
+- deeper joins;
+- custom join expressions;
+- aggregate columns;
+- collection handling.
+
+### 0.20 - XLSX export decision
+
+Decide whether XLSX support belongs in core, optional writer, or separate package.
 
 ---
 
