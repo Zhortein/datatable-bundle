@@ -590,6 +590,27 @@ All values are bound as Doctrine parameters.
 
 Unknown frontend filter input is ignored safely.
 
+### User filters on joined Doctrine fields
+
+Declared user-facing filters can target fields from explicitly declared Doctrine joins.
+
+Example:
+
+```php
+$definition
+    ->addJoin('organization', 'e.organization', JoinType::Left)
+    ->addFilter(
+        name: 'organization_name',
+        field: 'organization.name',
+        type: FilterType::Text,
+    )
+;
+```
+
+Only explicit join aliases can be used.
+
+The provider resolves Doctrine metadata for the joined alias before applying filter expressions.
+
 ### User-facing filter definitions
 
 `DatatableDefinition` can declare user-facing filters separately from backend-only permanent filters.
