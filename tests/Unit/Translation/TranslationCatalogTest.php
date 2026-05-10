@@ -33,6 +33,8 @@ final class TranslationCatalogTest extends TestCase
         self::assertSame('Go to page 2', $translator->trans('zhortein_datatable.pagination.page', ['%page%' => 2], 'zhortein_datatable'));
         self::assertSame('Yes', $translator->trans('zhortein_datatable.boolean.yes', [], 'zhortein_datatable'));
         self::assertSame('No', $translator->trans('zhortein_datatable.boolean.no', [], 'zhortein_datatable'));
+        self::assertSame('No result.', $translator->trans('zhortein_datatable.summary.empty', [], 'zhortein_datatable'));
+        self::assertSame('1 result.', $translator->trans('zhortein_datatable.summary.single', [], 'zhortein_datatable'));
     }
 
     public function test_french_catalog_contains_builtin_messages(): void
@@ -57,6 +59,8 @@ final class TranslationCatalogTest extends TestCase
         self::assertSame('Suivant', $translator->trans('zhortein_datatable.pagination.next', [], 'zhortein_datatable'));
         self::assertSame('Oui', $translator->trans('zhortein_datatable.boolean.yes', [], 'zhortein_datatable'));
         self::assertSame('Non', $translator->trans('zhortein_datatable.boolean.no', [], 'zhortein_datatable'));
+        self::assertSame('Aucun résultat.', $translator->trans('zhortein_datatable.summary.empty', [], 'zhortein_datatable'));
+        self::assertSame('1 résultat.', $translator->trans('zhortein_datatable.summary.single', [], 'zhortein_datatable'));
     }
 
     private function createTranslator(string $locale): Translator

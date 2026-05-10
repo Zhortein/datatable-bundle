@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Zhortein\DatatableBundle\Renderer\DatatableSummaryRenderer;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -109,6 +110,8 @@ return static function (ContainerConfigurator $container): void {
             'tableResponsive' => param('zhortein_datatable.bootstrap.table_responsive'),
         ])
     ;
+
+    $services->set(DatatableSummaryRenderer::class);
 
     $services->set(DatatableTwigExtension::class);
 

@@ -7,6 +7,8 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Controller;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Translation\Loader\YamlFileLoader;
+use Symfony\Component\Translation\Translator;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Zhortein\DatatableBundle\Contract\DatatableInterface;
@@ -20,11 +22,26 @@ use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Registry\DatatableRegistry;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
+use Zhortein\DatatableBundle\Renderer\DatatableSummaryRenderer;
 use Zhortein\DatatableBundle\Tests\Unit\Renderer\TranslatableRendererTestTrait;
 
 final class DatatableControllerTest extends TestCase
 {
     use TranslatableRendererTestTrait;
+
+    private function createTranslator(): Translator
+    {
+        $translator = new Translator('en');
+        $translator->addLoader('yaml', new YamlFileLoader());
+        $translator->addResource(
+            'yaml',
+            __DIR__.'/../../../translations/zhortein_datatable.en.yaml',
+            'en',
+            'zhortein_datatable',
+        );
+
+        return $translator;
+    }
 
     public function test_full_csv_export_response_ignores_pagination(): void
     {
@@ -68,7 +85,7 @@ final class DatatableControllerTest extends TestCase
         self::assertSame(3, $payload['totalItems']);
         self::assertSame(3, $payload['filteredItems']);
         self::assertSame(2, $payload['totalPages']);
-        self::assertSame('Showing 1 to 2 of 3 entries', $payload['summary']);
+        self::assertSame('Showing 1 to 2 of 3 results.', $payload['summary']);
         self::assertIsString($payload['body']);
         self::assertStringContainsString('alice@example.test', $payload['body']);
         self::assertStringContainsString('bob@example.test', $payload['body']);
@@ -106,7 +123,7 @@ final class DatatableControllerTest extends TestCase
 
         self::assertSame(3, $payload['totalItems']);
         self::assertSame(1, $payload['filteredItems']);
-        self::assertSame('Showing 1 to 1 of 1 entries, filtered from 3 total entries', $payload['summary']);
+        self::assertSame('1 result found, filtered from 3 total.', $payload['summary']);
         self::assertIsString($payload['body']);
         self::assertStringContainsString('charlie@example.test', $payload['body']);
         self::assertStringNotContainsString('alice@example.test', $payload['body']);
@@ -125,7 +142,7 @@ final class DatatableControllerTest extends TestCase
         self::assertSame(3, $payload['totalItems']);
         self::assertSame(0, $payload['filteredItems']);
         self::assertSame(0, $payload['totalPages']);
-        self::assertSame('Showing 0 entries', $payload['summary']);
+        self::assertSame('No result.', $payload['summary']);
         self::assertIsString($payload['body']);
         self::assertStringContainsString('No data available.', $payload['body']);
     }
@@ -176,6 +193,7 @@ final class DatatableControllerTest extends TestCase
             exportWriterRegistry: new ExportWriterRegistry([
                 CsvExportWriter::WRITER_NAME => new CsvExportWriter(),
             ]),
+            summaryRenderer: new DatatableSummaryRenderer($this->createTranslator()),
         );
     }
 

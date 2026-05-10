@@ -14,7 +14,7 @@ use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
-use Zhortein\DatatableBundle\Result\DatatableResult;
+use Zhortein\DatatableBundle\Renderer\DatatableSummaryRenderer;
 
 final readonly class DatatableController
 {
@@ -24,6 +24,7 @@ final readonly class DatatableController
         private DataProviderRegistry $providerRegistry,
         private DatatableRenderer $renderer,
         private ExportWriterRegistry $exportWriterRegistry,
+        private DatatableSummaryRenderer $summaryRenderer,
     ) {
     }
 
@@ -40,7 +41,7 @@ final readonly class DatatableController
             'header' => $this->renderer->renderHeader($definition, $renderOptions),
             'body' => $this->renderer->renderBody($definition, $result, $renderOptions),
             'pagination' => $this->renderer->renderPagination($definition, $result),
-            'summary' => $this->createSummary($result),
+            'summary' => $this->summaryRenderer->render($result),
             'page' => $result->getPage(),
             'pageSize' => $result->getPageSize(),
             'totalItems' => $result->getTotalItems(),
@@ -74,32 +75,5 @@ final readonly class DatatableController
         $writer = $this->exportWriterRegistry->resolve($exportFormat);
 
         return $writer->write($exportRequest, $definition, $result);
-    }
-
-    private function createSummary(DatatableResult $result): string
-    {
-        if (0 === $result->getFilteredItems()) {
-            return 'Showing 0 entries';
-        }
-
-        $start = (($result->getPage() - 1) * $result->getPageSize()) + 1;
-        $end = min($result->getPage() * $result->getPageSize(), $result->getFilteredItems());
-
-        if ($result->hasFilteredItems()) {
-            return sprintf(
-                'Showing %d to %d of %d entries, filtered from %d total entries',
-                $start,
-                $end,
-                $result->getFilteredItems(),
-                $result->getTotalItems(),
-            );
-        }
-
-        return sprintf(
-            'Showing %d to %d of %d entries',
-            $start,
-            $end,
-            $result->getFilteredItems(),
-        );
     }
 }
