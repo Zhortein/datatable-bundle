@@ -596,6 +596,21 @@ $definition->addFilter(
 
 These filters are rendered and applied by later steps of the advanced filtering milestone.
 
+### Filter request normalization
+
+`DatatableRequest` can carry normalized user-facing filter values.
+
+Filter values are read from the `filters` request parameter:
+
+```text
+filters[email]=alice@example.test
+filters[status]=enabled
+```
+
+`DatatableRequestFactory` reads filters from query parameters or request payloads.
+
+Empty values are normalized away, and providers only consume filters that are explicitly declared by the datatable definition.
+
 ---
 
 ## 8. Rendering layer

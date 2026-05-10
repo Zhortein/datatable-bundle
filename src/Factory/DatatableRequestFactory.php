@@ -45,6 +45,7 @@ final readonly class DatatableRequestFactory
             searchQuery: $this->readNullableString($parameters, 'search'),
             sortField: $this->readNullableString($parameters, 'sortField'),
             sortDirection: $this->readSortDirection($parameters),
+            filters: $this->readFilters($parameters),
             options: $this->readOptions($parameters),
         );
     }
@@ -111,6 +112,23 @@ final readonly class DatatableRequestFactory
         } catch (\InvalidArgumentException) {
             return SortDirection::Asc;
         }
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     *
+     * @return array<string, mixed>
+     */
+    private function readFilters(array $parameters): array
+    {
+        $filters = $parameters['filters'] ?? [];
+
+        if (!is_array($filters)) {
+            return [];
+        }
+
+        /** @var array<string, mixed> $filters */
+        return $filters;
     }
 
     /**

@@ -21,6 +21,9 @@ final class DatatableRequestFactoryTest extends TestCase
             'search' => ' john ',
             'sortField' => ' e.email ',
             'sortDirection' => 'desc',
+            'filters' => [
+                'status' => 'enabled',
+            ],
             'options' => [
                 'foo' => 'bar',
             ],
@@ -32,6 +35,7 @@ final class DatatableRequestFactoryTest extends TestCase
         self::assertSame('john', $datatableRequest->getSearchQuery());
         self::assertSame('e.email', $datatableRequest->getSortField());
         self::assertSame(SortDirection::Desc, $datatableRequest->getSortDirection());
+        self::assertSame(['status' => 'enabled'], $datatableRequest->getFilters());
         self::assertSame(['foo' => 'bar'], $datatableRequest->getOptions());
     }
 
@@ -45,12 +49,18 @@ final class DatatableRequestFactoryTest extends TestCase
                 'pageSize' => '10',
                 'search' => 'query',
                 'sortDirection' => 'asc',
+                'filters' => [
+                    'status' => 'query',
+                ],
             ],
             request: [
                 'page' => '2',
                 'pageSize' => '25',
                 'search' => 'payload',
                 'sortDirection' => 'desc',
+                'filters' => [
+                    'status' => 'payload',
+                ],
             ],
         ));
 
@@ -58,6 +68,7 @@ final class DatatableRequestFactoryTest extends TestCase
         self::assertSame(25, $datatableRequest->getPageSize());
         self::assertSame('payload', $datatableRequest->getSearchQuery());
         self::assertSame(SortDirection::Desc, $datatableRequest->getSortDirection());
+        self::assertSame(['status' => 'payload'], $datatableRequest->getFilters());
     }
 
     public function test_it_uses_defaults_when_parameters_are_missing(): void
@@ -71,6 +82,7 @@ final class DatatableRequestFactoryTest extends TestCase
         self::assertNull($datatableRequest->getSearchQuery());
         self::assertNull($datatableRequest->getSortField());
         self::assertSame(SortDirection::Asc, $datatableRequest->getSortDirection());
+        self::assertSame([], $datatableRequest->getFilters());
         self::assertSame([], $datatableRequest->getOptions());
     }
 
@@ -84,6 +96,7 @@ final class DatatableRequestFactoryTest extends TestCase
             'search' => [],
             'sortField' => [],
             'sortDirection' => 'invalid',
+            'filters' => 'invalid',
             'options' => 'invalid',
         ]));
 
@@ -92,6 +105,7 @@ final class DatatableRequestFactoryTest extends TestCase
         self::assertNull($datatableRequest->getSearchQuery());
         self::assertNull($datatableRequest->getSortField());
         self::assertSame(SortDirection::Asc, $datatableRequest->getSortDirection());
+        self::assertSame([], $datatableRequest->getFilters());
         self::assertSame([], $datatableRequest->getOptions());
     }
 
