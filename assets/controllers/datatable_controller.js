@@ -270,11 +270,11 @@ export default class extends Controller {
 
     appendColumnVisibilityParameters(searchParams) {
         this.getColumnVisibilityControls().forEach((control) => {
-            if (control.dataset.zhorteinDatatableDefinitionHidden === 'true') {
+            if (control.getAttribute('data-zhortein--datatable-bundle--datatable-definition-hidden') === 'true') {
                 return;
             }
 
-            const columnName = control.dataset.zhorteinDatatableColumnName;
+            const columnName = control.getAttribute('data-zhortein--datatable-bundle--datatable-column-name');
 
             if (!columnName) {
                 return;
@@ -337,7 +337,7 @@ export default class extends Controller {
             return null;
         }
 
-        const message = target.dataset.zhorteinDatatableConfirmationMessage;
+        const message = target.getAttribute('data-zhortein--datatable-bundle--datatable-confirmation-message');
 
         if (typeof message !== 'string' || message.trim() === '') {
             return null;
