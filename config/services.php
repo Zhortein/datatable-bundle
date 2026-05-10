@@ -13,6 +13,7 @@ use Zhortein\DatatableBundle\DateTime\DefaultDateTimeFormatter;
 use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
+use Zhortein\DatatableBundle\Export\CsvExportWriter;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
 use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
@@ -72,6 +73,13 @@ return static function (ContainerConfigurator $container): void {
     $services
         ->set(DataProviderRegistry::class)
         ->arg('$providers', tagged_iterator('zhortein_datatable.data_provider', 'name'))
+    ;
+
+    $services
+        ->set(CsvExportWriter::class)
+        ->tag('zhortein_datatable.export_writer', [
+            'name' => CsvExportWriter::WRITER_NAME,
+        ])
     ;
 
     $services
