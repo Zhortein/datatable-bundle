@@ -82,3 +82,34 @@ composer require doctrine/orm
 ```
 
 The Doctrine provider is not implemented yet.
+
+## Routes
+
+Import the bundle routes in your Symfony application.
+
+PHP routing config example:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+
+return static function (RoutingConfigurator $routes): void {
+    $routes->import('@ZhorteinDatatableBundle/config/routes.php');
+};
+```
+
+YAML routing config example:
+
+```yaml
+zhortein_datatable:
+    resource: '@ZhorteinDatatableBundle/config/routes.php'
+```
+
+The default Ajax fragments route is:
+
+```text
+/_zhortein/datatable/{name}/fragments
+```

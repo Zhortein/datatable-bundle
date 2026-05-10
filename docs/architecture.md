@@ -608,6 +608,21 @@ Current response shape:
 }
 ```
 
+### Route loading strategy
+
+The bundle exposes generic routes through `config/routes.php`.
+
+Current route:
+
+```text
+zhortein_datatable_fragments
+/_zhortein/datatable/{name}/fragments
+```
+
+Host applications should import these routes explicitly from the bundle.
+
+Route names are prefixed with `zhortein_datatable_` to avoid collisions with application routes.
+
 ---
 
 ## 11. Stimulus controller layer

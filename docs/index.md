@@ -18,6 +18,7 @@ This bundle is in early development.
 - [Development workflow](development.md)
 - [Doctrine-backed datatables](doctrine-provider.md)
 - [Actions and typed cell rendering](actions-and-cells.md)
+- [Routes](routes.md)
 
 ## Legacy reference
 
