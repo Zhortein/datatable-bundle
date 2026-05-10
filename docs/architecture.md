@@ -1246,6 +1246,16 @@ Hidden row actions are not rendered and their URLs are not generated.
 
 The default checker still allows all actions, preserving previous behavior unless the application replaces the service.
 
+### Global action visibility
+
+Global actions are filtered through `ActionVisibilityCheckerInterface` before URL generation.
+
+The renderer builds an `ActionVisibilityContext` without row data for global actions.
+
+Hidden global actions are not rendered and their URLs are not generated.
+
+The default checker still allows all actions, preserving previous behavior unless the application replaces the service.
+
 ---
 
 ## 10. Ajax controller layer
