@@ -18,6 +18,7 @@ final class TranslationCatalogTest extends TestCase
         self::assertSame('Rows per page', $translator->trans('zhortein_datatable.page_size.label', [], 'zhortein_datatable'));
         self::assertSame('Filters are active.', $translator->trans('zhortein_datatable.filters.active', [], 'zhortein_datatable'));
         self::assertSame('Clear filters', $translator->trans('zhortein_datatable.filters.clear', [], 'zhortein_datatable'));
+        self::assertSame('Columns', $translator->trans('zhortein_datatable.columns.visibility', [], 'zhortein_datatable'));
         self::assertSame('Loading...', $translator->trans('zhortein_datatable.loading', [], 'zhortein_datatable'));
         self::assertSame('Unable to load datatable data.', $translator->trans('zhortein_datatable.error.generic', [], 'zhortein_datatable'));
         self::assertSame('No data available.', $translator->trans('zhortein_datatable.empty', [], 'zhortein_datatable'));
@@ -39,6 +40,7 @@ final class TranslationCatalogTest extends TestCase
         self::assertSame('Lignes par page', $translator->trans('zhortein_datatable.page_size.label', [], 'zhortein_datatable'));
         self::assertSame('Des filtres sont actifs.', $translator->trans('zhortein_datatable.filters.active', [], 'zhortein_datatable'));
         self::assertSame('Effacer les filtres', $translator->trans('zhortein_datatable.filters.clear', [], 'zhortein_datatable'));
+        self::assertSame('Colonnes', $translator->trans('zhortein_datatable.columns.visibility', [], 'zhortein_datatable'));
         self::assertSame('Chargement...', $translator->trans('zhortein_datatable.loading', [], 'zhortein_datatable'));
         self::assertSame('Impossible de charger les données du tableau.', $translator->trans('zhortein_datatable.error.generic', [], 'zhortein_datatable'));
         self::assertSame('Trier par Email', $translator->trans('zhortein_datatable.sort.label', ['%column%' => 'Email'], 'zhortein_datatable'));

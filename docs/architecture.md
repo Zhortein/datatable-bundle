@@ -906,6 +906,23 @@ filters[createdAt][to]
 
 Changing a filter resets the current page to 1 and refreshes Ajax fragments.
 
+### Column visibility controls
+
+The toolbar can render a column visibility control.
+
+The control lists declared columns and exposes stable metadata:
+
+- `data-zhortein-datatable-column-visibility-control="true"`;
+- `data-zhortein-datatable-column-name`.
+
+Definition-hidden columns are represented but marked with:
+
+```html
+data-zhortein-datatable-definition-hidden="true"
+```
+
+Stimulus wiring and backend request normalization are implemented in later steps.
+
 ### Runtime column visibility state
 
 The renderer supports runtime column visibility through rendering options.

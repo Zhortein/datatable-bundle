@@ -7,6 +7,8 @@ zhortein_datatable:
     filters:
         active: 'Des filtres sont actifs.'
         clear: 'Effacer les filtres'
+    columns:
+        visibility: 'Colonnes'
     loading: 'Chargement...'
     error:
         generic: 'Impossible de charger les données du tableau.'
