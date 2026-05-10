@@ -64,6 +64,20 @@ final class DatatableRendererFilterToolbarTest extends TestCase
         self::assertStringContainsString('name="filters[amount][to]"', $html);
     }
 
+    public function test_it_renders_active_filter_summary_and_clear_button(): void
+    {
+        $renderer = new DatatableRenderer($this->createTwigEnvironment());
+
+        $html = $renderer->render($this->createDefinition());
+
+        self::assertStringContainsString('data-zhortein-datatable-target="activeFilters"', $html);
+        self::assertStringContainsString('data-active-filter-count="0"', $html);
+        self::assertStringContainsString('Filters are active.', $html);
+        self::assertStringContainsString('data-zhortein-datatable-target="clearFiltersButton"', $html);
+        self::assertStringContainsString('data-action="zhortein-datatable#clearFilters"', $html);
+        self::assertStringContainsString('Clear filters', $html);
+    }
+
     private function createDefinition(): DatatableDefinition
     {
         $definition = new DatatableDefinition('users');
