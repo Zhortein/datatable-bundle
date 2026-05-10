@@ -6,6 +6,7 @@ namespace Zhortein\DatatableBundle\Provider;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Zhortein\DatatableBundle\Contract\DataProviderInterface;
@@ -338,8 +339,8 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         }
 
         $fieldReference = $this->normalizeFieldReference($column->getName(), $definition);
-        $fieldName = $this->extractFieldName($fieldReference);
-        $metadata = $entityManager->getClassMetadata($entityClass);
+        [$alias, $fieldName] = $this->splitFieldReference($fieldReference);
+        $metadata = $this->getMetadataForAlias($entityManager, $entityClass, $definition, $alias);
 
         if (!$metadata->hasField($fieldName)) {
             return;
@@ -378,9 +379,54 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
 
     private function extractFieldName(string $fieldReference): string
     {
-        [, $fieldName] = explode('.', $fieldReference, 2);
+        [, $fieldName] = $this->splitFieldReference($fieldReference);
 
         return $fieldName;
+    }
+
+    /**
+     * @return array{0: string, 1: string}
+     */
+    private function splitFieldReference(string $fieldReference): array
+    {
+        /** @var array{0: string, 1: string} $parts */
+        $parts = explode('.', $fieldReference, 2);
+
+        return $parts;
+    }
+
+    /**
+     * @param class-string $mainEntityClass
+     *
+     * @return ClassMetadata<object>
+     */
+    private function getMetadataForAlias(
+        EntityManagerInterface $entityManager,
+        string $mainEntityClass,
+        DatatableDefinition $definition,
+        string $alias,
+    ): ClassMetadata {
+        if (self::MAIN_ALIAS === $alias) {
+            return $entityManager->getClassMetadata($mainEntityClass);
+        }
+
+        $join = $definition->getJoins()[$alias] ?? null;
+
+        if (!$join instanceof JoinDefinition) {
+            throw new \InvalidArgumentException(sprintf('The Doctrine alias "%s" is not declared.', $alias));
+        }
+
+        $mainMetadata = $entityManager->getClassMetadata($mainEntityClass);
+        [, $associationName] = $this->splitFieldReference($join->getJoin());
+
+        if (!$mainMetadata->hasAssociation($associationName)) {
+            throw new \InvalidArgumentException(sprintf('The Doctrine association "%s" does not exist on "%s".', $associationName, $mainEntityClass));
+        }
+
+        /** @var class-string $targetClass */
+        $targetClass = $mainMetadata->getAssociationTargetClass($associationName);
+
+        return $entityManager->getClassMetadata($targetClass);
     }
 
     private function normalizeFieldReference(string $columnName, ?DatatableDefinition $definition = null): string

@@ -490,6 +490,23 @@ organization_name
 
 The renderer can display those values because it already normalizes dot notation column names to result aliases.
 
+### Sorting on joined Doctrine fields
+
+`DoctrineOrmDataProvider` supports single-column sorting on fields from explicitly declared joins.
+
+Example:
+
+```php
+$definition
+    ->addJoin('organization', 'e.organization', JoinType::Left)
+    ->addColumn('organization.name', label: 'Organization')
+;
+```
+
+The provider resolves metadata for the joined alias and validates the target field before applying `ORDER BY`.
+
+Only declared sortable columns can be used for sorting.
+
 ### Doctrine association test fixtures
 
 The Doctrine functional test foundation includes associated entities for join-related tests.
