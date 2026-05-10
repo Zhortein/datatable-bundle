@@ -95,6 +95,7 @@ With runtime options:
 - [Basic usage](docs/basic-usage.md)
 - [Configuration](docs/configuration.md)
 - [Development workflow](docs/development.md)
+- [CI matrix and dependency strategy](docs/ci.md)
 - [Features](docs/features.md)
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
