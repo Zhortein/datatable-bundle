@@ -9,45 +9,50 @@ use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineOrganization;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
 use Zhortein\DatatableBundle\Tests\Functional\FunctionalTestCase;
 use Zhortein\DatatableBundle\Tests\Functional\Kernel\TestKernel;
 
 #[RunTestsInSeparateProcesses]
 #[PreserveGlobalState(false)]
-final class DoctrineFunctionalTest extends FunctionalTestCase
+final class DoctrineAssociationFunctionalTest extends FunctionalTestCase
 {
     use DoctrineSchemaMetadataTrait;
 
     private ?EntityManagerInterface $entityManager = null;
 
-    public function test_it_can_persist_and_fetch_test_entity(): void
+    public function test_it_can_persist_and_fetch_user_with_organization(): void
     {
         self::bootKernel();
 
-        $entityManager = $this->getEntityManager();
-        $this->entityManager = $entityManager;
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
 
+        self::assertInstanceOf(EntityManagerInterface::class, $entityManager);
+
+        $this->entityManager = $entityManager;
         $this->recreateSchema();
 
+        $organization = new DoctrineOrganization('Acme Corp');
         $user = new DoctrineUser(
             email: 'alice@example.test',
             displayName: 'Alice',
-            createdAt: new \DateTimeImmutable('2026-01-01 10:00:00'),
+            organization: $organization,
         );
 
+        $entityManager->persist($organization);
         $entityManager->persist($user);
         $entityManager->flush();
         $entityManager->clear();
 
-        $repository = $entityManager->getRepository(DoctrineUser::class);
-        $foundUser = $repository->findOneBy([
+        $foundUser = $entityManager->getRepository(DoctrineUser::class)->findOneBy([
             'email' => 'alice@example.test',
         ]);
 
         self::assertInstanceOf(DoctrineUser::class, $foundUser);
-        self::assertSame('Alice', $foundUser->getDisplayName());
-        self::assertTrue($foundUser->isEnabled());
+        self::assertInstanceOf(DoctrineOrganization::class, $foundUser->getOrganization());
+        self::assertSame('Acme Corp', $foundUser->getOrganization()->getName());
+        self::assertTrue($foundUser->getOrganization()->isEnabled());
     }
 
     #[After]
@@ -94,18 +99,7 @@ final class DoctrineFunctionalTest extends FunctionalTestCase
 
     private function createSchemaTool(): SchemaTool
     {
-        $entityManager = $this->getStoredEntityManager();
-
-        return new SchemaTool($entityManager);
-    }
-
-    private function getEntityManager(): EntityManagerInterface
-    {
-        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
-
-        self::assertInstanceOf(EntityManagerInterface::class, $entityManager);
-
-        return $entityManager;
+        return new SchemaTool($this->getStoredEntityManager());
     }
 
     private function getStoredEntityManager(): EntityManagerInterface

@@ -336,6 +336,17 @@ Exports will be implemented later.
 
 Action definitions exist but rendering is not implemented yet.
 
+## Association test fixtures
+
+The bundle test suite includes Doctrine fixtures for association-related provider tests:
+
+- `DoctrineUser`;
+- `DoctrineOrganization`.
+
+`DoctrineUser` has a nullable ManyToOne association to `DoctrineOrganization`.
+
+These fixtures are used to validate explicit Doctrine join support.
+
 ## Recommended first usage
 
 For now, use Doctrine-backed datatables for simple back-office tables with:
