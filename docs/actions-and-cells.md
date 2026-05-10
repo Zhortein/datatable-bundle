@@ -465,6 +465,31 @@ data-zhortein-datatable-confirmation-message="Delete this user?"
 
 The metadata is passive until JavaScript confirmation behavior is enabled.
 
+## Action confirmation behavior
+
+Actions with `confirmationMessage` trigger native browser confirmation.
+
+Example:
+
+```php
+$definition->addRowAction(
+    name: 'delete',
+    route: 'app_user_delete',
+    label: 'Delete',
+    httpMethod: 'DELETE',
+    confirmationMessage: 'Delete this user?',
+    routeParameters: [
+        'id' => 'e.id',
+    ],
+);
+```
+
+Rendered markup calls the Stimulus `confirmAction` method.
+
+The first implementation uses `window.confirm()`.
+
+If the user cancels, navigation or form submission is prevented.
+
 
 ## Current limitations
 

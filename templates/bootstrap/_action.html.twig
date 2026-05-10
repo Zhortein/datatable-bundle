@@ -4,6 +4,7 @@
         class="{{ action.className ?? 'btn btn-outline-secondary' }}"
         {% if action.confirmationMessage is not null %}
             data-zhortein-datatable-confirmation-message="{{ action.confirmationMessage }}"
+            data-action="click->zhortein-datatable#confirmAction"
         {% endif %}
         {% for attribute_name, attribute_value in action.attributes %}
             {{ attribute_name }}="{{ attribute_value }}"
@@ -22,6 +23,7 @@
         class="d-inline"
         {% if action.confirmationMessage is not null %}
             data-zhortein-datatable-confirmation-message="{{ action.confirmationMessage }}"
+            data-action="submit->zhortein-datatable#confirmAction"
         {% endif %}
     >
         <input type="hidden" name="_method" value="{{ action.httpMethod }}">

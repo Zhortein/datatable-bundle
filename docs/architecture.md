@@ -1296,6 +1296,26 @@ Non-GET actions expose the metadata on the generated form.
 
 This issue only renders metadata. JavaScript confirmation behavior is implemented separately.
 
+### Vanilla action confirmation behavior
+
+Actions with confirmation metadata call the Stimulus `confirmAction` method.
+
+GET actions use:
+
+```html
+data-action="click->zhortein-datatable#confirmAction"
+```
+
+Non-GET forms use:
+
+```html
+data-action="submit->zhortein-datatable#confirmAction"
+```
+
+The first implementation uses native `window.confirm()`.
+
+If the user cancels, navigation or form submission is prevented.
+
 ---
 
 ## 10. Ajax controller layer
