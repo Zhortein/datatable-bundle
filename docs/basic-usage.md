@@ -506,7 +506,29 @@ More details are available in [`filters.md`](filters.md).
 
 ---
 
-## 13. Current limitations
+## 13. Runtime column visibility
+
+Column visibility can be controlled at render time:
+
+```twig
+{{ zhortein_datatable('users', {
+    visibleColumns: ['e.email', 'e.displayName']
+}) }}
+```
+
+Columns can also be hidden at runtime:
+
+```twig
+{{ zhortein_datatable('users', {
+    hiddenColumns: ['e.createdAt']
+}) }}
+```
+
+Definition-level hidden columns remain hidden even if requested in `visibleColumns`.
+
+---
+
+## 14. Current limitations
 
 The bundle is still under active development.
 

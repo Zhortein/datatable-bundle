@@ -39,7 +39,7 @@ final readonly class DatatableRenderer
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/datatable.html.twig', $this->theme), [
             'definition' => $definition,
-            'visibleColumns' => $this->getVisibleColumns($definition),
+            'visibleColumns' => $this->getVisibleColumns($definition, $options),
             'rowActions' => $definition->getRowActions(),
             'globalActions' => $this->normalizeGlobalActions($definition),
             'hasRowActions' => [] !== $definition->getRowActions(),
@@ -48,21 +48,27 @@ final readonly class DatatableRenderer
         ]);
     }
 
-    public function renderBody(DatatableDefinition $definition, DatatableResult $result): string
+    /**
+     * @param array<string, mixed> $options
+     */
+    public function renderBody(DatatableDefinition $definition, DatatableResult $result, array $options = []): string
     {
         if ($result->isEmpty()) {
-            return $this->renderEmptyBody($definition);
+            return $this->renderEmptyBody($definition, $options);
         }
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_body.html.twig', $this->theme), [
-            'rows' => $this->normalizeRows($definition, $result),
+            'rows' => $this->normalizeRows($definition, $result, $options),
         ]);
     }
 
-    public function renderEmptyBody(DatatableDefinition $definition): string
+    /**
+     * @param array<string, mixed> $options
+     */
+    public function renderEmptyBody(DatatableDefinition $definition, array $options = []): string
     {
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_empty.html.twig', $this->theme), [
-            'visibleColumns' => $this->getVisibleColumns($definition),
+            'visibleColumns' => $this->getVisibleColumns($definition, $options),
             'hasRowActions' => [] !== $definition->getRowActions(),
         ]);
     }
@@ -83,14 +89,57 @@ final readonly class DatatableRenderer
     }
 
     /**
+     * @param array<string, mixed> $options
+     *
      * @return array<string, ColumnDefinition>
      */
-    private function getVisibleColumns(DatatableDefinition $definition): array
+    private function getVisibleColumns(DatatableDefinition $definition, array $options = []): array
     {
+        $visibleColumns = $this->normalizeColumnListOption($options['visibleColumns'] ?? []);
+        $hiddenColumns = $this->normalizeColumnListOption($options['hiddenColumns'] ?? []);
+
         return array_filter(
             $definition->getColumns(),
-            static fn (ColumnDefinition $column): bool => $column->isVisible(),
+            static function (ColumnDefinition $column) use ($visibleColumns, $hiddenColumns): bool {
+                if (!$column->isVisible()) {
+                    return false;
+                }
+
+                if ([] !== $visibleColumns && !in_array($column->getName(), $visibleColumns, true)) {
+                    return false;
+                }
+
+                return !in_array($column->getName(), $hiddenColumns, true);
+            },
         );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function normalizeColumnListOption(mixed $columns): array
+    {
+        if (!is_array($columns)) {
+            return [];
+        }
+
+        $normalizedColumns = [];
+
+        foreach ($columns as $column) {
+            if (!is_string($column)) {
+                continue;
+            }
+
+            $column = trim($column);
+
+            if ('' === $column) {
+                continue;
+            }
+
+            $normalizedColumns[] = $column;
+        }
+
+        return array_values(array_unique($normalizedColumns));
     }
 
     /**
@@ -123,11 +172,13 @@ final readonly class DatatableRenderer
     }
 
     /**
+     * @param array<string, mixed> $options
+     *
      * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed, template: string, className: string|null}>, actions: list<array{name: string, label: string|null, icon: string|null, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>}>}>
      */
-    private function normalizeRows(DatatableDefinition $definition, DatatableResult $result): array
+    private function normalizeRows(DatatableDefinition $definition, DatatableResult $result, array $options = []): array
     {
-        $visibleColumns = $this->getVisibleColumns($definition);
+        $visibleColumns = $this->getVisibleColumns($definition, $options);
         $normalizedRows = [];
 
         foreach ($result->getRows() as $row) {
