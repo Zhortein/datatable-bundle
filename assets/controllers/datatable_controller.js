@@ -75,6 +75,7 @@ export default class extends Controller {
             .then((payload) => {
                 this.applyFragments(payload);
                 this.applyState(payload);
+                this.clearError();
             })
             .catch((error) => {
                 if (error.name === 'AbortError') {
@@ -199,6 +200,7 @@ export default class extends Controller {
 
         if (this.hasLoadingTarget) {
             this.loadingTarget.hidden = !isLoading;
+            this.loadingTarget.setAttribute('aria-hidden', String(!isLoading));
         }
     }
 
@@ -206,6 +208,7 @@ export default class extends Controller {
         if (this.hasErrorTarget) {
             this.errorTarget.textContent = message;
             this.errorTarget.hidden = false;
+            this.errorTarget.removeAttribute('aria-hidden');
 
             return;
         }
@@ -221,6 +224,7 @@ export default class extends Controller {
 
         this.errorTarget.textContent = '';
         this.errorTarget.hidden = true;
+        this.errorTarget.setAttribute('aria-hidden', 'true');
     }
 
     abortPendingRequest() {
