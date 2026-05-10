@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Tests\Functional\Doctrine;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\Attributes\After;
@@ -22,6 +21,8 @@ use Zhortein\DatatableBundle\Tests\Functional\Kernel\TestKernel;
 #[PreserveGlobalState(false)]
 final class DoctrineOrmDataProviderFunctionalTest extends FunctionalTestCase
 {
+    use DoctrineSchemaMetadataTrait;
+
     private ?EntityManagerInterface $entityManager = null;
 
     public function test_it_supports_definition_with_entity_class(): void
@@ -194,18 +195,6 @@ final class DoctrineOrmDataProviderFunctionalTest extends FunctionalTestCase
         $entityManager = $this->getStoredEntityManager();
 
         return new SchemaTool($entityManager);
-    }
-
-    /**
-     * @return list<ClassMetadata<object>>
-     */
-    private function getMetadata(): array
-    {
-        $entityManager = $this->getStoredEntityManager();
-
-        return [
-            $entityManager->getClassMetadata(DoctrineUser::class),
-        ];
     }
 
     private function getStoredEntityManager(): EntityManagerInterface

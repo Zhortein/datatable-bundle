@@ -27,16 +27,22 @@ class DoctrineUser
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\ManyToOne(targetEntity: DoctrineOrganization::class)]
+    #[ORM\JoinColumn(name: 'organization_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?DoctrineOrganization $organization;
+
     public function __construct(
         string $email,
         string $displayName,
         bool $enabled = true,
         ?\DateTimeImmutable $createdAt = null,
+        ?DoctrineOrganization $organization = null,
     ) {
         $this->email = $email;
         $this->displayName = $displayName;
         $this->enabled = $enabled;
         $this->createdAt = $createdAt ?? new \DateTimeImmutable();
+        $this->organization = $organization;
     }
 
     public function getId(): ?int
@@ -62,5 +68,10 @@ class DoctrineUser
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getOrganization(): ?DoctrineOrganization
+    {
+        return $this->organization;
     }
 }

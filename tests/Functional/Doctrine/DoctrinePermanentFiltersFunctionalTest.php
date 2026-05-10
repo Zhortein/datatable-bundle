@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Tests\Functional\Doctrine;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -22,6 +21,8 @@ use Zhortein\DatatableBundle\Tests\Functional\Kernel\TestKernel;
 #[PreserveGlobalState(false)]
 final class DoctrinePermanentFiltersFunctionalTest extends FunctionalTestCase
 {
+    use DoctrineSchemaMetadataTrait;
+
     private ?EntityManagerInterface $entityManager = null;
 
     public function test_it_applies_equals_filter(): void
@@ -200,18 +201,6 @@ final class DoctrinePermanentFiltersFunctionalTest extends FunctionalTestCase
         $entityManager = $this->getStoredEntityManager();
 
         return new SchemaTool($entityManager);
-    }
-
-    /**
-     * @return list<ClassMetadata<object>>
-     */
-    private function getMetadata(): array
-    {
-        $entityManager = $this->getStoredEntityManager();
-
-        return [
-            $entityManager->getClassMetadata(DoctrineUser::class),
-        ];
     }
 
     private function getStoredEntityManager(): EntityManagerInterface

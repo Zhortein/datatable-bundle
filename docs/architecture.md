@@ -453,6 +453,21 @@ $definition
 
 Join application in Doctrine queries is implemented in later steps of the milestone.
 
+### Doctrine association test fixtures
+
+The Doctrine functional test foundation includes associated entities for join-related tests.
+
+Current fixtures:
+
+- `DoctrineUser`;
+- `DoctrineOrganization`.
+
+`DoctrineUser` has a nullable ManyToOne association to `DoctrineOrganization`.
+
+A shared `DoctrineSchemaMetadataTrait` provides metadata for both entities when creating in-memory SQLite schemas in functional tests.
+
+This prepares the next steps of the Doctrine joins milestone without changing provider behavior yet.
+
 ---
 
 ## 8. Rendering layer
