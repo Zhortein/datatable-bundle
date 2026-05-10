@@ -385,6 +385,21 @@ For global actions, the context has no row.
 
 The extension point does not require Symfony Security.
 
+## Row action visibility
+
+Row actions can be hidden by replacing `ActionVisibilityCheckerInterface`.
+
+The checker receives:
+
+- the `ActionDefinition`;
+- an `ActionVisibilityContext`;
+- row data for row actions.
+
+Hidden actions are not rendered, and their URLs are not generated.
+
+This allows applications to hide row actions based on row data or application-specific rules.
+
+
 ## Current limitations
 
 ### No action visibility conditions
