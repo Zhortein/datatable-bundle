@@ -1103,6 +1103,15 @@ These values are injected into `DatatableRenderer` as default render options.
 
 Runtime Twig options still take precedence over configuration.
 
+### Optional icon rendering strategy
+
+Icons are optional and CSS-class based.
+
+The bundle does not require Bootstrap Icons, FontAwesome, Symfony UX Icons or any SVG package.
+
+Action icons render as decorative spans with `aria-hidden="true"`, while the action label remains visible and accessible.
+
+The strategy is documented in `docs/icons.md`.
 
 ---
 

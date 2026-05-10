@@ -103,6 +103,7 @@ With runtime options:
 - [Server-side exports](docs/exports.md)
 - [Twig templates and overrides](docs/templates.md)
 - [Template context reference](docs/template-context.md)
+- [Optional icon rendering strategy](docs/icons.md)
 
 ## Architecture decisions
 
