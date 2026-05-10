@@ -241,27 +241,34 @@ final readonly class DatatableRenderer
      */
     private function readColumnValue(array $row, ColumnDefinition $column): mixed
     {
-        $columnName = $column->getName();
-
-        if (array_key_exists($columnName, $row)) {
-            return $row[$columnName];
+        foreach ($this->getColumnValueCandidateKeys($column->getName()) as $candidateKey) {
+            if (array_key_exists($candidateKey, $row)) {
+                return $row[$candidateKey];
+            }
         }
 
-        $normalizedName = $this->normalizeColumnName($columnName);
-
-        return $row[$normalizedName] ?? null;
+        return null;
     }
 
-    private function normalizeColumnName(string $columnName): string
+    /**
+     * @return list<string>
+     */
+    private function getColumnValueCandidateKeys(string $columnName): array
     {
-        if (!str_contains($columnName, '.')) {
-            return $columnName;
+        $candidateKeys = [$columnName];
+
+        if (str_contains($columnName, '.')) {
+            $candidateKeys[] = str_replace('.', '_', $columnName);
+
+            $parts = explode('.', $columnName);
+            $lastPart = $parts[array_key_last($parts)];
+
+            if ('' !== $lastPart) {
+                $candidateKeys[] = $lastPart;
+            }
         }
 
-        $parts = explode('.', $columnName);
-        $lastPart = $parts[array_key_last($parts)];
-
-        return '' !== $lastPart ? $lastPart : $columnName;
+        return array_values(array_unique($candidateKeys));
     }
 
     private function createHtmlId(DatatableDefinition $definition): string

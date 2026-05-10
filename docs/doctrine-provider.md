@@ -265,6 +265,33 @@ Permanent filters apply to:
 
 This means `totalItems` represents the total visible universe for the datatable context, not necessarily the full database table.
 
+## Joined entity columns
+
+The Doctrine provider supports selecting fields from explicitly declared joins.
+
+Example:
+
+```php
+use Zhortein\DatatableBundle\Enum\JoinType;
+
+$definition
+    ->setEntityClass(User::class)
+    ->addJoin('organization', 'e.organization', JoinType::Left)
+    ->addColumn('e.email', label: 'Email')
+    ->addColumn('organization.name', label: 'Organization')
+;
+```
+
+The joined column is returned with a stable result alias:
+
+```text
+organization_name
+```
+
+Only explicitly declared join aliases can be used. Undeclared aliases fail clearly.
+
+At this stage, joined column display is supported. Sorting, search and permanent filters on joined fields are covered by separate features.
+
 ## Rendering
 
 Doctrine-backed datatables use the same Twig-first rendering pipeline as other providers.

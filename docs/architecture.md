@@ -468,6 +468,28 @@ Only declared join aliases can be referenced by non-main fields. The main Doctri
 
 Joined column selection, sorting, search and filters are implemented in later issues of the milestone.
 
+### Joined entity columns
+
+`DoctrineOrmDataProvider` can select fields from explicitly declared join aliases.
+
+Example:
+
+```php
+$definition
+    ->addJoin('organization', 'e.organization', JoinType::Left)
+    ->addColumn('e.email', label: 'Email')
+    ->addColumn('organization.name', label: 'Organization')
+;
+```
+
+The provider returns joined values with stable aliases such as:
+
+```text
+organization_name
+```
+
+The renderer can display those values because it already normalizes dot notation column names to result aliases.
+
 ### Doctrine association test fixtures
 
 The Doctrine functional test foundation includes associated entities for join-related tests.
