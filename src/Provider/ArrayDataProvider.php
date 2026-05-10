@@ -7,6 +7,8 @@ namespace Zhortein\DatatableBundle\Provider;
 use Zhortein\DatatableBundle\Contract\DataProviderInterface;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Definition\UserFilterDefinition;
+use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
 use Zhortein\DatatableBundle\Result\DatatableResult;
@@ -28,10 +30,13 @@ final readonly class ArrayDataProvider implements DataProviderInterface
         $rows = $this->normalizeRows($definition->getOption(self::OPTION_ROWS, []));
         $totalItems = count($rows);
 
+        $rows = $this->applyUserFilters($rows, $definition, $request);
         $rows = $this->applySearch($rows, $definition, $request);
+
         $filteredItems = count($rows);
 
         $rows = $this->applySorting($rows, $definition, $request);
+
         if ($request->isPaginationEnabled()) {
             $rows = array_slice($rows, $request->getOffset(), $request->getPageSize());
         }
@@ -64,6 +69,202 @@ final readonly class ArrayDataProvider implements DataProviderInterface
         }
 
         return $normalizedRows;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $rows
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function applyUserFilters(array $rows, DatatableDefinition $definition, DatatableRequest $request): array
+    {
+        if (!$request->hasFilters()) {
+            return $rows;
+        }
+
+        foreach ($definition->getFilters() as $filter) {
+            if (!$request->hasFilter($filter->getName())) {
+                continue;
+            }
+
+            $filterValue = $request->getFilter($filter->getName());
+
+            $rows = array_values(array_filter(
+                $rows,
+                fn (array $row): bool => $this->rowMatchesFilter($row, $filter, $filterValue),
+            ));
+        }
+
+        return $rows;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function rowMatchesFilter(array $row, UserFilterDefinition $filter, mixed $filterValue): bool
+    {
+        $rowValue = $this->readFieldValue($row, $filter->getField());
+
+        return match ($filter->getType()) {
+            FilterType::Text => $this->matchesTextFilter($rowValue, $filterValue),
+            FilterType::Choice => $this->matchesChoiceFilter($rowValue, $filterValue),
+            FilterType::Boolean => $this->matchesBooleanFilter($rowValue, $filterValue),
+            FilterType::Date => $this->matchesDateFilter($rowValue, $filterValue),
+            FilterType::DateRange => $this->matchesRangeFilter($rowValue, $filterValue),
+            FilterType::Number => $this->matchesNumberFilter($rowValue, $filterValue),
+            FilterType::NumberRange => $this->matchesRangeFilter($rowValue, $filterValue),
+        };
+    }
+
+    private function matchesTextFilter(mixed $rowValue, mixed $filterValue): bool
+    {
+        if (!is_scalar($rowValue) || !is_scalar($filterValue)) {
+            return false;
+        }
+
+        return str_contains(
+            mb_strtolower((string) $rowValue),
+            mb_strtolower((string) $filterValue),
+        );
+    }
+
+    private function matchesChoiceFilter(mixed $rowValue, mixed $filterValue): bool
+    {
+        if (is_array($filterValue)) {
+            return in_array($rowValue, $filterValue, true);
+        }
+
+        return $rowValue === $filterValue || (is_scalar($rowValue) && is_scalar($filterValue) && (string) $rowValue === (string) $filterValue);
+    }
+
+    private function matchesBooleanFilter(mixed $rowValue, mixed $filterValue): bool
+    {
+        $normalizedFilterValue = $this->normalizeBooleanValue($filterValue);
+
+        if (null === $normalizedFilterValue) {
+            return false;
+        }
+
+        return $this->normalizeBooleanValue($rowValue) === $normalizedFilterValue;
+    }
+
+    private function matchesDateFilter(mixed $rowValue, mixed $filterValue): bool
+    {
+        if (!$rowValue instanceof \DateTimeInterface && !is_scalar($rowValue)) {
+            return false;
+        }
+
+        if (!is_scalar($filterValue)) {
+            return false;
+        }
+
+        $rowDate = $this->normalizeDateString($rowValue);
+        $filterDate = $this->normalizeDateString((string) $filterValue);
+
+        return null !== $rowDate && $rowDate === $filterDate;
+    }
+
+    private function matchesNumberFilter(mixed $rowValue, mixed $filterValue): bool
+    {
+        if (!is_numeric($rowValue) || !is_numeric($filterValue)) {
+            return false;
+        }
+
+        return (float) $rowValue === (float) $filterValue;
+    }
+
+    private function matchesRangeFilter(mixed $rowValue, mixed $filterValue): bool
+    {
+        if (!is_array($filterValue)) {
+            return false;
+        }
+
+        $from = $filterValue['from'] ?? null;
+        $to = $filterValue['to'] ?? null;
+
+        if (null !== $from && !$this->isValueGreaterThanOrEqual($rowValue, $from)) {
+            return false;
+        }
+
+        if (null !== $to && !$this->isValueLessThanOrEqual($rowValue, $to)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function isValueGreaterThanOrEqual(mixed $rowValue, mixed $minimum): bool
+    {
+        if (is_numeric($rowValue) && is_numeric($minimum)) {
+            return (float) $rowValue >= (float) $minimum;
+        }
+
+        $rowDate = $this->normalizeDateString($rowValue);
+        $minimumDate = $this->normalizeDateString($minimum);
+
+        return null !== $rowDate && null !== $minimumDate && $rowDate >= $minimumDate;
+    }
+
+    private function isValueLessThanOrEqual(mixed $rowValue, mixed $maximum): bool
+    {
+        if (is_numeric($rowValue) && is_numeric($maximum)) {
+            return (float) $rowValue <= (float) $maximum;
+        }
+
+        $rowDate = $this->normalizeDateString($rowValue);
+        $maximumDate = $this->normalizeDateString($maximum);
+
+        return null !== $rowDate && null !== $maximumDate && $rowDate <= $maximumDate;
+    }
+
+    private function normalizeBooleanValue(mixed $value): ?bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value)) {
+            return match ($value) {
+                1 => true,
+                0 => false,
+                default => null,
+            };
+        }
+
+        if (!is_string($value)) {
+            return null;
+        }
+
+        return match (mb_strtolower(trim($value))) {
+            '1', 'true', 'yes', 'on' => true,
+            '0', 'false', 'no', 'off' => false,
+            default => null,
+        };
+    }
+
+    private function normalizeDateString(mixed $value): ?string
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('Y-m-d');
+        }
+
+        if (!is_scalar($value)) {
+            return null;
+        }
+
+        $value = trim((string) $value);
+
+        if ('' === $value) {
+            return null;
+        }
+
+        $date = \DateTimeImmutable::createFromFormat('Y-m-d', $value);
+
+        if (!$date instanceof \DateTimeImmutable) {
+            return null;
+        }
+
+        return $date->format('Y-m-d');
     }
 
     /**
@@ -157,27 +358,42 @@ final readonly class ArrayDataProvider implements DataProviderInterface
      */
     private function readColumnValue(array $row, ColumnDefinition $column): mixed
     {
-        $columnName = $column->getName();
-
-        if (array_key_exists($columnName, $row)) {
-            return $row[$columnName];
-        }
-
-        $normalizedName = $this->normalizeColumnName($columnName);
-
-        return $row[$normalizedName] ?? null;
+        return $this->readFieldValue($row, $column->getName());
     }
 
-    private function normalizeColumnName(string $columnName): string
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function readFieldValue(array $row, string $field): mixed
     {
-        if (!str_contains($columnName, '.')) {
-            return $columnName;
+        foreach ($this->getFieldCandidateKeys($field) as $candidateKey) {
+            if (array_key_exists($candidateKey, $row)) {
+                return $row[$candidateKey];
+            }
         }
 
-        $parts = explode('.', $columnName);
-        $lastPart = $parts[array_key_last($parts)];
+        return null;
+    }
 
-        return '' !== $lastPart ? $lastPart : $columnName;
+    /**
+     * @return list<string>
+     */
+    private function getFieldCandidateKeys(string $field): array
+    {
+        $candidateKeys = [$field];
+
+        if (str_contains($field, '.')) {
+            $candidateKeys[] = str_replace('.', '_', $field);
+
+            $parts = explode('.', $field);
+            $lastPart = $parts[array_key_last($parts)];
+
+            if ('' !== $lastPart) {
+                $candidateKeys[] = $lastPart;
+            }
+        }
+
+        return array_values(array_unique($candidateKeys));
     }
 
     private function compareValues(mixed $leftValue, mixed $rightValue): int
