@@ -28,6 +28,7 @@
     "symfony/routing": "^8.0",
     "symfony/security-csrf": "^8.0",
     "symfony/translation": "^8.0",
+    "symfony/twig-bundle": "^8.0",
     "symfony/yaml": "^8.0",
     "twig/twig": "^3.21"
   },
@@ -47,13 +48,14 @@
     "symfony/event-dispatcher-contracts": "^3.6",
     "symfony/framework-bundle": "^8.0",
     "symfony/translation-contracts": "^3.6",
-    "symfony/twig-bundle": "^8.0",
     "symfony/var-dumper": "^8.0"
   },
   "suggest": {
     "doctrine/orm": "Required to use Doctrine ORM backed datatables.",
-    "symfony/stimulus-bundle": "Required to use the provided Stimulus controller integration.",
-    "twig/twig": "Required to render datatables with Twig templates."
+    "doctrine/doctrine-bundle": "Required to use Doctrine ORM backed datatables in Symfony applications.",
+    "symfony/asset-mapper": "Recommended to expose the provided Stimulus controller with Symfony AssetMapper.",
+    "symfony/stimulus-bundle": "Recommended to integrate the provided vanilla Stimulus controller.",
+    "ext-intl": "Recommended for locale-aware datetime formatting through IntlDateFormatter."
   },
   "autoload": {
     "psr-4": {
@@ -89,5 +91,10 @@
     "symfony": {
       "require": "8.0.*"
     }
+  },
+  "support": {
+    "issues": "https://github.com/Zhortein/datatable-bundle/issues",
+    "source": "https://github.com/Zhortein/datatable-bundle",
+    "docs": "https://github.com/Zhortein/datatable-bundle/tree/main/docs"
   }
 }
