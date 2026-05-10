@@ -15,6 +15,25 @@ final readonly class CsvExportWriter implements ExportWriterInterface
 {
     public const string WRITER_NAME = 'csv';
 
+    public function __construct(
+        private string $delimiter = ',',
+        private string $enclosure = '"',
+        private string $escape = '\\',
+        private bool $withBom = false,
+    ) {
+        if (1 !== strlen($this->delimiter)) {
+            throw new \InvalidArgumentException('The CSV delimiter must be exactly one character.');
+        }
+
+        if (1 !== strlen($this->enclosure)) {
+            throw new \InvalidArgumentException('The CSV enclosure must be exactly one character.');
+        }
+
+        if ('' !== $this->escape && 1 !== strlen($this->escape)) {
+            throw new \InvalidArgumentException('The CSV escape character must be empty or exactly one character.');
+        }
+    }
+
     public function supports(ExportFormat $format): bool
     {
         return match ($format) {
@@ -48,6 +67,10 @@ final readonly class CsvExportWriter implements ExportWriterInterface
 
         if (false === $handle) {
             throw new \RuntimeException('Unable to open temporary CSV stream.');
+        }
+
+        if ($this->withBom) {
+            fwrite($handle, "\xEF\xBB\xBF");
         }
 
         $columns = $this->getExportableColumns($request, $definition);
@@ -183,7 +206,7 @@ final readonly class CsvExportWriter implements ExportWriterInterface
      */
     private function writeRow(mixed $handle, array $values): void
     {
-        if (false === fputcsv($handle, $values, ',', '"', '\\')) {
+        if (false === fputcsv($handle, $values, $this->delimiter, $this->enclosure, $this->escape)) {
             throw new \RuntimeException('Unable to write CSV row.');
         }
     }

@@ -31,6 +31,25 @@ final class ZhorteinDatatableBundle extends AbstractBundle
             throw new \LogicException('The bootstrap table configuration must be an array.');
         }
 
+        $exportConfig = $config['export'] ?? [];
+
+        if (!is_array($exportConfig)) {
+            throw new \LogicException('The export configuration must be an array.');
+        }
+
+        $csvConfig = $exportConfig['csv'] ?? [];
+
+        if (!is_array($csvConfig)) {
+            throw new \LogicException('The CSV export configuration must be an array.');
+        }
+
+        /** @var array{
+         *     delimiter: string,
+         *     enclosure: string,
+         *     escape: string,
+         *     bom: bool
+         * } $csvConfig */
+
         /** @var array{
          *     striped: bool,
          *     hover: bool,
@@ -52,6 +71,10 @@ final class ZhorteinDatatableBundle extends AbstractBundle
             ->set('zhortein_datatable.bootstrap.table_borderless', $tableConfig['borderless'])
             ->set('zhortein_datatable.bootstrap.table_small', $tableConfig['small'])
             ->set('zhortein_datatable.bootstrap.table_responsive', $tableConfig['responsive'])
+            ->set('zhortein_datatable.export.csv.delimiter', $csvConfig['delimiter'])
+            ->set('zhortein_datatable.export.csv.enclosure', $csvConfig['enclosure'])
+            ->set('zhortein_datatable.export.csv.escape', $csvConfig['escape'])
+            ->set('zhortein_datatable.export.csv.bom', $csvConfig['bom'])
         ;
 
         $configurator->import('../config/services.php');
@@ -70,6 +93,28 @@ final class ZhorteinDatatableBundle extends AbstractBundle
         $definition
             ->rootNode()
                 ->children()
+                    ->arrayNode('export')
+                        ->addDefaultsIfNotSet()
+                        ->children()
+                            ->arrayNode('csv')
+                                ->addDefaultsIfNotSet()
+                                ->children()
+                                    ->scalarNode('delimiter')
+                                        ->defaultValue(',')
+                                    ->end()
+                                    ->scalarNode('enclosure')
+                                        ->defaultValue('"')
+                                    ->end()
+                                    ->scalarNode('escape')
+                                        ->defaultValue('\\')
+                                    ->end()
+                                    ->booleanNode('bom')
+                                        ->defaultFalse()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
                     ->enumNode('default_provider')
                         ->values(['array', 'doctrine'])
                         ->defaultValue('doctrine')
