@@ -1885,3 +1885,9 @@ The review covers:
 - service tags;
 - configuration keys;
 - current API risks before stable 1.0.
+
+### First pre-release checklist
+
+The first pre-release checklist is documented in [`release-checklist.md`](release-checklist.md).
+
+It defines the go/no-go criteria for the first alpha tag, including CI, documentation, changelog, release workflow, Packagist readiness and smoke testing.

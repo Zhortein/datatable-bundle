@@ -97,6 +97,7 @@ With runtime options:
 - [Development workflow](docs/development.md)
 - [CI matrix and dependency strategy](docs/ci.md)
 - [Release workflow](docs/release.md)
+- [First pre-release checklist](docs/release-checklist.md)
 - [Packagist readiness](docs/packagist.md)
 - [Features](docs/features.md)
 - [Architecture](docs/architecture.md)
