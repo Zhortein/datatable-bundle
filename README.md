@@ -98,6 +98,7 @@ With runtime options:
 - [Routes](docs/routes.md)
 - [Stimulus and AssetMapper integration](docs/stimulus-assetmapper.md)
 - [Table controls and interactions](docs/table-controls.md)
+- [User-facing filters](docs/filters.md)
 
 ## Architecture decisions
 

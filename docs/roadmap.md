@@ -275,41 +275,42 @@ Current limitations:
 
 ---
 
-# Next milestones
+## 0.9 - Advanced filtering foundation ✅
 
-## 0.9 - Advanced filtering foundation 🚧
+Delivered:
 
-Introduce user-facing filters beyond global search.
+- `FilterType` enum.
+- `UserFilterDefinition` value object.
+- User-facing filters on `DatatableDefinition`.
+- Filter request normalization in `DatatableRequest`.
+- Filter toolbar rendering.
+- Stimulus refresh on filter changes.
+- Doctrine provider support for declared user filters.
+- User filters on explicitly joined Doctrine fields.
+- Active filter summary.
+- Clear filters action.
+- User-facing filters documentation.
 
-Planned:
-
-- Filter definition objects for frontend filters.
-- Basic text filter.
-- Choice filter.
-- Boolean filter.
-- Date/date range filter.
-- Numeric range filter.
-- Filter request normalization.
-- Doctrine filter application.
-- Twig filter toolbar rendering.
-- Stimulus filter refresh.
-- Documentation.
-
-Target outcome:
+Main outcome:
 
 ```text
-Datatables can expose explicit, typed, user-facing filters.
+Datatables can expose explicit, typed user-facing filters safely.
 ```
 
-Out of scope:
+Current limitations:
 
-- complex nested search builder;
-- arbitrary frontend-generated expressions;
-- saved filter presets.
+- no nested filter expressions;
+- no SearchBuilder-style UI;
+- no saved filter presets;
+- no persisted user preferences;
+- no custom filter widgets;
+- no collection filters.
 
 ---
 
-## 0.10 - Column visibility and user preferences 🕒
+# Next milestones
+
+## 0.10 - Column visibility and user preferences 🚧
 
 Prepare per-user table experience.
 

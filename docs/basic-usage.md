@@ -471,7 +471,42 @@ More details are available in [`table-controls.md`](table-controls.md).
 
 ---
 
-## 12. Current limitations
+## 12. User-facing filters
+
+Filters can be declared in the datatable definition:
+
+```php
+use Zhortein\DatatableBundle\Enum\FilterType;
+
+$definition
+    ->addFilter(
+        name: 'email',
+        field: 'e.email',
+        label: 'Email',
+        type: FilterType::Text,
+        placeholder: 'Search an email',
+    )
+    ->addFilter(
+        name: 'enabled',
+        field: 'e.enabled',
+        label: 'Enabled',
+        type: FilterType::Boolean,
+    )
+;
+```
+
+Filters are rendered in the toolbar and sent as request parameters:
+
+```text
+filters[email]=alice
+filters[enabled]=1
+```
+
+More details are available in [`filters.md`](filters.md).
+
+---
+
+## 13. Current limitations
 
 The bundle is still under active development.
 
