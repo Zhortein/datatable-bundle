@@ -31,6 +31,7 @@ export default class extends Controller {
     connect() {
         this.abortController = null;
         this.searchDebounceTimeout = null;
+        this.filterDebounceTimeout = null;
     }
 
     disconnect() {
@@ -38,6 +39,10 @@ export default class extends Controller {
 
         if (this.searchDebounceTimeout !== null) {
             window.clearTimeout(this.searchDebounceTimeout);
+        }
+
+        if (this.filterDebounceTimeout !== null) {
+            window.clearTimeout(this.filterDebounceTimeout);
         }
     }
 
@@ -103,6 +108,18 @@ export default class extends Controller {
         }, 300);
     }
 
+    changeFilter() {
+        this.pageValue = 1;
+
+        if (this.filterDebounceTimeout !== null) {
+            window.clearTimeout(this.filterDebounceTimeout);
+        }
+
+        this.filterDebounceTimeout = window.setTimeout(() => {
+            this.refresh();
+        }, 300);
+    }
+
     changePageSize(event) {
         const pageSize = Number.parseInt(event.target.value, 10);
 
@@ -163,7 +180,33 @@ export default class extends Controller {
             url.searchParams.set('sortDirection', this.sortDirectionValue);
         }
 
+        this.appendFilterParameters(url.searchParams);
+
         return url.toString();
+    }
+
+    appendFilterParameters(searchParams) {
+        this.element.querySelectorAll('[data-zhortein-datatable-filter-control="true"]').forEach((control) => {
+            if (!(control instanceof HTMLInputElement) && !(control instanceof HTMLSelectElement)) {
+                return;
+            }
+
+            if (!control.name || !control.name.startsWith('filters[')) {
+                return;
+            }
+
+            if (control instanceof HTMLInputElement && (control.type === 'checkbox' || control.type === 'radio') && !control.checked) {
+                return;
+            }
+
+            const value = control.value.trim();
+
+            if (value === '') {
+                return;
+            }
+
+            searchParams.set(control.name, value);
+        });
     }
 
     applyFragments(payload) {
