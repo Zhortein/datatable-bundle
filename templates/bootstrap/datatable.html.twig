@@ -9,6 +9,7 @@
 {% set table_small = options.tableSmall is defined ? options.tableSmall : false %}
 {% set table_responsive = options.tableResponsive is defined ? options.tableResponsive : true %}
 {% set table_classes = ['table', 'align-middle', 'mb-0'] %}
+{% set auto_load = options.autoLoad is defined ? options.autoLoad : true %}
 
 {% if table_striped %}
     {% set table_classes = table_classes|merge(['table-striped']) %}
@@ -40,12 +41,13 @@
     data-zhortein-datatable-page-size-value="{{ page_size }}"
     data-zhortein-datatable-sort-field-value="{{ sort_field }}"
     data-zhortein-datatable-sort-direction-value="{{ sort_direction }}"
+    data-zhortein-datatable-auto-load-value="{{ auto_load ? 'true' : 'false' }}"
     aria-busy="false"
 >
     {% include '@ZhorteinDatatable/bootstrap/_toolbar.html.twig' %}
 
     <div
-        class="alert alert-danger d-flex align-items-center gap-2"
+        class="alert alert-danger d-none align-items-center gap-2"
         role="alert"
         aria-live="polite"
         aria-hidden="true"
@@ -54,12 +56,11 @@
     ></div>
 
     <div
-        class="zhortein-datatable__loading d-flex align-items-center gap-2 text-body-secondary small mb-2"
-        role="status"
-        aria-live="polite"
-        aria-hidden="true"
-        data-zhortein-datatable-target="loading"
-        hidden
+            class="zhortein-datatable__loading d-none align-items-center gap-2 text-body-secondary small mb-2"
+            role="status"
+            aria-live="polite"
+            aria-hidden="true"
+            data-zhortein-datatable-target="loading"
     >
         <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
         <span>{{ 'zhortein_datatable.loading'|trans({}, 'zhortein_datatable') }}</span>

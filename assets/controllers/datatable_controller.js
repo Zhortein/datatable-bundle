@@ -28,6 +28,7 @@ export default class extends Controller {
         search: { type: String, default: '' },
         sortField: { type: String, default: '' },
         sortDirection: { type: String, default: 'asc' },
+        autoLoad: { type: Boolean, default: true },
     };
 
     connect() {
@@ -36,6 +37,10 @@ export default class extends Controller {
         this.filterDebounceTimeout = null;
         this.columnVisibilityDebounceTimeout = null;
         this.updateActiveFilterState();
+
+        if (this.autoLoadValue) {
+            this.refresh();
+        }
     }
 
     disconnect() {
@@ -372,7 +377,8 @@ export default class extends Controller {
         this.element.classList.toggle('is-loading', isLoading);
 
         if (this.hasLoadingTarget) {
-            this.loadingTarget.hidden = !isLoading;
+            this.loadingTarget.classList.toggle('d-none', !isLoading);
+            this.loadingTarget.classList.toggle('d-flex', isLoading);
             this.loadingTarget.setAttribute('aria-hidden', String(!isLoading));
         }
     }
@@ -380,7 +386,8 @@ export default class extends Controller {
     showError(message) {
         if (this.hasErrorTarget) {
             this.errorTarget.textContent = message;
-            this.errorTarget.hidden = false;
+            this.errorTarget.classList.remove('d-none');
+            this.errorTarget.classList.add('d-flex');
             this.errorTarget.removeAttribute('aria-hidden');
 
             return;
@@ -396,7 +403,8 @@ export default class extends Controller {
         }
 
         this.errorTarget.textContent = '';
-        this.errorTarget.hidden = true;
+        this.errorTarget.classList.add('d-none');
+        this.errorTarget.classList.remove('d-flex');
         this.errorTarget.setAttribute('aria-hidden', 'true');
     }
 
