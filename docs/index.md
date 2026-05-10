@@ -56,6 +56,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 - [Release workflow](release.md)
 - [First pre-release checklist](release-checklist.md)
 - [Fresh Symfony smoke test plan](smoke-test.md)
+- [Fresh Symfony smoke test report template](smoke-test-report-template.md)
 - [Packagist readiness](packagist.md)
 - [Documentation review checklist](documentation-review.md)
 
