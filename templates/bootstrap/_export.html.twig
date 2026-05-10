@@ -1,0 +1,29 @@
+{% set export_url = options.exportUrl is defined ? options.exportUrl : '/_zhortein/datatable/' ~ definition.name ~ '/export/csv' %}
+
+<div class="dropdown zhortein-datatable__export">
+    <button
+        class="btn btn-sm btn-outline-secondary dropdown-toggle"
+        type="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+    >
+        {{ 'zhortein_datatable.export.label'|trans({}, 'zhortein_datatable') }}
+    </button>
+
+    <div class="dropdown-menu">
+        <a
+            class="dropdown-item"
+            href="{{ export_url }}?mode=current"
+            data-zhortein-datatable-export-mode="current"
+        >
+            {{ 'zhortein_datatable.export.csv_current'|trans({}, 'zhortein_datatable') }}
+        </a>
+        <a
+            class="dropdown-item"
+            href="{{ export_url }}?mode=full"
+            data-zhortein-datatable-export-mode="full"
+        >
+            {{ 'zhortein_datatable.export.csv_full'|trans({}, 'zhortein_datatable') }}
+        </a>
+    </div>
+</div>

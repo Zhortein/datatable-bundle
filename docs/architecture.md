@@ -1419,6 +1419,30 @@ Full mode disables pagination while keeping filters, global search and sorting.
 
 The export controller uses `DatatableRequest::withoutPagination()` to build the effective provider request for full exports.
 
+### CSV export control
+
+The toolbar can render a CSV export control.
+
+The control exposes two export modes:
+
+- current view;
+- full dataset.
+
+Generated links target the datatable export endpoint with:
+
+```text
+mode=current
+mode=full
+```
+
+The control can be disabled at render time with:
+
+```twig
+{{ zhortein_datatable('users', {
+    export: false
+}) }}
+```
+
 ---
 
 ## 15. Documentation map

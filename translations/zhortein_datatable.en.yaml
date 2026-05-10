@@ -9,6 +9,10 @@ zhortein_datatable:
         clear: 'Clear filters'
     columns:
         visibility: 'Columns'
+    export:
+        label: 'Export'
+        csv_current: 'CSV current view'
+        csv_full: 'CSV full dataset'
     loading: 'Loading...'
     error:
         generic: 'Unable to load datatable data.'

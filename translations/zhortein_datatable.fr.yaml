@@ -9,6 +9,10 @@ zhortein_datatable:
         clear: 'Effacer les filtres'
     columns:
         visibility: 'Colonnes'
+    export:
+        label: 'Exporter'
+        csv_current: 'CSV vue courante'
+        csv_full: 'CSV complet'
     loading: 'Chargement...'
     error:
         generic: 'Impossible de charger les données du tableau.'
