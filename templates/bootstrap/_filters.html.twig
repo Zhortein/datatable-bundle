@@ -1,0 +1,10 @@
+{% if definition.filters is not empty %}
+    <div class="zhortein-datatable__filters d-flex flex-wrap align-items-end gap-2">
+        {% for filter in definition.filters %}
+            {% include '@ZhorteinDatatable/bootstrap/_filter.html.twig' with {
+                filter: filter,
+                htmlId: htmlId
+            } only %}
+        {% endfor %}
+    </div>
+{% endif %}
