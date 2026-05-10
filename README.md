@@ -100,6 +100,7 @@ With runtime options:
 - [Packagist readiness](docs/packagist.md)
 - [Features](docs/features.md)
 - [Architecture](docs/architecture.md)
+- [Documentation review checklist](docs/documentation-review.md)
 - [Roadmap](docs/roadmap.md)
 - [First end-to-end flow](docs/end-to-end-flow.md)
 - [Doctrine-backed datatables](docs/doctrine-provider.md)

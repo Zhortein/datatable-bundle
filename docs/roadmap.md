@@ -502,3 +502,18 @@ Potential future work:
 - accessibility audit;
 - frontend test suite;
 - Symfony Flex recipe.
+
+## Documentation maintenance
+
+Documentation navigation is reviewed as part of release hardening.
+
+Key entry points:
+
+- [`../README.md`](../README.md);
+- [`index.md`](index.md);
+- [`basic-usage.md`](basic-usage.md);
+- [`installation.md`](installation.md);
+- [`configuration.md`](configuration.md);
+- [`roadmap.md`](roadmap.md).
+
+A dedicated documentation review checklist exists in [`documentation-review.md`](documentation-review.md).
