@@ -13,6 +13,7 @@ use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
 use Zhortein\DatatableBundle\Definition\ActionDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\ActionDisplayMode;
 use Zhortein\DatatableBundle\Enum\CellType;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
@@ -56,6 +57,7 @@ final readonly class DatatableRenderer
             'hasRowActions' => [] !== $definition->getRowActions(),
             'htmlId' => $this->createHtmlId($definition),
             'options' => $options,
+            'rowActionDisplayMode' => $this->resolveRowActionDisplayMode($definition, $options)->value,
         ]);
     }
 
@@ -296,6 +298,22 @@ final readonly class DatatableRenderer
             'className' => $action->getClassName(),
             'attributes' => $action->getAttributes(),
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function resolveRowActionDisplayMode(DatatableDefinition $definition, array $options): ActionDisplayMode
+    {
+        $runtimeMode = $options['rowActionDisplayMode'] ?? null;
+
+        if (is_string($runtimeMode)) {
+            return ActionDisplayMode::fromNullableString($runtimeMode);
+        }
+
+        $definitionMode = $definition->getOption('rowActionDisplayMode');
+
+        return ActionDisplayMode::fromNullableString(is_string($definitionMode) ? $definitionMode : null);
     }
 
     private function generateCsrfToken(ActionDefinition $action, string $httpMethod): ?string

@@ -17,7 +17,9 @@ zhortein_datatable:
     error:
         generic: 'Unable to load datatable data.'
     empty: 'No data available.'
-    actions: 'Actions'
+    actions:
+        row: 'Row actions'
+        more: 'Actions'
     sort:
         label: 'Sort by %column%'
         sorted_ascending: 'sorted ascending'

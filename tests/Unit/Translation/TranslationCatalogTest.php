@@ -25,7 +25,7 @@ final class TranslationCatalogTest extends TestCase
         self::assertSame('Loading...', $translator->trans('zhortein_datatable.loading', [], 'zhortein_datatable'));
         self::assertSame('Unable to load datatable data.', $translator->trans('zhortein_datatable.error.generic', [], 'zhortein_datatable'));
         self::assertSame('No data available.', $translator->trans('zhortein_datatable.empty', [], 'zhortein_datatable'));
-        self::assertSame('Actions', $translator->trans('zhortein_datatable.actions', [], 'zhortein_datatable'));
+        self::assertSame('Actions', $translator->trans('zhortein_datatable.actions.more', [], 'zhortein_datatable'));
         self::assertSame('Sort by Email', $translator->trans('zhortein_datatable.sort.label', ['%column%' => 'Email'], 'zhortein_datatable'));
         self::assertSame('sorted ascending', $translator->trans('zhortein_datatable.sort.sorted_ascending', [], 'zhortein_datatable'));
         self::assertSame('Previous', $translator->trans('zhortein_datatable.pagination.previous', [], 'zhortein_datatable'));

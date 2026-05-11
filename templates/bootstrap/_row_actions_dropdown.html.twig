@@ -1,0 +1,19 @@
+{% if actions is not empty %}
+    {% set dropdown_id = htmlId ~ '_row_actions_' ~ rowIndex %}
+    <div class="dropdown zhortein-datatable__row-actions-dropdown">
+        <button
+            class="btn btn-sm btn-outline-secondary dropdown-toggle"
+            type="button"
+            id="{{ dropdown_id }}"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+        >
+            {{ 'zhortein_datatable.actions.more'|trans({}, 'zhortein_datatable') }}
+        </button>
+        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="{{ dropdown_id }}">
+            {% for action in actions %}
+                {{ include('@ZhorteinDatatable/bootstrap/_dropdown_action.html.twig', {action: action}, with_context=false) }}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

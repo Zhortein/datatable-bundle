@@ -10,7 +10,8 @@
 
     {% if row.actions is not empty %}
         {% include '@ZhorteinDatatable/bootstrap/_actions.html.twig' with {
-            actions: row.actions
+            actions: row.actions,
+            row_index: row_index
         } only %}
     {% endif %}
 </tr>

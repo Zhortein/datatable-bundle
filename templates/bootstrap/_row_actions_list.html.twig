@@ -1,0 +1,7 @@
+{% if actions is not empty %}
+    <div class="d-flex flex-column gap-1 zhortein-datatable__row-actions-list">
+        {% for action in actions %}
+            {{ include('@ZhorteinDatatable/bootstrap/_action.html.twig', {action: action}, with_context=false) }}
+        {% endfor %}
+    </div>
+{% endif %}
