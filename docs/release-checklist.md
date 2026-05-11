@@ -331,3 +331,9 @@ The report should record:
 - blockers;
 - documentation gaps;
 - go/no-go recommendation.
+
+## First alpha go/no-go
+
+The go/no-go decision for the first alpha is documented in:
+
+- [Go/no-go review for first alpha](releases/go-no-go-first-alpha.md)

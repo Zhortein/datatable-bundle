@@ -194,3 +194,9 @@ The smoke test must validate:
 - CSV exports.
 
 Blocking issues must be resolved before tagging.
+
+## First alpha go/no-go
+
+The go/no-go decision for the first alpha is documented in:
+
+- [Go/no-go review for first alpha](releases/go-no-go-first-alpha.md)
