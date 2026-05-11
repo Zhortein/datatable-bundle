@@ -313,6 +313,47 @@ The default filename is based on the datatable name.
 
 Custom filenames can be provided through export request parameters, but a richer filename strategy is not implemented yet.
 
+## Export modes clarified
+
+CSV exports support two modes:
+
+```text
+current
+full
+```
+
+### Current mode
+
+Current mode keeps pagination.
+
+It exports the current visible page using the current datatable state:
+
+- page;
+- page size;
+- search;
+- filters;
+- sorting;
+- column visibility.
+
+### Full mode
+
+Full mode removes pagination but keeps the current datatable state:
+
+- search;
+- filters;
+- sorting;
+- column visibility.
+
+This means full export is:
+
+```text
+full filtered dataset, without pagination
+```
+
+It is not an unfiltered raw database export.
+
+This behavior was confirmed during the fresh Symfony smoke test.
+
 ## Related documentation
 
 - [`architecture.md`](architecture.md)

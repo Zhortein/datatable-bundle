@@ -231,3 +231,24 @@ Array-backed datatables are useful for simple datasets, but they have limitation
 For production entity-backed tables, use the Doctrine provider.
 
 See [`../doctrine-provider.md`](../doctrine-provider.md).
+
+## Smoke-test validation
+
+This example has been validated in a fresh Symfony application using a Composer path repository.
+
+Validated behavior:
+
+- datatable service discovery with `#[AsDatatable]`;
+- Twig rendering through `zhortein_datatable()`;
+- automatic initial Ajax load;
+- global search;
+- user-facing filters with `ArrayDataProvider`;
+- page size selector;
+- sortable headers;
+- column visibility controls;
+- synchronized header/body refresh;
+- CSV current export;
+- CSV full export;
+- configurable CSV delimiter.
+
+The array provider remains intended for tests, demos and small in-memory datasets.

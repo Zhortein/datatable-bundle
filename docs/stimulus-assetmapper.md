@@ -11,6 +11,76 @@ The bundle frontend is intentionally lightweight:
 - no Webpack Encore requirement;
 - no NPM build step required for the default Symfony 8 AssetMapper setup.
 
+The bundle exposes its Stimulus controller through a Symfony UX-compatible assets package.
+
+Enable it in the host application `assets/controllers.json`:
+
+```json
+{
+  "controllers": {
+    "@zhortein/datatable-bundle": {
+      "datatable": {
+        "enabled": true,
+        "fetch": "eager"
+      }
+    }
+  },
+  "entrypoints": []
+}
+```
+
+The generated Stimulus identifier is:
+
+```text
+zhortein--datatable-bundle--datatable
+```
+
+The rendered datatable shell uses:
+
+```html
+data-controller="zhortein--datatable-bundle--datatable"
+```
+
+Do not copy the controller manually into the host application.
+
+## Bootstrap JavaScript
+
+Some controls depend on Bootstrap JavaScript, especially dropdowns:
+
+- column visibility;
+- CSV export dropdown.
+
+Install Bootstrap through importmap:
+
+```bash
+php bin/console importmap:require bootstrap
+php bin/console importmap:require bootstrap/dist/css/bootstrap.min.css
+```
+
+Then import it:
+
+```js
+// assets/app.js
+import 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+```
+
+The bundle does not load Bootstrap automatically.
+
+## Smoke-test status
+
+This integration has been validated in a fresh Symfony application using a Composer path repository.
+
+Validated behavior:
+
+- controller is loaded through Symfony UX / AssetMapper;
+- controller connects successfully;
+- initial data auto-load works;
+- Ajax fragments refresh works;
+- filters refresh data;
+- column visibility refreshes header and body;
+- CSV export links include current state.
+
 ## Requirements
 
 The host application should use:
@@ -234,25 +304,3 @@ data-action="input->zhortein--datatable-bundle--datatable#search"
 ```
 
 Check that the root element contains a valid fragments URL value.
-
-## Bootstrap requirements
-
-The bundle renders Bootstrap-first markup but does not install or load Bootstrap automatically.
-
-Host applications must load Bootstrap CSS.
-
-If dropdown-based controls are enabled, such as column visibility or export controls, host applications must also load Bootstrap JavaScript, preferably `bootstrap.bundle`.
-
-With AssetMapper/importmap:
-
-```bash
-php bin/console importmap:require bootstrap
-php bin/console importmap:require bootstrap/dist/css/bootstrap.min.css
-```
-
-Then import Bootstrap in the application entrypoint:
-```js
-// assets/app.js
-import 'bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-```
