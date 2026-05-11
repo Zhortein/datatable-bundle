@@ -2,6 +2,7 @@
     <a
         href="{{ action.url }}"
         class="{{ action.className ?? 'btn btn-outline-secondary' }}"
+        data-turbo-prefetch="false"
         {% if action.confirmationMessage is not null %}
             data-zhortein--datatable-bundle--datatable-confirmation-message="{{ action.confirmationMessage }}"
             data-action="click->zhortein--datatable-bundle--datatable#confirmAction"
