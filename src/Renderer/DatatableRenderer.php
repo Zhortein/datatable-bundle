@@ -14,6 +14,7 @@ use Zhortein\DatatableBundle\Definition\ActionDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ActionDisplayMode;
+use Zhortein\DatatableBundle\Enum\BooleanDisplayMode;
 use Zhortein\DatatableBundle\Enum\CellType;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
@@ -221,6 +222,7 @@ final readonly class DatatableRenderer
                     'value' => $this->readColumnValue($row, $column),
                     'template' => $this->resolveCellTemplate($column),
                     'className' => $this->resolveCellClassName($column),
+                    'booleanDisplayMode' => $this->resolveBooleanDisplayMode($options)->value,
                 ];
             }
 
@@ -398,5 +400,15 @@ final readonly class DatatableRenderer
         $name = preg_replace('/[^a-zA-Z0-9_-]+/', '-', $definition->getName()) ?? $definition->getName();
 
         return 'zhortein-datatable-'.strtolower(trim($name, '-'));
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function resolveBooleanDisplayMode(array $options): BooleanDisplayMode
+    {
+        $mode = $options['booleanDisplayMode'] ?? null;
+
+        return BooleanDisplayMode::fromNullableString(is_string($mode) ? $mode : null);
     }
 }

@@ -1146,6 +1146,31 @@ The documentation covers:
 - Doctrine type enrichment;
 - current limitations.
 
+### Boolean cell display modes
+
+Boolean cells support configurable display modes.
+
+Supported modes:
+
+```text
+badge
+icon
+switch
+text
+```
+
+`badge` remains the default.
+
+The display mode can be provided through render options:
+
+```twig
+{{ zhortein_datatable('users', {
+    booleanDisplayMode: 'icon'
+}) }}
+```
+
+The implementation stays display-only. Switch mode renders a disabled Bootstrap switch and does not mutate data.
+
 ### Bootstrap template cleanup
 
 Bootstrap templates have been reviewed for readability and consistency.

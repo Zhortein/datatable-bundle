@@ -1,5 +1,32 @@
-{% if value %}
-    <span class="badge text-bg-success">{{ 'zhortein_datatable.boolean.yes'|trans({}, 'zhortein_datatable') }}</span>
+{% set display_mode = boolean_display_mode ?? 'badge' %}
+{% set yes_label = 'zhortein_datatable.boolean.yes'|trans({}, 'zhortein_datatable') %}
+{% set no_label = 'zhortein_datatable.boolean.no'|trans({}, 'zhortein_datatable') %}
+
+{% if display_mode == 'icon' %}
+    {% if value %}
+        <span class="text-success" aria-hidden="true">✓</span>
+        <span class="visually-hidden">{{ yes_label }}</span>
+    {% else %}
+        <span class="text-danger" aria-hidden="true">×</span>
+        <span class="visually-hidden">{{ no_label }}</span>
+    {% endif %}
+{% elseif display_mode == 'switch' %}
+    <span class="form-check form-switch d-inline-flex m-0">
+        <input
+            class="form-check-input"
+            type="checkbox"
+            role="switch"
+            disabled
+            aria-label="{{ value ? yes_label : no_label }}"
+            {% if value %}checked{% endif %}
+        >
+    </span>
+{% elseif display_mode == 'text' %}
+    {{ value ? yes_label : no_label }}
 {% else %}
-    <span class="badge text-bg-secondary">{{ 'zhortein_datatable.boolean.no'|trans({}, 'zhortein_datatable') }}</span>
+    {% if value %}
+        <span class="badge text-bg-success">{{ yes_label }}</span>
+    {% else %}
+        <span class="badge text-bg-secondary">{{ no_label }}</span>
+    {% endif %}
 {% endif %}

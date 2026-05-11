@@ -448,6 +448,63 @@ Custom template existence is not validated when the datatable definition is buil
 
 Twig errors remain explicit at render time.
 
+## Boolean display modes
+
+Boolean cells support several display modes:
+
+```text
+badge
+icon
+switch
+text
+```
+
+### Badge mode
+
+Badge mode is the default.
+
+It renders translated `Yes` / `No` labels as Bootstrap badges.
+
+```twig
+{{ zhortein_datatable('users', {
+    booleanDisplayMode: 'badge'
+}) }}
+```
+
+### Icon mode
+
+Icon mode renders decorative check/cross characters with visually hidden translated labels.
+
+```twig
+{{ zhortein_datatable('users', {
+    booleanDisplayMode: 'icon'
+}) }}
+```
+
+No icon library is required.
+
+### Switch mode
+
+Switch mode renders a disabled Bootstrap switch.
+
+```twig
+{{ zhortein_datatable('users', {
+    booleanDisplayMode: 'switch'
+}) }}
+```
+
+The switch is display-only and does not update data.
+
+### Text mode
+
+Text mode renders the translated label only.
+
+```twig
+{{ zhortein_datatable('users', {
+    booleanDisplayMode: 'text'
+}) }}
+```
+
 ## Related documentation
 
 - [`templates.md`](templates.md)
