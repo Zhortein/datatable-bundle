@@ -1,6 +1,7 @@
 <td{% if class_name is not null %} class="{{ class_name }}"{% endif %}>
     {% include template with {
         column: column,
-        value: value
+        value: value,
+        boolean_display_mode: boolean_display_mode
     } only %}
 </td>
