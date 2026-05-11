@@ -1111,7 +1111,26 @@ The bundle does not require Bootstrap Icons, FontAwesome, Symfony UX Icons or an
 
 Action icons render as decorative spans with `aria-hidden="true"`, while the action label remains visible and accessible.
 
-The strategy is documented in `docs/icons.md`.
+The strategy is documented in [`icons.md`](icons.md).
+
+### Action icon rendering options
+
+Actions can render optional CSS-class based icons.
+
+The current strategy remains dependency-free:
+
+- no mandatory Bootstrap Icons dependency;
+- no mandatory FontAwesome dependency;
+- no SVG icon provider yet.
+
+Action icons render as decorative spans with `aria-hidden="true"`.
+
+Supported icon positions:
+
+- before label;
+- after label.
+
+Labels remain visible to preserve accessibility.
 
 ### Cell template reference
 
