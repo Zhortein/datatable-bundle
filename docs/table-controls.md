@@ -342,6 +342,24 @@ The default fragments URL uses the bundle route.
 
 Applications can override the fragments URL at runtime, but route prefix configuration is not implemented yet.
 
+## Control layout
+
+The datatable controls can use a split layout.
+
+```twig
+{{ zhortein_datatable('users', {
+    controlsLayout: 'split'
+}) }}
+```
+
+Split layout moves these controls below the table:
+
+- column visibility;
+- page size selector;
+- summary.
+
+Search, filters, export and global actions remain in the top toolbar.
+
 ## Related documentation
 
 - [`stimulus-assetmapper.md`](stimulus-assetmapper.md)
