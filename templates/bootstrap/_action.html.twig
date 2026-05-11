@@ -1,3 +1,7 @@
+{% set has_icon = action.icon is not null and action.icon is not empty %}
+{% set icon_position = action.iconPosition ?? 'before' %}
+{% set label = action.label ?? action.name %}
+
 {% if action.httpMethod == 'GET' %}
     <a
         href="{{ action.url }}"
@@ -11,11 +15,15 @@
             {{ attribute_name }}="{{ attribute_value }}"
         {% endfor %}
     >
-        {% if action.icon is not null %}
-            <span class="{{ action.icon }}" aria-hidden="true"></span>
+        {% if has_icon and icon_position == 'before' %}
+            <span class="{{ action.icon }} me-1" aria-hidden="true"></span>
         {% endif %}
 
-        {{ action.label ?? action.name }}
+        <span>{{ label }}</span>
+
+        {% if has_icon and icon_position == 'after' %}
+            <span class="{{ action.icon }} ms-1" aria-hidden="true"></span>
+        {% endif %}
     </a>
 {% else %}
     <form
@@ -40,11 +48,15 @@
                 {{ attribute_name }}="{{ attribute_value }}"
             {% endfor %}
         >
-            {% if action.icon is not null %}
-                <span class="{{ action.icon }}" aria-hidden="true"></span>
+            {% if has_icon and icon_position == 'before' %}
+                <span class="{{ action.icon }} me-1" aria-hidden="true"></span>
             {% endif %}
 
-            {{ action.label ?? action.name }}
+            <span>{{ label }}</span>
+
+            {% if has_icon and icon_position == 'after' %}
+                <span class="{{ action.icon }} ms-1" aria-hidden="true"></span>
+            {% endif %}
         </button>
     </form>
 {% endif %}

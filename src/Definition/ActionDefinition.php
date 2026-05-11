@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Definition;
 
+use Zhortein\DatatableBundle\Enum\ActionIconPosition;
+
 final readonly class ActionDefinition
 {
     /**
@@ -15,6 +17,7 @@ final readonly class ActionDefinition
         private string $route,
         private ?string $label = null,
         private ?string $icon = null,
+        private ActionIconPosition $iconPosition = ActionIconPosition::Before,
         private string $httpMethod = 'GET',
         private ?string $confirmationMessage = null,
         private ?string $className = null,
@@ -41,6 +44,11 @@ final readonly class ActionDefinition
     public function getIcon(): ?string
     {
         return $this->icon;
+    }
+
+    public function getIconPosition(): ActionIconPosition
+    {
+        return $this->iconPosition;
     }
 
     public function getHttpMethod(): string

@@ -223,6 +223,46 @@ The host application must load the icon CSS if it wants icons to appear.
 
 More details are available in [`icons.md`](icons.md).
 
+## Action icon rendering
+
+Actions can define an optional icon CSS class:
+
+```php
+$definition->addRowAction(
+    name: 'view',
+    route: 'app_user_show',
+    label: 'View',
+    icon: 'bi bi-eye',
+    routeParameters: [
+        'id' => 'e.id',
+    ],
+);
+```
+
+Icons render before the label by default.
+
+To render the icon after the label:
+
+```php
+use Zhortein\DatatableBundle\Enum\ActionIconPosition;
+
+$definition->addRowAction(
+    name: 'view',
+    route: 'app_user_show',
+    label: 'View',
+    icon: 'bi bi-arrow-right',
+    iconPosition: ActionIconPosition::After,
+    routeParameters: [
+        'id' => 'e.id',
+    ],
+);
+```
+
+The bundle does not require a specific icon library.
+
+The host application must load the relevant icon CSS.
+
+
 ## Typed cell templates
 
 The renderer supports type-specific cell templates.

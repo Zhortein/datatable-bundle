@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Definition;
 
+use Zhortein\DatatableBundle\Enum\ActionIconPosition;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Enum\JoinType;
@@ -198,6 +199,7 @@ final class DatatableDefinition
         string $route,
         ?string $label = null,
         ?string $icon = null,
+        ActionIconPosition $iconPosition = ActionIconPosition::Before,
         string $httpMethod = 'GET',
         ?string $confirmationMessage = null,
         ?string $className = null,
@@ -209,6 +211,7 @@ final class DatatableDefinition
             route: $route,
             label: $label,
             icon: $icon,
+            iconPosition: $iconPosition,
             httpMethod: $httpMethod,
             confirmationMessage: $confirmationMessage,
             className: $className,
@@ -236,6 +239,7 @@ final class DatatableDefinition
         string $route,
         ?string $label = null,
         ?string $icon = null,
+        ActionIconPosition $iconPosition = ActionIconPosition::Before,
         string $httpMethod = 'GET',
         ?string $confirmationMessage = null,
         ?string $className = null,
@@ -247,6 +251,7 @@ final class DatatableDefinition
             route: $route,
             label: $label,
             icon: $icon,
+            iconPosition: $iconPosition,
             httpMethod: $httpMethod,
             confirmationMessage: $confirmationMessage,
             className: $className,
