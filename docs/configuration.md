@@ -290,7 +290,8 @@ zhortein_datatable.search.label
 zhortein_datatable.search.placeholder
 zhortein_datatable.loading
 zhortein_datatable.empty
-zhortein_datatable.actions
+zhortein_datatable.actions.row
+zhortein_datatable.actions.more
 zhortein_datatable.pagination.label
 zhortein_datatable.pagination.previous
 zhortein_datatable.pagination.next

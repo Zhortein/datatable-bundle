@@ -17,7 +17,9 @@ zhortein_datatable:
     error:
         generic: 'Impossible de charger les données du tableau.'
     empty: 'Aucune donnée disponible.'
-    actions: 'Actions'
+    actions:
+        row: 'Actions de ligne'
+        more: 'Actions'
     sort:
         label: 'Trier par %column%'
         sorted_ascending: 'tri croissant'

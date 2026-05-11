@@ -1,0 +1,7 @@
+{% if actions is not empty %}
+    <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'zhortein_datatable.actions.row'|trans({}, 'zhortein_datatable') }}">
+        {% for action in actions %}
+            {{ include('@ZhorteinDatatable/bootstrap/_action.html.twig', {action: action}, with_context=false) }}
+        {% endfor %}
+    </div>
+{% endif %}

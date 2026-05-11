@@ -1,3 +1,4 @@
 {% for row in rows %}
-    {% include '@ZhorteinDatatable/bootstrap/_row.html.twig' with {row: row} only %}
+    {% set row_index = loop.index %}
+    {% include '@ZhorteinDatatable/bootstrap/_row.html.twig' with {row: row, row_index: row_index} only %}
 {% endfor %}

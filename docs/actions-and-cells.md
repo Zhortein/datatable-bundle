@@ -601,6 +601,50 @@ Icons are rendered as CSS classes only.
 
 There is no icon provider abstraction yet.
 
+## Row action display modes
+
+Row actions can be rendered using different display modes.
+
+Supported modes:
+
+```text
+inline
+dropdown
+list
+```
+
+### Inline mode
+
+Inline mode is the default.
+
+It renders actions as a compact Bootstrap button group.
+
+```php
+$definition->setOption('rowActionDisplayMode', 'inline');
+```
+
+### Dropdown mode
+
+Dropdown mode renders row actions inside a Bootstrap dropdown.
+
+This is useful when a table has several actions and inline buttons would make the row too noisy.
+
+```php
+$definition->setOption('rowActionDisplayMode', 'dropdown');
+```
+
+Bootstrap JavaScript must be loaded by the host application.
+
+### List mode
+
+List mode renders actions vertically.
+
+```php
+$definition->setOption('rowActionDisplayMode', 'list');
+```
+
+This can be useful for custom layouts or narrow responsive displays.
+
 ## Recommended usage
 
 Use the current action system for simple back-office actions:
@@ -613,3 +657,4 @@ Use the current action system for simple back-office actions:
 Use custom cell templates when one column needs specific markup.
 
 Keep complex permission logic outside the bundle until dedicated visibility/security hooks are introduced.
+

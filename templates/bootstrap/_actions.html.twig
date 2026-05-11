@@ -1,9 +1,18 @@
+{% set resolved_row_action_display_mode = rowActionDisplayMode ?? 'inline' %}
 <td class="text-end">
-    <div class="btn-group btn-group-sm" role="group">
-        {% for action in actions %}
-            {% include '@ZhorteinDatatable/bootstrap/_action.html.twig' with {
-                action: action
-            } only %}
-        {% endfor %}
-    </div>
+    {% if resolved_row_action_display_mode == 'dropdown' %}
+        {{ include('@ZhorteinDatatable/bootstrap/_row_actions_dropdown.html.twig', {
+            actions: actions,
+            htmlId: htmlId,
+            rowIndex: row_index
+        }, with_context=false) }}
+    {% elseif resolved_row_action_display_mode == 'list' %}
+        {{ include('@ZhorteinDatatable/bootstrap/_row_actions_list.html.twig', {
+            actions: actions
+        }, with_context=false) }}
+    {% else %}
+        {{ include('@ZhorteinDatatable/bootstrap/_row_actions_inline.html.twig', {
+            actions: actions
+        }, with_context=false) }}
+    {% endif %}
 </td>

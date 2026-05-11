@@ -167,7 +167,8 @@ Expected keys include:
 ```text
 zhortein_datatable.search.label
 zhortein_datatable.empty
-zhortein_datatable.actions
+zhortein_datatable.actions.row
+zhortein_datatable.actions.more
 zhortein_datatable.export.label
 ```
 
