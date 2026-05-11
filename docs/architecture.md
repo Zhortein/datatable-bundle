@@ -1217,6 +1217,29 @@ There is no theme registry, Tailwind theme, CSS asset package or icon provider a
 
 The current strategy and limitations are documented in `docs/theming.md`.
 
+### Configurable datatable control layout
+
+Datatable controls support a layout option.
+
+Current modes:
+
+```text
+default
+split
+```
+
+Default layout keeps page size and column visibility controls in the top toolbar.
+
+Split layout keeps search, filters, export and global actions near the top, while moving page size, column visibility and summary below the table.
+
+Example:
+
+```twig
+{{ zhortein_datatable('users', {
+    controlsLayout: 'split'
+}) }}
+```
+
 ---
 
 ## 9. Action rendering layer
