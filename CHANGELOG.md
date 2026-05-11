@@ -1,0 +1,268 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+This project follows [Semantic Versioning](https://semver.org/).
+
+## [Unreleased]
+
+_No unreleased changes have been collected yet._
+## [0.1.0-alpha.1] - 2026-05-11
+
+### Added
+
+#### Bundle foundation
+
+- Symfony 8+ bundle skeleton.
+- Composer package metadata for `zhortein/datatable-bundle`.
+- `ZhorteinDatatableBundle`.
+- Bundle configuration under the `zhortein_datatable` root key.
+- GitHub Actions CI.
+- PHPUnit, PHPStan max level, PHP-CS-Fixer and twigcs quality tooling.
+- Local Docker/Makefile tooling for quality checks.
+- GitHub labels and issue creation helper scripts.
+- `AGENTS.md`.
+- Sanitized legacy functional reference.
+
+#### Datatable declaration API
+
+- `#[AsDatatable]` PHP attribute.
+- `DatatableInterface`.
+- Datatable service discovery through Symfony autoconfiguration and service tags.
+- `DatatableRegistry`.
+- `DatatableDefinitionFactory`.
+- `DatatableDefinition`.
+- `ColumnDefinition`.
+- `ActionDefinition`.
+- Permanent filter definitions.
+- User-facing filter definitions.
+- Explicit Doctrine join definitions.
+- Datatable options support.
+
+#### Request and result model
+
+- `DatatableRequest`.
+- `DatatableRequestFactory`.
+- `DatatableResult`.
+- Pagination, search, sorting, filters, column visibility and runtime option state handling.
+- Support for disabling pagination for full exports.
+
+#### Providers
+
+- `DataProviderInterface`.
+- `DataProviderRegistry`.
+- `ArrayDataProvider` for tests, demos and small in-memory datasets.
+- User-facing filters, global search, sorting and pagination in `ArrayDataProvider`.
+
+#### Doctrine ORM provider
+
+- Doctrine ORM functional test foundation with SQLite.
+- Doctrine test fixtures.
+- `DoctrineFieldTypeGuesser`.
+- `DoctrineFieldType`.
+- `DoctrineDatatableDefinitionEnricher`.
+- `DoctrineOrmDataProvider`.
+- Doctrine provider service registration.
+- Doctrine pagination.
+- Doctrine permanent filters.
+- Doctrine global search.
+- Doctrine single-column sorting.
+- Explicit Doctrine joins.
+- Joined entity column support.
+- Sorting on joined Doctrine fields.
+- Search on joined Doctrine fields.
+- Permanent filters on joined Doctrine fields.
+- User-facing filters on Doctrine fields and joined Doctrine fields.
+
+#### Rendering
+
+- `DatatableRenderer`.
+- Twig-first rendering strategy.
+- Bootstrap-first template set.
+- `zhortein_datatable()` Twig function.
+- Datatable shell rendering.
+- Table header rendering.
+- Row and cell rendering.
+- Empty state rendering.
+- Pagination rendering.
+- Typed cell templates.
+- `CellType` enum.
+- Custom column template rendering.
+- Default column alignment by cell type.
+- Bootstrap table display variants.
+- Configurable Bootstrap rendering defaults.
+- Template context documentation.
+
+#### Ajax and frontend
+
+- Ajax fragments endpoint.
+- Vanilla Stimulus controller.
+- Automatic initial datatable loading on Stimulus connect.
+- Search, filter, page size, pagination, sorting and column visibility refresh.
+- Table header refresh when column visibility changes.
+- Loading and error state handling.
+- Bootstrap-compatible `d-none` / `d-flex` state toggling.
+- Symfony UX / AssetMapper-compatible Stimulus controller package exposure.
+- Documentation for Stimulus and AssetMapper integration.
+
+#### Actions and security
+
+- Row action rendering.
+- Global action rendering.
+- `RowActionRouteParameterResolver`.
+- CSRF-aware rendering for non-GET actions.
+- Action confirmation metadata.
+- Vanilla Stimulus confirmation behavior.
+- `ActionVisibilityCheckerInterface`.
+- `ActionVisibilityContext`.
+- Default `AllowAllActionVisibilityChecker`.
+- Row and global action visibility filtering.
+- Optional Symfony authorization visibility adapter.
+- Turbo prefetch prevention on datatable action links.
+
+#### Filters
+
+- `FilterType` enum.
+- User-facing filter declarations.
+- Filter request normalization.
+- Filter toolbar rendering.
+- Stimulus refresh on filter changes.
+- Active filter summary.
+- Clear filters action.
+- Doctrine provider support for declared user filters.
+- User filters on explicitly joined Doctrine fields.
+
+#### Column visibility and preferences
+
+- Runtime column visibility options.
+- Column visibility toolbar controls.
+- Column visibility request normalization.
+- `DatatablePreference`.
+- `DatatablePreferenceProviderInterface`.
+- `NullDatatablePreferenceProvider`.
+- Preferences applied to rendering defaults.
+
+#### Exports
+
+- `ExportFormat` enum.
+- `ExportMode` enum.
+- `DatatableExportRequest`.
+- `DatatableExportResult`.
+- `ExportWriterInterface`.
+- `ExportWriterRegistry`.
+- `CsvExportWriter`.
+- CSV export endpoint.
+- Current-view and full-dataset export modes.
+- CSV export toolbar controls.
+- Current datatable state propagation to CSV export links.
+- Runtime column visibility support in CSV exports.
+- Configurable CSV delimiter, enclosure, escape and UTF-8 BOM support.
+
+#### Internationalization
+
+- Built-in translation catalog.
+- English translations.
+- French translations.
+- Translated labels for search, page size, filters, columns, exports, loading state, empty state, actions, sorting, pagination, boolean cells and result summaries.
+- `DateTimeFormatterInterface`.
+- Default datetime formatter.
+- Locale-aware datetime formatting strategy.
+
+#### Documentation
+
+- Installation documentation.
+- Configuration documentation.
+- Basic usage documentation.
+- Architecture documentation.
+- Feature roadmap.
+- Public API decisions.
+- Doctrine provider documentation.
+- Filters documentation.
+- Actions and typed cell rendering documentation.
+- Action security documentation.
+- Exports documentation.
+- Preferences documentation.
+- Table controls documentation.
+- Template override documentation.
+- Template context reference.
+- Cell template reference.
+- Theming documentation.
+- Icon strategy documentation.
+- CI matrix and dependency strategy documentation.
+- Changelog strategy documentation.
+- Release workflow documentation.
+- Packagist readiness checklist.
+- Documentation review checklist.
+- First pre-release checklist.
+- Fresh Symfony smoke test plan.
+- Smoke test report template.
+- Smoke test findings report.
+- Minimal array datatable example.
+- Doctrine datatable example.
+
+#### Release tooling
+
+- Changelog fragment strategy.
+- Changelog build script.
+- GitHub release workflow.
+- Release notes extraction script.
+- First pre-release checklist.
+- Packagist readiness documentation.
+
+### Changed
+
+- Reorganized architecture documentation by responsibility layers.
+- Reorganized basic usage documentation as a progressive learning path.
+- Reorganized documentation index by topic.
+- Updated roadmap to reflect completed milestones.
+- Changed result summary generation from hardcoded English strings to translated summary rendering.
+- Changed transient loading/error UI state handling to use Bootstrap-compatible classes instead of relying on the `hidden` attribute with `d-flex`.
+- Changed CSV export behavior so `full` means full filtered dataset without pagination, rather than unfiltered raw dataset.
+- Changed datatable Stimulus controller integration from manual copying to UX-compatible package exposure.
+- Changed column visibility controls so definition-hidden columns are no longer offered as toggleable UI controls.
+- Changed export links to include the current datatable state.
+
+### Fixed
+
+- Fixed missing initial datatable data loading by adding Stimulus auto-load on connect.
+- Fixed visible empty error alert and spinner in smoke application.
+- Fixed user-facing filters not applying in `ArrayDataProvider`.
+- Fixed table header not refreshing when column visibility changed.
+- Fixed definition-hidden columns appearing in column visibility controls.
+- Fixed CSV export links ignoring current frontend state.
+- Fixed CSV exports not respecting runtime column visibility.
+- Fixed CSV delimiter not being configurable.
+- Fixed result summary wording and translation.
+- Fixed Turbo prefetch triggering datatable action links on hover.
+- Fixed several PHPStan issues around Symfony Config generics, PHPUnit mocks, enum single-case assertions and typed arrays.
+- Fixed Doctrine functional test setup for SQLite and Symfony 8 dependency constraints.
+- Fixed AssetMapper exposure for the bundle Stimulus controller.
+- Fixed smoke-test documentation after real fresh Symfony integration.
+
+### Security
+
+- Added CSRF-aware form rendering for non-GET actions.
+- Added optional Symfony authorization adapter for action visibility.
+- Added action visibility extension point.
+- Added safe default behavior for hidden actions: URLs are not generated for hidden actions.
+- Added Turbo prefetch prevention for datatable action links.
+- Documented that server-side routes must still enforce authorization even when actions are hidden in the UI.
+
+### Known limitations
+
+- The package is still an alpha-quality development preview.
+- The public API may still change before a stable 1.0 release.
+- Bootstrap is the only maintained theme.
+- No Symfony Flex recipe exists yet.
+- Host applications must still import routes manually.
+- Host applications must enable the Stimulus controller through `assets/controllers.json`.
+- Host applications must provide Bootstrap CSS and JavaScript.
+- Doctrine provider supports explicit joins but not automatic deep association traversal.
+- Collection-valued associations are not supported yet.
+- ManyToMany and OneToMany aggregation are not supported yet.
+- CSV is the only implemented export format.
+- XLSX export is not implemented yet.
+- Asynchronous exports are not implemented yet.
+- Built-in preference persistence is not implemented.
+- Frontend automated tests are not implemented yet.
+- No built-in voters or action controllers are provided.

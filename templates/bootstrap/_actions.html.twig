@@ -1,0 +1,9 @@
+<td class="text-end">
+    <div class="btn-group btn-group-sm" role="group">
+        {% for action in actions %}
+            {% include '@ZhorteinDatatable/bootstrap/_action.html.twig' with {
+                action: action
+            } only %}
+        {% endfor %}
+    </div>
+</td>

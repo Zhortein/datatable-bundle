@@ -1,0 +1,88 @@
+{% set fragments_url = options.fragmentsUrl is defined ? options.fragmentsUrl : '/_zhortein/datatable/' ~ definition.name ~ '/fragments' %}
+{% set export_url = options.exportUrl is defined ? options.exportUrl : '/_zhortein/datatable/' ~ definition.name ~ '/export/csv' %}
+{% set page_size = options.pageSize is defined ? options.pageSize : 25 %}
+{% set sort_field = options.sortField is defined ? options.sortField : '' %}
+{% set sort_direction = options.sortDirection is defined ? options.sortDirection : 'asc' %}
+{% set table_striped = options.tableStriped is defined ? options.tableStriped : true %}
+{% set table_hover = options.tableHover is defined ? options.tableHover : true %}
+{% set table_bordered = options.tableBordered is defined ? options.tableBordered : false %}
+{% set table_borderless = options.tableBorderless is defined ? options.tableBorderless : false %}
+{% set table_small = options.tableSmall is defined ? options.tableSmall : false %}
+{% set table_responsive = options.tableResponsive is defined ? options.tableResponsive : true %}
+{% set table_classes = ['table', 'align-middle', 'mb-0'] %}
+{% set auto_load = options.autoLoad is defined ? options.autoLoad : true %}
+
+{% if table_striped %}
+    {% set table_classes = table_classes|merge(['table-striped']) %}
+{% endif %}
+
+{% if table_hover %}
+    {% set table_classes = table_classes|merge(['table-hover']) %}
+{% endif %}
+
+{% if table_bordered %}
+    {% set table_classes = table_classes|merge(['table-bordered']) %}
+{% endif %}
+
+{% if table_borderless %}
+    {% set table_classes = table_classes|merge(['table-borderless']) %}
+{% endif %}
+
+{% if table_small %}
+    {% set table_classes = table_classes|merge(['table-sm']) %}
+{% endif %}
+
+<div
+    id="{{ htmlId }}"
+    class="zhortein-datatable"
+    data-controller="zhortein--datatable-bundle--datatable"
+    data-zhortein--datatable-bundle--datatable-name-value="{{ definition.name }}"
+    data-zhortein--datatable-bundle--datatable-fragments-url-value="{{ fragments_url }}"
+    data-zhortein--datatable-bundle--datatable-export-url-value="{{ export_url }}"
+    data-zhortein--datatable-bundle--datatable-page-value="1"
+    data-zhortein--datatable-bundle--datatable-page-size-value="{{ page_size }}"
+    data-zhortein--datatable-bundle--datatable-sort-field-value="{{ sort_field }}"
+    data-zhortein--datatable-bundle--datatable-sort-direction-value="{{ sort_direction }}"
+    data-zhortein--datatable-bundle--datatable-auto-load-value="{{ auto_load ? 'true' : 'false' }}"
+    aria-busy="false"
+>
+    {% include '@ZhorteinDatatable/bootstrap/_toolbar.html.twig' %}
+
+    <div
+        class="alert alert-danger d-none align-items-center gap-2"
+        role="alert"
+        aria-live="polite"
+        aria-hidden="true"
+        data-zhortein--datatable-bundle--datatable-target="error"
+        hidden
+    ></div>
+
+    <div
+            class="zhortein-datatable__loading d-none align-items-center gap-2 text-body-secondary small mb-2"
+            role="status"
+            aria-live="polite"
+            aria-hidden="true"
+            data-zhortein--datatable-bundle--datatable-target="loading"
+    >
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        <span>{{ 'zhortein_datatable.loading'|trans({}, 'zhortein_datatable') }}</span>
+    </div>
+
+    <div{% if table_responsive %} class="table-responsive"{% endif %}>
+        <table class="{{ table_classes|join(' ') }}">
+            {% include '@ZhorteinDatatable/bootstrap/_header.html.twig' %}
+
+            <tbody data-zhortein--datatable-bundle--datatable-target="body">
+                {% include '@ZhorteinDatatable/bootstrap/_empty.html.twig' %}
+            </tbody>
+        </table>
+    </div>
+
+    <div
+        class="zhortein-datatable__summary text-body-secondary small mt-2"
+        aria-live="polite"
+        data-zhortein--datatable-bundle--datatable-target="summary"
+    ></div>
+
+    {% include '@ZhorteinDatatable/bootstrap/_pagination.html.twig' %}
+</div>

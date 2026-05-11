@@ -1,0 +1,124 @@
+{% set filter_id = htmlId ~ '_filter_' ~ filter.name %}
+{% set filter_label = filter.label ?? filter.name %}
+{% set filter_placeholder = filter.placeholder ?? filter_label %}
+{% set filter_type = filter.type.value %}
+
+<div class="zhortein-datatable__filter">
+    <label class="form-label small mb-1" for="{{ filter_id }}">
+        {{ filter_label }}
+    </label>
+
+    {% if filter_type == 'choice' %}
+        <select
+            id="{{ filter_id }}"
+            name="filters[{{ filter.name }}]"
+            class="form-select form-select-sm"
+            data-zhortein--datatable-bundle--datatable-filter-control="true"
+            data-action="change->zhortein--datatable-bundle--datatable#changeFilter"
+            {% if filter.required %}
+                required
+            {% endif %}
+        >
+            <option value="">{{ filter_placeholder }}</option>
+            {% for choice_label, choice_value in filter.choices %}
+                <option value="{{ choice_value }}">{{ choice_label }}</option>
+            {% endfor %}
+        </select>
+    {% elseif filter_type == 'boolean' %}
+        <select
+            id="{{ filter_id }}"
+            name="filters[{{ filter.name }}]"
+            class="form-select form-select-sm"
+            data-zhortein--datatable-bundle--datatable-filter-control="true"
+            data-action="change->zhortein--datatable-bundle--datatable#changeFilter"
+            {% if filter.required %}
+                required
+            {% endif %}
+        >
+            <option value="">{{ filter_placeholder }}</option>
+            <option value="1">{{ 'zhortein_datatable.boolean.yes'|trans({}, 'zhortein_datatable') }}</option>
+            <option value="0">{{ 'zhortein_datatable.boolean.no'|trans({}, 'zhortein_datatable') }}</option>
+        </select>
+    {% elseif filter_type == 'date' %}
+        <input
+            id="{{ filter_id }}"
+            name="filters[{{ filter.name }}]"
+            type="date"
+            class="form-control form-control-sm"
+            placeholder="{{ filter_placeholder }}"
+            data-zhortein--datatable-bundle--datatable-filter-control="true"
+            data-action="change->zhortein--datatable-bundle--datatable#changeFilter"
+            {% if filter.required %}
+                required
+            {% endif %}
+        >
+    {% elseif filter_type == 'date_range' %}
+        <div class="d-flex gap-1">
+            <input
+                id="{{ filter_id }}_from"
+                name="filters[{{ filter.name }}][from]"
+                type="date"
+                class="form-control form-control-sm"
+                aria-label="{{ filter_label }} from"
+                data-zhortein--datatable-bundle--datatable-filter-control="true"
+                data-action="change->zhortein--datatable-bundle--datatable#changeFilter"
+            >
+            <input
+                id="{{ filter_id }}_to"
+                name="filters[{{ filter.name }}][to]"
+                type="date"
+                class="form-control form-control-sm"
+                aria-label="{{ filter_label }} to"
+                data-zhortein--datatable-bundle--datatable-filter-control="true"
+                data-action="change->zhortein--datatable-bundle--datatable#changeFilter"
+            >
+        </div>
+    {% elseif filter_type == 'number' %}
+        <input
+            id="{{ filter_id }}"
+            name="filters[{{ filter.name }}]"
+            type="number"
+            class="form-control form-control-sm"
+            placeholder="{{ filter_placeholder }}"
+            data-zhortein--datatable-bundle--datatable-filter-control="true"
+            data-action="input->zhortein--datatable-bundle--datatable#changeFilter change->zhortein--datatable-bundle--datatable#changeFilter"
+            {% if filter.required %}
+                required
+            {% endif %}
+        >
+    {% elseif filter_type == 'number_range' %}
+        <div class="d-flex gap-1">
+            <input
+                id="{{ filter_id }}_from"
+                name="filters[{{ filter.name }}][from]"
+                type="number"
+                class="form-control form-control-sm"
+                aria-label="{{ filter_label }} from"
+                data-zhortein--datatable-bundle--datatable-filter-control="true"
+                data-action="input->zhortein--datatable-bundle--datatable#changeFilter change->zhortein--datatable-bundle--datatable#changeFilter"
+            >
+            <input
+                id="{{ filter_id }}_to"
+                name="filters[{{ filter.name }}][to]"
+                type="number"
+                class="form-control form-control-sm"
+                aria-label="{{ filter_label }} to"
+                data-zhortein--datatable-bundle--datatable-filter-control="true"
+                data-action="input->zhortein--datatable-bundle--datatable#changeFilter change->zhortein--datatable-bundle--datatable#changeFilter"
+            >
+        </div>
+    {% else %}
+        <input
+            id="{{ filter_id }}"
+            name="filters[{{ filter.name }}]"
+            type="text"
+            class="form-control form-control-sm"
+            placeholder="{{ filter_placeholder }}"
+            data-zhortein--datatable-bundle--datatable-filter-control="true"
+            data-action="input->zhortein--datatable-bundle--datatable#changeFilter change->zhortein--datatable-bundle--datatable#changeFilter"
+            {% if filter.required %}
+                required
+            {% endif %}
+        >
+    {% endif %}
+</div>

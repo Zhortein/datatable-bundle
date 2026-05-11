@@ -1,0 +1,104 @@
+{% set page_size = options.pageSize is defined ? options.pageSize : 25 %}
+{% set page_size_selector_enabled = options.pageSizeSelector is defined ? options.pageSizeSelector : true %}
+{% set allowed_page_sizes = options.allowedPageSizes is defined ? options.allowedPageSizes : [10, 25, 50, 100] %}
+{% set column_visibility_enabled = options.columnVisibility is defined ? options.columnVisibility : true %}
+{% set runtime_visible_columns = options.visibleColumns is defined ? options.visibleColumns : [] %}
+{% set runtime_hidden_columns = options.hiddenColumns is defined ? options.hiddenColumns : [] %}
+{% set export_enabled = options.export is defined ? options.export : true %}
+
+<div class="zhortein-datatable__toolbar d-flex flex-wrap justify-content-between align-items-end gap-3 mb-3">
+    <div class="zhortein-datatable__search">
+        {% if options.search is defined and options.search %}
+            <label class="visually-hidden" for="{{ htmlId }}_search">
+                {{ 'zhortein_datatable.search.label'|trans({}, 'zhortein_datatable') }}
+            </label>
+            <input
+                id="{{ htmlId }}_search"
+                type="search"
+                class="form-control"
+                placeholder="{{ 'zhortein_datatable.search.placeholder'|trans({}, 'zhortein_datatable') }}"
+                aria-label="{{ 'zhortein_datatable.search.label'|trans({}, 'zhortein_datatable') }}"
+                data-zhortein--datatable-bundle--datatable-target="searchInput"
+                data-action="input->zhortein--datatable-bundle--datatable#search"
+            >
+        {% endif %}
+    </div>
+
+    <div class="zhortein-datatable__filter-area">
+        {% include '@ZhorteinDatatable/bootstrap/_filters.html.twig' with {
+            definition: definition,
+            htmlId: htmlId
+        } only %}
+
+        {% if definition.filters is not empty %}
+            <div
+                class="zhortein-datatable__active-filters text-body-secondary small mt-2"
+                data-zhortein--datatable-bundle--datatable-target="activeFilters"
+                data-active-filter-count="0"
+                hidden
+            >
+                {{ 'zhortein_datatable.filters.active'|trans({}, 'zhortein_datatable') }}
+            </div>
+
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary mt-2"
+                data-zhortein--datatable-bundle--datatable-target="clearFiltersButton"
+                data-action="zhortein--datatable-bundle--datatable#clearFilters"
+                hidden
+                disabled
+            >
+                {{ 'zhortein_datatable.filters.clear'|trans({}, 'zhortein_datatable') }}
+            </button>
+        {% endif %}
+    </div>
+
+    <div class="zhortein-datatable__controls d-flex flex-wrap align-items-center gap-2">
+        {% if column_visibility_enabled %}
+            {% include '@ZhorteinDatatable/bootstrap/_column_visibility.html.twig' with {
+                definition: definition,
+                htmlId: htmlId,
+                runtime_visible_columns: runtime_visible_columns,
+                runtime_hidden_columns: runtime_hidden_columns
+            } only %}
+        {% endif %}
+
+        {% if export_enabled %}
+            {% include '@ZhorteinDatatable/bootstrap/_export.html.twig' with {
+                definition: definition,
+                options: options
+            } only %}
+        {% endif %}
+
+        {% if page_size_selector_enabled %}
+            <label class="text-body-secondary small" for="{{ htmlId }}_page_size">
+                {{ 'zhortein_datatable.page_size.label'|trans({}, 'zhortein_datatable') }}
+            </label>
+            <select
+                id="{{ htmlId }}_page_size"
+                class="form-select form-select-sm w-auto"
+                aria-label="{{ 'zhortein_datatable.page_size.label'|trans({}, 'zhortein_datatable') }}"
+                data-zhortein--datatable-bundle--datatable-target="pageSizeInput"
+                data-action="change->zhortein--datatable-bundle--datatable#changePageSize"
+            >
+                {% for page_size_option in allowed_page_sizes %}
+                    <option value="{{ page_size_option }}"{% if page_size_option == page_size %} selected{% endif %}>
+                        {{ page_size_option }}
+                    </option>
+                {% endfor %}
+            </select>
+        {% endif %}
+    </div>
+
+    <div class="zhortein-datatable__actions" data-zhortein--datatable-bundle--datatable-target="globalActions">
+        {% if globalActions is defined and globalActions is not empty %}
+            <div class="btn-group btn-group-sm" role="group">
+                {% for action in globalActions %}
+                    {% include '@ZhorteinDatatable/bootstrap/_action.html.twig' with {
+                        action: action
+                    } only %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>

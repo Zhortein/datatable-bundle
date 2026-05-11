@@ -1,0 +1,21 @@
+{
+  "name": "@zhortein/datatable-bundle",
+  "version": "0.1.0",
+  "description": "Stimulus controller for zhortein/datatable-bundle.",
+  "type": "module",
+  "symfony": {
+    "controllers": {
+      "datatable": {
+        "main": "controllers/datatable_controller.js",
+        "fetch": "eager",
+        "enabled": true
+      }
+    }
+  },
+  "peerDependencies": {
+    "@hotwired/stimulus": "^3.0"
+  },
+  "importmap": {
+    "@hotwired/stimulus": "^3.0"
+  }
+}

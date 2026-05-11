@@ -1,0 +1,7 @@
+{% set colspan = visibleColumns|length + (hasRowActions is defined and hasRowActions ? 1 : 0) %}
+
+<tr>
+    <td colspan="{{ colspan > 0 ? colspan : 1 }}" class="text-center text-body-secondary py-4">
+        {{ 'zhortein_datatable.empty'|trans({}, 'zhortein_datatable') }}
+    </td>
+</tr>

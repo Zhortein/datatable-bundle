@@ -1,0 +1,43 @@
+{% if definition.columns is not empty %}
+    <div class="dropdown zhortein-datatable__column-visibility">
+        <button
+                class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                type="button"
+                id="{{ htmlId }}_column_visibility"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+        >
+            {{ 'zhortein_datatable.columns.visibility'|trans({}, 'zhortein_datatable') }}
+        </button>
+
+        <div
+                class="dropdown-menu p-2"
+                aria-labelledby="{{ htmlId }}_column_visibility"
+        >
+            {% for column in definition.columns|filter(column => column.visible) %}
+                {% set runtime_whitelist_enabled = runtime_visible_columns is not empty %}
+                {% set checked = column.visible and (not runtime_whitelist_enabled or column.name in runtime_visible_columns) and column.name not in runtime_hidden_columns %}
+                {% set input_id = htmlId ~ '_column_visibility_' ~ loop.index %}
+
+                <div class="form-check">
+                    <input
+                            id="{{ input_id }}"
+                            class="form-check-input"
+                            type="checkbox"
+                            name="columns[{{ column.name }}]"
+                            value="1"
+                            data-zhortein--datatable-bundle--datatable-column-visibility-control="true"
+                            data-zhortein--datatable-bundle--datatable-column-name="{{ column.name }}"
+                            data-action="change->zhortein--datatable-bundle--datatable#changeColumnVisibility"
+                            {% if checked %}
+                                checked
+                            {% endif %}
+                    >
+                    <label class="form-check-label" for="{{ input_id }}">
+                        {{ column.label ?? column.name }}
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

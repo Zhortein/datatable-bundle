@@ -1,0 +1,16 @@
+<tr>
+    {% for cell in row.cells %}
+        {% include '@ZhorteinDatatable/bootstrap/_cell.html.twig' with {
+            column: cell.column,
+            value: cell.value,
+            template: cell.template,
+            class_name: cell.className
+        } only %}
+    {% endfor %}
+
+    {% if row.actions is not empty %}
+        {% include '@ZhorteinDatatable/bootstrap/_actions.html.twig' with {
+            actions: row.actions
+        } only %}
+    {% endif %}
+</tr>

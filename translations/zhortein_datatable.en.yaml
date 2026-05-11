@@ -1,0 +1,38 @@
+zhortein_datatable:
+    search:
+        label: 'Search'
+        placeholder: 'Search'
+    page_size:
+        label: 'Rows per page'
+    filters:
+        active: 'Filters are active.'
+        clear: 'Clear filters'
+    columns:
+        visibility: 'Columns'
+    export:
+        label: 'Export'
+        csv_current: 'CSV current view'
+        csv_full: 'CSV full dataset'
+    loading: 'Loading...'
+    error:
+        generic: 'Unable to load datatable data.'
+    empty: 'No data available.'
+    actions: 'Actions'
+    sort:
+        label: 'Sort by %column%'
+        sorted_ascending: 'sorted ascending'
+        sorted_descending: 'sorted descending'
+    pagination:
+        label: 'Datatable pagination'
+        previous: 'Previous'
+        next: 'Next'
+        page: 'Go to page %page%'
+    boolean:
+        yes: 'Yes'
+        no: 'No'
+    summary:
+        empty: 'No result.'
+        single: '1 result.'
+        multiple: 'Showing %start% to %end% of %total% results.'
+        filtered_single: '1 result found, filtered from %total% total.'
+        filtered_multiple: 'Showing %start% to %end% of %filtered% results, filtered from %total% total.'

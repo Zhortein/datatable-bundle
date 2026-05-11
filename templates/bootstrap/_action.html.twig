@@ -1,0 +1,50 @@
+{% if action.httpMethod == 'GET' %}
+    <a
+        href="{{ action.url }}"
+        class="{{ action.className ?? 'btn btn-outline-secondary' }}"
+        data-turbo-prefetch="false"
+        {% if action.confirmationMessage is not null %}
+            data-zhortein--datatable-bundle--datatable-confirmation-message="{{ action.confirmationMessage }}"
+            data-action="click->zhortein--datatable-bundle--datatable#confirmAction"
+        {% endif %}
+        {% for attribute_name, attribute_value in action.attributes %}
+            {{ attribute_name }}="{{ attribute_value }}"
+        {% endfor %}
+    >
+        {% if action.icon is not null %}
+            <span class="{{ action.icon }}" aria-hidden="true"></span>
+        {% endif %}
+
+        {{ action.label ?? action.name }}
+    </a>
+{% else %}
+    <form
+        method="post"
+        action="{{ action.url }}"
+        class="d-inline"
+        {% if action.confirmationMessage is not null %}
+            data-zhortein--datatable-bundle--datatable-confirmation-message="{{ action.confirmationMessage }}"
+            data-action="submit->zhortein--datatable-bundle--datatable#confirmAction"
+        {% endif %}
+    >
+        <input type="hidden" name="_method" value="{{ action.httpMethod }}">
+
+        {% if action.csrfToken is not null %}
+            <input type="hidden" name="_token" value="{{ action.csrfToken }}">
+        {% endif %}
+
+        <button
+            type="submit"
+            class="{{ action.className ?? 'btn btn-outline-danger' }}"
+            {% for attribute_name, attribute_value in action.attributes %}
+                {{ attribute_name }}="{{ attribute_value }}"
+            {% endfor %}
+        >
+            {% if action.icon is not null %}
+                <span class="{{ action.icon }}" aria-hidden="true"></span>
+            {% endif %}
+
+            {{ action.label ?? action.name }}
+        </button>
+    </form>
+{% endif %}

@@ -1,0 +1,38 @@
+zhortein_datatable:
+    search:
+        label: 'Rechercher'
+        placeholder: 'Rechercher'
+    page_size:
+        label: 'Lignes par page'
+    filters:
+        active: 'Des filtres sont actifs.'
+        clear: 'Effacer les filtres'
+    columns:
+        visibility: 'Colonnes'
+    export:
+        label: 'Exporter'
+        csv_current: 'CSV vue courante'
+        csv_full: 'CSV complet'
+    loading: 'Chargement...'
+    error:
+        generic: 'Impossible de charger les données du tableau.'
+    empty: 'Aucune donnée disponible.'
+    actions: 'Actions'
+    sort:
+        label: 'Trier par %column%'
+        sorted_ascending: 'tri croissant'
+        sorted_descending: 'tri décroissant'
+    pagination:
+        label: 'Pagination du tableau'
+        previous: 'Précédent'
+        next: 'Suivant'
+        page: 'Aller à la page %page%'
+    boolean:
+        yes: 'Oui'
+        no: 'Non'
+    summary:
+        empty: 'Aucun résultat.'
+        single: '1 résultat.'
+        multiple: 'Affichage de %start% à %end% sur %total% résultats.'
+        filtered_single: '1 résultat trouvé, filtré sur %total% au total.'
+        filtered_multiple: 'Affichage de %start% à %end% sur %filtered% résultats, filtrés sur %total% au total.'
