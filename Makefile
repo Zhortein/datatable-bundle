@@ -1,6 +1,6 @@
 # —— 🛠️ Configuration ————————————————————————————————————————————————————————————————
 .DEFAULT_GOAL := help
-.PHONY: help build installdeps updatedeps composer csfixer cscheck phpstan test twigcs qa
+.PHONY: help build installdeps updatedeps composer csfixer cscheck phpstan test twigcs qa php
 
 TOOLS_IMAGE ?= zhortein-datatable-tools:php84
 APP_DIR := /app
@@ -56,3 +56,6 @@ twigcs: build ## Run twigcs
 
 qa: build ## Run all QA checks
 	$(DOCKER_RUN) composer qa
+
+php: build ## Run PHP command (usage: make php ARGS='script.php')
+	$(DOCKER_RUN) php $(ARGS)

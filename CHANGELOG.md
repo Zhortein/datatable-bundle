@@ -7,7 +7,6 @@ This project follows [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 _No unreleased changes have been collected yet._
-
 ## [0.1.0-alpha.1] - 2026-05-11
 
 ### Added
