@@ -244,6 +244,22 @@ Next
 Go to page 2
 ```
 
+## Sortable header indicators
+
+Sortable headers include visual indicators:
+
+```text
+↕ unsorted
+↑ ascending
+↓ descending
+```
+
+These indicators do not require an icon library.
+
+The active sorted column also exposes `aria-sort`.
+
+The indicator is decorative and hidden from assistive technologies.
+
 ## Loading state
 
 During Ajax refresh, the controller:
