@@ -1,18 +1,19 @@
 {% set resolved_row_action_display_mode = rowActionDisplayMode ?? 'inline' %}
+
 <td class="text-end">
     {% if resolved_row_action_display_mode == 'dropdown' %}
-        {{ include('@ZhorteinDatatable/bootstrap/_row_actions_dropdown.html.twig', {
+        {% include '@ZhorteinDatatable/bootstrap/_row_actions_dropdown.html.twig' with {
             actions: actions,
             htmlId: htmlId,
-            rowIndex: row_index
-        }, with_context=false) }}
+            rowIndex: rowIndex
+        } only %}
     {% elseif resolved_row_action_display_mode == 'list' %}
-        {{ include('@ZhorteinDatatable/bootstrap/_row_actions_list.html.twig', {
+        {% include '@ZhorteinDatatable/bootstrap/_row_actions_list.html.twig' with {
             actions: actions
-        }, with_context=false) }}
+        } only %}
     {% else %}
-        {{ include('@ZhorteinDatatable/bootstrap/_row_actions_inline.html.twig', {
+        {% include '@ZhorteinDatatable/bootstrap/_row_actions_inline.html.twig' with {
             actions: actions
-        }, with_context=false) }}
+        } only %}
     {% endif %}
 </td>
