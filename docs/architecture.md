@@ -1081,6 +1081,20 @@ table table-striped table-hover align-middle mb-0
 
 The responsive wrapper is enabled by default through `table-responsive`.
 
+### Sortable header visual polish
+
+Sortable headers render a clearer Bootstrap-friendly control.
+
+The current implementation uses dependency-free textual indicators:
+
+- `↕` for sortable but unsorted columns;
+- `↑` for ascending sort;
+- `↓` for descending sort.
+
+The active column still exposes `aria-sort`.
+
+The visual indicator is marked `aria-hidden="true", while the accessible state remains available through visually hidden text and ARIA attributes.
+
 ### Bootstrap rendering defaults
 
 Bootstrap table display variants can be configured globally.

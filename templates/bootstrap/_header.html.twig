@@ -5,19 +5,24 @@
     <tr>
         {% for column in visibleColumns %}
             {% set is_current_sort = column.name == current_sort_field %}
+            {% set aria_sort = null %}
+            {% if is_current_sort %}
+                {% set aria_sort = current_sort_direction == 'desc' ? 'descending' : 'ascending' %}
+            {% endif %}
+
             <th
                 {% if column.className is not null %}
                     class="{{ column.className }}"
                 {% endif %}
                 scope="col"
-                {% if is_current_sort %}
-                    aria-sort="{{ current_sort_direction == 'desc' ? 'descending' : 'ascending' }}"
+                {% if aria_sort is not null %}
+                    aria-sort="{{ aria_sort }}"
                 {% endif %}
             >
                 {% if column.sortable %}
                     <button
                         type="button"
-                        class="btn btn-link p-0 text-decoration-none{% if is_current_sort %} active{% endif %}"
+                        class="btn btn-link p-0 text-decoration-none d-inline-flex align-items-center gap-1 zhortein-datatable__sort-button{% if is_current_sort %} active{% endif %}"
                         data-action="zhortein--datatable-bundle--datatable#sort"
                         data-zhortein--datatable-bundle--datatable-field-param="{{ column.name }}"
                         data-zhortein--datatable-bundle--datatable-current-sort-param="{{ is_current_sort ? 'true' : 'false' }}"
@@ -26,7 +31,19 @@
                             '%column%': column.label ?? column.name
                         }, 'zhortein_datatable') }}"
                     >
-                        {{ column.label ?? column.name }}
+                        <span class="zhortein-datatable__sort-label">
+                            {{ column.label ?? column.name }}
+                        </span>
+
+                        <span class="zhortein-datatable__sort-indicator text-body-secondary" aria-hidden="true">
+                            {% if is_current_sort and current_sort_direction == 'desc' %}
+                                ↓
+                            {% elseif is_current_sort %}
+                                ↑
+                            {% else %}
+                                ↕
+                            {% endif %}
+                        </span>
 
                         {% if is_current_sort %}
                             <span class="visually-hidden">
@@ -42,7 +59,7 @@
 
         {% if hasRowActions %}
             <th class="text-end" scope="col">
-                {{ 'zhortein_datatable.actions.more'|trans({}, 'zhortein_datatable') }}
+                {{ 'zhortein_datatable.actions.label'|trans({}, 'zhortein_datatable') }}
             </th>
         {% endif %}
     </tr>
