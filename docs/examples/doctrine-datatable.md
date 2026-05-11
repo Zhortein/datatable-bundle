@@ -493,3 +493,21 @@ Current limitations:
 - [`../action-security.md`](../action-security.md)
 - [`../exports.md`](../exports.md)
 - [`../preferences.md`](../preferences.md)
+
+## Smoke-test validation
+
+This example has been validated in a fresh Symfony application using a Composer path repository.
+
+Validated behavior:
+
+- Doctrine entity mapping;
+- joined entity column display;
+- permanent filters;
+- user-facing filters;
+- sorting;
+- pagination;
+- Twig rendering;
+- Ajax fragments;
+- CSV export.
+
+The smoke test used SQLite locally, but the feature is provider-level Doctrine ORM behavior and is not SQLite-specific.

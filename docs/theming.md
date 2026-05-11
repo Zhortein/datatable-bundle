@@ -267,14 +267,19 @@ For most applications:
 5. Override partial templates for global layout changes.
 6. Avoid overriding `datatable.html.twig` unless truly necessary.
 
+## Bootstrap host requirements
 
-## Bootstrap requirements
+The bundle is Bootstrap-first, but Bootstrap is provided by the host application.
 
-The bundle renders Bootstrap-first markup but does not install or load Bootstrap automatically.
+The bundle does not install or load:
 
-Host applications must load Bootstrap CSS.
+- Bootstrap CSS;
+- Bootstrap JavaScript;
+- Bootstrap Icons.
 
-If dropdown-based controls are enabled, such as column visibility or export controls, host applications must also load Bootstrap JavaScript, preferably `bootstrap.bundle`.
+Host applications must load Bootstrap CSS for styling.
+
+Host applications must load Bootstrap JavaScript for dropdown controls.
 
 With AssetMapper/importmap:
 
@@ -283,12 +288,25 @@ php bin/console importmap:require bootstrap
 php bin/console importmap:require bootstrap/dist/css/bootstrap.min.css
 ```
 
-Then import Bootstrap in the application entrypoint:
+Then import Bootstrap:
+
 ```js
 // assets/app.js
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 ```
+
+This was validated during the fresh Symfony smoke test.
+
+## Dropdown-dependent controls
+
+The following controls use Bootstrap dropdown markup:
+
+- column visibility;
+- CSV export.
+
+Without Bootstrap JavaScript, these controls may render but not open.
+
 
 ## Future direction
 

@@ -392,3 +392,26 @@ Go for continuing first alpha preparation, after validating the Doctrine smoke t
 ```
 
 The array-provider smoke path is now considered validated.
+
+## Doctrine smoke test addendum
+
+The Doctrine-backed datatable smoke test was also validated in the fresh Symfony application.
+
+Validated behavior:
+
+- Doctrine entities were created in the smoke application.
+- Doctrine schema was generated successfully.
+- Smoke data was loaded.
+- Doctrine datatable service was detected through `#[AsDatatable]`.
+- Doctrine datatable rendered through `zhortein_datatable()`.
+- Joined organization column rendered.
+- Permanent filters applied.
+- User-facing filters applied.
+- Sorting worked.
+- CSV export worked.
+
+Result:
+
+```text
+Doctrine smoke path is considered validated for alpha preparation.
+```

@@ -292,3 +292,33 @@ Then import Bootstrap in the application entrypoint:
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 ```
+
+The bundle intentionally does not bundle Bootstrap itself to avoid imposing a frontend dependency on host applications.
+
+## Stimulus controller
+
+The bundle exposes its Stimulus controller as a Symfony UX-compatible package.
+
+Enable it in the host application `assets/controllers.json`:
+
+```json
+{
+  "controllers": {
+    "@zhortein/datatable-bundle": {
+      "datatable": {
+        "enabled": true,
+        "fetch": "eager"
+      }
+    }
+  },
+  "entrypoints": []
+}
+```
+
+The generated controller identifier is:
+
+```text
+zhortein--datatable-bundle--datatable
+```
+
+Do not copy the controller source manually into the host application.
