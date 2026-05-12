@@ -98,7 +98,7 @@ A datatable can flow from PHP declaration to provider data to rendered Ajax frag
 
 ## 0.4 - Doctrine ORM provider foundation ✅
 
-Doctrine ORM as the first production-oriented data provider.
+Doctrine ORM as the first production-oriented provider.
 
 Delivered:
 
@@ -455,16 +455,6 @@ Main outcome:
 The project is now structured enough to prepare a first alpha/pre-release with clear documentation, CI expectations, release workflow and known limitations.
 ```
 
-Current release readiness status:
-
-- CI strategy is documented.
-- Changelog strategy is documented.
-- GitHub release workflow is prepared.
-- Packagist readiness is documented.
-- Public API risks are documented.
-- First pre-release checklist exists.
-- Fresh Symfony application smoke test still needs to be performed before tagging.
-
 Known limitations before first alpha:
 
 - no Symfony Flex recipe yet;
@@ -478,24 +468,42 @@ Known limitations before first alpha:
 ## 0.15 - First alpha preparation ✅
 
 Delivered:
-- run a fresh Symfony 8 smoke test;
-- install the bundle through a path repository;
-- test the minimal array datatable example;
-- test the Doctrine datatable example;
-- verify route import;
-- verify translations;
-- verify Stimulus/AssetMapper manual integration;
-- verify Ajax fragments;
-- verify row/global actions;
-- verify filters;
-- verify column visibility;
-- verify CSV export;
-- record findings as issues;
-- resolve blockers;
-- prepare `CHANGELOG.md` for `v0.1.0-alpha.1`;
-- decide whether to publish to Packagist immediately or after smoke-test fixes.
 
-`v0.1.0-alpha.1` is released.
+- Fresh Symfony smoke test plan.
+- Fresh Symfony path repository smoke test.
+- Minimal array datatable smoke test.
+- Doctrine datatable smoke test.
+- Actions and security smoke test.
+- Documentation aligned with smoke test findings.
+- Alpha-blocking smoke test issues resolved.
+- Changelog prepared for `v0.1.0-alpha.1`.
+- Go/no-go decision recorded.
+- GitHub release `v0.1.0-alpha.1`.
+- Packagist publication.
+
+Main outcome:
+
+```text
+The bundle has passed its first real Symfony application smoke tests and is available as an alpha release.
+```
+
+Current alpha status:
+
+- `v0.1.0-alpha.1` is released.
+- Package is published on Packagist.
+- Array provider smoke path is validated.
+- Doctrine provider smoke path is validated.
+- Actions/security smoke path is validated.
+- Bootstrap and Stimulus host integration requirements are documented.
+
+Known limitations:
+
+- alpha-quality API;
+- no Symfony Flex recipe yet;
+- host applications must import routes manually;
+- host applications must enable the Stimulus controller manually through `assets/controllers.json`;
+- host applications must provide Bootstrap CSS/JS;
+- public API may still change before stable 1.0.
 
 ---
 
@@ -506,14 +514,14 @@ Delivered:
 - Optional action icon rendering improvements.
 - Action icon positioning.
 - Row action display modes:
-    - inline;
-    - dropdown;
-    - list.
+  - inline;
+  - dropdown;
+  - list.
 - Boolean cell display modes:
-    - badge;
-    - icon;
-    - switch;
-    - text.
+  - badge;
+  - icon;
+  - switch;
+  - text.
 - Polished sortable header rendering.
 - Configurable datatable control layout.
 - Additional root, wrapper and table CSS class options.
@@ -537,26 +545,131 @@ Current limitations:
 
 ---
 
-### 0.17 - Symfony Flex recipe decision
+# Next roadmap direction
 
-Decide whether to add a Flex recipe or document manual setup for longer.
+The next milestone should turn the column header filter design into an implementation.
 
-### 0.18 - Frontend test foundation
+## 0.17 - Column header filters UX 🚧
 
-Add JS tests for the Stimulus controller.
+Goal:
 
-### 0.19 - Advanced Doctrine capabilities
+```text
+Move user-facing filters closer to their columns through Bootstrap dropdowns in table headers.
+```
+
+Planned:
+
+- Add `filterLayout` option:
+  - `toolbar`;
+  - `header`;
+  - possibly `none`.
+- Render filter buttons in eligible column headers.
+- Render Bootstrap dropdowns containing filter controls.
+- Reuse existing `UserFilterDefinition` objects.
+- Reuse existing filter request format.
+- Reuse existing Stimulus filter refresh logic.
+- Show active filter state in column headers.
+- Add a clear filter action per column.
+- Preserve toolbar filters as default until header filter UI is validated.
+- Document column header filter usage.
+- Update smoke tests.
+
+Out of scope:
+
+- SearchBuilder-style nested expressions;
+- Select2 integration;
+- datepicker dependency;
+- custom filter widgets;
+- persisted filter presets.
+
+Main expected outcome:
+
+```text
+Dense datatables can keep the toolbar cleaner by exposing filters directly from column headers.
+```
+
+---
+
+## 0.18 - Frontend test foundation 🕒
+
+Add automated tests for the Stimulus controller.
+
+Planned:
+
+- choose frontend test tooling;
+- test controller connect/autoload;
+- test search refresh;
+- test filter refresh;
+- test column visibility refresh;
+- test export URL generation;
+- test confirmation behavior;
+- test loading/error state behavior.
+
+Main expected outcome:
+
+```text
+Stimulus behavior is covered by automated tests instead of relying only on smoke tests.
+```
+
+---
+
+## 0.19 - Symfony Flex recipe decision 🕒
+
+Decide whether to add a Symfony Flex recipe or continue documenting manual setup.
+
+Planned:
+
+- evaluate recipe requirements;
+- routes import strategy;
+- assets/controllers.json integration;
+- config file generation;
+- Bootstrap requirement documentation;
+- installation smoke test from Packagist.
+
+Main expected outcome:
+
+```text
+The installation path becomes clearer and possibly automated through Symfony Flex.
+```
+
+---
+
+## 0.20 - Advanced Doctrine capabilities 🕒
 
 Possible work:
 
 - deeper joins;
 - custom join expressions;
 - aggregate columns;
-- collection handling.
+- collection handling;
+- query applier refactoring;
+- Doctrine provider performance review.
 
-### 0.20 - XLSX export decision
+Main expected outcome:
 
-Decide whether XLSX support belongs in core, optional writer, or separate package.
+```text
+Doctrine-backed datatables can support more advanced business reporting use cases.
+```
+
+---
+
+## 0.21 - XLSX export decision 🕒
+
+Decide whether XLSX support belongs in core, as an optional writer, or as a separate package.
+
+Possible work:
+
+- evaluate OpenSpout;
+- define optional dependency strategy;
+- implement XLSX writer if accepted;
+- support large dataset streaming;
+- document limitations.
+
+Main expected outcome:
+
+```text
+The project has a clear and maintainable XLSX export strategy.
+```
 
 ---
 
@@ -575,11 +688,15 @@ Expected stable scope:
 - Pagination.
 - Row/global actions.
 - CSRF-aware non-GET actions.
+- Action visibility extension point.
 - Twig/Bootstrap rendering.
 - Stimulus Ajax refresh.
+- Column visibility.
+- Server-side CSV export.
 - Translation catalog.
 - Documentation.
 - CI and quality tooling.
+- Validated fresh Symfony integration.
 
 1.0 should not be tagged until the public API feels stable enough for real projects.
 
@@ -600,7 +717,12 @@ Potential future work:
 - richer enum badge/icon rendering;
 - accessibility audit;
 - frontend test suite;
-- Symfony Flex recipe.
+- Symfony Flex recipe;
+- Tailwind or custom theme support;
+- icon provider abstraction;
+- frontend smoke test automation.
+
+---
 
 ## Documentation maintenance
 
@@ -617,6 +739,8 @@ Key entry points:
 
 A dedicated documentation review checklist exists in [`documentation-review.md`](documentation-review.md).
 
+---
+
 ## Public API review notes
 
 A public API review exists in [`public-api-review.md`](public-api-review.md).
@@ -627,4 +751,7 @@ Before a stable 1.0 release, revisit:
 - action metadata vs HTML attributes;
 - `JoinDefinition` naming and namespace;
 - `DatatableExportResult` usefulness;
-- template context stability.
+- template context stability;
+- filter layout API;
+- action display mode API;
+- boolean display mode API.
