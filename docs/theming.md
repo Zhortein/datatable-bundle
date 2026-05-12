@@ -307,6 +307,19 @@ The following controls use Bootstrap dropdown markup:
 
 Without Bootstrap JavaScript, these controls may render but not open.
 
+## Additional CSS classes
+
+For project-specific styling, applications can append CSS classes without overriding templates.
+
+```twig
+{{ zhortein_datatable('users', {
+    rootClass: 'datatable datatable-users',
+    tableWrapperClass: 'datatable-wrapper',
+    tableClass: 'datatable-table'
+}) }}
+```
+
+The bundle keeps its default Bootstrap classes and appends the provided classes.
 
 ## Future direction
 

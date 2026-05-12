@@ -1240,6 +1240,24 @@ Example:
 }) }}
 ```
 
+### Additional rendering CSS classes
+
+Applications can append custom CSS classes to the rendered datatable structure through runtime options.
+
+Supported options:
+
+```twig
+{{ zhortein_datatable('users', {
+    rootClass: 'my-datatable',
+    tableWrapperClass: 'my-table-wrapper',
+    tableClass: 'my-table'
+}) }}
+```
+
+These options append classes and do not replace the bundle's default Bootstrap classes.
+
+This allows host applications to apply project-specific styling without overriding templates.
+
 ---
 
 ## 9. Action rendering layer
