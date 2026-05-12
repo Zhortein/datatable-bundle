@@ -40,6 +40,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 - [Cell template reference](cell-templates.md)
 - [Theming and rendering customization](theming.md)
 - [Optional icon rendering strategy](icons.md)
+- [UI/UX rendering customization](ui-ux-rendering.md)
 
 ## Actions and security
 

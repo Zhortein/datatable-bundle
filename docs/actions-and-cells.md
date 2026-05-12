@@ -645,6 +645,12 @@ $definition->setOption('rowActionDisplayMode', 'list');
 
 This can be useful for custom layouts or narrow responsive displays.
 
+## UI/UX rendering customization
+
+Action icons, row action display modes, boolean display modes and control layout options are documented in [`ui-ux-rendering.md`](ui-ux-rendering.md).
+
+This document is the recommended entry point for visual and ergonomic customization.
+
 ## Recommended usage
 
 Use the current action system for simple back-office actions:

@@ -368,6 +368,10 @@ The design keeps filtering close to the column while avoiding a crowded toolbar.
 
 This feature is not implemented yet. It is documented as an upcoming UI pattern in [`decisions/0006-column-header-filter-dropdowns.md`](decisions/0006-column-header-filter-dropdowns.md).
 
+## UI/UX rendering customization
+
+For a consolidated reference about table controls layout, sortable headers, boolean display modes and additional CSS classes, see [`ui-ux-rendering.md`](ui-ux-rendering.md).
+
 ## Related documentation
 
 - [`stimulus-assetmapper.md`](stimulus-assetmapper.md)
