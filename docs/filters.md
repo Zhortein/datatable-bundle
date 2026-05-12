@@ -546,6 +546,20 @@ Timezone-specific date handling may require future configuration.
 
 Filters on collection-valued associations are not supported yet.
 
+## Column header filter dropdowns
+
+A future filter layout will allow filters to appear directly in column headers.
+
+The design decision is documented in:
+
+```text
+docs/decisions/0006-column-header-filter-dropdowns.md
+```
+
+The chosen approach is Bootstrap dropdowns.
+
+The current toolbar filter layout remains the default until the feature is implemented and validated.
+
 ## Related documentation
 
 - [`doctrine-provider.md`](doctrine-provider.md)
