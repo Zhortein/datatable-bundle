@@ -1258,6 +1258,22 @@ These options append classes and do not replace the bundle's default Bootstrap c
 
 This allows host applications to apply project-specific styling without overriding templates.
 
+### UI/UX rendering customization
+
+UI/UX rendering customization is documented in `docs/ui-ux-rendering.md`.
+
+The documentation covers:
+
+- optional action icons;
+- action icon position;
+- row action display modes;
+- boolean cell display modes;
+- sortable header indicators;
+- configurable control layout;
+- additional root/wrapper/table CSS classes;
+- Bootstrap table variants;
+- current limitations.
+
 ### Column header filter dropdown design
 
 Column header filter UI is designed in `docs/decisions/0006-column-header-filter-dropdowns.md`.

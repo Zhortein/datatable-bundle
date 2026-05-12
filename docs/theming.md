@@ -321,6 +321,20 @@ For project-specific styling, applications can append CSS classes without overri
 
 The bundle keeps its default Bootstrap classes and appends the provided classes.
 
+## UI/UX rendering customization
+
+The UI/UX customization options are summarized in [`ui-ux-rendering.md`](ui-ux-rendering.md).
+
+It covers:
+
+- action icons;
+- action display modes;
+- boolean display modes;
+- sortable header indicators;
+- control layout;
+- additional CSS classes;
+- Bootstrap table variants.
+
 ## Future direction
 
 Potential future work:

@@ -475,26 +475,9 @@ Known limitations before first alpha:
 
 ---
 
-# Next roadmap direction
+## 0.15 - First alpha preparation ✅
 
-After milestone 0.14, the project enters a release preparation phase.
-
-## Recommended next step: first alpha preparation
-
-Before adding more features, the recommended next milestone is:
-
-```text
-0.15 - First alpha preparation
-```
-
-Goal:
-
-```text
-Validate the bundle in a fresh Symfony application and prepare the first public alpha tag.
-```
-
-Suggested work:
-
+Delivered:
 - run a fresh Symfony 8 smoke test;
 - install the bundle through a path repository;
 - test the minimal array datatable example;
@@ -512,13 +495,47 @@ Suggested work:
 - prepare `CHANGELOG.md` for `v0.1.0-alpha.1`;
 - decide whether to publish to Packagist immediately or after smoke-test fixes.
 
-## After alpha
+`v0.1.0-alpha.1` is released.
 
-After a first alpha exists, possible next feature milestones are:
+---
 
-### 0.16 - Stabilization from smoke tests
+## 0.16 - UI/UX rendering polish ✅
 
-Fix issues discovered during fresh-app integration.
+Delivered:
+
+- Optional action icon rendering improvements.
+- Action icon positioning.
+- Row action display modes:
+    - inline;
+    - dropdown;
+    - list.
+- Boolean cell display modes:
+    - badge;
+    - icon;
+    - switch;
+    - text.
+- Polished sortable header rendering.
+- Configurable datatable control layout.
+- Additional root, wrapper and table CSS class options.
+- Column header filter dropdown design decision.
+- UI/UX rendering customization documentation.
+
+Main outcome:
+
+```text
+The datatable UI is now more adaptable to real business application layouts while remaining Bootstrap-first and dependency-light.
+```
+
+Current limitations:
+
+- no icon provider abstraction;
+- no icon-only action mode;
+- no modal confirmation;
+- no Tailwind theme;
+- no column header filter implementation yet;
+- no frontend automated test suite.
+
+---
 
 ### 0.17 - Symfony Flex recipe decision
 
