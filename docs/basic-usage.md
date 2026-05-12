@@ -636,10 +636,33 @@ For a complete minimal example without Doctrine, see [`examples/array-datatable.
 
 For a complete Doctrine-backed example, see [`examples/doctrine-datatable.md`](examples/doctrine-datatable.md).
 
+---
+
+## 19. Additional CSS classes
+
+You can append custom CSS classes to the generated datatable markup:
+
+```twig
+{{ zhortein_datatable('users', {
+    rootClass: 'my-datatable',
+    tableWrapperClass: 'my-table-wrapper',
+    tableClass: 'my-table'
+}) }}
+```
+
+Available options:
+
+| Option | Target |
+|---|---|
+| `rootClass` | Root datatable container |
+| `tableWrapperClass` | Table responsive wrapper |
+| `tableClass` | `<table>` element |
+
+Classes are appended to existing Bootstrap classes.
 
 ---
 
-## 19. Current limitations
+## 20. Current limitations
 
 The bundle is still under active development.
 

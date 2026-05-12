@@ -12,6 +12,9 @@
 {% set table_small = options.tableSmall is defined ? options.tableSmall : false %}
 {% set table_responsive = options.tableResponsive is defined ? options.tableResponsive : true %}
 {% set table_classes = ['table', 'align-middle', 'mb-0'] %}
+{% set root_class = options.rootClass is defined ? options.rootClass|trim : '' %}
+{% set table_wrapper_class = options.tableWrapperClass is defined ? options.tableWrapperClass|trim : '' %}
+{% set table_class = options.tableClass is defined ? options.tableClass|trim : '' %}
 
 {% if table_striped %}
     {% set table_classes = table_classes|merge(['table-striped']) %}
@@ -33,9 +36,23 @@
     {% set table_classes = table_classes|merge(['table-sm']) %}
 {% endif %}
 
+{% if table_class is not empty %}
+    {% set table_classes = table_classes|merge([table_class]) %}
+{% endif %}
+
+{% set table_wrapper_classes = [] %}
+
+{% if table_responsive %}
+    {% set table_wrapper_classes = table_wrapper_classes|merge(['table-responsive']) %}
+{% endif %}
+
+{% if table_wrapper_class is not empty %}
+    {% set table_wrapper_classes = table_wrapper_classes|merge([table_wrapper_class]) %}
+{% endif %}
+
 <div
     id="{{ htmlId }}"
-    class="zhortein-datatable"
+    class="zhortein-datatable{% if root_class is not empty %} {{ root_class }}{% endif %}"
     data-controller="zhortein--datatable-bundle--datatable"
     data-zhortein--datatable-bundle--datatable-name-value="{{ definition.name }}"
     data-zhortein--datatable-bundle--datatable-fragments-url-value="{{ fragments_url }}"
@@ -74,7 +91,7 @@
         <span>{{ 'zhortein_datatable.loading'|trans({}, 'zhortein_datatable') }}</span>
     </div>
 
-    <div{% if table_responsive %} class="table-responsive"{% endif %}>
+    <div{% if table_wrapper_classes is not empty %} class="{{ table_wrapper_classes|join(' ') }}"{% endif %}>
         <table class="{{ table_classes|join(' ') }}">
             {% include '@ZhorteinDatatable/bootstrap/_header.html.twig' %}
 
