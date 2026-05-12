@@ -1258,6 +1258,21 @@ These options append classes and do not replace the bundle's default Bootstrap c
 
 This allows host applications to apply project-specific styling without overriding templates.
 
+### Column header filter dropdown design
+
+Column header filter UI is designed in `docs/decisions/0006-column-header-filter-dropdowns.md`.
+
+The selected approach is Bootstrap dropdowns, not Bootstrap popovers.
+
+Rationale:
+
+- dropdowns handle interactive form controls more naturally;
+- Bootstrap JS is already required for existing dropdown controls;
+- the existing filter request model and Stimulus serialization can be reused;
+- the implementation can remain dependency-light and Bootstrap-first.
+
+Header filters should be introduced as an opt-in filter layout before becoming a default.
+
 ---
 
 ## 9. Action rendering layer

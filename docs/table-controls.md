@@ -360,6 +360,14 @@ Split layout moves these controls below the table:
 
 Search, filters, export and global actions remain in the top toolbar.
 
+## Column header filter design
+
+Column header filters are planned as Bootstrap dropdowns opened from small buttons in the table header.
+
+The design keeps filtering close to the column while avoiding a crowded toolbar.
+
+This feature is not implemented yet. It is documented as an upcoming UI pattern in [`decisions/0006-column-header-filter-dropdowns.md`](decisions/0006-column-header-filter-dropdowns.md).
+
 ## Related documentation
 
 - [`stimulus-assetmapper.md`](stimulus-assetmapper.md)
