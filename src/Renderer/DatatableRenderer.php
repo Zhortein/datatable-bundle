@@ -16,6 +16,7 @@ use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ActionDisplayMode;
 use Zhortein\DatatableBundle\Enum\BooleanDisplayMode;
 use Zhortein\DatatableBundle\Enum\CellType;
+use Zhortein\DatatableBundle\Enum\FilterLayout;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
 final readonly class DatatableRenderer
@@ -49,6 +50,8 @@ final readonly class DatatableRenderer
             ],
             $options,
         );
+
+        $options['filterLayout'] = $this->resolveFilterLayout($options)->value;
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/datatable.html.twig', $this->theme), [
             'definition' => $definition,
@@ -410,5 +413,15 @@ final readonly class DatatableRenderer
         $mode = $options['booleanDisplayMode'] ?? null;
 
         return BooleanDisplayMode::fromNullableString(is_string($mode) ? $mode : null);
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function resolveFilterLayout(array $options): FilterLayout
+    {
+        $layout = $options['filterLayout'] ?? null;
+
+        return FilterLayout::fromNullableString(is_string($layout) ? $layout : null);
     }
 }

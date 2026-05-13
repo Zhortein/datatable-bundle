@@ -560,6 +560,26 @@ The chosen approach is Bootstrap dropdowns.
 
 The current toolbar filter layout remains the default until the feature is implemented and validated.
 
+## Filter layout
+
+The `filterLayout` render option controls where user-facing filters are rendered.
+
+```twig
+{{ zhortein_datatable('users', {
+    filterLayout: 'toolbar'
+}) }}
+```
+
+Supported values:
+
+| Value | Behavior |
+|---|---|
+| `toolbar` | Render filters in the toolbar. This is the default. |
+| `header` | Hide toolbar filters and render filters in column headers when header filters are enabled. |
+| `none` | Hide filter controls. Backend filter parsing remains available. |
+
+Header rendering is implemented by the column header filter dropdown feature.
+
 ## Related documentation
 
 - [`doctrine-provider.md`](doctrine-provider.md)
