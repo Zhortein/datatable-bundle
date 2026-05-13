@@ -142,3 +142,20 @@ Covered behavior:
 - clear filters resets controls, active state and refresh URL.
 
 These tests protect the interaction layer used by toolbar filters and header filter dropdown controls.
+
+### Stimulus sorting and pagination tests
+
+Frontend tests now cover sorting and pagination interactions.
+
+Covered behavior:
+
+- sorting a new field starts with ascending direction;
+- sorting the same field toggles direction;
+- sorting another field resets direction to ascending;
+- sorting resets the current page to 1;
+- invalid sort events are ignored;
+- pagination changes the current page;
+- invalid page values are ignored;
+- current sort state is preserved when navigating pages.
+
+These tests protect the datatable's core navigation and ordering behavior.
