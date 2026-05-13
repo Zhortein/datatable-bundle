@@ -36,6 +36,12 @@ jobs:
           tools: composer
           extensions: mbstring, intl, pdo_sqlite
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
       - name: Validate composer.json
         run: composer validate --strict
 
@@ -47,8 +53,14 @@ jobs:
             composer update --prefer-stable --no-interaction --no-progress
           fi
 
+      - name: Install frontend dependencies
+        run: npm ci
+
       - name: Run PHPUnit
         run: vendor/bin/phpunit
+
+      - name: Run frontend tests
+        run: npm run test:frontend
 
       - name: Run PHPStan
         run: composer phpstan

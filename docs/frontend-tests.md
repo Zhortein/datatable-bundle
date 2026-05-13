@@ -209,3 +209,36 @@ Covered behavior:
 - non-HTMLElement event targets are ignored.
 
 These tests protect the `confirmAction()` behavior used by action links and non-GET action forms.
+
+## Frontend tests in CI
+
+Frontend tests are run in GitHub Actions with Node.js and npm.
+
+The CI workflow should run:
+
+```bash
+npm ci
+npm run test:frontend
+```
+
+The test suite uses:
+
+- Vitest;
+- jsdom;
+- `@hotwired/stimulus`.
+
+`package-lock.json` must be committed so CI can use `npm ci`.
+
+Local commands:
+
+```bash
+make frontenddeps
+make frontendtest
+```
+
+or, without Docker tooling:
+
+```bash
+npm ci
+npm run test:frontend
+```
