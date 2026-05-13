@@ -2091,3 +2091,18 @@ The fresh Symfony smoke test plan is documented in [`smoke-test.md`](smoke-test.
 It validates the bundle in a clean Symfony application outside the bundle test suite.
 
 The smoke test covers installation, routing, translations, Stimulus integration, array and Doctrine datatables, actions, filters, preferences and CSV exports.
+
+### Frontend tests in CI
+
+Frontend tests are now part of the CI quality gates.
+
+The CI uses Node.js to run:
+
+```bash
+npm ci
+npm run test:frontend
+```
+
+These tests cover the Stimulus controller behavior using Vitest and jsdom.
+
+They complement the PHP test suite and the manual smoke tests.

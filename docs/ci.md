@@ -232,6 +232,30 @@ The Composer script behind it should remain the source of truth where practical:
 composer qa
 ```
 
+## Frontend tests
+
+The CI matrix runs frontend tests in addition to PHP quality gates.
+
+Frontend tests validate the vanilla Stimulus datatable controller.
+
+Expected CI steps:
+
+```yaml
+- name: Setup Node.js
+  uses: actions/setup-node@v4
+  with:
+    node-version: '22'
+    cache: 'npm'
+
+- name: Install frontend dependencies
+  run: npm ci
+
+- name: Run frontend tests
+  run: npm run test:frontend
+```
+
+The committed `package-lock.json` is required for reproducible frontend dependency installation.
+
 ## What should not be in CI permanently
 
 Avoid keeping temporary debug steps such as:
