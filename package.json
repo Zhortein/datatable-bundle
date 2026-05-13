@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:frontend": "vitest run",
+    "test:frontend:watch": "vitest"
+  },
+  "devDependencies": {
+    "@hotwired/stimulus": "^3.2.2",
+    "jsdom": "^25.0.1",
+    "vitest": "^2.1.9"
+  }
+}
