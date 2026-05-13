@@ -441,7 +441,7 @@ export default class extends Controller {
 
         this.appendExportStateParameters(url.searchParams, mode);
 
-        window.location.href = url.toString();
+        window.location.assign(url.toString());
     }
 
     appendExportStateParameters(searchParams, mode) {
