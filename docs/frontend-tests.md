@@ -193,3 +193,19 @@ Covered behavior:
 - link href fallback is supported.
 
 These tests protect the smoke-test fix that made exports reflect the current datatable state.
+
+### Stimulus action confirmation tests
+
+Frontend tests now cover action confirmation behavior.
+
+Covered behavior:
+
+- actions without confirmation metadata are ignored;
+- blank confirmation messages are ignored;
+- confirmed link actions are allowed;
+- cancelled link actions are prevented;
+- confirmed form submissions are allowed;
+- cancelled form submissions are prevented;
+- non-HTMLElement event targets are ignored.
+
+These tests protect the `confirmAction()` behavior used by action links and non-GET action forms.
