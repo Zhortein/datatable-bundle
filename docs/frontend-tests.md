@@ -92,3 +92,17 @@ It does not test:
 - real Symfony routes.
 
 Those remain covered by smoke tests for now.
+
+### Stimulus connect and auto-load tests
+
+Frontend tests now cover the initial Stimulus lifecycle.
+
+Covered behavior:
+
+- the datatable controller can connect to the rendered datatable element;
+- `autoLoad` defaults to enabled;
+- initial fragment loading is triggered on connect;
+- `autoLoad=false` prevents initial refresh;
+- a missing fragments URL displays the configured error target instead of performing a network call.
+
+These tests protect the smoke-test fix that made datatables load their first dataset automatically.

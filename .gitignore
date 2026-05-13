@@ -54,3 +54,7 @@
 .php-cs-fixer.cache
 .phpunit.result.cache
 .cache
+
+node_modules/
+npm-debug.log*
+.vitest/

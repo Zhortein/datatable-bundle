@@ -5,6 +5,7 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends \
     git unzip zip curl \
     libzip-dev libxml2-dev libonig-dev libsqlite3-dev \
+    nodejs npm \
     $PHPIZE_DEPS \
  && docker-php-ext-install -j"$(nproc)" \
     mbstring \

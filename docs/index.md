@@ -24,6 +24,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 - [Roadmap](roadmap.md)
 - [Routes](routes.md)
 - [CI matrix and dependency strategy](ci.md)
+- [Frontend test strategy](frontend-tests.md)
 
 ## Providers
 

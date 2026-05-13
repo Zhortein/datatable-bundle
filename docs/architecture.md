@@ -1333,6 +1333,24 @@ Rationale:
 
 Header filters should be introduced as an opt-in filter layout before becoming a default.
 
+### Frontend test tooling
+
+Frontend tests use Vitest with jsdom.
+
+The test suite lives under:
+
+```text
+tests/Frontend/
+```
+
+The first test validates that the bundle Stimulus controller can be registered with the UX-compatible identifier:
+
+```text
+zhortein--datatable-bundle--datatable
+```
+
+The frontend test strategy is documented in `docs/frontend-tests.md`.
+
 ---
 
 ## 9. Action rendering layer

@@ -1,6 +1,6 @@
 # —— 🛠️ Configuration ————————————————————————————————————————————————————————————————
 .DEFAULT_GOAL := help
-.PHONY: help build installdeps updatedeps composer csfixer cscheck phpstan test twigcs qa php
+.PHONY: help build installdeps updatedeps composer csfixer cscheck phpstan test twigcs qa php frontenddeps frontendtest
 
 TOOLS_IMAGE ?= zhortein-datatable-tools:php84
 APP_DIR := /app
@@ -11,11 +11,14 @@ UID := $(shell id -u)
 GID := $(shell id -g)
 USER_FLAGS := --user $(UID):$(GID)
 
+NPM_CACHE_HOST := $(PWD)/.cache/npm
+NPM_CACHE_CONT := /tmp/npm-cache
+
 COMPOSER_CACHE_HOST := $(PWD)/.cache/composer
 COMPOSER_CACHE_CONT := /tmp/composer-cache
 
-DOCKER_VOLUME := -v "$(PWD)":$(APP_DIR) -w $(APP_DIR) -v "$(COMPOSER_CACHE_HOST)":$(COMPOSER_CACHE_CONT)
-DOCKER_RUN := docker run --rm $(TTY) $(USER_FLAGS) -e COMPOSER_CACHE_DIR=$(COMPOSER_CACHE_CONT) $(DOCKER_VOLUME) $(TOOLS_IMAGE)
+DOCKER_VOLUME := -v "$(PWD)":$(APP_DIR) -w $(APP_DIR) -v "$(COMPOSER_CACHE_HOST)":$(COMPOSER_CACHE_CONT) -v "$(NPM_CACHE_HOST)":$(NPM_CACHE_CONT)
+DOCKER_RUN := docker run --rm $(TTY) $(USER_FLAGS) -e COMPOSER_CACHE_DIR=$(COMPOSER_CACHE_CONT) -e NPM_CONFIG_CACHE=$(NPM_CACHE_CONT) $(DOCKER_VOLUME) $(TOOLS_IMAGE)
 
 ## —— 🐳 Zhortein Datatable Bundle Makefile 🐳 ————————————————————————————————————————
 help: ## 📖 Show available commands
@@ -59,3 +62,10 @@ qa: build ## Run all QA checks
 
 php: build ## Run PHP command (usage: make php ARGS='script.php')
 	$(DOCKER_RUN) php $(ARGS)
+
+frontenddeps: build ## Install Composer deps
+	@mkdir -p .cache/composer .cache/npm
+	$(DOCKER_RUN) npm install
+
+frontendtest: build ## Run frontend tests
+	$(DOCKER_RUN) npm run test:frontend
