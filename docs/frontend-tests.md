@@ -106,3 +106,21 @@ Covered behavior:
 - a missing fragments URL displays the configured error target instead of performing a network call.
 
 These tests protect the smoke-test fix that made datatables load their first dataset automatically.
+
+### Stimulus Ajax fragment application tests
+
+Frontend tests now cover Ajax fragment application.
+
+Covered behavior:
+
+- header fragment replacement;
+- body fragment replacement;
+- pagination fragment replacement;
+- summary update;
+- page and page size state updates from payload;
+- invalid payload state is ignored;
+- partial payloads do not break refresh;
+- failed refreshes display the error target;
+- loading state is toggled during refresh.
+
+These tests protect the server-rendered fragment model used by the bundle.
