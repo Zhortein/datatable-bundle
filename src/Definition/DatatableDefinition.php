@@ -239,13 +239,16 @@ final class DatatableDefinition
         string $route,
         ?string $label = null,
         ?string $icon = null,
-        ActionIconPosition $iconPosition = ActionIconPosition::Before,
+        ActionIconPosition|string $iconPosition = ActionIconPosition::Before,
         string $httpMethod = 'GET',
         ?string $confirmationMessage = null,
         ?string $className = null,
         array $routeParameters = [],
         array $attributes = [],
     ): self {
+        if (is_string($iconPosition)) {
+            $iconPosition = ActionIconPosition::tryFrom($iconPosition) ?? ActionIconPosition::Before;
+        }
         $this->globalActions[$name] = new ActionDefinition(
             name: $name,
             route: $route,
