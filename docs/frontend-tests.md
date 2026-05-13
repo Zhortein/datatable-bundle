@@ -159,3 +159,19 @@ Covered behavior:
 - current sort state is preserved when navigating pages.
 
 These tests protect the datatable's core navigation and ordering behavior.
+
+### Stimulus column visibility tests
+
+Frontend tests now cover column visibility interactions.
+
+Covered behavior:
+
+- checked column controls are serialized as `visibleColumns[]`;
+- unchecked column controls are serialized as `hiddenColumns[]`;
+- definition-hidden columns are ignored;
+- missing column names are ignored;
+- column visibility changes reset the current page to 1;
+- column visibility refresh is debounced;
+- header, body and summary fragments update after refresh.
+
+These tests protect the column visibility behavior discovered during the fresh Symfony smoke test.
