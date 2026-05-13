@@ -175,3 +175,21 @@ Covered behavior:
 - header, body and summary fragments update after refresh.
 
 These tests protect the column visibility behavior discovered during the fresh Symfony smoke test.
+
+### Stimulus export URL generation tests
+
+Frontend tests now cover CSV export URL generation.
+
+Covered behavior:
+
+- current export includes page and page size;
+- full export omits pagination;
+- search state is included;
+- filter values are included;
+- sort state is included;
+- column visibility state is included;
+- definition-hidden columns are not serialized;
+- custom export URL values are respected;
+- link href fallback is supported.
+
+These tests protect the smoke-test fix that made exports reflect the current datatable state.
