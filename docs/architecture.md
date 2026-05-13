@@ -1258,6 +1258,28 @@ These options append classes and do not replace the bundle's default Bootstrap c
 
 This allows host applications to apply project-specific styling without overriding templates.
 
+### Filter layout option
+
+User-facing filters can be rendered through a layout option.
+
+Supported values:
+
+```text
+toolbar
+header
+none
+```
+
+Default behavior remains:
+
+```text
+toolbar
+```
+
+`header` hides toolbar filters and prepares rendering for column header filter dropdowns.
+
+`none` hides filter controls but does not disable backend filter request parsing.
+
 ### UI/UX rendering customization
 
 UI/UX rendering customization is documented in `docs/ui-ux-rendering.md`.

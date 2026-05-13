@@ -5,7 +5,8 @@
 {% set runtime_visible_columns = options.visibleColumns is defined ? options.visibleColumns : [] %}
 {% set runtime_hidden_columns = options.hiddenColumns is defined ? options.hiddenColumns : [] %}
 {% set export_enabled = options.export is defined ? options.export : true %}
-{% set is_split_layout = controlsLayout is defined and controlsLayout == 'split' %}
+{% set filter_layout = options.filterLayout is defined ? options.filterLayout : 'toolbar' %}
+{% set toolbar_filters_enabled = filter_layout == 'toolbar' %}
 
 <div class="zhortein-datatable__toolbar d-flex flex-wrap justify-content-between align-items-end gap-3 mb-3">
     <div class="zhortein-datatable__search">
@@ -26,36 +27,38 @@
     </div>
 
     <div class="zhortein-datatable__filter-area">
-        {% include '@ZhorteinDatatable/bootstrap/_filters.html.twig' with {
-            definition: definition,
-            htmlId: htmlId
-        } only %}
+        {% if toolbar_filters_enabled %}
+            {% include '@ZhorteinDatatable/bootstrap/_filters.html.twig' with {
+                definition: definition,
+                htmlId: htmlId
+            } only %}
 
-        {% if definition.filters is not empty %}
-            <div
-                class="zhortein-datatable__active-filters text-body-secondary small mt-2"
-                data-zhortein--datatable-bundle--datatable-target="activeFilters"
-                data-active-filter-count="0"
-                hidden
-            >
-                {{ 'zhortein_datatable.filters.active'|trans({}, 'zhortein_datatable') }}
-            </div>
+            {% if definition.filters is not empty %}
+                <div
+                    class="zhortein-datatable__active-filters text-body-secondary small mt-2"
+                    data-zhortein--datatable-bundle--datatable-target="activeFilters"
+                    data-active-filter-count="0"
+                    hidden
+                >
+                    {{ 'zhortein_datatable.filters.active'|trans({}, 'zhortein_datatable') }}
+                </div>
 
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-secondary mt-2"
-                data-zhortein--datatable-bundle--datatable-target="clearFiltersButton"
-                data-action="zhortein--datatable-bundle--datatable#clearFilters"
-                hidden
-                disabled
-            >
-                {{ 'zhortein_datatable.filters.clear'|trans({}, 'zhortein_datatable') }}
-            </button>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-outline-secondary mt-2"
+                    data-zhortein--datatable-bundle--datatable-target="clearFiltersButton"
+                    data-action="zhortein--datatable-bundle--datatable#clearFilters"
+                    hidden
+                    disabled
+                >
+                    {{ 'zhortein_datatable.filters.clear'|trans({}, 'zhortein_datatable') }}
+                </button>
+            {% endif %}
         {% endif %}
     </div>
 
     <div class="zhortein-datatable__controls d-flex flex-wrap align-items-center gap-2">
-        {% if not is_split_layout and column_visibility_enabled %}
+        {% if column_visibility_enabled %}
             {% include '@ZhorteinDatatable/bootstrap/_column_visibility.html.twig' with {
                 definition: definition,
                 htmlId: htmlId,
@@ -71,7 +74,7 @@
             } only %}
         {% endif %}
 
-        {% if not is_split_layout and page_size_selector_enabled %}
+        {% if page_size_selector_enabled %}
             <label class="text-body-secondary small" for="{{ htmlId }}_page_size">
                 {{ 'zhortein_datatable.page_size.label'|trans({}, 'zhortein_datatable') }}
             </label>
