@@ -36,10 +36,12 @@ final class DatatableRendererFilterLayoutTest extends TestCase
             'export' => false,
         ]);
 
-        self::assertStringNotContainsString('zhortein-datatable__filters', $html);
-        self::assertStringNotContainsString('name="filters[email]"', $html);
+        self::assertStringNotContainsString('zhortein-datatable__filters d-flex', $html);
         self::assertStringNotContainsString('data-zhortein--datatable-bundle--datatable-target="activeFilters"', $html);
         self::assertStringNotContainsString('data-zhortein--datatable-bundle--datatable-target="clearFiltersButton"', $html);
+
+        self::assertStringContainsString('zhortein-datatable__column-filter', $html);
+        self::assertStringContainsString('name="filters[email]"', $html);
     }
 
     public function test_none_filter_layout_hides_all_filter_controls(): void

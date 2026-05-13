@@ -1,0 +1,27 @@
+{% set filter_button_id = htmlId ~ '_column_filter_' ~ filter.name %}
+{% set filter_label = filter.label ?? column.label ?? column.name %}
+
+<div class="dropdown zhortein-datatable__column-filter">
+    <button
+        type="button"
+        class="btn btn-sm btn-link p-0 text-decoration-none zhortein-datatable__column-filter-toggle"
+        id="{{ filter_button_id }}"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+        aria-label="{{ 'zhortein_datatable.filters.column_filter'|trans({
+            '%column%': filter_label
+        }, 'zhortein_datatable') }}"
+    >
+        <span aria-hidden="true">⌕</span>
+    </button>
+
+    <div
+        class="dropdown-menu p-2 zhortein-datatable__column-filter-menu"
+        aria-labelledby="{{ filter_button_id }}"
+    >
+        {% include '@ZhorteinDatatable/bootstrap/_filter.html.twig' with {
+            filter: filter,
+            htmlId: htmlId
+        } only %}
+    </div>
+</div>

@@ -580,6 +580,42 @@ Supported values:
 
 Header rendering is implemented by the column header filter dropdown feature.
 
+## Column header filter dropdowns
+
+Header filters can be enabled with:
+
+```twig
+{{ zhortein_datatable('users', {
+    filterLayout: 'header'
+}) }}
+```
+
+When enabled, filters are matched to columns by field name.
+
+Example:
+
+```php
+$definition
+    ->addColumn('e.email', label: 'Email')
+    ->addFilter(
+        name: 'email',
+        field: 'e.email',
+        label: 'Email',
+        type: FilterType::Text,
+    )
+;
+```
+
+The `Email` column renders a filter dropdown in its header.
+
+The generated input still uses:
+
+```text
+filters[email]
+```
+
+so the existing filter request handling is reused.
+
 ## Related documentation
 
 - [`doctrine-provider.md`](doctrine-provider.md)

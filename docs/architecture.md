@@ -1280,6 +1280,28 @@ toolbar
 
 `none` hides filter controls but does not disable backend filter request parsing.
 
+### Column header filter dropdowns
+
+When `filterLayout` is set to `header`, the renderer matches filters to columns by comparing:
+
+```text
+filter.field === column.name
+```
+
+Matching columns render a Bootstrap dropdown filter control in the table header.
+
+Toolbar filters are hidden in this layout.
+
+The filter controls keep the same request names:
+
+```text
+filters[email]
+filters[enabled]
+```
+
+so the existing Stimulus serialization and backend request normalization continue to work.
+
+
 ### UI/UX rendering customization
 
 UI/UX rendering customization is documented in `docs/ui-ux-rendering.md`.

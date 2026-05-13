@@ -35,6 +35,9 @@ final class TranslationCatalogTest extends TestCase
         self::assertSame('No', $translator->trans('zhortein_datatable.boolean.no', [], 'zhortein_datatable'));
         self::assertSame('No result.', $translator->trans('zhortein_datatable.summary.empty', [], 'zhortein_datatable'));
         self::assertSame('1 result.', $translator->trans('zhortein_datatable.summary.single', [], 'zhortein_datatable'));
+        self::assertSame('Filter Email', $translator->trans('zhortein_datatable.filters.column_filter', ['%column%' => 'Email'], 'zhortein_datatable'));
+        self::assertSame('Filter active', $translator->trans('zhortein_datatable.filters.column_filter_active', [], 'zhortein_datatable'));
+        self::assertSame('Clear filter', $translator->trans('zhortein_datatable.filters.clear_column', [], 'zhortein_datatable'));
     }
 
     public function test_french_catalog_contains_builtin_messages(): void
@@ -61,6 +64,10 @@ final class TranslationCatalogTest extends TestCase
         self::assertSame('Non', $translator->trans('zhortein_datatable.boolean.no', [], 'zhortein_datatable'));
         self::assertSame('Aucun résultat.', $translator->trans('zhortein_datatable.summary.empty', [], 'zhortein_datatable'));
         self::assertSame('1 résultat.', $translator->trans('zhortein_datatable.summary.single', [], 'zhortein_datatable'));
+        self::assertSame('Rechercher', $translator->trans('zhortein_datatable.search.label', [], 'zhortein_datatable'));
+        self::assertSame('Filtrer Email', $translator->trans('zhortein_datatable.filters.column_filter', ['%column%' => 'Email'], 'zhortein_datatable'));
+        self::assertSame('Filtre actif', $translator->trans('zhortein_datatable.filters.column_filter_active', [], 'zhortein_datatable'));
+        self::assertSame('Effacer le filtre', $translator->trans('zhortein_datatable.filters.clear_column', [], 'zhortein_datatable'));
     }
 
     private function createTranslator(string $locale): Translator

@@ -7,6 +7,9 @@ zhortein_datatable:
     filters:
         active: 'Filters are active.'
         clear: 'Clear filters'
+        column_filter: 'Filter %column%'
+        column_filter_active: 'Filter active'
+        clear_column: 'Clear filter'
     columns:
         visibility: 'Columns'
     export:
@@ -18,6 +21,7 @@ zhortein_datatable:
         generic: 'Unable to load datatable data.'
     empty: 'No data available.'
     actions:
+        label: 'Actions'
         row: 'Row actions'
         more: 'Actions'
     sort:
