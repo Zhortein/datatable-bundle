@@ -124,3 +124,21 @@ Covered behavior:
 - loading state is toggled during refresh.
 
 These tests protect the server-rendered fragment model used by the bundle.
+
+### Stimulus search, filters and page size tests
+
+Frontend tests now cover user input interactions that rebuild the Ajax refresh URL.
+
+Covered behavior:
+
+- global search value serialization;
+- search debounce before refresh;
+- filter serialization through `filters[...]`;
+- empty filters are omitted;
+- unchecked checkbox/radio filters are ignored;
+- active filter UI state updates;
+- page size changes reset the current page;
+- invalid page size values are ignored;
+- clear filters resets controls, active state and refresh URL.
+
+These tests protect the interaction layer used by toolbar filters and header filter dropdown controls.
