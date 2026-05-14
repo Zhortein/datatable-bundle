@@ -38,6 +38,7 @@
     "doctrine/orm": "^3.4.4 || ^4.0",
     "friendsofphp/php-cs-fixer": "^3.95",
     "friendsoftwig/twigcs": "^6.0",
+    "openspout/openspout": "^5.0",
     "phpstan/extension-installer": "^1.4",
     "phpstan/phpstan": "^2.0",
     "phpstan/phpstan-doctrine": "^2.0",
@@ -56,6 +57,7 @@
     "doctrine/doctrine-bundle": "Required to use Doctrine ORM backed datatables in Symfony applications.",
     "symfony/asset-mapper": "Recommended to expose the provided Stimulus controller with Symfony AssetMapper.",
     "symfony/stimulus-bundle": "Recommended to integrate the provided vanilla Stimulus controller.",
+    "openspout/openspout": "Required to enable XLSX export support.",
     "ext-intl": "Recommended for locale-aware datetime formatting through IntlDateFormatter."
   },
   "autoload": {

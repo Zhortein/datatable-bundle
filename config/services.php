@@ -3,12 +3,14 @@
 declare(strict_types=1);
 
 use Doctrine\Persistence\ManagerRegistry;
+use OpenSpout\Writer\XLSX\Writer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Zhortein\DatatableBundle\Doctrine\DoctrineCountExpressionFactory;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldMetadataResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineJoinApplier;
 use Zhortein\DatatableBundle\Doctrine\DoctrinePaginationApplier;
+use Zhortein\DatatableBundle\Export\XlsxExportWriter;
 use Zhortein\DatatableBundle\Renderer\DatatableSummaryRenderer;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
@@ -103,6 +105,15 @@ return static function (ContainerConfigurator $container): void {
             'name' => CsvExportWriter::WRITER_NAME,
         ])
     ;
+
+    if (class_exists(Writer::class)) {
+        $services
+            ->set(XlsxExportWriter::class)
+            ->tag('zhortein_datatable.export_writer', [
+                'name' => XlsxExportWriter::WRITER_NAME,
+            ])
+        ;
+    }
 
     $services
         ->set(ExportWriterRegistry::class)
