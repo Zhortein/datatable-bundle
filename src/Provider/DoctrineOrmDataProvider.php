@@ -6,16 +6,14 @@ namespace Zhortein\DatatableBundle\Provider;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Zhortein\DatatableBundle\Contract\DataProviderInterface;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Definition\FilterDefinition;
-use Zhortein\DatatableBundle\Definition\JoinDefinition;
 use Zhortein\DatatableBundle\Definition\UserFilterDefinition;
-use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReference;
+use Zhortein\DatatableBundle\Doctrine\DoctrineFieldMetadataResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineJoinApplier;
 use Zhortein\DatatableBundle\Doctrine\DoctrinePaginationApplier;
@@ -35,13 +33,17 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
 
     private DoctrinePaginationApplier $paginationApplier;
 
+    private DoctrineFieldMetadataResolver $fieldMetadataResolver;
+
     public function __construct(
         private ManagerRegistry $managerRegistry,
         ?DoctrineFieldReferenceResolver $fieldReferenceResolver = null,
+        ?DoctrineFieldMetadataResolver $fieldMetadataResolver = null,
         ?DoctrineJoinApplier $joinApplier = null,
         ?DoctrinePaginationApplier $paginationApplier = null,
     ) {
         $this->fieldReferenceResolver = $fieldReferenceResolver ?? new DoctrineFieldReferenceResolver();
+        $this->fieldMetadataResolver = $fieldMetadataResolver ?? new DoctrineFieldMetadataResolver();
         $this->joinApplier = $joinApplier ?? new DoctrineJoinApplier();
         $this->paginationApplier = $paginationApplier ?? new DoctrinePaginationApplier();
     }
@@ -299,12 +301,8 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
     ): void {
         $reference = $this->fieldReferenceResolver->normalize($filter->getField(), $definition);
 
-        $alias = $reference->getAlias();
-        $fieldName = $reference->getField();
         $fieldReference = $reference->toString();
-        $metadata = $this->getMetadataForAlias($entityManager, $entityClass, $definition, $alias);
-
-        if (!$metadata->hasField($fieldName)) {
+        if (!$this->fieldMetadataResolver->hasField($entityManager, $entityClass, $definition, $reference)) {
             return;
         }
 
@@ -470,16 +468,13 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
 
             $reference = $this->fieldReferenceResolver->normalize($column->getName(), $definition);
 
-            $alias = $reference->getAlias();
-            $fieldName = $reference->getField();
             $fieldReference = $reference->toString();
-            $metadata = $this->getMetadataForAlias($entityManager, $entityClass, $definition, $alias);
-
-            if (!$metadata->hasField($fieldName)) {
-                continue;
-            }
-
-            $doctrineType = $metadata->getTypeOfField($fieldName);
+            $doctrineType = $this->fieldMetadataResolver->getTypeOfField(
+                entityManager: $entityManager,
+                mainEntityClass: $entityClass,
+                definition: $definition,
+                reference: $reference,
+            );
 
             if (null === $doctrineType) {
                 continue;
@@ -537,12 +532,8 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
 
         $reference = $this->fieldReferenceResolver->normalize($column->getName(), $definition);
 
-        $alias = $reference->getAlias();
-        $fieldName = $reference->getField();
         $fieldReference = $reference->toString();
-        $metadata = $this->getMetadataForAlias($entityManager, $entityClass, $definition, $alias);
-
-        if (!$metadata->hasField($fieldName)) {
+        if (!$this->fieldMetadataResolver->hasField($entityManager, $entityClass, $definition, $reference)) {
             return;
         }
 
@@ -575,40 +566,5 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         }
 
         return (int) $searchQuery;
-    }
-
-    /**
-     * @param class-string $mainEntityClass
-     *
-     * @return ClassMetadata<object>
-     */
-    private function getMetadataForAlias(
-        EntityManagerInterface $entityManager,
-        string $mainEntityClass,
-        DatatableDefinition $definition,
-        string $alias,
-    ): ClassMetadata {
-        if (self::MAIN_ALIAS === $alias) {
-            return $entityManager->getClassMetadata($mainEntityClass);
-        }
-
-        $join = $definition->getJoins()[$alias] ?? null;
-
-        if (!$join instanceof JoinDefinition) {
-            throw new \InvalidArgumentException(sprintf('The Doctrine alias "%s" is not declared.', $alias));
-        }
-
-        $mainMetadata = $entityManager->getClassMetadata($mainEntityClass);
-        $associationReference = DoctrineFieldReference::fromString($join->getJoin());
-        $associationName = $associationReference->getField();
-
-        if (!$mainMetadata->hasAssociation($associationName)) {
-            throw new \InvalidArgumentException(sprintf('The Doctrine association "%s" does not exist on "%s".', $associationName, $mainEntityClass));
-        }
-
-        /** @var class-string $targetClass */
-        $targetClass = $mainMetadata->getAssociationTargetClass($associationName);
-
-        return $entityManager->getClassMetadata($targetClass);
     }
 }
