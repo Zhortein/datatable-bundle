@@ -2106,3 +2106,25 @@ npm run test:frontend
 These tests cover the Stimulus controller behavior using Vitest and jsdom.
 
 They complement the PHP test suite and the manual smoke tests.
+
+### Frontend test strategy
+
+The frontend layer is covered by Vitest tests running in jsdom.
+
+The tests instantiate the real Stimulus application and register the bundle controller with its UX-compatible identifier:
+
+```text
+zhortein--datatable-bundle--datatable
+```
+
+The test suite focuses on controller behavior:
+
+- connection and auto-load;
+- Ajax fragment application;
+- search, filters and page size;
+- sorting and pagination;
+- column visibility;
+- export URL generation;
+- action confirmation.
+
+This complements PHP tests and smoke tests while keeping the frontend independent from jQuery, DataTables.net and browser-specific tooling.

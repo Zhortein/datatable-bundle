@@ -256,6 +256,30 @@ Expected CI steps:
 
 The committed `package-lock.json` is required for reproducible frontend dependency installation.
 
+## Frontend tests
+
+The CI runs frontend tests in addition to PHP quality gates.
+
+Frontend tests validate the vanilla Stimulus datatable controller.
+
+The workflow runs:
+
+```bash
+npm ci
+npm run test:frontend
+```
+
+`package-lock.json` must be committed because CI uses `npm ci`.
+
+Local equivalent:
+
+```bash
+make frontenddeps
+make frontendtest
+```
+
+The frontend test strategy is documented in [`frontend-tests.md`](frontend-tests.md).
+
 ## What should not be in CI permanently
 
 Avoid keeping temporary debug steps such as:

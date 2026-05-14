@@ -632,7 +632,7 @@ Current limitations:
 
 # Current installation stance
 
-Symfony Flex recipe support is **not planned for now**.
+Symfony Flex recipe support is **postponed for now**.
 
 Reason:
 
