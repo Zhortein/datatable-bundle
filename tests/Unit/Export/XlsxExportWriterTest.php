@@ -135,7 +135,13 @@ final class XlsxExportWriterTest extends TestCase
             }
 
             foreach ($sheet->getRowIterator() as $row) {
-                $rows[] = array_values($row->toArray());
+                $rowValues = [];
+
+                foreach ($row->toArray() as $cellValue) {
+                    $rowValues[] = $cellValue;
+                }
+
+                $rows[] = $rowValues;
             }
 
             $firstSheetRead = true;
