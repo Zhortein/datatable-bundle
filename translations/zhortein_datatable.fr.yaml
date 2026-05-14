@@ -16,6 +16,8 @@ zhortein_datatable:
         label: 'Exporter'
         csv_current: 'CSV vue courante'
         csv_full: 'CSV complet'
+        xlsx_current: 'XLSX vue courante'
+        xlsx_full: 'XLSX complet'
     loading: 'Chargement...'
     error:
         generic: 'Impossible de charger les données du tableau.'

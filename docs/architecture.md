@@ -2310,3 +2310,19 @@ The XLSX writer is implemented separately and remains optional according to the 
 ```text
 docs/decisions/0007-xlsx-export-strategy.md
 ```
+
+### Conditional XLSX export controls
+
+The export dropdown renders formats from the runtime `exportFormats` option.
+
+CSV remains the default format.
+
+XLSX controls are rendered only when `xlsx` is included:
+
+```twig
+{{ zhortein_datatable('users', {
+    exportFormats: ['csv', 'xlsx']
+}) }}
+```
+
+Each export link carries its own format-specific URL so the Stimulus controller can generate the correct export URL while preserving the current datatable state.
