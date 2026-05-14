@@ -358,6 +358,20 @@ Potential blockers to review:
 - no Flex recipe yet;
 - no fresh-app smoke test yet.
 
+## Optional XLSX dependency
+
+The package supports XLSX export when OpenSpout is installed.
+
+Packagist metadata should mention OpenSpout as an optional suggestion:
+
+```json
+"suggest": {
+  "openspout/openspout": "Required to enable XLSX export support."
+}
+```
+
+CSV export remains available without this dependency.
+
 ## First pre-release checklist
 
 Before submitting the package to Packagist, review [`release-checklist.md`](release-checklist.md).

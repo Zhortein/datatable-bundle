@@ -446,6 +446,25 @@ Custom URLs can be provided per format:
 
 The XLSX controls should be enabled only when an XLSX writer is registered.
 
+## XLSX export
+
+XLSX export is documented in [`xlsx-export.md`](xlsx-export.md).
+
+Summary:
+
+- CSV remains the default dependency-free format.
+- XLSX support requires the optional OpenSpout dependency.
+- XLSX uses the same `current` and `full` modes as CSV.
+- XLSX controls are rendered only when `xlsx` is included in `exportFormats`.
+
+Example:
+
+```twig
+{{ zhortein_datatable('users', {
+    exportFormats: ['csv', 'xlsx']
+}) }}
+```
+
 ## Related documentation
 
 - [`architecture.md`](architecture.md)

@@ -322,3 +322,23 @@ zhortein--datatable-bundle--datatable
 ```
 
 Do not copy the controller source manually into the host application.
+
+## Optional XLSX export dependency
+
+CSV export works without additional dependencies.
+
+To enable XLSX export support, install OpenSpout in the host application:
+
+```bash
+composer require openspout/openspout
+```
+
+Then enable XLSX controls when rendering a datatable:
+
+```twig
+{{ zhortein_datatable('users', {
+    exportFormats: ['csv', 'xlsx']
+}) }}
+```
+
+See [`xlsx-export.md`](xlsx-export.md) for details and limitations.

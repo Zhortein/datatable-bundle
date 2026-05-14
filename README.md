@@ -123,6 +123,7 @@ With runtime options:
 - [Action security and visibility](docs/action-security.md)
 - [Changelog strategy](docs/changelog.md)
 - [Public API review](docs/public-api-review.md)
+- [XLSX export](docs/xlsx-export.md)
 
 ## Architecture decisions
 
@@ -131,6 +132,8 @@ With runtime options:
 - [0003 - Bootstrap rendering strategy](docs/decisions/0003-bootstrap-rendering-strategy.md)
 - [0004 - Vanilla Stimulus interaction model](docs/decisions/0004-vanilla-stimulus-interaction-model.md)
 - [0005 - Doctrine ORM provider architecture](docs/decisions/0005-doctrine-orm-provider-architecture.md)
+- [0006 - Column header filter dropdowns](docs/decisions/0006-column-header-filter-dropdowns.md)
+- [0007 - XLSX export strategy](docs/decisions/0007-xlsx-export-strategy.md)
 
 ## Development
 
