@@ -2284,3 +2284,17 @@ Delivered areas:
 The public `DataProviderInterface` remains unchanged.
 
 The Doctrine provider remains production-oriented but intentionally explicit: joins, filters, aggregate columns and custom joins are declared backend-side.
+
+### XLSX export strategy
+
+XLSX export is planned as an optional writer in the existing server-side export pipeline.
+
+The accepted strategy is:
+
+```text
+core export pipeline + optional OpenSpout-based XLSX writer
+```
+
+This keeps CSV dependency-free while allowing host applications to enable spreadsheet exports when needed.
+
+The decision is recorded in [`decisions/0007-xlsx-export-strategy.md`](decisions/0007-xlsx-export-strategy.md).

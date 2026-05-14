@@ -367,6 +367,20 @@ For large datasets:
 
 Doctrine-specific export performance guidance is available in [`doctrine-performance.md`](doctrine-performance.md).
 
+## XLSX export strategy
+
+XLSX export is accepted as an optional core writer.
+
+The strategy is documented in [`decisions/0007-xlsx-export-strategy.md`](decisions/0007-xlsx-export-strategy.md).
+
+Summary:
+
+- CSV remains the dependency-free default export format.
+- XLSX support is based on an optional OpenSpout writer.
+- The bundle must not require OpenSpout for CSV-only applications.
+- XLSX controls must render only when the writer is available/enabled.
+- Full XLSX export remains synchronous for now and should be used with realistic dataset sizes.
+
 ## Related documentation
 
 - [`architecture.md`](architecture.md)
