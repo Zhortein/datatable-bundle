@@ -29,6 +29,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 ## Providers
 
 - [Doctrine-backed datatables](doctrine-provider.md)
+- [Doctrine provider performance guidance](doctrine-performance.md)
 - [User-facing filters](filters.md)
 - [Server-side exports](exports.md)
 

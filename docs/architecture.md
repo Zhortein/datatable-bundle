@@ -2231,3 +2231,19 @@ $definition
 Aggregate columns are explicit backend declarations.
 
 The first foundation supports display-oriented aggregate values and groups by selected non-aggregate columns.
+
+### Doctrine provider performance guidance
+
+Doctrine provider performance guidance is documented in [`doctrine-performance.md`](doctrine-performance.md).
+
+The documentation covers:
+
+- page size guidance;
+- search and filter indexing;
+- sortable field indexing;
+- joins and chained joins;
+- custom joins;
+- count/distinct strategy;
+- aggregate columns;
+- full export performance;
+- current limitations.

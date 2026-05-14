@@ -354,6 +354,19 @@ It is not an unfiltered raw database export.
 
 This behavior was confirmed during the fresh Symfony smoke test.
 
+## Export performance
+
+Full CSV exports disable pagination but keep the current search, filters, sort and column visibility state.
+
+For large datasets:
+
+- prefer applying filters before exporting;
+- keep export columns minimal;
+- avoid synchronous very large exports where possible;
+- consider future async export strategies.
+
+Doctrine-specific export performance guidance is available in [`doctrine-performance.md`](doctrine-performance.md).
+
 ## Related documentation
 
 - [`architecture.md`](architecture.md)
