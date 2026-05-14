@@ -474,6 +474,29 @@ zhortein_datatable:
     max_page_size: 0
 ```
 
+## XLSX export configuration
+
+XLSX export is enabled at rendering level through `exportFormats`.
+
+```twig
+{{ zhortein_datatable('users', {
+    exportFormats: ['csv', 'xlsx']
+}) }}
+```
+
+Custom export URLs can be provided per format:
+
+```twig
+{{ zhortein_datatable('users', {
+    exportUrls: {
+        csv: path('custom_users_csv_export'),
+        xlsx: path('custom_users_xlsx_export')
+    }
+}) }}
+```
+
+The XLSX writer requires the optional OpenSpout dependency.
+
 ## Current limitations
 
 The configuration surface is intentionally small.

@@ -2326,3 +2326,11 @@ XLSX controls are rendered only when `xlsx` is included:
 ```
 
 Each export link carries its own format-specific URL so the Stimulus controller can generate the correct export URL while preserving the current datatable state.
+
+### XLSX export usage
+
+XLSX export is documented in `docs/xlsx-export.md`.
+
+It uses the same server-side export pipeline as CSV, but depends on an optional OpenSpout-based writer.
+
+The first implementation is synchronous and data-focused. Styling, formulas, multi-sheet workbooks and async exports are out of scope.

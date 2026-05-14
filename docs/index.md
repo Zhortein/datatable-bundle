@@ -52,6 +52,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 ## Preferences and customization
 
 - [Column visibility and preferences](preferences.md)
+- [XLSX export](xlsx-export.md)
 
 ## Release and maintenance
 
@@ -83,6 +84,8 @@ Current decisions:
 - [0003 - Bootstrap rendering strategy](decisions/0003-bootstrap-rendering-strategy.md)
 - [0004 - Vanilla Stimulus interaction model](decisions/0004-vanilla-stimulus-interaction-model.md)
 - [0005 - Doctrine ORM provider architecture](decisions/0005-doctrine-orm-provider-architecture.md)
+- [0006 - Column header filter dropdowns](decisions/0006-column-header-filter-dropdowns.md)
+- [0007 - XLSX export strategy](decisions/0007-xlsx-export-strategy.md)
 
 ## Current status
 
