@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Zhortein\DatatableBundle\Contract\DataProviderInterface;
+use Zhortein\DatatableBundle\Definition\AggregateColumnDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Definition\FilterDefinition;
@@ -126,7 +127,18 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         $this->joinApplier->apply($queryBuilder, $definition);
         $this->bindCustomJoinParameters($queryBuilder, $definition);
 
+        $aggregateColumns = $definition->getAggregateColumns();
+        $hasAggregateColumns = [] !== $aggregateColumns;
+        $groupByFields = [];
+
         foreach ($columns as $column) {
+            $aggregateColumn = $aggregateColumns[$column->getName()] ?? null;
+
+            if ($aggregateColumn instanceof AggregateColumnDefinition) {
+                $queryBuilder->addSelect($this->createAggregateSelect($definition, $aggregateColumn));
+                continue;
+            }
+
             $fieldReference = $this->fieldReferenceResolver->normalize($column->getName(), $definition);
 
             $queryBuilder->addSelect(sprintf(
@@ -134,6 +146,10 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
                 $fieldReference->toString(),
                 $fieldReference->toResultAlias(),
             ));
+
+            if ($hasAggregateColumns) {
+                $groupByFields[] = $fieldReference->toString();
+            }
         }
 
         if ([] === $columns) {
@@ -144,6 +160,10 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         $this->applyUserFilters($queryBuilder, $entityManager, $entityClass, $definition, $request);
         $this->applySearch($queryBuilder, $entityManager, $entityClass, $definition, $request);
         $this->applySorting($queryBuilder, $entityManager, $entityClass, $definition, $request);
+
+        foreach (array_values(array_unique($groupByFields)) as $groupByField) {
+            $queryBuilder->addGroupBy($groupByField);
+        }
 
         /** @var list<array<string, mixed>> $rows */
         $rows = $queryBuilder->getQuery()->getArrayResult();
@@ -161,7 +181,7 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         ?DatatableRequest $request = null,
     ): int {
         $queryBuilder = $entityManager->createQueryBuilder()
-            ->select(sprintf('COUNT(%s)', self::MAIN_ALIAS))
+            ->select($this->createCountExpression($definition))
             ->from($entityClass, self::MAIN_ALIAS)
         ;
 
@@ -586,5 +606,32 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
 
             $queryBuilder->setParameter($name, $value);
         }
+    }
+
+    private function createAggregateSelect(
+        DatatableDefinition $definition,
+        AggregateColumnDefinition $aggregateColumn,
+    ): string {
+        $fieldReference = $this->fieldReferenceResolver
+            ->normalize($aggregateColumn->getField(), $definition)
+            ->toString();
+
+        $expression = sprintf(
+            '%s(%s%s)',
+            $aggregateColumn->getFunction()->getDqlFunction(),
+            $aggregateColumn->isDistinct() ? 'DISTINCT ' : '',
+            $fieldReference,
+        );
+
+        return sprintf('%s AS %s', $expression, $aggregateColumn->getName());
+    }
+
+    private function createCountExpression(DatatableDefinition $definition): string
+    {
+        if ([] !== $definition->getAggregateColumns() || [] !== $definition->getCustomJoins()) {
+            return sprintf('COUNT(DISTINCT %s.id)', self::MAIN_ALIAS);
+        }
+
+        return sprintf('COUNT(%s)', self::MAIN_ALIAS);
     }
 }

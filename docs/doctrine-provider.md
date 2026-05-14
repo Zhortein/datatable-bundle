@@ -362,6 +362,45 @@ Current limitations:
 - frontend-provided joins are not supported;
 - arbitrary user DQL is never accepted.
 
+## Aggregate columns
+
+Doctrine aggregate columns can be declared explicitly.
+
+Supported aggregate functions:
+
+```text
+count
+sum
+min
+max
+avg
+```
+
+Example:
+
+```php
+use Zhortein\DatatableBundle\Enum\AggregateFunction;
+
+$definition
+    ->addColumn('e.email', label: 'Email')
+    ->addAggregateColumn(
+        name: 'auditCount',
+        field: 'audit.id',
+        function: AggregateFunction::Count,
+        label: 'Audit count',
+    )
+;
+```
+
+Rules and limitations:
+
+- aggregate columns are backend-defined only;
+- aggregate column names become result aliases;
+- non-aggregate selected fields are grouped automatically;
+- aggregate columns are display-oriented in the first implementation;
+- advanced sorting/filtering on aggregate expressions is not guaranteed yet;
+- complex database-specific aggregate expressions are not supported yet.
+
 ## Permanent filters on joined fields
 
 Permanent filters can target fields from explicitly declared joins.
