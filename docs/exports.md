@@ -465,6 +465,19 @@ Example:
 }) }}
 ```
 
+## XLSX export performance
+
+XLSX export memory and performance constraints are documented in [`xlsx-export-performance.md`](xlsx-export-performance.md).
+
+Important notes:
+
+- XLSX export is synchronous for now.
+- Full export disables pagination and can become expensive.
+- The current provider contract returns a `DatatableResult`, so rows are loaded before the writer writes the file.
+- Very large XLSX exports should be handled by future async/streaming export support.
+- Host applications should be conservative when exposing full XLSX export on large datasets.
+
+
 ## Related documentation
 
 - [`architecture.md`](architecture.md)
