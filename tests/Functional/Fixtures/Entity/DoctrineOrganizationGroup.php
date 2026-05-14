@@ -7,7 +7,7 @@ namespace Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-final class DoctrineOrganizationGroup
+class DoctrineOrganizationGroup
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
