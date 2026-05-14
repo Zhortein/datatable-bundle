@@ -38,6 +38,7 @@ final readonly class CsvExportWriter implements ExportWriterInterface
     {
         return match ($format) {
             ExportFormat::Csv => true,
+            default => false,
         };
     }
 

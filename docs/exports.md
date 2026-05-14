@@ -381,6 +381,31 @@ Summary:
 - XLSX controls must render only when the writer is available/enabled.
 - Full XLSX export remains synchronous for now and should be used with realistic dataset sizes.
 
+## XLSX export format
+
+The export format model supports XLSX as a known format.
+
+```php
+ExportFormat::Xlsx
+```
+
+Metadata:
+
+```text
+extension: xlsx
+content type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+```
+
+The route accepts:
+
+```text
+/_zhortein/datatable/{name}/export/xlsx
+```
+
+Important:
+
+The format is known at API/routing level, but the XLSX writer is implemented separately. Until an XLSX writer is registered, requesting XLSX will fail with the normal missing writer behavior.
+
 ## Related documentation
 
 - [`architecture.md`](architecture.md)

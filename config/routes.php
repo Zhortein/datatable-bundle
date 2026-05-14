@@ -20,7 +20,7 @@ return static function (RoutingConfigurator $routes): void {
             'format' => 'csv',
         ])
         ->requirements([
-            'format' => 'csv',
+            'format' => 'csv|xlsx',
         ])
     ;
 };
