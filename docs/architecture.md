@@ -2158,3 +2158,22 @@ It also provides helpers to check whether a field exists and to read a Doctrine 
 
 This keeps metadata resolution out of `DoctrineOrmDataProvider` and prepares more advanced Doctrine capabilities.
 
+### Explicitly chained Doctrine joins
+
+Doctrine-backed datatables support explicitly declared chained joins.
+
+Example:
+
+```php
+$definition
+    ->addJoin('organization', 'e.organization', JoinType::Left)
+    ->addJoin('group', 'organization.group', JoinType::Left)
+    ->addColumn('group.name', label: 'Group')
+;
+```
+
+The provider does not auto-discover deep joins.
+
+Every alias in the chain must be declared explicitly.
+
+This keeps query generation predictable and avoids hidden traversal rules.

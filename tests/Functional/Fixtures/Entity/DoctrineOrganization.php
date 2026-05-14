@@ -21,12 +21,17 @@ class DoctrineOrganization
     #[ORM\Column(type: 'boolean')]
     private bool $enabled;
 
+    #[ORM\ManyToOne(targetEntity: DoctrineOrganizationGroup::class)]
+    private ?DoctrineOrganizationGroup $group = null;
+
     public function __construct(
         string $name,
         bool $enabled = true,
+        ?DoctrineOrganizationGroup $group = null,
     ) {
         $this->name = $name;
         $this->enabled = $enabled;
+        $this->group = $group;
     }
 
     public function getId(): ?int
@@ -42,5 +47,10 @@ class DoctrineOrganization
     public function isEnabled(): bool
     {
         return $this->enabled;
+    }
+
+    public function getGroup(): ?DoctrineOrganizationGroup
+    {
+        return $this->group;
     }
 }
