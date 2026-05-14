@@ -2334,3 +2334,11 @@ XLSX export is documented in `docs/xlsx-export.md`.
 It uses the same server-side export pipeline as CSV, but depends on an optional OpenSpout-based writer.
 
 The first implementation is synchronous and data-focused. Styling, formulas, multi-sheet workbooks and async exports are out of scope.
+
+### XLSX memory and performance constraints
+
+XLSX export performance constraints are documented in `docs/xlsx-export-performance.md`.
+
+The current export pipeline still loads rows into a `DatatableResult` before the writer starts writing.
+
+This means OpenSpout helps with writing efficiency, but large XLSX exports still need a future streaming provider or async export architecture.

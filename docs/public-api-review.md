@@ -895,6 +895,19 @@ The API is coherent enough for an alpha release after:
 - changelog is ready;
 - no known debug CI remains.
 
+### XLSX export performance public API note
+
+Before stable 1.0, revisit whether the export API needs:
+
+- size limits;
+- export mode configuration;
+- streaming provider contracts;
+- async export contracts;
+- file storage abstraction;
+- export job status objects.
+
+The current XLSX writer should be treated as suitable for normal filtered business exports, not huge raw data dumps.
+
 ## Follow-up issues to consider
 
 Potential future issues:

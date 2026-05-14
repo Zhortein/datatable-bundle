@@ -251,6 +251,16 @@ For large datasets:
 - keep selected columns minimal;
 - consider disabling full export if needed;
 - consider future async exports for large volumes.
+- 
+## Memory and performance
+
+The current XLSX writer is synchronous.
+
+It is appropriate for small and medium filtered exports.
+
+It should not be presented as a solution for very large exports yet.
+
+See [`xlsx-export-performance.md`](xlsx-export-performance.md) for detailed constraints and future directions.
 
 ## Related documentation
 
