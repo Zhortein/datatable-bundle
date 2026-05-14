@@ -406,6 +406,46 @@ Important:
 
 The format is known at API/routing level, but the XLSX writer is implemented separately. Until an XLSX writer is registered, requesting XLSX will fail with the normal missing writer behavior.
 
+## XLSX export controls
+
+The export dropdown can render XLSX controls when the format is enabled.
+
+By default, only CSV controls are rendered.
+
+```twig
+{{ zhortein_datatable('users') }}
+```
+
+To render CSV and XLSX controls:
+
+```twig
+{{ zhortein_datatable('users', {
+    exportFormats: ['csv', 'xlsx']
+}) }}
+```
+
+To render only XLSX controls:
+
+```twig
+{{ zhortein_datatable('users', {
+    exportFormats: ['xlsx']
+}) }}
+```
+
+Custom URLs can be provided per format:
+
+```twig
+{{ zhortein_datatable('users', {
+    exportFormats: ['csv', 'xlsx'],
+    exportUrls: {
+        csv: path('custom_csv_export'),
+        xlsx: path('custom_xlsx_export')
+    }
+}) }}
+```
+
+The XLSX controls should be enabled only when an XLSX writer is registered.
+
 ## Related documentation
 
 - [`architecture.md`](architecture.md)

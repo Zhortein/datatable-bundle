@@ -431,9 +431,10 @@ export default class extends Controller {
         }
 
         const mode = event.params.mode || 'current';
-        const exportUrl = this.hasExportUrlValue && this.exportUrlValue !== ''
-            ? this.exportUrlValue
-            : target.href;
+        const exportUrl = event.params.url
+            || (this.hasExportUrlValue && this.exportUrlValue !== ''
+                ? this.exportUrlValue
+                : target.href);
 
         const url = new URL(exportUrl, window.location.origin);
 
