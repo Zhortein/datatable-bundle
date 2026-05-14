@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Zhortein\DatatableBundle\Doctrine\DoctrineCountExpressionFactory;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldMetadataResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineJoinApplier;
@@ -65,6 +66,7 @@ return static function (ContainerConfigurator $container): void {
     if (interface_exists(ManagerRegistry::class)) {
         $services->set(DoctrineFieldTypeGuesser::class);
 
+        $services->set(DoctrineCountExpressionFactory::class);
         $services->set(DoctrineDatatableDefinitionEnricher::class);
         $services->set(DoctrineFieldReferenceResolver::class);
         $services->set(DoctrineJoinApplier::class);

@@ -2231,3 +2231,21 @@ $definition
 Aggregate columns are explicit backend declarations.
 
 The first foundation supports display-oriented aggregate values and groups by selected non-aggregate columns.
+
+### Doctrine count and distinct strategy
+
+Doctrine count expression generation is isolated in `DoctrineCountExpressionFactory`.
+
+The provider uses a plain count when the query shape cannot duplicate main rows:
+
+```text
+COUNT(e)
+```
+
+It switches to a distinct identifier count when the datatable definition contains custom joins or aggregate columns:
+
+```text
+COUNT(DISTINCT e.id)
+```
+
+This avoids inflated total and filtered counts when custom joins or aggregates introduce duplicate rows for the main entity.

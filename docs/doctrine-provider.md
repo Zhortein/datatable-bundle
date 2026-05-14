@@ -401,6 +401,30 @@ Rules and limitations:
 - advanced sorting/filtering on aggregate expressions is not guaranteed yet;
 - complex database-specific aggregate expressions are not supported yet.
 
+## Count and distinct strategy
+
+The Doctrine provider uses different count expressions depending on the query shape.
+
+For simple entity datatables and simple to-one joins, it uses:
+
+```text
+COUNT(e)
+```
+
+For datatables with custom joins or aggregate columns, it uses:
+
+```text
+COUNT(DISTINCT e.id)
+```
+
+This prevents duplicate joined rows from inflating datatable counts.
+
+Current limitations:
+
+- composite identifiers fall back to `COUNT(DISTINCT e)`;
+- collection joins remain unsupported unless explicitly documented;
+- large joined datasets may require database-specific tuning and indexes.
+
 ## Permanent filters on joined fields
 
 Permanent filters can target fields from explicitly declared joins.
