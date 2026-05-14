@@ -325,6 +325,43 @@ Supported behavior:
 - searching chained join fields;
 - using chained join fields in declared filters when compatible with the field type.
 
+## Safe custom joins
+
+Custom joins allow a Doctrine datatable to join an entity without a mapped Doctrine association.
+
+They are backend-only declarations.
+
+Example:
+
+```php
+$definition
+    ->addCustomJoin(
+        alias: 'audit',
+        targetEntityClass: AuditLog::class,
+        condition: 'audit.objectId = e.id AND audit.className = :audit_class_name',
+        type: JoinType::Left,
+    )
+    ->setOption('customJoinParameters', [
+        'audit_class_name' => User::class,
+    ])
+    ->addColumn('audit.eventName', label: 'Audit event')
+;
+```
+
+Rules:
+
+- the alias must be valid;
+- reserved DQL aliases are rejected;
+- the target entity class must exist;
+- the condition must reference aliased fields;
+- values must be bound through backend-defined parameters.
+
+Current limitations:
+
+- custom joins are backend-only;
+- frontend-provided joins are not supported;
+- arbitrary user DQL is never accepted.
+
 ## Permanent filters on joined fields
 
 Permanent filters can target fields from explicitly declared joins.

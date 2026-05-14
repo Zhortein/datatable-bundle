@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Tests\Unit\Doctrine;
 
 use PHPUnit\Framework\TestCase;
+use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReference;
+use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
 
 final class DoctrineFieldReferenceTest extends TestCase
 {
@@ -49,5 +51,21 @@ final class DoctrineFieldReferenceTest extends TestCase
         $this->expectExceptionMessage('The Doctrine field reference field cannot be empty.');
 
         new DoctrineFieldReference('e', '');
+    }
+
+    public function test_it_accepts_declared_custom_join_alias(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition->addCustomJoin(
+            alias: 'audit',
+            targetEntityClass: \stdClass::class,
+            condition: 'audit.objectId = e.id',
+        );
+
+        $reference = new DoctrineFieldReferenceResolver()->normalize('audit.eventName', $definition);
+
+        self::assertSame('audit', $reference->getAlias());
+        self::assertSame('eventName', $reference->getField());
+        self::assertSame('audit.eventName', $reference->toString());
     }
 }

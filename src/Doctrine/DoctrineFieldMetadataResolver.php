@@ -6,6 +6,7 @@ namespace Zhortein\DatatableBundle\Doctrine;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Zhortein\DatatableBundle\Definition\CustomJoinDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Definition\JoinDefinition;
 use Zhortein\DatatableBundle\Provider\DoctrineOrmDataProvider;
@@ -51,6 +52,12 @@ final readonly class DoctrineFieldMetadataResolver
 
         if (in_array($alias, $resolvingAliases, true)) {
             throw new \InvalidArgumentException(sprintf('Circular Doctrine join alias reference detected for alias "%s".', $alias));
+        }
+
+        $customJoin = $definition->getCustomJoins()[$alias] ?? null;
+
+        if ($customJoin instanceof CustomJoinDefinition) {
+            return $entityManager->getClassMetadata($customJoin->getTargetEntityClass());
         }
 
         $join = $definition->getJoins()[$alias] ?? null;

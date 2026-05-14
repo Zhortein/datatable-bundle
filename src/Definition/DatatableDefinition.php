@@ -53,6 +53,11 @@ final class DatatableDefinition
      */
     private array $options = [];
 
+    /**
+     * @var array<string, CustomJoinDefinition>
+     */
+    private array $customJoins = [];
+
     public function __construct(
         private readonly string $name,
     ) {
@@ -320,5 +325,27 @@ final class DatatableDefinition
     public function getOptions(): array
     {
         return $this->options;
+    }
+
+    /**
+     * @param class-string $targetEntityClass
+     */
+    public function addCustomJoin(
+        string $alias,
+        string $targetEntityClass,
+        string $condition,
+        JoinType $type = JoinType::Left,
+    ): self {
+        $this->customJoins[$alias] = new CustomJoinDefinition($alias, $targetEntityClass, $condition, $type);
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, CustomJoinDefinition>
+     */
+    public function getCustomJoins(): array
+    {
+        return $this->customJoins;
     }
 }

@@ -21,6 +21,10 @@ final readonly class DoctrineFieldReferenceResolver
             return $reference;
         }
 
+        if (array_key_exists($reference->getAlias(), $definition->getCustomJoins())) {
+            return $reference;
+        }
+
         if (array_key_exists($reference->getAlias(), $definition->getJoins())) {
             return $reference;
         }

@@ -2177,3 +2177,27 @@ The provider does not auto-discover deep joins.
 Every alias in the chain must be declared explicitly.
 
 This keeps query generation predictable and avoids hidden traversal rules.
+
+### Safe custom Doctrine joins
+
+Doctrine-backed datatables can declare backend-only custom joins.
+
+Custom joins are intended for cases where entities can be related through an explicit condition but no Doctrine association exists.
+
+Example:
+
+```php
+$definition
+    ->addCustomJoin(
+        alias: 'audit',
+        targetEntityClass: AuditLog::class,
+        condition: 'audit.objectId = e.id AND audit.className = :audit_class_name',
+        type: JoinType::Left,
+    )
+    ->setOption('customJoinParameters', [
+        'audit_class_name' => User::class,
+    ])
+;
+```
+
+Custom join aliases are strictly validated and reserved DQL aliases such as `group` or `order` are rejected.

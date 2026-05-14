@@ -124,6 +124,7 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         $this->paginationApplier->apply($queryBuilder, $request);
 
         $this->joinApplier->apply($queryBuilder, $definition);
+        $this->bindCustomJoinParameters($queryBuilder, $definition);
 
         foreach ($columns as $column) {
             $fieldReference = $this->fieldReferenceResolver->normalize($column->getName(), $definition);
@@ -165,6 +166,8 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         ;
 
         $this->joinApplier->apply($queryBuilder, $definition);
+        $this->bindCustomJoinParameters($queryBuilder, $definition);
+
         $this->applyPermanentFilters($queryBuilder, $definition);
 
         if (null !== $request) {
@@ -566,5 +569,22 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         }
 
         return (int) $searchQuery;
+    }
+
+    private function bindCustomJoinParameters(QueryBuilder $queryBuilder, DatatableDefinition $definition): void
+    {
+        $parameters = $definition->getOption('customJoinParameters', []);
+
+        if (!is_array($parameters)) {
+            return;
+        }
+
+        foreach ($parameters as $name => $value) {
+            if (!is_string($name) || '' === trim($name)) {
+                continue;
+            }
+
+            $queryBuilder->setParameter($name, $value);
+        }
     }
 }
