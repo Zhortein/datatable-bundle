@@ -36,10 +36,7 @@ final readonly class CsvExportWriter implements ExportWriterInterface
 
     public function supports(ExportFormat $format): bool
     {
-        return match ($format) {
-            ExportFormat::Csv => true,
-            default => false,
-        };
+        return ExportFormat::Csv === $format;
     }
 
     public function write(
@@ -64,7 +61,7 @@ final readonly class CsvExportWriter implements ExportWriterInterface
         DatatableDefinition $definition,
         DatatableResult $result,
     ): string {
-        $handle = fopen('php://temp', 'r+');
+        $handle = fopen('php://temp', 'rb+');
 
         if (false === $handle) {
             throw new \RuntimeException('Unable to open temporary CSV stream.');
