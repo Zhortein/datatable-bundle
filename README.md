@@ -106,6 +106,7 @@ With runtime options:
 - [Roadmap](docs/roadmap.md)
 - [First end-to-end flow](docs/end-to-end-flow.md)
 - [Doctrine-backed datatables](docs/doctrine-provider.md)
+- [Doctrine provider performance guidance](docs/doctrine-performance.md)
 - [Actions and typed cell rendering](docs/actions-and-cells.md)
 - [Routes](docs/routes.md)
 - [Stimulus and AssetMapper integration](docs/stimulus-assetmapper.md)

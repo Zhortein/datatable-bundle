@@ -791,6 +791,19 @@ Custom non-mapped joins are not implemented yet.
 
 Aggregated joined values such as counts, sums or string aggregations are not implemented yet.
 
+## Performance guidance
+
+Performance guidance for Doctrine-backed datatables is available in [`doctrine-performance.md`](doctrine-performance.md).
+
+Important recommendations:
+
+- keep page sizes reasonable;
+- index frequently filtered and sorted fields;
+- keep joins explicit and minimal;
+- avoid large synchronous full exports;
+- test counts when joins or aggregates are involved;
+- do not mark unnecessary columns as searchable.
+
 ## Related documentation
 
 - [`architecture.md`](architecture.md)
