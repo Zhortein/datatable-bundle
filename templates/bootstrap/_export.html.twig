@@ -20,6 +20,8 @@
                 <a
                     class="dropdown-item"
                     href="{{ format_export_url }}?mode=current"
+                    data-turbo-prefetch="false"
+                    data-turbo="false"
                     data-action="zhortein--datatable-bundle--datatable#export"
                     data-zhortein--datatable-bundle--datatable-export-mode-param="current"
                     data-zhortein--datatable-bundle--datatable-export-format-param="{{ export_format }}"
@@ -31,6 +33,8 @@
                 <a
                     class="dropdown-item"
                     href="{{ format_export_url }}?mode=full"
+                    data-turbo-prefetch="false"
+                    data-turbo="false"
                     data-action="zhortein--datatable-bundle--datatable#export"
                     data-zhortein--datatable-bundle--datatable-export-mode-param="full"
                     data-zhortein--datatable-bundle--datatable-export-format-param="{{ export_format }}"
