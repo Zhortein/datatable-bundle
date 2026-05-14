@@ -59,15 +59,19 @@ final readonly class DatatableExportRequest
 
     public function getFilename(): string
     {
-        if (null !== $this->filename) {
-            return $this->filename;
+        $extension = $this->format->getExtension();
+
+        $filename = null === $this->filename || '' === trim($this->filename)
+            ? $this->datatableName
+            : $this->filename;
+
+        $filename = $this->sanitizeFilename($filename);
+
+        if (str_ends_with(strtolower($filename), sprintf('.%s', $extension))) {
+            return $filename;
         }
 
-        return sprintf(
-            '%s.%s',
-            $this->sanitizeFilename($this->datatableName),
-            $this->format->getFileExtension(),
-        );
+        return sprintf('%s.%s', $filename, $extension);
     }
 
     public function getDatatableRequest(): ?DatatableRequest
@@ -93,6 +97,7 @@ final readonly class DatatableExportRequest
 
     private function sanitizeFilename(string $filename): string
     {
+        $filename = trim($filename);
         $filename = preg_replace('/[^a-zA-Z0-9._-]+/', '-', $filename) ?? $filename;
         $filename = trim($filename, '-_.');
 

@@ -2298,3 +2298,15 @@ core export pipeline + optional OpenSpout-based XLSX writer
 This keeps CSV dependency-free while allowing host applications to enable spreadsheet exports when needed.
 
 The decision is recorded in [`decisions/0007-xlsx-export-strategy.md`](decisions/0007-xlsx-export-strategy.md).
+
+### XLSX export format support
+
+The export format enum now includes `xlsx`.
+
+This is a format-level foundation only.
+
+The XLSX writer is implemented separately and remains optional according to the XLSX export strategy decision stored in:
+
+```text
+docs/decisions/0007-xlsx-export-strategy.md
+```
