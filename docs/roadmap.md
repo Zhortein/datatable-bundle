@@ -654,49 +654,78 @@ This decision can be revisited later if external users repeatedly struggle with 
 
 ---
 
+## 0.19 - Advanced Doctrine capabilities ✅
+
+Delivered:
+
+- Doctrine provider query-building responsibility extraction.
+- `DoctrineFieldReference`.
+- `DoctrineFieldReferenceResolver`.
+- `DoctrineFieldMetadataResolver`.
+- `DoctrineJoinApplier`.
+- `DoctrinePaginationApplier`.
+- `DoctrineCountExpressionFactory`.
+- Explicit chained Doctrine joins.
+- Safe backend-defined custom Doctrine joins.
+- Reserved DQL alias validation for joins.
+- Custom join parameters.
+- Aggregate column foundation.
+- Count/distinct strategy review and tests.
+- Doctrine provider performance guidance.
+- Advanced Doctrine capabilities documentation.
+
+Main outcome:
+
+```text
+Doctrine-backed datatables now support more advanced backend-defined query shapes while keeping joins, filters and aggregates explicit and testable.
+```
+
+Current capabilities:
+
+- main alias `e`;
+- explicit to-one joins;
+- explicitly chained joins;
+- safe custom joins;
+- scalar fields from joined aliases;
+- permanent filters on main and joined fields;
+- user-facing filters on main and joined fields;
+- search on main and joined fields;
+- sorting on main and joined fields;
+- aggregate columns foundation;
+- count strategy aware of custom joins and aggregate columns.
+
+Current limitations:
+
+- no automatic deep association traversal;
+- no collection-valued association support;
+- no ManyToMany aggregation support;
+- no frontend-defined joins;
+- aggregate columns are display-oriented and intentionally limited;
+- async/streaming exports are not implemented yet;
+- database-specific optimization remains the host application's responsibility.
+
+---
+
 # Next roadmap direction
 
 The next milestone should focus on backend/provider capabilities or export evolution rather than Symfony Flex.
 
-## 0.19 - Advanced Doctrine capabilities 🚧
+## 0.20 - XLSX export decision 🚧
 
 Goal:
 
 ```text
-Improve Doctrine-backed datatables for richer business reporting and data traversal use cases.
-```
-
-Possible work:
-
-- deeper explicit joins;
-- custom join expressions;
-- aggregate columns;
-- collection handling;
-- count/distinct strategy review;
-- query applier refactoring;
-- provider performance review;
-- better separation of search/filter/sort appliers;
-- documentation for advanced Doctrine use cases.
-
-Main expected outcome:
-
-```text
-Doctrine-backed datatables can support more advanced business reporting use cases.
-```
-
----
-
-## 0.20 - XLSX export decision 🕒
-
 Decide whether XLSX support belongs in core, as an optional writer, or as a separate package.
+```
 
 Possible work:
 
 - evaluate OpenSpout;
-- define optional dependency strategy;
-- implement XLSX writer if accepted;
-- support large dataset streaming;
-- document limitations.
+- decide optional dependency strategy;
+- define XLSX writer contract expectations;
+- assess memory and streaming behavior;
+- test large dataset export constraints;
+- document limitations and installation requirements.
 
 Main expected outcome:
 

@@ -31,6 +31,30 @@ Not implemented yet:
 - export support;
 - Doctrine-specific performance tuning.
 
+## Advanced Doctrine capabilities
+
+The Doctrine provider now supports a richer set of backend-defined query capabilities.
+
+Current advanced capabilities:
+
+- explicit joins;
+- explicitly chained joins;
+- safe backend-defined custom joins;
+- aggregate columns foundation;
+- count/distinct strategy for custom joins and aggregate columns;
+- metadata resolution for main, joined and custom aliases.
+
+Important limitations remain:
+
+- no automatic deep association traversal;
+- no collection-valued association support;
+- no ManyToMany aggregation support;
+- no frontend-defined joins;
+- aggregate columns are still intentionally limited;
+- database-specific performance tuning remains the host application's responsibility.
+
+Performance guidance is documented in [`doctrine-performance.md`](doctrine-performance.md).
+
 ## Requirements
 
 Doctrine-backed datatables require Doctrine ORM and DoctrineBundle in the host application.
