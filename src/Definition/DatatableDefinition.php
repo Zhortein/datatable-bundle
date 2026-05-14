@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Definition;
 
 use Zhortein\DatatableBundle\Enum\ActionIconPosition;
+use Zhortein\DatatableBundle\Enum\AggregateFunction;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Enum\JoinType;
@@ -57,6 +58,11 @@ final class DatatableDefinition
      * @var array<string, CustomJoinDefinition>
      */
     private array $customJoins = [];
+
+    /**
+     * @var array<string, AggregateColumnDefinition>
+     */
+    private array $aggregateColumns = [];
 
     public function __construct(
         private readonly string $name,
@@ -347,5 +353,43 @@ final class DatatableDefinition
     public function getCustomJoins(): array
     {
         return $this->customJoins;
+    }
+
+    public function addAggregateColumn(
+        string $name,
+        string $field,
+        AggregateFunction $function = AggregateFunction::Count,
+        ?string $label = null,
+        bool $visible = true,
+        ?string $className = null,
+        bool $distinct = false,
+    ): self {
+        $this->columns[$name] = new ColumnDefinition(
+            name: $name,
+            label: $label,
+            visible: $visible,
+            sortable: false,
+            searchable: false,
+            className: $className,
+            template: null,
+            type: 'numeric',
+        );
+
+        $this->aggregateColumns[$name] = new AggregateColumnDefinition(
+            name: $name,
+            field: $field,
+            function: $function,
+            distinct: $distinct,
+        );
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, AggregateColumnDefinition>
+     */
+    public function getAggregateColumns(): array
+    {
+        return $this->aggregateColumns;
     }
 }

@@ -2201,3 +2201,33 @@ $definition
 ```
 
 Custom join aliases are strictly validated and reserved DQL aliases such as `group` or `order` are rejected.
+
+### Doctrine aggregate columns foundation
+
+Doctrine-backed datatables can declare explicit aggregate columns.
+
+Example:
+
+```php
+$definition
+    ->addCustomJoin(
+        alias: 'audit',
+        targetEntityClass: AuditLog::class,
+        condition: 'audit.objectId = e.id AND audit.className = :audit_class_name',
+    )
+    ->setOption('customJoinParameters', [
+        'audit_class_name' => User::class,
+    ])
+    ->addColumn('e.email', label: 'Email')
+    ->addAggregateColumn(
+        name: 'auditCount',
+        field: 'audit.id',
+        function: AggregateFunction::Count,
+        label: 'Audit count',
+    )
+;
+```
+
+Aggregate columns are explicit backend declarations.
+
+The first foundation supports display-oriented aggregate values and groups by selected non-aggregate columns.
