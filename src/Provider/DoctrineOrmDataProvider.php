@@ -14,6 +14,7 @@ use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Definition\FilterDefinition;
 use Zhortein\DatatableBundle\Definition\UserFilterDefinition;
+use Zhortein\DatatableBundle\Doctrine\DoctrineCountExpressionFactory;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldMetadataResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineJoinApplier;
@@ -36,17 +37,21 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
 
     private DoctrineFieldMetadataResolver $fieldMetadataResolver;
 
+    private DoctrineCountExpressionFactory $countExpressionFactory;
+
     public function __construct(
         private ManagerRegistry $managerRegistry,
         ?DoctrineFieldReferenceResolver $fieldReferenceResolver = null,
         ?DoctrineFieldMetadataResolver $fieldMetadataResolver = null,
         ?DoctrineJoinApplier $joinApplier = null,
         ?DoctrinePaginationApplier $paginationApplier = null,
+        ?DoctrineCountExpressionFactory $countExpressionFactory = null,
     ) {
         $this->fieldReferenceResolver = $fieldReferenceResolver ?? new DoctrineFieldReferenceResolver();
         $this->fieldMetadataResolver = $fieldMetadataResolver ?? new DoctrineFieldMetadataResolver();
         $this->joinApplier = $joinApplier ?? new DoctrineJoinApplier();
         $this->paginationApplier = $paginationApplier ?? new DoctrinePaginationApplier();
+        $this->countExpressionFactory = $countExpressionFactory ?? new DoctrineCountExpressionFactory();
     }
 
     public function supports(DatatableDefinition $definition): bool
@@ -180,8 +185,10 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         DatatableDefinition $definition,
         ?DatatableRequest $request = null,
     ): int {
+        $metadata = $entityManager->getClassMetadata($entityClass);
+
         $queryBuilder = $entityManager->createQueryBuilder()
-            ->select($this->createCountExpression($definition))
+            ->select($this->countExpressionFactory->create($definition, $metadata))
             ->from($entityClass, self::MAIN_ALIAS)
         ;
 
@@ -624,14 +631,5 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         );
 
         return sprintf('%s AS %s', $expression, $aggregateColumn->getName());
-    }
-
-    private function createCountExpression(DatatableDefinition $definition): string
-    {
-        if ([] !== $definition->getAggregateColumns() || [] !== $definition->getCustomJoins()) {
-            return sprintf('COUNT(DISTINCT %s.id)', self::MAIN_ALIAS);
-        }
-
-        return sprintf('COUNT(%s)', self::MAIN_ALIAS);
     }
 }
