@@ -209,6 +209,20 @@ Covered behavior:
 - cancelled form submissions are prevented;
 - non-HTMLElement event targets are ignored.
 
+### Stimulus XLSX export URL generation tests
+
+Frontend tests now cover XLSX export URL generation.
+
+Covered behavior:
+
+- XLSX current export uses the XLSX endpoint and keeps pagination;
+- XLSX full export uses the XLSX endpoint and omits pagination;
+- search, filters, sorting and column visibility are preserved;
+- link-specific export URL params override the root CSV export URL;
+- link href fallback still works when no export URL value is configured.
+
+These tests protect conditional multi-format export controls.
+
 ---
 
 ## Testing conventions
