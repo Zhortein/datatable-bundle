@@ -573,6 +573,17 @@ Potential future:
 
 - make enrichment explicit in data pipeline if automatic behavior grows.
 
+## Advanced Doctrine public API note
+
+After milestone 0.19, advanced Doctrine features remain intentionally backend-defined.
+
+Before stable 1.0, revisit:
+
+- whether `JoinDefinition` and `CustomJoinDefinition` should stay in the generic `Definition` namespace;
+- whether aggregate columns need a dedicated builder API;
+- whether custom join parameters should remain an option bag or become a typed definition field;
+- whether count strategy should become externally configurable.
+
 ## Rendering services
 
 ### DatatableRenderer

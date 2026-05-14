@@ -2265,3 +2265,22 @@ COUNT(DISTINCT e.id)
 ```
 
 This avoids inflated total and filtered counts when custom joins or aggregates introduce duplicate rows for the main entity.
+
+### Advanced Doctrine capabilities
+
+Milestone 0.19 expanded and clarified the Doctrine provider architecture.
+
+Delivered areas:
+
+- query-building responsibility extraction;
+- field reference normalization;
+- alias metadata resolution;
+- explicitly chained joins;
+- safe custom joins;
+- aggregate column foundation;
+- count/distinct strategy review;
+- Doctrine performance guidance.
+
+The public `DataProviderInterface` remains unchanged.
+
+The Doctrine provider remains production-oriented but intentionally explicit: joins, filters, aggregate columns and custom joins are declared backend-side.
