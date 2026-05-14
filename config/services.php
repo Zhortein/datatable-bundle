@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Zhortein\DatatableBundle\Doctrine\DoctrineFieldMetadataResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineJoinApplier;
 use Zhortein\DatatableBundle\Doctrine\DoctrinePaginationApplier;
@@ -68,6 +69,7 @@ return static function (ContainerConfigurator $container): void {
         $services->set(DoctrineFieldReferenceResolver::class);
         $services->set(DoctrineJoinApplier::class);
         $services->set(DoctrinePaginationApplier::class);
+        $services->set(DoctrineFieldMetadataResolver::class);
 
         $services
             ->set(DoctrineOrmDataProvider::class)

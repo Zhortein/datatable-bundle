@@ -2128,3 +2128,33 @@ The test suite focuses on controller behavior:
 - action confirmation.
 
 This complements PHP tests and smoke tests while keeping the frontend independent from jQuery, DataTables.net and browser-specific tooling.
+
+### Doctrine provider query-building refactor
+
+Doctrine query-building responsibilities are progressively extracted from `DoctrineOrmDataProvider`.
+
+Initial internal collaborators:
+
+- `DoctrineFieldReference`;
+- `DoctrineFieldReferenceResolver`;
+- `DoctrineJoinApplier`;
+- `DoctrinePaginationApplier`.
+
+The public `DataProviderInterface` remains unchanged.
+
+This refactor prepares advanced Doctrine capabilities while preserving existing behavior.
+
+
+### Doctrine field metadata resolver
+
+Doctrine alias metadata resolution is isolated in `DoctrineFieldMetadataResolver`.
+
+It resolves metadata for:
+
+- the main Doctrine alias `e`;
+- explicitly declared join aliases.
+
+It also provides helpers to check whether a field exists and to read a Doctrine field type from a normalized `DoctrineFieldReference`.
+
+This keeps metadata resolution out of `DoctrineOrmDataProvider` and prepares more advanced Doctrine capabilities.
+
