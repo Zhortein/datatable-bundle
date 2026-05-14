@@ -12,6 +12,7 @@ The project follows an incremental strategy: each milestone must keep the bundle
 - 🚧 In progress / next
 - 🕒 Planned
 - 🔭 Later
+- ⏸️ Postponed / not planned for now
 
 ---
 
@@ -545,105 +546,137 @@ Current limitations:
 
 ---
 
-# Next roadmap direction
+## 0.17 - Column header filters UX ✅
 
-The next milestone should turn the column header filter design into an implementation.
+Delivered:
 
-## 0.17 - Column header filters UX 🚧
-
-Goal:
-
-```text
-Move user-facing filters closer to their columns through Bootstrap dropdowns in table headers.
-```
-
-Planned:
-
-- Add `filterLayout` option:
+- `filterLayout` option:
   - `toolbar`;
   - `header`;
-  - possibly `none`.
-- Render filter buttons in eligible column headers.
-- Render Bootstrap dropdowns containing filter controls.
-- Reuse existing `UserFilterDefinition` objects.
-- Reuse existing filter request format.
-- Reuse existing Stimulus filter refresh logic.
-- Show active filter state in column headers.
-- Add a clear filter action per column.
-- Preserve toolbar filters as default until header filter UI is validated.
-- Document column header filter usage.
-- Update smoke tests.
+  - `none`.
+- Column header filter dropdown rendering.
+- Matching filters to columns by `filter.field === column.name`.
+- Header filter controls reusing the existing `filters[...]` request format.
+- Toolbar filter hiding when header filters are enabled.
+- Header filter documentation and architecture notes.
 
-Out of scope:
-
-- SearchBuilder-style nested expressions;
-- Select2 integration;
-- datepicker dependency;
-- custom filter widgets;
-- persisted filter presets.
-
-Main expected outcome:
+Main outcome:
 
 ```text
 Dense datatables can keep the toolbar cleaner by exposing filters directly from column headers.
 ```
 
+Current limitations:
+
+- no active header filter state yet;
+- no clear-per-column filter action yet;
+- no SearchBuilder-style nested expressions;
+- no Select2 integration;
+- no datepicker dependency;
+- no custom filter widgets;
+- no persisted filter presets.
+
 ---
 
-## 0.18 - Frontend test foundation 🕒
+## 0.18 - Frontend test foundation ✅
 
-Add automated tests for the Stimulus controller.
+Delivered:
 
-Planned:
+- Vitest frontend test tooling.
+- jsdom test environment.
+- Stimulus controller registration test.
+- Frontend test setup file.
+- Local frontend test commands.
+- GitHub Actions frontend test execution.
+- Frontend test strategy documentation.
+- Stimulus connect and auto-load tests.
+- Ajax fragment application tests.
+- Search, filters and page size interaction tests.
+- Sorting and pagination interaction tests.
+- Column visibility interaction tests.
+- Export URL generation tests.
+- Action confirmation behavior tests.
 
-- choose frontend test tooling;
-- test controller connect/autoload;
-- test search refresh;
-- test filter refresh;
-- test column visibility refresh;
-- test export URL generation;
-- test confirmation behavior;
-- test loading/error state behavior.
-
-Main expected outcome:
+Main outcome:
 
 ```text
-Stimulus behavior is covered by automated tests instead of relying only on smoke tests.
+The vanilla Stimulus controller now has automated frontend coverage for its core interactive behavior.
 ```
+
+Current frontend test coverage:
+
+- controller registration;
+- initial connection;
+- auto-load;
+- Ajax refresh;
+- fragment application;
+- loading and error state;
+- search;
+- filters;
+- page size;
+- sorting;
+- pagination;
+- column visibility;
+- CSV export URL generation;
+- confirmation handling.
+
+Current limitations:
+
+- no browser E2E test suite;
+- no CSS/layout assertions;
+- no Bootstrap dropdown internals testing;
+- no real download assertions;
+- no accessibility audit automation yet.
 
 ---
 
-## 0.19 - Symfony Flex recipe decision 🕒
+# Current installation stance
 
-Decide whether to add a Symfony Flex recipe or continue documenting manual setup.
+Symfony Flex recipe support is **not planned for now**.
 
-Planned:
+Reason:
 
-- evaluate recipe requirements;
-- routes import strategy;
-- assets/controllers.json integration;
-- config file generation;
-- Bootstrap requirement documentation;
-- installation smoke test from Packagist.
+- The bundle works without a recipe.
+- Manual setup is explicit and documented.
+- A private recipe server would require each consuming project to reference it.
+- Publishing a recipe in Symfony contrib would require community review and acceptance.
+- The current target user can integrate the bundle reliably through documentation.
 
-Main expected outcome:
+Current installation model:
+
+- Composer package from Packagist.
+- Manual bundle registration if needed.
+- Manual route import.
+- Manual `assets/controllers.json` controller activation if needed.
+- Host application provides Bootstrap CSS/JS.
+
+This decision can be revisited later if external users repeatedly struggle with installation.
+
+---
+
+# Next roadmap direction
+
+The next milestone should focus on backend/provider capabilities or export evolution rather than Symfony Flex.
+
+## 0.19 - Advanced Doctrine capabilities 🚧
+
+Goal:
 
 ```text
-The installation path becomes clearer and possibly automated through Symfony Flex.
+Improve Doctrine-backed datatables for richer business reporting and data traversal use cases.
 ```
-
----
-
-## 0.20 - Advanced Doctrine capabilities 🕒
 
 Possible work:
 
-- deeper joins;
+- deeper explicit joins;
 - custom join expressions;
 - aggregate columns;
 - collection handling;
+- count/distinct strategy review;
 - query applier refactoring;
-- Doctrine provider performance review.
+- provider performance review;
+- better separation of search/filter/sort appliers;
+- documentation for advanced Doctrine use cases.
 
 Main expected outcome:
 
@@ -653,7 +686,7 @@ Doctrine-backed datatables can support more advanced business reporting use case
 
 ---
 
-## 0.21 - XLSX export decision 🕒
+## 0.20 - XLSX export decision 🕒
 
 Decide whether XLSX support belongs in core, as an optional writer, or as a separate package.
 
@@ -669,6 +702,26 @@ Main expected outcome:
 
 ```text
 The project has a clear and maintainable XLSX export strategy.
+```
+
+---
+
+## 0.21 - Frontend E2E and accessibility evaluation 🕒
+
+Possible work:
+
+- decide whether Playwright or another browser-level tool is needed;
+- test Bootstrap dropdown behavior in a real browser;
+- test keyboard navigation;
+- test column header filters UX in browser;
+- test CSV export link behavior;
+- add accessibility smoke checks;
+- document results.
+
+Main expected outcome:
+
+```text
+The most interactive UI behavior is validated beyond jsdom unit tests.
 ```
 
 ---
@@ -717,7 +770,7 @@ Potential future work:
 - richer enum badge/icon rendering;
 - accessibility audit;
 - frontend test suite;
-- Symfony Flex recipe;
+- Symfony Flex recipe if external demand justifies it;
 - Tailwind or custom theme support;
 - icon provider abstraction;
 - frontend smoke test automation.
@@ -754,4 +807,5 @@ Before a stable 1.0 release, revisit:
 - template context stability;
 - filter layout API;
 - action display mode API;
-- boolean display mode API.
+- boolean display mode API;
+- Doctrine provider internal decomposition.
