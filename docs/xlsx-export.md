@@ -251,7 +251,7 @@ For large datasets:
 - keep selected columns minimal;
 - consider disabling full export if needed;
 - consider future async exports for large volumes.
-- 
+
 ## Memory and performance
 
 The current XLSX writer is synchronous.
@@ -261,6 +261,20 @@ It is appropriate for small and medium filtered exports.
 It should not be presented as a solution for very large exports yet.
 
 See [`xlsx-export-performance.md`](xlsx-export-performance.md) for detailed constraints and future directions.
+
+## XLSX export milestone completion
+
+Milestone 0.20 completed the XLSX export decision and implementation path.
+
+Summary:
+
+- CSV remains the default dependency-free export format.
+- XLSX is supported as an optional OpenSpout-based writer.
+- XLSX export controls are conditional.
+- XLSX follows the same current/full mode semantics as CSV.
+- XLSX memory and performance constraints are documented.
+
+Large XLSX exports remain a future topic and should be handled through a later async/streaming export milestone.
 
 ## Related documentation
 

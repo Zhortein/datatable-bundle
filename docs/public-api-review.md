@@ -908,6 +908,18 @@ Before stable 1.0, revisit whether the export API needs:
 
 The current XLSX writer should be treated as suitable for normal filtered business exports, not huge raw data dumps.
 
+## XLSX export public API follow-up
+
+After milestone 0.20, XLSX support exists but remains intentionally conservative.
+
+Before stable 1.0, revisit:
+
+- whether `ExportWriterInterface` is sufficient for streaming writers;
+- whether export size limits should be part of public configuration;
+- whether enabled export formats should be globally configurable;
+- whether XLSX should remain in core or move to a dedicated package later;
+- whether async export support needs dedicated contracts.
+
 ## Follow-up issues to consider
 
 Potential future issues:

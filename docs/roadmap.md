@@ -706,69 +706,87 @@ Current limitations:
 
 ---
 
+## 0.20 - XLSX export decision ✅
+
+Delivered:
+
+- XLSX export strategy decision.
+- `ExportFormat::Xlsx`.
+- XLSX export route support.
+- XLSX filename handling in export requests.
+- Optional OpenSpout-based XLSX writer.
+- Conditional XLSX export controls.
+- Stimulus XLSX export URL generation tests.
+- XLSX export strategy and usage documentation.
+- XLSX memory and performance constraints documentation.
+
+Main outcome:
+
+```text
+The bundle now has a clear XLSX export strategy and an optional OpenSpout-based implementation while keeping CSV dependency-free.
+```
+
+Current XLSX capabilities:
+
+- XLSX is a known export format.
+- XLSX export route is available.
+- XLSX writer can be enabled when OpenSpout is installed.
+- XLSX export respects visible/exportable columns.
+- XLSX export supports current and full modes.
+- XLSX export controls can be rendered conditionally through `exportFormats`.
+- Stimulus export URL generation supports XLSX links.
+
+Current limitations:
+
+- XLSX export is synchronous.
+- XLSX writer is data-focused and does not style workbooks.
+- No multi-sheet exports.
+- No formulas.
+- No charts.
+- No images.
+- No export size limits yet.
+- No async export jobs.
+- No streaming provider contract.
+- Very large XLSX exports should not be considered supported yet.
+
+---
+
 # Next roadmap direction
 
 The next milestone should focus on backend/provider capabilities or export evolution rather than Symfony Flex.
 
-## 0.20 - XLSX export decision 🚧
+## 0.21 - Frontend E2E and accessibility evaluation 🚧
 
 Goal:
 
 ```text
-Decide whether XLSX support belongs in core, as an optional writer, or as a separate package.
+Validate the most interactive datatable behavior in a real browser and define the accessibility baseline before moving toward 1.0.
 ```
 
 Possible work:
 
-- evaluate OpenSpout;
-- decide optional dependency strategy;
-- define XLSX writer contract expectations;
-- assess memory and streaming behavior;
-- test large dataset export constraints;
-- document limitations and installation requirements.
-
-Main expected outcome:
-
-```text
-The project has a clear and maintainable XLSX export strategy.
-```
-
-### XLSX export decision 🚧
-
-Decision recorded:
-
-- XLSX export is accepted.
-- XLSX belongs in the core export pipeline as an optional writer.
-- OpenSpout is the selected implementation direction.
-- OpenSpout must not become mandatory for CSV-only applications.
-- XLSX controls must render only when the writer is available/enabled.
-- Large/async exports remain out of scope for the first XLSX implementation.
-
-Main decision outcome:
-
-```text
-The bundle will support XLSX through an optional OpenSpout-based writer while preserving dependency-free CSV exports.
-```
-
----
-
-## 0.21 - Frontend E2E and accessibility evaluation 🕒
-
-Possible work:
-
-- decide whether Playwright or another browser-level tool is needed;
+- choose whether Playwright is useful for this bundle;
 - test Bootstrap dropdown behavior in a real browser;
 - test keyboard navigation;
-- test column header filters UX in browser;
-- test CSV export link behavior;
-- add accessibility smoke checks;
-- document results.
+- test column header filter dropdown UX;
+- test action dropdown UX;
+- test CSV/XLSX export link behavior;
+- test loading and error state visibility;
+- add basic accessibility checks where practical;
+- document findings and limitations.
 
 Main expected outcome:
 
 ```text
-The most interactive UI behavior is validated beyond jsdom unit tests.
+The bundle has a clear browser-level and accessibility validation strategy for its Bootstrap/Stimulus UI.
 ```
+
+Out of scope for the first pass:
+
+- full visual regression testing;
+- cross-browser matrix;
+- complete WCAG audit;
+- hosted demo application.
 
 ---
 
