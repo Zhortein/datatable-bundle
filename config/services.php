@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
+use Zhortein\DatatableBundle\Doctrine\DoctrineJoinApplier;
+use Zhortein\DatatableBundle\Doctrine\DoctrinePaginationApplier;
 use Zhortein\DatatableBundle\Renderer\DatatableSummaryRenderer;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
@@ -62,6 +65,9 @@ return static function (ContainerConfigurator $container): void {
         $services->set(DoctrineFieldTypeGuesser::class);
 
         $services->set(DoctrineDatatableDefinitionEnricher::class);
+        $services->set(DoctrineFieldReferenceResolver::class);
+        $services->set(DoctrineJoinApplier::class);
+        $services->set(DoctrinePaginationApplier::class);
 
         $services
             ->set(DoctrineOrmDataProvider::class)
