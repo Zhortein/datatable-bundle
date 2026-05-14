@@ -733,6 +733,23 @@ Main expected outcome:
 The project has a clear and maintainable XLSX export strategy.
 ```
 
+### XLSX export decision 🚧
+
+Decision recorded:
+
+- XLSX export is accepted.
+- XLSX belongs in the core export pipeline as an optional writer.
+- OpenSpout is the selected implementation direction.
+- OpenSpout must not become mandatory for CSV-only applications.
+- XLSX controls must render only when the writer is available/enabled.
+- Large/async exports remain out of scope for the first XLSX implementation.
+
+Main decision outcome:
+
+```text
+The bundle will support XLSX through an optional OpenSpout-based writer while preserving dependency-free CSV exports.
+```
+
 ---
 
 ## 0.21 - Frontend E2E and accessibility evaluation 🕒
