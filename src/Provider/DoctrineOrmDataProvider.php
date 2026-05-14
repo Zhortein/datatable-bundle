@@ -15,9 +15,12 @@ use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Definition\FilterDefinition;
 use Zhortein\DatatableBundle\Definition\JoinDefinition;
 use Zhortein\DatatableBundle\Definition\UserFilterDefinition;
+use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReference;
+use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
+use Zhortein\DatatableBundle\Doctrine\DoctrineJoinApplier;
+use Zhortein\DatatableBundle\Doctrine\DoctrinePaginationApplier;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Enum\FilterType;
-use Zhortein\DatatableBundle\Enum\JoinType;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
@@ -26,9 +29,21 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
     public const string PROVIDER_NAME = 'doctrine';
     public const string MAIN_ALIAS = 'e';
 
+    private DoctrineFieldReferenceResolver $fieldReferenceResolver;
+
+    private DoctrineJoinApplier $joinApplier;
+
+    private DoctrinePaginationApplier $paginationApplier;
+
     public function __construct(
         private ManagerRegistry $managerRegistry,
+        ?DoctrineFieldReferenceResolver $fieldReferenceResolver = null,
+        ?DoctrineJoinApplier $joinApplier = null,
+        ?DoctrinePaginationApplier $paginationApplier = null,
     ) {
+        $this->fieldReferenceResolver = $fieldReferenceResolver ?? new DoctrineFieldReferenceResolver();
+        $this->joinApplier = $joinApplier ?? new DoctrineJoinApplier();
+        $this->paginationApplier = $paginationApplier ?? new DoctrinePaginationApplier();
     }
 
     public function supports(DatatableDefinition $definition): bool
@@ -104,18 +119,18 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
             ->from($entityClass, self::MAIN_ALIAS)
         ;
 
-        if ($request->isPaginationEnabled()) {
-            $queryBuilder
-                ->setFirstResult($request->getOffset())
-                ->setMaxResults($request->getPageSize())
-            ;
-        }
+        $this->paginationApplier->apply($queryBuilder, $request);
 
-        $this->applyJoins($queryBuilder, $definition);
+        $this->joinApplier->apply($queryBuilder, $definition);
 
         foreach ($columns as $column) {
-            $fieldReference = $this->normalizeFieldReference($column->getName(), $definition);
-            $queryBuilder->addSelect(sprintf('%s AS %s', $fieldReference, $this->createResultAlias($fieldReference)));
+            $fieldReference = $this->fieldReferenceResolver->normalize($column->getName(), $definition);
+
+            $queryBuilder->addSelect(sprintf(
+                '%s AS %s',
+                $fieldReference->toString(),
+                $fieldReference->toResultAlias(),
+            ));
         }
 
         if ([] === $columns) {
@@ -147,7 +162,7 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
             ->from($entityClass, self::MAIN_ALIAS)
         ;
 
-        $this->applyJoins($queryBuilder, $definition);
+        $this->joinApplier->apply($queryBuilder, $definition);
         $this->applyPermanentFilters($queryBuilder, $definition);
 
         if (null !== $request) {
@@ -163,33 +178,6 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         return (int) $result;
     }
 
-    private function applyJoins(QueryBuilder $queryBuilder, DatatableDefinition $definition): void
-    {
-        foreach ($definition->getJoins() as $join) {
-            $this->validateJoin($join);
-
-            match ($join->getType()) {
-                JoinType::Inner => $queryBuilder->join($join->getJoin(), $join->getAlias()),
-                JoinType::Left => $queryBuilder->leftJoin($join->getJoin(), $join->getAlias()),
-            };
-        }
-    }
-
-    private function validateJoin(JoinDefinition $join): void
-    {
-        if (self::MAIN_ALIAS === $join->getAlias()) {
-            throw new \InvalidArgumentException(sprintf('The Doctrine join alias "%s" is reserved for the main entity.', self::MAIN_ALIAS));
-        }
-
-        if (1 !== preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $join->getAlias())) {
-            throw new \InvalidArgumentException(sprintf('The Doctrine join alias "%s" is invalid.', $join->getAlias()));
-        }
-
-        if (!str_contains($join->getJoin(), '.')) {
-            throw new \InvalidArgumentException(sprintf('The Doctrine join expression "%s" must reference an association path.', $join->getJoin()));
-        }
-    }
-
     private function applyPermanentFilters(QueryBuilder $queryBuilder, DatatableDefinition $definition): void
     {
         foreach ($definition->getPermanentFilters() as $index => $filter) {
@@ -203,7 +191,9 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         int $index,
         DatatableDefinition $definition,
     ): void {
-        $field = $this->normalizeFieldReference($filter->getField(), $definition);
+        $field = $this->fieldReferenceResolver
+            ->normalize($filter->getField(), $definition)
+            ->toString();
         $parameterName = sprintf('permanent_filter_%d', $index);
 
         match ($filter->getOperator()) {
@@ -307,8 +297,11 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         UserFilterDefinition $filter,
         mixed $value,
     ): void {
-        $fieldReference = $this->normalizeFieldReference($filter->getField(), $definition);
-        [$alias, $fieldName] = $this->splitFieldReference($fieldReference);
+        $reference = $this->fieldReferenceResolver->normalize($filter->getField(), $definition);
+
+        $alias = $reference->getAlias();
+        $fieldName = $reference->getField();
+        $fieldReference = $reference->toString();
         $metadata = $this->getMetadataForAlias($entityManager, $entityClass, $definition, $alias);
 
         if (!$metadata->hasField($fieldName)) {
@@ -475,8 +468,11 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
                 continue;
             }
 
-            $fieldReference = $this->normalizeFieldReference($column->getName(), $definition);
-            [$alias, $fieldName] = $this->splitFieldReference($fieldReference);
+            $reference = $this->fieldReferenceResolver->normalize($column->getName(), $definition);
+
+            $alias = $reference->getAlias();
+            $fieldName = $reference->getField();
+            $fieldReference = $reference->toString();
             $metadata = $this->getMetadataForAlias($entityManager, $entityClass, $definition, $alias);
 
             if (!$metadata->hasField($fieldName)) {
@@ -539,8 +535,11 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
             return;
         }
 
-        $fieldReference = $this->normalizeFieldReference($column->getName(), $definition);
-        [$alias, $fieldName] = $this->splitFieldReference($fieldReference);
+        $reference = $this->fieldReferenceResolver->normalize($column->getName(), $definition);
+
+        $alias = $reference->getAlias();
+        $fieldName = $reference->getField();
+        $fieldReference = $reference->toString();
         $metadata = $this->getMetadataForAlias($entityManager, $entityClass, $definition, $alias);
 
         if (!$metadata->hasField($fieldName)) {
@@ -579,17 +578,6 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
     }
 
     /**
-     * @return array{0: string, 1: string}
-     */
-    private function splitFieldReference(string $fieldReference): array
-    {
-        /** @var array{0: string, 1: string} $parts */
-        $parts = explode('.', $fieldReference, 2);
-
-        return $parts;
-    }
-
-    /**
      * @param class-string $mainEntityClass
      *
      * @return ClassMetadata<object>
@@ -611,7 +599,8 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         }
 
         $mainMetadata = $entityManager->getClassMetadata($mainEntityClass);
-        [, $associationName] = $this->splitFieldReference($join->getJoin());
+        $associationReference = DoctrineFieldReference::fromString($join->getJoin());
+        $associationName = $associationReference->getField();
 
         if (!$mainMetadata->hasAssociation($associationName)) {
             throw new \InvalidArgumentException(sprintf('The Doctrine association "%s" does not exist on "%s".', $associationName, $mainEntityClass));
@@ -621,29 +610,5 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         $targetClass = $mainMetadata->getAssociationTargetClass($associationName);
 
         return $entityManager->getClassMetadata($targetClass);
-    }
-
-    private function normalizeFieldReference(string $columnName, ?DatatableDefinition $definition = null): string
-    {
-        if (!str_contains($columnName, '.')) {
-            return self::MAIN_ALIAS.'.'.$columnName;
-        }
-
-        [$alias] = explode('.', $columnName, 2);
-
-        if (self::MAIN_ALIAS === $alias) {
-            return $columnName;
-        }
-
-        if (null !== $definition && array_key_exists($alias, $definition->getJoins())) {
-            return $columnName;
-        }
-
-        throw new \InvalidArgumentException(sprintf('The Doctrine alias "%s" is not declared for field "%s".', $alias, $columnName));
-    }
-
-    private function createResultAlias(string $fieldReference): string
-    {
-        return str_replace('.', '_', $fieldReference);
     }
 }
