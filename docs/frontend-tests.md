@@ -1,15 +1,21 @@
 # Frontend test strategy
 
-This document describes the JavaScript test setup for the bundle frontend code.
+This document describes the JavaScript test strategy for `zhortein/datatable-bundle`.
 
-The bundle frontend remains:
+The bundle frontend remains intentionally lightweight:
 
 - vanilla JavaScript;
 - Stimulus-based;
+- Bootstrap-compatible;
 - independent from jQuery;
-- independent from DataTables.net.
+- independent from DataTables.net;
+- independent from Webpack Encore.
 
-## Test tooling
+Frontend tests protect the behavior of the bundle Stimulus controller.
+
+---
+
+## Tooling
 
 Frontend tests use:
 
@@ -19,13 +25,19 @@ jsdom
 @hotwired/stimulus
 ```
 
-Vitest provides the test runner.
+Vitest is used as the JavaScript test runner.
 
-jsdom provides a DOM-like environment for controller tests.
+jsdom provides a DOM-like environment.
 
-Stimulus is used directly to register and exercise the bundle controller.
+Stimulus is started directly in tests to register and exercise the controller with its real identifier:
 
-## Test location
+```text
+zhortein--datatable-bundle--datatable
+```
+
+---
+
+## Files
 
 Frontend tests live under:
 
@@ -33,83 +45,92 @@ Frontend tests live under:
 tests/Frontend/
 ```
 
-Current include pattern:
+The Vitest configuration includes:
 
 ```text
 tests/Frontend/**/*.test.js
 ```
 
-## Commands
+The shared setup file is:
+
+```text
+tests/Frontend/setup.js
+```
+
+The bundle controller currently tested is:
+
+```text
+assets/controllers/datatable_controller.js
+```
+
+---
+
+## Local commands
 
 Install frontend dependencies:
 
 ```bash
-npm install
+make frontenddeps
 ```
 
 Run frontend tests:
 
 ```bash
+make frontendtest
+```
+
+Without the local Docker tooling:
+
+```bash
+npm ci
 npm run test:frontend
 ```
 
-Watch mode:
+For development watch mode:
 
 ```bash
 npm run test:frontend:watch
 ```
 
-When using the project tooling container, use the Makefile targets documented in the repository once they are added.
+---
+
+## CI execution
+
+Frontend tests are part of the GitHub Actions quality gates.
+
+The CI workflow runs:
+
+```bash
+npm ci
+npm run test:frontend
+```
+
+`package-lock.json` is committed so CI can use reproducible dependency installation with `npm ci`.
+
+The CI uses Node.js through `actions/setup-node`.
+
+---
 
 ## Current coverage
 
-The first frontend test validates that the datatable controller can be registered by Stimulus with the UX-compatible identifier:
-
-```text
-zhortein--datatable-bundle--datatable
-```
-
-Further tests are added in later issues for:
-
-- auto-load behavior;
-- Ajax fragment application;
-- search/filter/page size interactions;
-- sorting and pagination;
-- column visibility;
-- export URL generation;
-- confirmation behavior.
-
-## Current limitations
-
-This is not an end-to-end browser test suite.
-
-It does not test:
-
-- real browser layout;
-- Bootstrap dropdown internals;
-- network behavior;
-- file downloads;
-- real Symfony routes.
-
-Those remain covered by smoke tests for now.
-
-### Stimulus connect and auto-load tests
-
-Frontend tests now cover the initial Stimulus lifecycle.
+### Stimulus setup
 
 Covered behavior:
 
-- the datatable controller can connect to the rendered datatable element;
+- the datatable controller can be registered by Stimulus;
+- the UX-compatible controller identifier is valid.
+
+### Connect and auto-load
+
+Covered behavior:
+
+- the controller connects to the rendered datatable element;
 - `autoLoad` defaults to enabled;
 - initial fragment loading is triggered on connect;
 - `autoLoad=false` prevents initial refresh;
-- a missing fragments URL displays the configured error target instead of performing a network call.
+- a missing fragments URL displays the error target instead of performing a network call.
 
-These tests protect the smoke-test fix that made datatables load their first dataset automatically.
-
-### Stimulus Ajax fragment application tests
-
-Frontend tests now cover Ajax fragment application.
+### Ajax fragments
 
 Covered behavior:
 
@@ -123,11 +144,7 @@ Covered behavior:
 - failed refreshes display the error target;
 - loading state is toggled during refresh.
 
-These tests protect the server-rendered fragment model used by the bundle.
-
-### Stimulus search, filters and page size tests
-
-Frontend tests now cover user input interactions that rebuild the Ajax refresh URL.
+### Search, filters and page size
 
 Covered behavior:
 
@@ -141,11 +158,7 @@ Covered behavior:
 - invalid page size values are ignored;
 - clear filters resets controls, active state and refresh URL.
 
-These tests protect the interaction layer used by toolbar filters and header filter dropdown controls.
-
-### Stimulus sorting and pagination tests
-
-Frontend tests now cover sorting and pagination interactions.
+### Sorting and pagination
 
 Covered behavior:
 
@@ -158,11 +171,7 @@ Covered behavior:
 - invalid page values are ignored;
 - current sort state is preserved when navigating pages.
 
-These tests protect the datatable's core navigation and ordering behavior.
-
-### Stimulus column visibility tests
-
-Frontend tests now cover column visibility interactions.
+### Column visibility
 
 Covered behavior:
 
@@ -174,11 +183,7 @@ Covered behavior:
 - column visibility refresh is debounced;
 - header, body and summary fragments update after refresh.
 
-These tests protect the column visibility behavior discovered during the fresh Symfony smoke test.
-
-### Stimulus export URL generation tests
-
-Frontend tests now cover CSV export URL generation.
+### Export URL generation
 
 Covered behavior:
 
@@ -192,11 +197,7 @@ Covered behavior:
 - custom export URL values are respected;
 - link href fallback is supported.
 
-These tests protect the smoke-test fix that made exports reflect the current datatable state.
-
-### Stimulus action confirmation tests
-
-Frontend tests now cover action confirmation behavior.
+### Action confirmation
 
 Covered behavior:
 
@@ -208,37 +209,55 @@ Covered behavior:
 - cancelled form submissions are prevented;
 - non-HTMLElement event targets are ignored.
 
-These tests protect the `confirmAction()` behavior used by action links and non-GET action forms.
+---
 
-## Frontend tests in CI
+## Testing conventions
 
-Frontend tests are run in GitHub Actions with Node.js and npm.
+Tests should:
 
-The CI workflow should run:
+- use the real Stimulus controller;
+- register it with the real UX-compatible identifier;
+- keep DOM fixtures small but realistic;
+- mock `fetch` for Ajax behavior;
+- mock `window.confirm` for confirmation behavior;
+- mock navigation for export tests;
+- avoid real network calls;
+- avoid Bootstrap internals;
+- avoid jQuery;
+- avoid browser-only assumptions not supported by jsdom.
 
-```bash
-npm ci
-npm run test:frontend
-```
+When the controller behavior is debounced, tests may use fake timers.
 
-The test suite uses:
+When fake timers are used, helpers must not rely on unadvanced `setTimeout()` calls.
 
-- Vitest;
-- jsdom;
-- `@hotwired/stimulus`.
+---
 
-`package-lock.json` must be committed so CI can use `npm ci`.
+## What frontend tests do not cover
 
-Local commands:
+This is not an end-to-end browser test suite.
 
-```bash
-make frontenddeps
-make frontendtest
-```
+The frontend tests do not validate:
 
-or, without Docker tooling:
+- real browser layout;
+- CSS rendering;
+- Bootstrap dropdown internals;
+- real file downloads;
+- real Symfony routing;
+- real backend provider behavior;
+- full application integration.
 
-```bash
-npm ci
-npm run test:frontend
-```
+Those remain covered by PHP tests, smoke tests and future E2E testing if needed.
+
+---
+
+## Future improvements
+
+Possible future improvements:
+
+- add a small shared frontend test fixture helper;
+- add coverage for additional controller methods when new interactions are added;
+- add accessibility-focused assertions for generated controls;
+- decide whether browser E2E tests are needed before 1.0;
+- consider Playwright only if jsdom becomes insufficient.
+
+For now, Vitest + jsdom provides a good balance between confidence, speed and maintenance cost.
