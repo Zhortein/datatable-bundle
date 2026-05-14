@@ -7,6 +7,7 @@ namespace Zhortein\DatatableBundle\Tests\Functional\Doctrine;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineOrganization;
+use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineOrganizationGroup;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
 
 trait DoctrineSchemaMetadataTrait
@@ -19,6 +20,7 @@ trait DoctrineSchemaMetadataTrait
         $entityManager = $this->getStoredEntityManager();
 
         return [
+            $entityManager->getClassMetadata(DoctrineOrganizationGroup::class),
             $entityManager->getClassMetadata(DoctrineOrganization::class),
             $entityManager->getClassMetadata(DoctrineUser::class),
         ];

@@ -292,6 +292,39 @@ Only explicitly declared join aliases can be used. Undeclared aliases fail clear
 
 At this stage, joined column display is supported. Sorting, search and permanent filters on joined fields are covered by separate features.
 
+## Explicitly chained joins
+
+Explicit chained joins can be declared when a datatable needs a field from a second-level association.
+
+Example:
+
+```php
+use Zhortein\DatatableBundle\Enum\JoinType;
+
+$definition
+    ->setEntityClass(User::class)
+    ->addJoin('organization', 'e.organization', JoinType::Left)
+    ->addJoin('group', 'organization.group', JoinType::Left)
+    ->addColumn('e.email', label: 'Email')
+    ->addColumn('organization.name', label: 'Organization')
+    ->addColumn('group.name', label: 'Group')
+;
+```
+
+Rules:
+
+- every alias must be explicitly declared;
+- the source alias must exist before it can be used;
+- automatic deep association traversal is still not supported;
+- collection-valued associations remain out of scope.
+
+Supported behavior:
+
+- selecting chained join fields;
+- sorting on chained join fields;
+- searching chained join fields;
+- using chained join fields in declared filters when compatible with the field type.
+
 ## Permanent filters on joined fields
 
 Permanent filters can target fields from explicitly declared joins.

@@ -23,8 +23,34 @@ final readonly class DoctrineFieldMetadataResolver
         DatatableDefinition $definition,
         string $alias,
     ): ClassMetadata {
+        return $this->resolveMetadataForAliasWithStack(
+            entityManager: $entityManager,
+            mainEntityClass: $mainEntityClass,
+            definition: $definition,
+            alias: $alias,
+            resolvingAliases: [],
+        );
+    }
+
+    /**
+     * @param class-string $mainEntityClass
+     * @param list<string> $resolvingAliases
+     *
+     * @return ClassMetadata<object>
+     */
+    private function resolveMetadataForAliasWithStack(
+        EntityManagerInterface $entityManager,
+        string $mainEntityClass,
+        DatatableDefinition $definition,
+        string $alias,
+        array $resolvingAliases,
+    ): ClassMetadata {
         if (DoctrineOrmDataProvider::MAIN_ALIAS === $alias) {
             return $entityManager->getClassMetadata($mainEntityClass);
+        }
+
+        if (in_array($alias, $resolvingAliases, true)) {
+            throw new \InvalidArgumentException(sprintf('Circular Doctrine join alias reference detected for alias "%s".', $alias));
         }
 
         $join = $definition->getJoins()[$alias] ?? null;
@@ -33,15 +59,24 @@ final readonly class DoctrineFieldMetadataResolver
             throw new \InvalidArgumentException(sprintf('The Doctrine alias "%s" is not declared.', $alias));
         }
 
-        $mainMetadata = $entityManager->getClassMetadata($mainEntityClass);
-        $associationName = $this->extractAssociationName($join);
+        $joinReference = DoctrineFieldReference::fromString($join->getJoin());
 
-        if (!$mainMetadata->hasAssociation($associationName)) {
-            throw new \InvalidArgumentException(sprintf('The Doctrine association "%s" does not exist on "%s".', $associationName, $mainEntityClass));
+        $sourceMetadata = $this->resolveMetadataForAliasWithStack(
+            entityManager: $entityManager,
+            mainEntityClass: $mainEntityClass,
+            definition: $definition,
+            alias: $joinReference->getAlias(),
+            resolvingAliases: [...$resolvingAliases, $alias],
+        );
+
+        $associationName = $joinReference->getField();
+
+        if (!$sourceMetadata->hasAssociation($associationName)) {
+            throw new \InvalidArgumentException(sprintf('The Doctrine association "%s" does not exist on "%s".', $associationName, $sourceMetadata->getName()));
         }
 
         /** @var class-string $targetClass */
-        $targetClass = $mainMetadata->getAssociationTargetClass($associationName);
+        $targetClass = $sourceMetadata->getAssociationTargetClass($associationName);
 
         return $entityManager->getClassMetadata($targetClass);
     }
@@ -82,10 +117,5 @@ final readonly class DoctrineFieldMetadataResolver
         }
 
         return $metadata->getTypeOfField($reference->getField());
-    }
-
-    private function extractAssociationName(JoinDefinition $join): string
-    {
-        return DoctrineFieldReference::fromString($join->getJoin())->getField();
     }
 }
