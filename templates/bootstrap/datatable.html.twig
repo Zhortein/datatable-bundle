@@ -16,7 +16,7 @@
 {% set table_wrapper_class = options.tableWrapperClass is defined ? options.tableWrapperClass|trim : '' %}
 {% set table_class = options.tableClass is defined ? options.tableClass|trim : '' %}
 {% set confirmation_modal_enabled = options.confirmationModal is defined ? options.confirmationModal : true %}
-{% set filter_layout = options.filterLayout is defined ? options.filterLayout : 'toolbar' %}{{ dump(filter_layout) }}
+{% set filter_layout = options.filterLayout is defined ? options.filterLayout : 'toolbar' %}
 
 {% if table_striped %}
     {% set table_classes = table_classes|merge(['table-striped']) %}
