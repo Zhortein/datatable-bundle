@@ -18,6 +18,7 @@ final readonly class DatatablePreference
         private ?SortDirection $sortDirection = null,
         private array $visibleColumns = [],
         private array $hiddenColumns = [],
+        private string $filterLayout = 'toolbar',
     ) {
         if (null !== $this->pageSize && $this->pageSize < 1) {
             throw new \InvalidArgumentException('The datatable preference page size must be greater than or equal to 1.');
@@ -39,6 +40,7 @@ final readonly class DatatablePreference
         ?SortDirection $sortDirection = null,
         array $visibleColumns = [],
         array $hiddenColumns = [],
+        ?string $filterLayout = 'toolbar',
     ): self {
         return new self(
             pageSize: $pageSize,
@@ -46,7 +48,13 @@ final readonly class DatatablePreference
             sortDirection: $sortDirection,
             visibleColumns: self::normalizeColumnList($visibleColumns),
             hiddenColumns: self::normalizeColumnList($hiddenColumns),
+            filterLayout: $filterLayout,
         );
+    }
+
+    public function getFilterLayout() :string
+    {
+        return $this->filterLayout;
     }
 
     public function getPageSize(): ?int
@@ -115,6 +123,8 @@ final readonly class DatatablePreference
         if ([] !== $this->hiddenColumns) {
             $options['hiddenColumns'] = $this->hiddenColumns;
         }
+
+        $options['filterLayout'] = $this->filterLayout;
 
         return $options;
     }

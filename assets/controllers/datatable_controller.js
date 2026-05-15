@@ -34,6 +34,7 @@ export default class extends Controller {
         sortField: { type: String, default: '' },
         sortDirection: { type: String, default: 'asc' },
         autoLoad: { type: Boolean, default: true },
+        filterLayout: String,
     };
 
     connect() {
@@ -305,6 +306,8 @@ export default class extends Controller {
             url.searchParams.set('sortField', this.sortFieldValue);
             url.searchParams.set('sortDirection', this.sortDirectionValue);
         }
+
+        url.searchParams.set('filterLayout', this.filterLayoutValue);
 
         this.appendFilterParameters(url.searchParams);
         this.appendColumnVisibilityParameters(url.searchParams);
