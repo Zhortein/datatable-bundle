@@ -178,6 +178,8 @@ final readonly class DatatableRequest
         return [
             'visibleColumns' => $this->visibleColumns,
             'hiddenColumns' => $this->hiddenColumns,
+            'sortField' => $this->sortField,
+            'sortDirection' => $this->sortDirection->value,
         ];
     }
 
