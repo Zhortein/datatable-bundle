@@ -190,9 +190,9 @@ describe('datatable_controller XLSX export URL generation', () => {
 
         const link = document.querySelector('#xlsx-current-export');
         const event = createExportEvent(link, {
-            mode: 'current',
-            format: 'xlsx',
-            url: '/_zhortein/datatable/users/export/xlsx',
+            exportMode: 'current',
+            exportFormat: 'xlsx',
+            exportUrl: '/_zhortein/datatable/users/export/xlsx',
         });
 
         controller.export(event);
@@ -229,9 +229,9 @@ describe('datatable_controller XLSX export URL generation', () => {
 
         const link = document.querySelector('#xlsx-full-export');
         const event = createExportEvent(link, {
-            mode: 'full',
-            format: 'xlsx',
-            url: '/_zhortein/datatable/users/export/xlsx',
+            exportMode: 'full',
+            exportFormat: 'xlsx',
+            exportUrl: '/_zhortein/datatable/users/export/xlsx',
         });
 
         controller.export(event);
@@ -263,9 +263,9 @@ describe('datatable_controller XLSX export URL generation', () => {
 
         const link = document.querySelector('#custom-xlsx-current-export');
         const event = createExportEvent(link, {
-            mode: 'current',
-            format: 'xlsx',
-            url: '/custom/users/export/xlsx',
+            exportMode: 'current',
+            exportFormat: 'xlsx',
+            exportUrl: '/custom/users/export/xlsx',
         });
 
         controller.export(event);
@@ -311,8 +311,8 @@ describe('datatable_controller XLSX export URL generation', () => {
 
         const link = document.querySelector('a');
         const event = createExportEvent(link, {
-            mode: 'current',
-            format: 'xlsx',
+            exportMode: 'current',
+            exportFormat: 'xlsx',
         });
 
         controller.export(event);

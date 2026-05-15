@@ -7,6 +7,7 @@
 {% set export_enabled = options.export is defined ? options.export : true %}
 {% set filter_layout = options.filterLayout is defined ? options.filterLayout : 'toolbar' %}
 {% set toolbar_filters_enabled = filter_layout == 'toolbar' %}
+{% set is_split_layout = controlsLayout is defined and controlsLayout == 'split' %}
 
 <div class="zhortein-datatable__toolbar d-flex flex-wrap justify-content-between align-items-end gap-3 mb-3">
     <div class="zhortein-datatable__search">
@@ -58,7 +59,7 @@
     </div>
 
     <div class="zhortein-datatable__controls d-flex flex-wrap align-items-center gap-2">
-        {% if column_visibility_enabled %}
+        {% if not is_split_layout and column_visibility_enabled %}
             {% include '@ZhorteinDatatable/bootstrap/_column_visibility.html.twig' with {
                 definition: definition,
                 htmlId: htmlId,
@@ -74,7 +75,7 @@
             } only %}
         {% endif %}
 
-        {% if page_size_selector_enabled %}
+        {% if not is_split_layout and page_size_selector_enabled %}
             <label class="text-body-secondary small" for="{{ htmlId }}_page_size">
                 {{ 'zhortein_datatable.page_size.label'|trans({}, 'zhortein_datatable') }}
             </label>

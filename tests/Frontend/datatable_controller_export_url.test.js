@@ -191,7 +191,7 @@ describe('datatable_controller export URL generation', () => {
         controller.sortDirectionValue = 'desc';
 
         const link = document.querySelector('[data-zhortein--datatable-bundle--datatable-export-mode-param="current"]');
-        const event = createExportEvent(link, { mode: 'current', format: 'csv' });
+        const event = createExportEvent(link, { exportMode: 'current', exportFormat: 'csv' });
 
         controller.export(event);
 
@@ -228,7 +228,7 @@ describe('datatable_controller export URL generation', () => {
         controller.sortDirectionValue = 'asc';
 
         const link = document.querySelector('[data-zhortein--datatable-bundle--datatable-export-mode-param="full"]');
-        const event = createExportEvent(link, { mode: 'full', format: 'csv' });
+        const event = createExportEvent(link, { exportMode: 'full', exportFormat: 'csv' });
 
         controller.export(event);
 
@@ -256,7 +256,7 @@ describe('datatable_controller export URL generation', () => {
         const { controller } = await getController(application);
 
         const link = document.querySelector('[data-zhortein--datatable-bundle--datatable-export-mode-param="current"]');
-        const event = createExportEvent(link, { mode: 'current', format: 'csv' });
+        const event = createExportEvent(link, { exportMode: 'current', exportFormat: 'csv' });
 
         controller.export(event);
 
@@ -297,7 +297,7 @@ describe('datatable_controller export URL generation', () => {
         const { controller } = await getController(application);
 
         const link = document.querySelector('a');
-        const event = createExportEvent(link, { mode: 'current' });
+        const event = createExportEvent(link, { exportMode: 'current' });
 
         controller.export(event);
 
@@ -316,7 +316,7 @@ describe('datatable_controller export URL generation', () => {
 
         const { controller } = await getController(application);
 
-        const event = createExportEvent(document.createElement('button'), { mode: 'current' });
+        const event = createExportEvent(document.createElement('button'), { exportMode: 'current' });
 
         controller.export(event);
 
