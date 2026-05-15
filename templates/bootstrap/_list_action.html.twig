@@ -1,0 +1,64 @@
+{% set has_icon = action.icon is not null and action.icon is not empty %}
+{% set icon_position = action.iconPosition ?? 'before' %}
+{% set label = action.label ?? action.name %}
+{% set base_class = action.className ?? (action.httpMethod == 'GET' ? 'btn btn-outline-secondary' : 'btn btn-outline-danger') %}
+{% set list_class = base_class ~ ' w-100 text-start' %}
+
+{% if action.httpMethod == 'GET' %}
+    <a
+        href="{{ action.url }}"
+        class="{{ list_class }}"
+        data-turbo-prefetch="false"
+        {% if action.confirmationMessage is not null %}
+            data-zhortein--datatable-bundle--datatable-confirmation-message="{{ action.confirmationMessage }}"
+            data-action="click->zhortein--datatable-bundle--datatable#confirmAction"
+        {% endif %}
+        {% for attribute_name, attribute_value in action.attributes %}
+            {{ attribute_name }}="{{ attribute_value }}"
+        {% endfor %}
+    >
+        {% if has_icon and icon_position == 'before' %}
+            <span class="{{ action.icon }} me-1" aria-hidden="true"></span>
+        {% endif %}
+
+        <span>{{ label }}</span>
+
+        {% if has_icon and icon_position == 'after' %}
+            <span class="{{ action.icon }} ms-1" aria-hidden="true"></span>
+        {% endif %}
+    </a>
+{% else %}
+    <form
+        method="post"
+        action="{{ action.url }}"
+        class="w-100"
+        {% if action.confirmationMessage is not null %}
+            data-zhortein--datatable-bundle--datatable-confirmation-message="{{ action.confirmationMessage }}"
+            data-action="submit->zhortein--datatable-bundle--datatable#confirmAction"
+        {% endif %}
+    >
+        <input type="hidden" name="_method" value="{{ action.httpMethod }}">
+
+        {% if action.csrfToken is not null %}
+            <input type="hidden" name="_token" value="{{ action.csrfToken }}">
+        {% endif %}
+
+        <button
+            type="submit"
+            class="{{ list_class }}"
+            {% for attribute_name, attribute_value in action.attributes %}
+                {{ attribute_name }}="{{ attribute_value }}"
+            {% endfor %}
+        >
+            {% if has_icon and icon_position == 'before' %}
+                <span class="{{ action.icon }} me-1" aria-hidden="true"></span>
+            {% endif %}
+
+            <span>{{ label }}</span>
+
+            {% if has_icon and icon_position == 'after' %}
+                <span class="{{ action.icon }} ms-1" aria-hidden="true"></span>
+            {% endif %}
+        </button>
+    </form>
+{% endif %}

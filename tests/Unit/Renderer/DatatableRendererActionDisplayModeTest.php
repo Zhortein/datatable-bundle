@@ -62,7 +62,8 @@ final class DatatableRendererActionDisplayModeTest extends TestCase
         $html = $this->renderWithMode(ActionDisplayMode::List);
 
         self::assertStringContainsString('zhortein-datatable__row-actions-list', $html);
-        self::assertStringContainsString('d-flex flex-column gap-1', $html);
+        self::assertStringContainsString('d-grid gap-1', $html);
+        self::assertStringContainsString('w-100 text-start', $html);
         self::assertStringContainsString('href="/users/42/view"', $html);
         self::assertStringContainsString('View', $html);
         self::assertStringContainsString('href="/users/42/edit"', $html);
