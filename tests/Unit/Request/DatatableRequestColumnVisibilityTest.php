@@ -23,6 +23,8 @@ final class DatatableRequestColumnVisibilityTest extends TestCase
         self::assertSame([
             'visibleColumns' => ['e.email', 'e.displayName'],
             'hiddenColumns' => ['e.createdAt'],
+            'sortField' => null,
+            'sortDirection' => SortDirection::Asc->value,
         ], $request->getColumnVisibilityOptions());
     }
 
