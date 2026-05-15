@@ -71,8 +71,10 @@ final readonly class DatatableRenderer
     public function renderHeader(DatatableDefinition $definition, array $options = []): string
     {
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_header.html.twig', $this->theme), [
+            'definition' => $definition,
             'visibleColumns' => $this->getVisibleColumns($definition, $options),
             'hasRowActions' => [] !== $definition->getRowActions(),
+            'htmlId' => $this->createHtmlId($definition),
             'options' => $options,
         ]);
     }
