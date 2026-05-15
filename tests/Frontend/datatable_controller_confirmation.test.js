@@ -153,8 +153,8 @@ describe('datatable_controller action confirmation behavior', () => {
 
         expect(confirmMock).toHaveBeenCalledTimes(1);
         expect(confirmMock).toHaveBeenCalledWith('Open this user?');
-        expect(event.preventDefault).not.toHaveBeenCalled();
-        expect(event.stopPropagation).not.toHaveBeenCalled();
+        expect(event.preventDefault).toHaveBeenCalledTimes(1);
+        expect(event.stopPropagation).toHaveBeenCalledTimes(1);
     });
 
     it('prevents link action when user cancels', async () => {
@@ -189,8 +189,8 @@ describe('datatable_controller action confirmation behavior', () => {
 
         expect(confirmMock).toHaveBeenCalledTimes(1);
         expect(confirmMock).toHaveBeenCalledWith('Delete this user?');
-        expect(event.preventDefault).not.toHaveBeenCalled();
-        expect(event.stopPropagation).not.toHaveBeenCalled();
+        expect(event.preventDefault).toHaveBeenCalledTimes(1);
+        expect(event.stopPropagation).toHaveBeenCalledTimes(1);
     });
 
     it('prevents form submission when user cancels', async () => {

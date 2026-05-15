@@ -15,6 +15,7 @@
 {% set root_class = options.rootClass is defined ? options.rootClass|trim : '' %}
 {% set table_wrapper_class = options.tableWrapperClass is defined ? options.tableWrapperClass|trim : '' %}
 {% set table_class = options.tableClass is defined ? options.tableClass|trim : '' %}
+{% set confirmation_modal_enabled = options.confirmationModal is defined ? options.confirmationModal : true %}
 
 {% if table_striped %}
     {% set table_classes = table_classes|merge(['table-striped']) %}
@@ -116,4 +117,10 @@
     {% endif %}
 
     {% include '@ZhorteinDatatable/bootstrap/_pagination.html.twig' %}
+
+    {% if confirmation_modal_enabled %}
+        {% include '@ZhorteinDatatable/bootstrap/_confirmation_modal.html.twig' with {
+            htmlId: htmlId
+        } only %}
+    {% endif %}
 </div>

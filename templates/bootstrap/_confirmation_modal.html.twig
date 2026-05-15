@@ -1,0 +1,47 @@
+<div
+    class="modal fade zhortein-datatable__confirmation-modal"
+    id="{{ htmlId }}_confirmation_modal"
+    tabindex="-1"
+    aria-labelledby="{{ htmlId }}_confirmation_modal_label"
+    aria-hidden="true"
+    data-zhortein--datatable-bundle--datatable-target="confirmationModal"
+>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title fs-5" id="{{ htmlId }}_confirmation_modal_label">
+                    {{ 'zhortein_datatable.confirmation.title'|trans({}, 'zhortein_datatable') }}
+                </h2>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="{{ 'zhortein_datatable.confirmation.cancel'|trans({}, 'zhortein_datatable') }}"
+                ></button>
+            </div>
+
+            <div class="modal-body">
+                <p class="mb-0" data-zhortein--datatable-bundle--datatable-target="confirmationMessage"></p>
+            </div>
+
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    {{ 'zhortein_datatable.confirmation.cancel'|trans({}, 'zhortein_datatable') }}
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-danger"
+                    data-action="zhortein--datatable-bundle--datatable#confirmPendingAction"
+                    data-zhortein--datatable-bundle--datatable-target="confirmationConfirmButton"
+                >
+                    {{ 'zhortein_datatable.confirmation.confirm'|trans({}, 'zhortein_datatable') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
