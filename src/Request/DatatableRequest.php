@@ -171,13 +171,20 @@ final readonly class DatatableRequest
     }
 
     /**
-     * @return array{visibleColumns: list<string>, hiddenColumns: list<string>}
+     * @return array{
+     *      visibleColumns: list<string>,
+     *      hiddenColumns: list<string>,
+     *      sortField: string|null,
+     *      sortDirection: string
+     *  }
      */
     public function getColumnVisibilityOptions(): array
     {
         return [
             'visibleColumns' => $this->visibleColumns,
             'hiddenColumns' => $this->hiddenColumns,
+            'sortField' => $this->sortField,
+            'sortDirection' => $this->sortDirection->value,
         ];
     }
 
