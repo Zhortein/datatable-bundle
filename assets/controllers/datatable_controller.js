@@ -430,8 +430,8 @@ export default class extends Controller {
             return;
         }
 
-        const mode = event.params.mode || 'current';
-        const exportUrl = event.params.url
+        const mode = event.params.exportMode || 'current';
+        const exportUrl = event.params.exportUrl
             || (this.hasExportUrlValue && this.exportUrlValue !== ''
                 ? this.exportUrlValue
                 : target.href);
