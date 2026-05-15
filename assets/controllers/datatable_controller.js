@@ -463,4 +463,44 @@ export default class extends Controller {
         this.appendFilterParameters(searchParams);
         this.appendColumnVisibilityParameters(searchParams);
     }
+
+    allowDropdownOverflow(event) {
+        const wrapper = this.findDropdownOverflowWrapper(event.target);
+
+        if (wrapper === null) {
+            return;
+        }
+
+        const wasAlreadyVisible = wrapper.classList.contains('overflow-visible');
+
+        wrapper.dataset.zhorteinDatatableDropdownOverflowAdded = wasAlreadyVisible ? 'false' : 'true';
+
+        if (!wasAlreadyVisible) {
+            wrapper.classList.add('overflow-visible');
+        }
+    }
+
+    restoreDropdownOverflow(event) {
+        const wrapper = this.findDropdownOverflowWrapper(event.target);
+
+        if (wrapper === null) {
+            return;
+        }
+
+        if (wrapper.dataset.zhorteinDatatableDropdownOverflowAdded === 'true') {
+            wrapper.classList.remove('overflow-visible');
+        }
+
+        delete wrapper.dataset.zhorteinDatatableDropdownOverflowAdded;
+    }
+
+    findDropdownOverflowWrapper(target) {
+        if (!(target instanceof Element)) {
+            return null;
+        }
+
+        const wrapper = target.closest('.table-responsive');
+
+        return wrapper instanceof HTMLElement ? wrapper : null;
+    }
 }
