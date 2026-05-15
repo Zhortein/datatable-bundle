@@ -19,6 +19,9 @@ export default class extends Controller {
         'error',
         'loading',
         'globalActions',
+        'confirmationModal',
+        'confirmationMessage',
+        'confirmationConfirmButton',
     ];
 
     static values = {
@@ -38,6 +41,10 @@ export default class extends Controller {
         this.searchDebounceTimeout = null;
         this.filterDebounceTimeout = null;
         this.columnVisibilityDebounceTimeout = null;
+        this.pendingConfirmationTarget = null;
+        this.pendingConfirmationType = null;
+        this.confirmationModalInstance = null;
+
         this.updateActiveFilterState();
 
         if (this.autoLoadValue) {
@@ -118,9 +125,66 @@ export default class extends Controller {
             return;
         }
 
-        if (!window.confirm(message)) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!this.openConfirmationModal(event.currentTarget, message)) {
+            if (!window.confirm(message)) {
+                return;
+            }
+
+            this.executeConfirmedTarget(event.currentTarget);
+        }
+    }
+
+    openConfirmationModal(target, message) {
+        if (!this.hasConfirmationModalTarget || !this.hasConfirmationMessageTarget) {
+            return false;
+        }
+
+        if (typeof window.bootstrap === 'undefined' || typeof window.bootstrap.Modal === 'undefined') {
+            return false;
+        }
+
+        this.pendingConfirmationTarget = target;
+        this.pendingConfirmationType = target instanceof HTMLFormElement ? 'form' : 'link';
+        this.confirmationMessageTarget.textContent = message;
+        this.confirmationModalInstance = window.bootstrap.Modal.getOrCreateInstance(this.confirmationModalTarget);
+        this.confirmationModalInstance.show();
+
+        return true;
+    }
+
+    confirmPendingAction(event) {
+        if (event !== null && typeof event.preventDefault === 'function') {
             event.preventDefault();
-            event.stopPropagation();
+        }
+
+        if (this.confirmationModalInstance !== null) {
+            this.confirmationModalInstance.hide();
+        }
+
+        if (this.pendingConfirmationTarget === null) {
+            return;
+        }
+
+        const target = this.pendingConfirmationTarget;
+
+        this.pendingConfirmationTarget = null;
+        this.pendingConfirmationType = null;
+
+        this.executeConfirmedTarget(target);
+    }
+
+    executeConfirmedTarget(target) {
+        if (target instanceof HTMLFormElement) {
+            target.submit();
+
+            return;
+        }
+
+        if (target instanceof HTMLAnchorElement) {
+            window.location.assign(target.href);
         }
     }
 

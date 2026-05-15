@@ -44,3 +44,7 @@ zhortein_datatable:
         multiple: 'Showing %start% to %end% of %total% results.'
         filtered_single: '1 result found, filtered from %total% total.'
         filtered_multiple: 'Showing %start% to %end% of %filtered% results, filtered from %total% total.'
+    confirmation:
+        title: 'Confirm action'
+        confirm: 'Confirm'
+        cancel: 'Cancel'

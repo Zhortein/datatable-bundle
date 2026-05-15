@@ -334,6 +334,37 @@ window.confirm(message)
 
 If the user cancels, navigation or form submission is prevented.
 
+## Bootstrap modal confirmation
+
+Action confirmations use a Bootstrap modal when the modal target and Bootstrap JavaScript are available.
+
+Native `window.confirm()` remains the fallback.
+
+The existing confirmation metadata stays unchanged:
+
+```php
+$definition->addRowAction(
+    name: 'delete',
+    route: 'app_user_delete',
+    label: 'Delete',
+    httpMethod: 'DELETE',
+    confirmationMessage: 'Delete this user?',
+    routeParameters: [
+        'id' => 'e.id',
+    ],
+);
+```
+
+The modal can be disabled at render time:
+
+```twig
+{{ zhortein_datatable('users', {
+    confirmationModal: false
+}) }}
+```
+
+When disabled, the controller falls back to native browser confirmation.
+
 ## Security recommendations
 
 ### Do not rely only on hidden actions
