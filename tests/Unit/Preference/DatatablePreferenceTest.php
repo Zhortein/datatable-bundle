@@ -20,7 +20,7 @@ final class DatatablePreferenceTest extends TestCase
         self::assertNull($preference->getSortDirection());
         self::assertSame([], $preference->getVisibleColumns());
         self::assertSame([], $preference->getHiddenColumns());
-        self::assertSame([], $preference->toRenderOptions());
+        self::assertSame(['filterLayout' => 'toolbar'], $preference->toRenderOptions());
     }
 
     public function test_it_stores_preference_values(): void
@@ -45,6 +45,7 @@ final class DatatablePreferenceTest extends TestCase
             'sortDirection' => 'desc',
             'visibleColumns' => ['e.email', 'e.displayName'],
             'hiddenColumns' => ['e.createdAt'],
+            'filterLayout' => 'toolbar',
         ], $preference->toRenderOptions());
     }
 

@@ -16,6 +16,6 @@ final class NullDatatablePreferenceProviderTest extends TestCase
         $preference = $provider->getPreference('users');
 
         self::assertTrue($preference->isEmpty());
-        self::assertSame([], $preference->toRenderOptions());
+        self::assertSame(['filterLayout' => 'toolbar'], $preference->toRenderOptions());
     }
 }

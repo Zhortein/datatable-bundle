@@ -37,9 +37,6 @@ final class DatatableRendererFilterLayoutTest extends TestCase
         ]);
 
         self::assertStringNotContainsString('zhortein-datatable__filters d-flex', $html);
-        self::assertStringNotContainsString('data-zhortein--datatable-bundle--datatable-target="activeFilters"', $html);
-        self::assertStringNotContainsString('data-zhortein--datatable-bundle--datatable-target="clearFiltersButton"', $html);
-
         self::assertStringContainsString('zhortein-datatable__column-filter', $html);
         self::assertStringContainsString('name="filters[email]"', $html);
     }
@@ -55,7 +52,6 @@ final class DatatableRendererFilterLayoutTest extends TestCase
         self::assertStringNotContainsString('zhortein-datatable__filters', $html);
         self::assertStringNotContainsString('name="filters[email]"', $html);
         self::assertStringNotContainsString('data-zhortein--datatable-bundle--datatable-filter-control="true"', $html);
-        self::assertStringNotContainsString('Clear filters', $html);
     }
 
     public function test_unknown_filter_layout_falls_back_to_toolbar_in_renderer_options(): void

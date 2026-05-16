@@ -116,6 +116,7 @@ export default class extends Controller {
             .finally(() => {
                 this.setLoading(false);
                 this.abortController = null;
+                this.updateActiveFilterState();
             });
     }
 
@@ -199,7 +200,7 @@ export default class extends Controller {
 
         this.searchDebounceTimeout = window.setTimeout(() => {
             this.refresh();
-        }, 750);
+        }, 300);
     }
 
     changeFilter() {
@@ -212,7 +213,7 @@ export default class extends Controller {
 
         this.filterDebounceTimeout = window.setTimeout(() => {
             this.refresh();
-        }, 750);
+        }, 300);
     }
 
     clearFilters(event = null) {

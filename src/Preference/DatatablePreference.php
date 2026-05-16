@@ -40,7 +40,7 @@ final readonly class DatatablePreference
         ?SortDirection $sortDirection = null,
         array $visibleColumns = [],
         array $hiddenColumns = [],
-        ?string $filterLayout = 'toolbar',
+        string $filterLayout = 'toolbar',
     ): self {
         return new self(
             pageSize: $pageSize,
@@ -52,7 +52,7 @@ final readonly class DatatablePreference
         );
     }
 
-    public function getFilterLayout() :string
+    public function getFilterLayout(): string
     {
         return $this->filterLayout;
     }
