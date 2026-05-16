@@ -236,6 +236,32 @@ export default class extends Controller {
         this.refresh();
     }
 
+    clearFilter(event) {
+        event.preventDefault();
+
+        const filterName = event.params.filter;
+
+        if (!filterName) {
+            return;
+        }
+
+        this.getFilterControls().forEach((control) => {
+            if (control.name === `filters[${filterName}]` || control.name.startsWith(`filters[${filterName}][`)) {
+                if (control instanceof HTMLInputElement && (control.type === 'checkbox' || control.type === 'radio')) {
+                    control.checked = false;
+
+                    return;
+                }
+
+                control.value = '';
+            }
+        });
+
+        this.pageValue = 1;
+        this.updateActiveFilterState();
+        this.refresh();
+    }
+
     changeColumnVisibility() {
         this.pageValue = 1;
 

@@ -1,5 +1,6 @@
 {% set filter_button_id = htmlId ~ '_column_filter_' ~ filter.name %}
 {% set filter_label = filter.label ?? column.label ?? column.name %}
+{% set is_active = filters[filter.name] is defined and filters[filter.name] is not empty %}
 
 <div
         class="dropdown zhortein-datatable__column-filter"
@@ -7,7 +8,7 @@
 >
     <button
         type="button"
-        class="btn btn-sm btn-link p-0 text-decoration-none zhortein-datatable__column-filter-toggle"
+        class="btn btn-sm btn-link p-0 text-decoration-none zhortein-datatable__column-filter-toggle{% if is_active %} active text-primary fw-bold{% endif %}"
         id="{{ filter_button_id }}"
         data-bs-toggle="dropdown"
         data-bs-auto-close="outside"
@@ -23,10 +24,24 @@
     <div
         class="dropdown-menu p-2 zhortein-datatable__column-filter-menu"
         aria-labelledby="{{ filter_button_id }}"
+        style="min-width: 200px;"
     >
         {% include '@ZhorteinDatatable/bootstrap/_filter.html.twig' with {
             filter: filter,
-            htmlId: htmlId
+            htmlId: htmlId,
+            value: filters[filter.name]|default(null)
         } only %}
+
+        {% if is_active %}
+            <hr class="dropdown-divider">
+            <button
+                type="button"
+                class="btn btn-sm btn-link text-danger p-0 w-100 text-start text-decoration-none"
+                data-action="zhortein--datatable-bundle--datatable#clearFilter"
+                data-zhortein--datatable-bundle--datatable-filter-param="{{ filter.name }}"
+            >
+                {{ 'zhortein_datatable.filters.clear'|trans({}, 'zhortein_datatable') }}
+            </button>
+        {% endif %}
     </div>
 </div>

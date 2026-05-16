@@ -3,7 +3,8 @@
         {% for filter in definition.filters %}
             {% include '@ZhorteinDatatable/bootstrap/_filter.html.twig' with {
                 filter: filter,
-                htmlId: htmlId
+                htmlId: htmlId,
+                value: filters[filter.name]|default(null)
             } only %}
         {% endfor %}
     </div>
