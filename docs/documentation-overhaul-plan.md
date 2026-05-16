@@ -4,6 +4,8 @@ This document proposes a dedicated documentation overhaul milestone.
 
 The documentation grew quickly while features were implemented. It contains useful information, but it now needs a structured cleanup pass before the bundle moves closer to a stable release.
 
+See the [Documentation Audit](documentation-audit.md) for a detailed inventory and classification of files.
+
 ## Problem statement
 
 Current issues:
