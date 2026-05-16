@@ -31,6 +31,8 @@ A Symfony 8+ bundle for Bootstrap-first business datatables driven by PHP defini
    composer require zhortein/datatable-bundle
    ```
 
+> Note that there is no automatic recipe for this bundle for now.
+
 2. **Register the bundle** (if not done by Flex) in `config/bundles.php`.
 
 3. **Import routes**:
