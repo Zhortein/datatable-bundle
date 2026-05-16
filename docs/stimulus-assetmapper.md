@@ -1,33 +1,12 @@
 # Stimulus and AssetMapper integration
 
-This document explains how to integrate the bundle frontend controller in a Symfony application using AssetMapper and Symfony UX Stimulus.
+This document explains the technical details of the Stimulus controller integration.
 
-The bundle frontend is intentionally lightweight:
+For installation instructions, see [Installation](installation.md).
 
-- vanilla JavaScript only;
-- Stimulus as the integration layer;
-- no jQuery;
-- no DataTables.net;
-- no Webpack Encore requirement;
-- no NPM build step required for the default Symfony 8 AssetMapper setup.
+## Stimulus Controller Registration
 
-The bundle exposes its Stimulus controller through a Symfony UX-compatible assets package.
-
-Enable it in the host application `assets/controllers.json`:
-
-```json
-{
-  "controllers": {
-    "@zhortein/datatable-bundle": {
-      "datatable": {
-        "enabled": true,
-        "fetch": "eager"
-      }
-    }
-  },
-  "entrypoints": []
-}
-```
+Enable it in the host application `assets/controllers.json` (see [Installation](installation.md#4-enable-stimulus-controller) for details).
 
 The generated Stimulus identifier is:
 
@@ -45,25 +24,7 @@ Do not copy the controller manually into the host application.
 
 ## Bootstrap JavaScript
 
-Some controls depend on Bootstrap JavaScript, especially dropdowns:
-
-- column visibility;
-- CSV export dropdown.
-
-Install Bootstrap through importmap:
-
-```bash
-php bin/console importmap:require bootstrap
-php bin/console importmap:require bootstrap/dist/css/bootstrap.min.css
-```
-
-Then import it:
-
-```js
-// assets/app.js
-import 'bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-```
+Some controls depend on Bootstrap JavaScript, especially dropdowns. See [Installation](installation.md#5-bootstrap-requirement) for details on how to load it.
 
 The bundle does not load Bootstrap automatically.
 
@@ -83,19 +44,7 @@ Validated behavior:
 
 ## Requirements
 
-The host application should use:
-
-- Symfony 8+
-- AssetMapper
-- Symfony UX Stimulus
-
-Expected packages in the host application:
-
-```bash
-composer require symfony/asset-mapper symfony/stimulus-bundle
-```
-
-The exact packages may already be installed in a Symfony WebApp skeleton.
+The host application should use Symfony 8+, AssetMapper, and Symfony UX Stimulus. See [Installation](installation.md#requirements) for details.
 
 ## Controller location
 

@@ -1,47 +1,57 @@
 # Array Provider
 
-The `ArrayDataProvider` is a simple provider for in-memory datasets. It is ideal for demos, tests, small static datasets, or when you are starting a new project and don't have a database yet.
+The `ArrayDataProvider` is a lightweight provider for in-memory arrays. It is ideal for demos, tests, small static datasets, or early integration checks without a database.
 
 ## Usage
 
-Set the provider to `array` in the `#[AsDatatable]` attribute and provide the rows in the datatable definition.
+To use the array provider, specify `provider: 'array'` in the `#[AsDatatable]` attribute.
+
+### Datatable Class
 
 ```php
+namespace App\Datatable;
+
+use Zhortein\DatatableBundle\Attribute\AsDatatable;
+use Zhortein\DatatableBundle\Contract\DatatableInterface;
+use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 
-#[AsDatatable(name: 'demo', provider: 'array')]
-class DemoDatatable implements DatatableInterface
+#[AsDatatable(name: 'demo-users', provider: 'array')]
+final class UserArrayDatatable implements DatatableInterface
 {
     public function buildDatatable(DatatableDefinition $definition): void
     {
         $definition
-            ->addColumn('id', label: 'ID')
-            ->addColumn('name', label: 'Name')
+            ->addColumn('id', visible: false)
+            ->addColumn('email', label: 'Email')
+            ->addColumn('displayName', label: 'Display name')
             ->setOption(ArrayDataProvider::OPTION_ROWS, [
-                ['id' => 1, 'name' => 'Alice'],
-                ['id' => 2, 'name' => 'Bob'],
-            ]);
+                ['id' => 1, 'email' => 'alice@example.test', 'displayName' => 'Alice'],
+                ['id' => 2, 'email' => 'bob@example.test', 'displayName' => 'Bob'],
+            ])
+        ;
     }
 }
 ```
 
-## Features
+## Supported Features
 
--   **Pagination**: Supported.
--   **Sorting**: Supports single-column sorting on any array key.
--   **Search**: Simple scalar search across all provided columns.
--   **Filters**: Supports text and boolean filters matching the array keys.
+`ArrayDataProvider` supports:
+
+- **Pagination**: Offset-based pagination.
+- **Global Search**: Simple scalar search across searchable columns.
+- **Sorting**: Single-column sorting.
+- **Filters**: Compatible with user-facing filters.
+
+## Options
+
+- `ArrayDataProvider::OPTION_ROWS` (`rows`): An array of associative arrays representing the data.
+- `ArrayDataProvider::OPTION_PROVIDER` (`provider`): Internal identifier (defaults to `array`).
 
 ## Limitations
 
--   **Memory**: All rows must be loaded into memory before rendering. Not suitable for large datasets.
--   **Type Guessing**: Does not support automatic type guessing like the Doctrine provider.
--   **Associations**: No support for complex associations or joins.
+- **In-Memory**: All rows must be loaded into memory.
+- **No Metadata**: Does not support Doctrine metadata type guessing.
+- **Small Datasets**: Not suitable for large datasets or production entity-backed tables.
 
-For a full example, see the [Array Datatable Example](examples/array-datatable.md).
-
-## Related documentation
-
-- [Data Providers](providers.md)
-- [Doctrine Provider](doctrine-provider.md)
-- [Array Datatable Example](examples/array-datatable.md)
+For production use cases, see the **[Doctrine Provider](doctrine-provider.md)**.

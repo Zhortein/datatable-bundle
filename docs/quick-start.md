@@ -1,59 +1,33 @@
 # Quick Start
 
-This guide helps you create your first datatable with `zhortein/datatable-bundle`.
+Get your first datatable running in minutes using the built-in `ArrayDataProvider`.
 
-## 1. Create a Datatable Class
+## 1. Define your Datatable
 
-Datatables are defined as PHP classes implementing `DatatableInterface`. Use the `#[AsDatatable]` attribute to register them.
-
-### Array-backed Example
+Create a PHP class that implements `DatatableInterface`. Use the `#[AsDatatable]` attribute to register it.
 
 ```php
+// src/Datatable/DemoUserDatatable.php
 namespace App\Datatable;
 
 use Zhortein\DatatableBundle\Attribute\AsDatatable;
-use Zhortein\DatatableBundle\Datatable\DatatableDefinition;
-use Zhortein\DatatableBundle\Datatable\DatatableInterface;
-use Zhortein\DatatableBundle\Provider\Array\ArrayDataProvider;
+use Zhortein\DatatableBundle\Contract\DatatableInterface;
+use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 
-#[AsDatatable(name: 'quickstart_array')]
-final class QuickstartArrayDatatable implements DatatableInterface
+#[AsDatatable(name: 'demo-users', provider: 'array')]
+final class DemoUserDatatable implements DatatableInterface
 {
     public function buildDatatable(DatatableDefinition $definition): void
     {
         $definition
-            ->addColumn('id', label: 'ID')
-            ->addColumn('name', label: 'Name')
-            ->setOption(ArrayDataProvider::OPTION_PROVIDER, ArrayDataProvider::PROVIDER_NAME)
+            ->addColumn('id', visible: false)
+            ->addColumn('email', label: 'Email')
+            ->addColumn('role', label: 'Role')
             ->setOption(ArrayDataProvider::OPTION_ROWS, [
-                ['id' => 1, 'name' => 'First Item'],
-                ['id' => 2, 'name' => 'Second Item'],
+                ['id' => 1, 'email' => 'admin@example.com', 'role' => 'ROLE_ADMIN'],
+                ['id' => 2, 'email' => 'user@example.com', 'role' => 'ROLE_USER'],
             ])
-        ;
-    }
-}
-```
-
-### Doctrine-backed Example
-
-```php
-namespace App\Datatable;
-
-use App\Entity\User;
-use Zhortein\DatatableBundle\Attribute\AsDatatable;
-use Zhortein\DatatableBundle\Datatable\DatatableDefinition;
-use Zhortein\DatatableBundle\Datatable\DatatableInterface;
-
-#[AsDatatable(name: 'users', provider: 'doctrine')]
-final class UserDatatable implements DatatableInterface
-{
-    public function buildDatatable(DatatableDefinition $definition): void
-    {
-        $definition
-            ->setEntityClass(User::class)
-            ->addColumn('e.id', label: 'ID')
-            ->addColumn('e.email', label: 'Email', searchable: true, sortable: true)
-            ->addColumn('e.createdAt', label: 'Created At', sortable: true)
         ;
     }
 }
@@ -61,36 +35,30 @@ final class UserDatatable implements DatatableInterface
 
 ## 2. Render in Twig
 
-You can render the datatable in any Twig template using the `zhortein_datatable()` function.
+In your Twig template, use the `zhortein_datatable()` function with the name you defined in the attribute.
 
 ```twig
 {# templates/user/index.html.twig #}
-
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>Users</h1>
-
-    {{ zhortein_datatable('users') }}
+    <h1>User List</h1>
+    {{ zhortein_datatable('demo-users', { search: true }) }}
 {% endblock %}
 ```
 
-## 3. Enable Features
+## 3. Expected Behavior
 
-Add features like search, pagination, and exports via options:
-
-```twig
-{{ zhortein_datatable('users', {
-    search: true,
-    pageSize: 10,
-    exportFormats: ['csv', 'xlsx']
-}) }}
-```
+When you visit the page:
+1. The table structure is rendered immediately.
+2. A Stimulus controller automatically triggers an Ajax request to fetch the data fragments.
+3. The table body, pagination, and summary are populated.
+4. If `search: true` is provided, a global search input is displayed.
 
 ## Next Steps
 
-- [Providers](providers.md): Learn about Doctrine and Array providers.
-- [Filters](filters.md): Add interactive filters.
-- [Actions](actions.md): Add row and global actions.
-- [UI/UX](ui-ux.md): Customize the look and feel.
-- [Exports](exports.md): Configure data exports.
+- **Doctrine Provider**: Connect your datatable to a database using the [Doctrine Provider](usage/doctrine-provider.md).
+- **Filters**: Add user-facing [Filters](usage/filters.md) to your columns.
+- **Actions**: Add row or global [Actions](usage/actions.md).
+- **Exports**: Enable server-side [Exports](usage/exports.md) (CSV/XLSX).
+- **Theming**: Customize the look and feel in [Theming & Customization](usage/theming.md).

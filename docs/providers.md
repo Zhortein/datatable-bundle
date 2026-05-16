@@ -1,46 +1,28 @@
 # Data Providers
 
-Data providers are responsible for fetching data and applying filters, search, and sorting.
+Data providers are responsible for fetching data, applying filters, sorting, and handles pagination.
 
-`zhortein/datatable-bundle` supports several provider types.
+The `zhortein/datatable-bundle` supports multiple providers through a common `DataProviderInterface`.
 
 ## Available Providers
 
--   [**Doctrine Provider**](doctrine-provider.md): The primary provider for entity-backed tables. It generates DQL queries and handles joins, aggregations, and performance optimizations.
--   [**Array Provider**](array-provider.md): A simple provider for in-memory datasets, demos, and tests.
+- **[Doctrine ORM Provider](doctrine-provider.md)**: The primary production-ready provider for entity-backed datatables.
+- **[Array Provider](array-provider.md)**: A lightweight provider for in-memory arrays, ideal for demos, tests, and small static datasets.
 
-## Using a Provider
+## Provider Selection
 
-The provider is specified in the `#[AsDatatable]` attribute:
+You can specify the provider in the `#[AsDatatable]` attribute:
 
 ```php
 #[AsDatatable(name: 'users', provider: 'doctrine')]
-class UserDatatable implements DatatableInterface { /* ... */ }
+// OR
+#[AsDatatable(name: 'demo', provider: 'array')]
 ```
 
-## Creating Custom Providers
+If no provider is specified, the bundle uses the `default_provider` configured in `zhortein_datatable.yaml`.
 
-You can implement your own provider by implementing `DataProviderInterface`.
+## Custom Providers
 
-```php
-use Zhortein\DatatableBundle\Contract\DataProviderInterface;
-use Zhortein\DatatableBundle\Definition\DatatableDefinition;
-use Zhortein\DatatableBundle\Request\DatatableRequest;
-use Zhortein\DatatableBundle\Result\DatatableResult;
+You can implement your own data provider by creating a class that implements `DataProviderInterface`. Custom providers should be registered as services and tagged with `zhortein_datatable.provider`.
 
-class MyCustomProvider implements DataProviderInterface
-{
-    public function getData(DatatableDefinition $definition, DatatableRequest $request): DatatableResult
-    {
-        // ... fetch data and return a DatatableResult
-    }
-}
-```
-
-Register your custom provider in the Symfony container and it will be available for use.
-
-## Related documentation
-
-- [Doctrine Provider](doctrine-provider.md)
-- [Array Provider](array-provider.md)
-- [Architecture](architecture.md)
+See [Architecture: Providers](architecture.md) for internal implementation details.
