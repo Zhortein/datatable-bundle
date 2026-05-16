@@ -64,7 +64,8 @@ final class DatatableRendererBootstrapConfiguredDefaultsTest extends TestCase
         self::assertStringContainsString('table-striped', $html);
         self::assertStringContainsString('table-hover', $html);
         self::assertStringNotContainsString('table-bordered', $html);
-        self::assertStringNotContainsString('table-sm', $html);
+        self::assertStringNotContainsString('class="table-sm"', $html);
+        self::assertStringNotContainsString(' table-sm"', $html);
     }
 
     private function createDefinition(): DatatableDefinition

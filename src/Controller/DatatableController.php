@@ -39,11 +39,13 @@ final readonly class DatatableController
         $renderOptions['filters'] = $datatableRequest->getFilters();
         $renderOptions['filterLayout'] = $request->query->get('filterLayout', 'toolbar');
         $renderOptions['booleanDisplayMode'] = $request->query->get('booleanDisplayMode');
+        $renderOptions['paginationSize'] = $request->query->get('paginationSize');
+        $renderOptions['tableSmall'] = $request->query->getBoolean('tableSmall');
 
         return new JsonResponse([
             'header' => $this->renderer->renderHeader($definition, $renderOptions),
             'body' => $this->renderer->renderBody($definition, $result, $renderOptions),
-            'pagination' => $this->renderer->renderPagination($definition, $result),
+            'pagination' => $this->renderer->renderPagination($definition, $result, $renderOptions),
             'summary' => $this->summaryRenderer->render($result),
             'page' => $result->getPage(),
             'pageSize' => $result->getPageSize(),

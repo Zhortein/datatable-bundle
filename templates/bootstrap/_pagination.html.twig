@@ -1,10 +1,19 @@
+{% set pagination_size = options.paginationSize|default('default') %}
+{% set pagination_classes = ['pagination', 'mb-0'] %}
+
+{% if pagination_size == 'sm' %}
+    {% set pagination_classes = pagination_classes|merge(['pagination-sm']) %}
+{% elseif pagination_size == 'lg' %}
+    {% set pagination_classes = pagination_classes|merge(['pagination-lg']) %}
+{% endif %}
+
 <div
-    class="zhortein-datatable__pagination mt-3"
+    class="zhortein-datatable__pagination"
     data-zhortein--datatable-bundle--datatable-target="pagination"
 >
-    {% if result is defined and result.totalPages > 1 %}
+    {% if result is defined and result is not null and result.totalPages > 1 %}
         <nav aria-label="{{ 'zhortein_datatable.pagination.label'|trans({}, 'zhortein_datatable') }}">
-            <ul class="pagination mb-0">
+            <ul class="{{ pagination_classes|join(' ') }}">
                 <li class="page-item{% if result.page <= 1 %} disabled{% endif %}">
                     <button
                         type="button"
