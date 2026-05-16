@@ -36,6 +36,8 @@ sync_label "wontfix" "ffffff" "This will not be worked on"
 # Types
 sync_label "type: architecture" "5319e7" "Architecture or design decision"
 sync_label "type: feature" "1d76db" "New feature"
+sync_label "type: release" "0e8a16" "Release"
+sync_label "type: chore" "fef2c0" "Chore"
 sync_label "type: bug" "d73a4a" "Bug fix"
 sync_label "type: docs" "0075ca" "Documentation task"
 sync_label "type: tests" "0e8a16" "Tests or test infrastructure"
