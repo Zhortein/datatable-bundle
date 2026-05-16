@@ -19,7 +19,7 @@ Review these first:
 
 - `README.md`
 - `docs/index.md`
-- `docs/basic-usage.md`
+- `docs/quick-start.md`
 - `docs/installation.md`
 - `docs/configuration.md`
 - `docs/roadmap.md`
@@ -93,20 +93,15 @@ All important docs should be reachable from this page.
 - datetime formatting;
 - current limitations.
 
-## Basic usage checklist
+## Quick start checklist
 
-`docs/basic-usage.md` should provide a learning path:
+`docs/quick-start.md` should provide a learning path:
 
 1. declare a datatable;
 2. render it in Twig;
 3. understand Ajax behavior;
 4. use array provider;
-5. use Doctrine provider;
-6. add filters;
-7. add actions;
-8. use typed cells;
-9. use column visibility/preferences;
-10. understand limitations.
+5. link to advanced features (Doctrine, filters, actions).
 
 It should link to specialized docs instead of duplicating everything.
 

@@ -83,7 +83,7 @@ Entry points:
 - [ ] `docs/index.md` is current.
 - [ ] `docs/installation.md` is current.
 - [ ] `docs/configuration.md` is current.
-- [ ] `docs/basic-usage.md` is current.
+- [ ] `docs/quick-start.md` is current.
 - [ ] `docs/roadmap.md` is current.
 
 Feature documentation:
