@@ -790,6 +790,33 @@ Out of scope for the first pass:
 
 ---
 
+## 0.22 - Documentation overhaul 🕒
+
+Goal:
+
+```text
+Audit, reorganize and rewrite the documentation before moving closer to beta/stable releases.
+```
+
+Planned:
+
+- audit documentation and classify files;
+- rewrite README as project landing page;
+- rewrite installation and quick-start documentation;
+- consolidate provider documentation;
+- consolidate feature documentation;
+- split architecture documentation into focused pages;
+- remove obsolete snippets and stale notes;
+- run final documentation review.
+
+Main expected outcome:
+
+```text
+The documentation becomes clear enough for external users to install, evaluate and use the bundle without relying on conversation history.
+```
+
+---
+
 # Later milestones
 
 ## 1.0 - First stable release 🔭
