@@ -212,7 +212,7 @@ export default class extends Controller {
 
         this.filterDebounceTimeout = window.setTimeout(() => {
             this.refresh();
-        }, 300);
+        }, 750);
     }
 
     clearFilters(event = null) {
@@ -414,7 +414,10 @@ export default class extends Controller {
     }
 
     applyFragments(payload) {
-        if (this.hasHeaderTarget && typeof payload.header === 'string') {
+        const activeElement = document.activeElement;
+        const isHeaderFocused = this.headerTarget.contains(activeElement);
+
+        if (!isHeaderFocused && this.hasHeaderTarget && typeof payload.header === 'string') {
             this.headerTarget.outerHTML = payload.header;
         }
 
@@ -569,5 +572,9 @@ export default class extends Controller {
         const wrapper = target.closest('.table-responsive');
 
         return wrapper instanceof HTMLElement ? wrapper : null;
+    }
+
+    stopProp(event) {
+        event.stopPropagation();
     }
 }

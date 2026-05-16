@@ -10,6 +10,8 @@
         class="btn btn-sm btn-link p-0 text-decoration-none zhortein-datatable__column-filter-toggle"
         id="{{ filter_button_id }}"
         data-bs-toggle="dropdown"
+        data-bs-auto-close="outside"
+        data-action="click->zhortein--datatable-bundle--datatable#stopProp"
         aria-expanded="false"
         aria-label="{{ 'zhortein_datatable.filters.column_filter'|trans({
             '%column%': filter_label
