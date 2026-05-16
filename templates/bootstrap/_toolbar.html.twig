@@ -33,28 +33,28 @@
                 definition: definition,
                 htmlId: htmlId
             } only %}
+        {% endif %}
 
-            {% if definition.filters is not empty %}
-                <div
+        {% if definition.filters is not empty %}
+            <div
                     class="zhortein-datatable__active-filters text-body-secondary small mt-2"
                     data-zhortein--datatable-bundle--datatable-target="activeFilters"
                     data-active-filter-count="0"
                     hidden
-                >
-                    {{ 'zhortein_datatable.filters.active'|trans({}, 'zhortein_datatable') }}
-                </div>
+            >
+                {{ 'zhortein_datatable.filters.active'|trans({}, 'zhortein_datatable') }}
+            </div>
 
-                <button
+            <button
                     type="button"
                     class="btn btn-sm btn-outline-secondary mt-2"
                     data-zhortein--datatable-bundle--datatable-target="clearFiltersButton"
                     data-action="zhortein--datatable-bundle--datatable#clearFilters"
                     hidden
                     disabled
-                >
-                    {{ 'zhortein_datatable.filters.clear'|trans({}, 'zhortein_datatable') }}
-                </button>
-            {% endif %}
+            >
+                {{ 'zhortein_datatable.filters.clear'|trans({}, 'zhortein_datatable') }}
+            </button>
         {% endif %}
     </div>
 

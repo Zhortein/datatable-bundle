@@ -1,7 +1,10 @@
 {% set filter_button_id = htmlId ~ '_column_filter_' ~ filter.name %}
 {% set filter_label = filter.label ?? column.label ?? column.name %}
 
-<div class="dropdown zhortein-datatable__column-filter">
+<div
+        class="dropdown zhortein-datatable__column-filter"
+        data-action="show.bs.dropdown->zhortein--datatable-bundle--datatable#allowDropdownOverflow hidden.bs.dropdown->zhortein--datatable-bundle--datatable#restoreDropdownOverflow"
+>
     <button
         type="button"
         class="btn btn-sm btn-link p-0 text-decoration-none zhortein-datatable__column-filter-toggle"
