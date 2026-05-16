@@ -35,6 +35,7 @@ export default class extends Controller {
         sortDirection: { type: String, default: 'asc' },
         autoLoad: { type: Boolean, default: true },
         filterLayout: String,
+        booleanDisplayMode: String,
     };
 
     connect() {
@@ -335,6 +336,10 @@ export default class extends Controller {
         }
 
         url.searchParams.set('filterLayout', this.filterLayoutValue);
+
+        if (this.hasBooleanDisplayModeValue) {
+            url.searchParams.set('booleanDisplayMode', this.booleanDisplayModeValue);
+        }
 
         this.appendFilterParameters(url.searchParams);
         this.appendColumnVisibilityParameters(url.searchParams);

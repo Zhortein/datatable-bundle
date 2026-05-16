@@ -17,6 +17,7 @@
 {% set table_class = options.tableClass is defined ? options.tableClass|trim : '' %}
 {% set confirmation_modal_enabled = options.confirmationModal is defined ? options.confirmationModal : true %}
 {% set filter_layout = options.filterLayout is defined ? options.filterLayout : 'toolbar' %}
+{% set boolean_display_mode = options.booleanDisplayMode is defined ? options.booleanDisplayMode : 'badge' %}
 
 {% if table_striped %}
     {% set table_classes = table_classes|merge(['table-striped']) %}
@@ -65,6 +66,7 @@
     data-zhortein--datatable-bundle--datatable-sort-direction-value="{{ sort_direction }}"
     data-zhortein--datatable-bundle--datatable-auto-load-value="{{ auto_load ? 'true' : 'false' }}"
     data-zhortein--datatable-bundle--datatable-filter-layout-value="{{ filter_layout }}"
+    data-zhortein--datatable-bundle--datatable-boolean-display-mode-value="{{ boolean_display_mode }}"
     aria-busy="false"
 >
     {% include '@ZhorteinDatatable/bootstrap/_toolbar.html.twig' with {

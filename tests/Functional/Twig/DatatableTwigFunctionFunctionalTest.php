@@ -36,6 +36,21 @@ final class DatatableTwigFunctionFunctionalTest extends FunctionalTestCase
         self::assertStringContainsString('No data available.', $html);
     }
 
+    public function test_it_renders_datatable_with_boolean_display_mode(): void
+    {
+        self::bootKernel();
+
+        $twig = self::getContainer()->get(Environment::class);
+        self::assertInstanceOf(Environment::class, $twig);
+
+        $html = $twig
+            ->createTemplate('{{ zhortein_datatable("functional-users", {booleanDisplayMode: "switch"}) }}')
+            ->render()
+        ;
+
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-boolean-display-mode-value="switch"', $html);
+    }
+
     protected static function getKernelClass(): string
     {
         return TestKernel::class;

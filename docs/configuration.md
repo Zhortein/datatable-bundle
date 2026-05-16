@@ -231,6 +231,27 @@ Current options:
 | `search` | boolean | Displays or hides the search input |
 | `pageSize` | integer | Defines the initial page size |
 | `fragmentsUrl` | string | Overrides the default Ajax fragments URL |
+| `booleanDisplayMode` | string | Defines how boolean values are rendered (`badge`, `icon`, `switch`, `text`) |
+
+## `booleanDisplayMode`
+
+Type: `string`
+
+Default: `badge`
+
+Available modes:
+- `badge`: Renders a Bootstrap badge (Success/Secondary).
+- `icon`: Renders a checkmark (✓) or cross (×) with appropriate colors.
+- `switch`: Renders a Bootstrap switch (checkbox). **Note**: This mode is display-only; inline editing is not supported.
+- `text`: Renders translated "Yes" or "No" text.
+
+Example:
+
+```twig
+{{ zhortein_datatable('users', {
+    booleanDisplayMode: 'switch'
+}) }}
+```
 
 Runtime options take precedence over global configuration.
 

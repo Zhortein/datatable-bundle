@@ -38,6 +38,7 @@ final readonly class DatatableController
         $renderOptions = $datatableRequest->getColumnVisibilityOptions();
         $renderOptions['filters'] = $datatableRequest->getFilters();
         $renderOptions['filterLayout'] = $request->query->get('filterLayout', 'toolbar');
+        $renderOptions['booleanDisplayMode'] = $request->query->get('booleanDisplayMode');
 
         return new JsonResponse([
             'header' => $this->renderer->renderHeader($definition, $renderOptions),

@@ -10,6 +10,7 @@ Currently implemented:
 -   **Cells**: Typed cell templates (string, numeric, boolean, datetime, array, enum).
 -   **Context**: Comprehensive Twig context for all rendering stages.
 -   **Variants**: Runtime Bootstrap table options (striped, hover, bordered, etc.).
+-   **Boolean Display Modes**: Configurable rendering for boolean columns (`badge`, `icon`, `switch`, `text`).
 
 Not implemented yet:
 -   Tailwind or other built-in themes.

@@ -81,6 +81,20 @@ final class DatatableRendererBooleanDisplayModeTest extends TestCase
         self::assertStringNotContainsString('form-check', $html);
     }
 
+    public function test_it_renders_boolean_from_string_option(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition->addColumn('enabled', type: 'boolean');
+
+        $html = new DatatableRenderer($this->createTwigEnvironment())->renderBody(
+            $definition,
+            new DatatableResult([['enabled' => true]], 1),
+            ['booleanDisplayMode' => 'switch']
+        );
+
+        self::assertStringContainsString('form-check form-switch', $html);
+    }
+
     private function renderBoolean(bool $value, ?BooleanDisplayMode $mode = null): string
     {
         $definition = new DatatableDefinition('users');
