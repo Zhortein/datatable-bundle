@@ -7,8 +7,8 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 ## Start here
 
 - [Installation](installation.md)
+- [Quick Start](quick-start.md)
 - [Configuration](configuration.md)
-- [Basic usage](basic-usage.md)
 - [First end-to-end flow](end-to-end-flow.md)
 
 ## Examples

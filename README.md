@@ -87,7 +87,7 @@ final class UserDatatable implements DatatableInterface
 
 - [Documentation Index](docs/index.md)
 - [Installation](docs/installation.md)
-- [Basic Usage / Quick Start](docs/basic-usage.md)
+- [Quick Start](docs/quick-start.md)
 - [Doctrine Provider](docs/doctrine-provider.md)
 - [Filters](docs/filters.md)
 - [Actions & Security](docs/actions-and-cells.md)
