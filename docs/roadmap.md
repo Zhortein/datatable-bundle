@@ -826,15 +826,26 @@ Potential future work:
 - multi-column sorting;
 - SearchBuilder-like advanced expressions;
 - async exports;
-- XLSX export;
+- additional export formats;
 - user preference persistence adapters;
 - API/data-source providers;
 - Elasticsearch provider;
-- UX Icons integration;
+- bulk actions with row selection:
+  - selector column;
+  - selected-row state in Stimulus;
+  - current-page and filtered-dataset action modes;
+  - CSRF-aware POST actions;
+  - authorization-aware visibility;
+- hierarchical tables / expandable child datatables:
+  - expandable detail rows;
+  - nested datatable rendering;
+  - parent-row context propagation;
+  - lazy Ajax loading;
+  - recursion and performance safeguards;- UX Icons integration;
 - richer enum badge/icon rendering;
 - accessibility audit;
 - frontend test suite;
-- Symfony Flex recipe if external demand justifies it;
+- Symfony Flex recipe;
 - Tailwind or custom theme support;
 - icon provider abstraction;
 - frontend smoke test automation.
