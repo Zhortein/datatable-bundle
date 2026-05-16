@@ -411,7 +411,7 @@ attributes: [
 
 These are used only if the application enables the optional authorization action visibility adapter.
 
-See [`../action-security.md`](../action-security.md).
+See [`../actions.md`](../actions.md).
 
 ## Column visibility
 
@@ -482,17 +482,17 @@ Current limitations:
 - no persisted column preferences;
 - no built-in action controllers;
 - no built-in voters;
-- no XLSX export yet;
 - no asynchronous exports yet.
 
 ## Related documentation
 
 - [`../doctrine-provider.md`](../doctrine-provider.md)
 - [`../filters.md`](../filters.md)
-- [`../actions-and-cells.md`](../actions-and-cells.md)
-- [`../action-security.md`](../action-security.md)
+- [`../actions.md`](../actions.md)
 - [`../exports.md`](../exports.md)
 - [`../preferences.md`](../preferences.md)
+- [`../ui-ux.md`](../ui-ux.md)
+- [`../theming.md`](../theming.md)
 
 ## Smoke-test validation
 

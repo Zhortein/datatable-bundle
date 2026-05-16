@@ -1027,7 +1027,7 @@ The documentation covers:
 
 ### Twig template override strategy
 
-Twig template override strategy is documented in [`templates.md`](templates.md).
+Twig template override strategy is documented in [`theming.md`](theming.md).
 
 The documentation covers:
 
@@ -1041,7 +1041,7 @@ The documentation covers:
 
 ### Template context reference
 
-The current Twig template context is documented in [`template-context.md`](template-context.md).
+The current Twig template context is documented in [`theming.md`](theming.md).
 
 The documentation covers:
 
@@ -1125,7 +1125,7 @@ The bundle does not require Bootstrap Icons, FontAwesome, Symfony UX Icons or an
 
 Action icons render as decorative spans with `aria-hidden="true"`, while the action label remains visible and accessible.
 
-The strategy is documented in [`icons.md`](icons.md).
+The strategy is documented in [`ui-ux.md`](ui-ux.md).
 
 ### Action icon rendering options
 
@@ -1148,7 +1148,7 @@ Labels remain visible to preserve accessibility.
 
 ### Cell template reference
 
-Cell templates are documented in `docs/cell-templates.md`.
+Cell templates are documented in [`theming.md`](theming.md).
 
 The documentation covers:
 
@@ -1304,7 +1304,7 @@ so the existing Stimulus serialization and backend request normalization continu
 
 ### UI/UX rendering customization
 
-UI/UX rendering customization is documented in `docs/ui-ux-rendering.md`.
+UI/UX rendering customization is documented in [`ui-ux.md`](ui-ux.md).
 
 The documentation covers:
 
@@ -1357,7 +1357,7 @@ The frontend test strategy is documented in `docs/frontend-tests.md`.
 
 Actions are declared on `DatatableDefinition` and rendered by the Twig/renderer layer.
 
-User-facing documentation is available in [`actions-and-cells.md`](actions-and-cells.md).
+User-facing documentation is available in [`actions.md`](actions.md).
 
 ### Row action route parameter resolver
 
@@ -1529,7 +1529,7 @@ This behavior is covered by unit tests.
 
 ### Action security and visibility documentation
 
-Action security and visibility are documented in `docs/action-security.md`.
+Action security and visibility are documented in [`actions.md`](actions.md).
 
 The documentation covers:
 
@@ -1927,10 +1927,15 @@ The documentation covers:
 
 ### Related documentation
 
-- [`end-to-end-flow.md`](end-to-end-flow.md)
-- [`doctrine-provider.md`](doctrine-provider.md)
-- [`actions-and-cells.md`](actions-and-cells.md)
-- [`features.md`](features.md)
+- [`index.md`](index.md)
+- [`installation.md`](installation.md)
+- [`quick-start.md`](quick-start.md)
+- [`providers.md`](providers.md)
+- [`filters.md`](filters.md)
+- [`actions.md`](actions.md)
+- [`ui-ux.md`](ui-ux.md)
+- [`theming.md`](theming.md)
+- [`exports.md`](exports.md)
 - [`roadmap.md`](roadmap.md)
 
 ### Architecture decisions
@@ -1940,10 +1945,12 @@ The documentation covers:
 - [`decisions/0003-bootstrap-rendering-strategy.md`](decisions/0003-bootstrap-rendering-strategy.md)
 - [`decisions/0004-vanilla-stimulus-interaction-model.md`](decisions/0004-vanilla-stimulus-interaction-model.md)
 - [`decisions/0005-doctrine-orm-provider-architecture.md`](decisions/0005-doctrine-orm-provider-architecture.md)
+- [`decisions/0006-column-header-filter-dropdowns.md`](decisions/0006-column-header-filter-dropdowns.md)
+- [`decisions/0007-xlsx-export-strategy.md`](decisions/0007-xlsx-export-strategy.md)
 
 ### Table controls documentation
 
-Table controls and frontend interactions are documented in [`table-controls.md`](table-controls.md).
+Table controls and frontend interactions are documented in [`ui-ux.md`](ui-ux.md).
 
 The documentation covers:
 
@@ -2329,7 +2336,7 @@ Each export link carries its own format-specific URL so the Stimulus controller 
 
 ### XLSX export usage
 
-XLSX export is documented in `docs/xlsx-export.md`.
+XLSX export is documented in [`exports.md`](exports.md).
 
 It uses the same server-side export pipeline as CSV, but depends on an optional OpenSpout-based writer.
 
@@ -2337,7 +2344,7 @@ The first implementation is synchronous and data-focused. Styling, formulas, mul
 
 ### XLSX memory and performance constraints
 
-XLSX export performance constraints are documented in `docs/xlsx-export-performance.md`.
+XLSX export performance constraints are documented in [`exports.md`](exports.md).
 
 The current export pipeline still loads rows into a `DatatableResult` before the writer starts writing.
 
