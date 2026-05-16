@@ -254,4 +254,28 @@ describe('datatable_controller Ajax fragment application', () => {
         expect(loadingTarget.classList.contains('d-none')).toBe(true);
         expect(loadingTarget.classList.contains('d-flex')).toBe(false);
     });
+
+    it('applies header fragment if a non-input element (like a button) is focused in the header', async () => {
+        const fetchMock = vi.fn(() => Promise.resolve(createJsonResponse(createPayload({
+            header: `<thead data-${CONTROLLER_IDENTIFIER}-target="header"><tr><th>Updated Header</th></tr></thead>`,
+        }))));
+        vi.stubGlobal('fetch', fetchMock);
+
+        document.body.innerHTML = createDatatableHtml();
+        const header = document.querySelector(`[data-${CONTROLLER_IDENTIFIER}-target="header"]`);
+        header.innerHTML = '<tr><th><button id="focusable-button">Email</button></th></tr>';
+
+        application = startApplication();
+        const { controller } = await getController(application);
+
+        const button = document.getElementById('focusable-button');
+        button.focus();
+        expect(document.activeElement).toBe(button);
+
+        controller.refresh();
+        await flushPromises();
+
+        expect(document.querySelector(`[data-${CONTROLLER_IDENTIFIER}-target="header"]`).outerHTML).toContain('Updated Header');
+        expect(document.querySelector(`[data-${CONTROLLER_IDENTIFIER}-target="header"]`).outerHTML).not.toContain('Email');
+    });
 });

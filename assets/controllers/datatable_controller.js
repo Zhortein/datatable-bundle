@@ -415,8 +415,9 @@ export default class extends Controller {
     }
 
     applyFragments(payload) {
+        const activeElement = document.activeElement;
         const isInteractingWithHeader =
-            this.headerTarget.contains(document.activeElement) ||
+            (this.headerTarget.contains(activeElement) && (activeElement instanceof HTMLInputElement || activeElement instanceof HTMLSelectElement)) ||
             this.headerTarget.querySelector('[aria-expanded="true"]') !== null;
 
         if (!isInteractingWithHeader && this.hasHeaderTarget && typeof payload.header === 'string') {

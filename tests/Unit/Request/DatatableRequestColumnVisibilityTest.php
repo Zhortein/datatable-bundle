@@ -28,6 +28,21 @@ final class DatatableRequestColumnVisibilityTest extends TestCase
         ], $request->getColumnVisibilityOptions());
     }
 
+    public function test_it_includes_sort_state_in_column_visibility_options(): void
+    {
+        $request = new DatatableRequest(
+            sortField: 'e.email',
+            sortDirection: SortDirection::Desc,
+        );
+
+        self::assertSame([
+            'visibleColumns' => [],
+            'hiddenColumns' => [],
+            'sortField' => 'e.email',
+            'sortDirection' => 'desc',
+        ], $request->getColumnVisibilityOptions());
+    }
+
     public function test_it_normalizes_column_visibility_state(): void
     {
         $request = DatatableRequest::create(
