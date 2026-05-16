@@ -36,6 +36,8 @@ export default class extends Controller {
         autoLoad: { type: Boolean, default: true },
         filterLayout: String,
         booleanDisplayMode: String,
+        paginationSize: { type: String, default: 'default' },
+        tableSmall: { type: Boolean, default: false },
     };
 
     connect() {
@@ -339,6 +341,14 @@ export default class extends Controller {
 
         if (this.hasBooleanDisplayModeValue) {
             url.searchParams.set('booleanDisplayMode', this.booleanDisplayModeValue);
+        }
+
+        if (this.paginationSizeValue !== 'default') {
+            url.searchParams.set('paginationSize', this.paginationSizeValue);
+        }
+
+        if (this.tableSmallValue) {
+            url.searchParams.set('tableSmall', 'true');
         }
 
         this.appendFilterParameters(url.searchParams);

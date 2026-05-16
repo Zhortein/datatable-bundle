@@ -17,6 +17,7 @@ use Zhortein\DatatableBundle\Enum\ActionDisplayMode;
 use Zhortein\DatatableBundle\Enum\BooleanDisplayMode;
 use Zhortein\DatatableBundle\Enum\CellType;
 use Zhortein\DatatableBundle\Enum\FilterLayout;
+use Zhortein\DatatableBundle\Enum\PaginationSize;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
 final readonly class DatatableRenderer
@@ -42,16 +43,10 @@ final readonly class DatatableRenderer
      */
     public function render(DatatableDefinition $definition, array $options = []): string
     {
-        $options = array_replace(
-            $this->defaultTableOptions,
-            [
-                'search' => $this->searchEnabled,
-                'pageSize' => $this->defaultPageSize,
-            ],
-            $options,
-        );
+        $options = $this->resolveOptions($options);
 
         $options['filterLayout'] = $this->resolveFilterLayout($options)->value;
+        $options['paginationSize'] = $this->resolvePaginationSize($options)->value;
         $filters = $options['filters'] ?? [];
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/datatable.html.twig', $this->theme), [
@@ -72,6 +67,8 @@ final readonly class DatatableRenderer
      */
     public function renderHeader(DatatableDefinition $definition, array $options = []): string
     {
+        $options = $this->resolveOptions($options);
+
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_header.html.twig', $this->theme), [
             'definition' => $definition,
             'visibleColumns' => $this->getVisibleColumns($definition, $options),
@@ -91,6 +88,8 @@ final readonly class DatatableRenderer
             return $this->renderEmptyBody($definition, $options);
         }
 
+        $options = $this->resolveOptions($options);
+
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_body.html.twig', $this->theme), [
             'rows' => $this->normalizeRows($definition, $result, $options),
             'htmlId' => $this->createHtmlId($definition),
@@ -103,25 +102,58 @@ final readonly class DatatableRenderer
      */
     public function renderEmptyBody(DatatableDefinition $definition, array $options = []): string
     {
+        $options = $this->resolveOptions($options);
+
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_empty.html.twig', $this->theme), [
             'visibleColumns' => $this->getVisibleColumns($definition, $options),
             'hasRowActions' => [] !== $definition->getRowActions(),
         ]);
     }
 
-    public function renderPagination(DatatableDefinition $definition, DatatableResult $result): string
+    /**
+     * @param array<string, mixed> $options
+     */
+    public function renderPagination(DatatableDefinition $definition, DatatableResult $result, array $options = []): string
     {
+        $options = $this->resolveOptions($options);
+        $options['paginationSize'] = $this->resolvePaginationSize($options)->value;
+
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_pagination.html.twig', $this->theme), [
             'htmlId' => $this->createHtmlId($definition),
             'result' => $result,
+            'options' => $options,
         ]);
     }
 
-    public function renderPaginationPlaceholder(DatatableDefinition $definition): string
+    /**
+     * @param array<string, mixed> $options
+     */
+    public function renderPaginationPlaceholder(DatatableDefinition $definition, array $options = []): string
     {
+        $options = $this->resolveOptions($options);
+        $options['paginationSize'] = $this->resolvePaginationSize($options)->value;
+
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_pagination.html.twig', $this->theme), [
             'htmlId' => $this->createHtmlId($definition),
+            'options' => $options,
         ]);
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return array<string, mixed>
+     */
+    private function resolveOptions(array $options): array
+    {
+        return array_replace(
+            $this->defaultTableOptions,
+            [
+                'search' => $this->searchEnabled,
+                'pageSize' => $this->defaultPageSize,
+            ],
+            $options,
+        );
     }
 
     /**
@@ -428,5 +460,19 @@ final readonly class DatatableRenderer
         $layout = $options['filterLayout'] ?? null;
 
         return FilterLayout::fromNullableString(is_string($layout) ? $layout : null);
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function resolvePaginationSize(array $options): PaginationSize
+    {
+        $size = $options['paginationSize'] ?? null;
+
+        if (null === $size && (bool) ($options['tableSmall'] ?? false)) {
+            return PaginationSize::Small;
+        }
+
+        return PaginationSize::fromNullableString(is_string($size) ? $size : null);
     }
 }

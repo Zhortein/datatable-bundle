@@ -104,6 +104,43 @@ final class DatatableRendererPaginationTest extends TestCase
         self::assertStringNotContainsString('<nav', $html);
     }
 
+    public function test_it_renders_small_pagination_when_table_is_small(): void
+    {
+        $definition = $this->createDefinition();
+        $result = new DatatableResult([['id' => 1]], page: 1, pageSize: 10, totalItems: 25);
+        $renderer = new DatatableRenderer($this->createTwigEnvironment());
+
+        $html = $renderer->renderPagination($definition, $result, ['tableSmall' => true]);
+
+        self::assertStringContainsString('class="pagination mb-0 pagination-sm"', $html);
+    }
+
+    public function test_it_renders_large_pagination_when_explicitly_set(): void
+    {
+        $definition = $this->createDefinition();
+        $result = new DatatableResult([['id' => 1]], page: 1, pageSize: 10, totalItems: 25);
+        $renderer = new DatatableRenderer($this->createTwigEnvironment());
+
+        $html = $renderer->renderPagination($definition, $result, ['paginationSize' => 'lg']);
+
+        self::assertStringContainsString('class="pagination mb-0 pagination-lg"', $html);
+    }
+
+    public function test_explicit_pagination_size_overrides_table_small(): void
+    {
+        $definition = $this->createDefinition();
+        $result = new DatatableResult([['id' => 1]], page: 1, pageSize: 10, totalItems: 25);
+        $renderer = new DatatableRenderer($this->createTwigEnvironment());
+
+        $html = $renderer->renderPagination($definition, $result, [
+            'tableSmall' => true,
+            'paginationSize' => 'default',
+        ]);
+
+        self::assertStringContainsString('class="pagination mb-0"', $html);
+        self::assertStringNotContainsString('pagination-sm', $html);
+    }
+
     private function createDefinition(): DatatableDefinition
     {
         $definition = new DatatableDefinition('users');

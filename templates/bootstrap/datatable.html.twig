@@ -1,23 +1,24 @@
-{% set fragments_url = options.fragmentsUrl is defined ? options.fragmentsUrl : '/_zhortein/datatable/' ~ definition.name ~ '/fragments' %}
-{% set export_url = options.exportUrl is defined ? options.exportUrl : '/_zhortein/datatable/' ~ definition.name ~ '/export/csv' %}
-{% set page_size = options.pageSize is defined ? options.pageSize : 25 %}
-{% set sort_field = options.sortField is defined ? options.sortField : '' %}
-{% set sort_direction = options.sortDirection is defined ? options.sortDirection : 'asc' %}
+{% set fragments_url = options.fragmentsUrl|default('/_zhortein/datatable/' ~ definition.name ~ '/fragments') %}
+{% set export_url = options.exportUrl|default('/_zhortein/datatable/' ~ definition.name ~ '/export/csv') %}
+{% set page_size = options.pageSize|default(25) %}
+{% set sort_field = options.sortField|default('') %}
+{% set sort_direction = options.sortDirection|default('asc') %}
 {% set auto_load = options.autoLoad is defined ? options.autoLoad : true %}
-{% set controls_layout = options.controlsLayout is defined ? options.controlsLayout : 'default' %}
+{% set controls_layout = options.controlsLayout|default('default') %}
 {% set table_striped = options.tableStriped is defined ? options.tableStriped : true %}
 {% set table_hover = options.tableHover is defined ? options.tableHover : true %}
 {% set table_bordered = options.tableBordered is defined ? options.tableBordered : false %}
 {% set table_borderless = options.tableBorderless is defined ? options.tableBorderless : false %}
 {% set table_small = options.tableSmall is defined ? options.tableSmall : false %}
+{% set pagination_size = options.paginationSize|default(table_small ? 'sm' : 'default') %}
 {% set table_responsive = options.tableResponsive is defined ? options.tableResponsive : true %}
 {% set table_classes = ['table', 'align-middle', 'mb-0'] %}
-{% set root_class = options.rootClass is defined ? options.rootClass|trim : '' %}
-{% set table_wrapper_class = options.tableWrapperClass is defined ? options.tableWrapperClass|trim : '' %}
-{% set table_class = options.tableClass is defined ? options.tableClass|trim : '' %}
+{% set root_class = options.rootClass|default('')|trim %}
+{% set table_wrapper_class = options.tableWrapperClass|default('')|trim %}
+{% set table_class = options.tableClass|default('')|trim %}
 {% set confirmation_modal_enabled = options.confirmationModal is defined ? options.confirmationModal : true %}
-{% set filter_layout = options.filterLayout is defined ? options.filterLayout : 'toolbar' %}
-{% set boolean_display_mode = options.booleanDisplayMode is defined ? options.booleanDisplayMode : 'badge' %}
+{% set filter_layout = options.filterLayout|default('toolbar') %}
+{% set boolean_display_mode = options.booleanDisplayMode|default('badge') %}
 
 {% if table_striped %}
     {% set table_classes = table_classes|merge(['table-striped']) %}
@@ -67,6 +68,8 @@
     data-zhortein--datatable-bundle--datatable-auto-load-value="{{ auto_load ? 'true' : 'false' }}"
     data-zhortein--datatable-bundle--datatable-filter-layout-value="{{ filter_layout }}"
     data-zhortein--datatable-bundle--datatable-boolean-display-mode-value="{{ boolean_display_mode }}"
+    data-zhortein--datatable-bundle--datatable-pagination-size-value="{{ pagination_size }}"
+    data-zhortein--datatable-bundle--datatable-table-small-value="{{ table_small ? 'true' : 'false' }}"
     aria-busy="false"
 >
     {% include '@ZhorteinDatatable/bootstrap/_toolbar.html.twig' with {
@@ -111,17 +114,19 @@
         {% include '@ZhorteinDatatable/bootstrap/_bottom_controls.html.twig' with {
             definition: definition,
             htmlId: htmlId,
-            options: options
+            options: options,
+            result: result|default(null)
         } only %}
     {% else %}
-        <div
-            class="zhortein-datatable__summary text-body-secondary small mt-2"
-            aria-live="polite"
-            data-zhortein--datatable-bundle--datatable-target="summary"
-        ></div>
+        <div class="zhortein-datatable__footer d-flex flex-wrap align-items-center justify-content-between gap-3 mt-3">
+            <div
+                class="zhortein-datatable__summary text-body-secondary small"
+                aria-live="polite"
+                data-zhortein--datatable-bundle--datatable-target="summary"
+            ></div>
+            {% include '@ZhorteinDatatable/bootstrap/_pagination.html.twig' %}
+        </div>
     {% endif %}
-
-    {% include '@ZhorteinDatatable/bootstrap/_pagination.html.twig' %}
 
     {% if confirmation_modal_enabled %}
         {% include '@ZhorteinDatatable/bootstrap/_confirmation_modal.html.twig' with {

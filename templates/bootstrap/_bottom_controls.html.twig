@@ -5,8 +5,8 @@
 {% set runtime_visible_columns = options.visibleColumns is defined ? options.visibleColumns : [] %}
 {% set runtime_hidden_columns = options.hiddenColumns is defined ? options.hiddenColumns : [] %}
 
-<div class="zhortein-datatable__bottom-controls d-flex flex-wrap justify-content-between align-items-center gap-3 mt-2">
-    <div class="d-flex flex-wrap align-items-center gap-2">
+<div class="zhortein-datatable__bottom-controls d-flex flex-wrap justify-content-between align-items-center gap-3 mt-3">
+    <div class="zhortein-datatable__bottom-controls-start d-flex flex-wrap align-items-center gap-2">
         {% if column_visibility_enabled %}
             {% include '@ZhorteinDatatable/bootstrap/_column_visibility.html.twig' with {
                 definition: definition,
@@ -36,8 +36,12 @@
         {% endif %}
     </div>
 
+    <div class="zhortein-datatable__bottom-controls-center mx-auto">
+        {% include '@ZhorteinDatatable/bootstrap/_pagination.html.twig' %}
+    </div>
+
     <div
-        class="zhortein-datatable__summary text-body-secondary small ms-auto text-end"
+        class="zhortein-datatable__bottom-controls-end zhortein-datatable__summary text-body-secondary small ms-auto text-end"
         aria-live="polite"
         data-zhortein--datatable-bundle--datatable-target="summary"
     ></div>

@@ -95,6 +95,31 @@ final class DatatableRendererBootstrapVariantsTest extends TestCase
         self::assertStringNotContainsString('class="table-responsive"', $html);
     }
 
+    public function test_it_renders_default_footer_layout(): void
+    {
+        $renderer = new DatatableRenderer($this->createTwigEnvironment());
+
+        $html = $renderer->render($this->createDefinition());
+
+        self::assertStringContainsString('zhortein-datatable__footer d-flex flex-wrap align-items-center justify-content-between gap-3 mt-3', $html);
+        self::assertStringContainsString('zhortein-datatable__summary', $html);
+        self::assertStringContainsString('zhortein-datatable__pagination', $html);
+    }
+
+    public function test_it_renders_split_footer_layout(): void
+    {
+        $renderer = new DatatableRenderer($this->createTwigEnvironment());
+
+        $html = $renderer->render($this->createDefinition(), [
+            'controlsLayout' => 'split',
+        ]);
+
+        self::assertStringContainsString('zhortein-datatable__bottom-controls d-flex flex-wrap justify-content-between align-items-center gap-3 mt-3', $html);
+        self::assertStringContainsString('zhortein-datatable__bottom-controls-start', $html);
+        self::assertStringContainsString('zhortein-datatable__bottom-controls-center', $html);
+        self::assertStringContainsString('zhortein-datatable__bottom-controls-end', $html);
+    }
+
     private function createDefinition(): DatatableDefinition
     {
         $definition = new DatatableDefinition('users');
