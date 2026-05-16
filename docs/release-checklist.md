@@ -73,7 +73,7 @@ Review `composer.json`.
 
 Packagist checklist:
 
-- [Packagist readiness](packagist.md)
+- [Packagist readiness](archive/milestones/packagist.md)
 
 ## 4. Documentation requirements
 
@@ -224,7 +224,7 @@ Before tagging:
 
 API review:
 
-- [Public API review](public-api-review.md)
+- [Public API review](archive/milestones/public-api-review.md)
 
 ## 10. Known limitations to mention
 
@@ -239,7 +239,7 @@ The first pre-release should clearly state limitations:
 - [ ] CSV and XLSX exports only.
 - [ ] No async export.
 - [ ] No built-in preference persistence.
-- [ ] No frontend test suite yet.
+- [x] Frontend test suite implemented.
 - [ ] No built-in action controllers.
 - [ ] No built-in voters/security rules.
 
@@ -306,13 +306,13 @@ If any item is not true, postpone the tag.
 When running the fresh Symfony smoke test, copy:
 
 ```text
-docs/smoke-test-report-template.md
+docs/archive/smoke-reports/smoke-test-report-template.md
 ```
 
 to:
 
 ```text
-docs/smoke-reports/YYYY-MM-DD-local-path-repository.md
+docs/archive/smoke-reports/YYYY-MM-DD-local-path-repository.md
 ```
 
 The report should record:
@@ -331,4 +331,4 @@ The report should record:
 
 The go/no-go decision for the first alpha is documented in:
 
-- [Go/no-go review for first alpha](releases/go-no-go-first-alpha.md)
+- [Go/no-go review for first alpha](archive/milestones/go-no-go-first-alpha.md)

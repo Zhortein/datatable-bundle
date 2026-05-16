@@ -892,7 +892,7 @@ Key entry points:
 - [`configuration.md`](configuration.md);
 - [`roadmap.md`](roadmap.md).
 
-A dedicated documentation review checklist exists in [`archive/milestones/documentation-review.md`](archive/milestones/documentation-review.md).
+A dedicated documentation review checklist exists in [`documentation-review.md`](documentation-review.md).
 
 ---
 
