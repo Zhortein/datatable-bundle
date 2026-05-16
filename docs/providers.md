@@ -25,4 +25,4 @@ If no provider is specified, the bundle uses the `default_provider` configured i
 
 You can implement your own data provider by creating a class that implements `DataProviderInterface`. Custom providers should be registered as services and tagged with `zhortein_datatable.provider`.
 
-See [Architecture: Providers](architecture.md) for internal implementation details.
+See [Architecture: Providers](architecture/providers.md) for internal implementation details.

@@ -95,4 +95,4 @@ Or override them at runtime:
 
 - [UI/UX Rendering](ui-ux.md)
 - [Actions and Security](actions.md)
-- [Architecture](architecture.md)
+- [Architecture](architecture/overview.md)

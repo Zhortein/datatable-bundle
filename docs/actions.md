@@ -109,4 +109,4 @@ By default, this uses `window.confirm()`. If Bootstrap JavaScript and a modal ta
 
 - [UI/UX customization](ui-ux.md)
 - [Theming](theming.md)
-- [Architecture](architecture.md)
+- [Architecture](architecture/overview.md)
