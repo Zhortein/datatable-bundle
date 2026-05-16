@@ -83,6 +83,21 @@ final class DatatableRendererColumnHeaderFilterDropdownTest extends TestCase
         self::assertStringContainsString('<option value="0">No</option>', $html);
     }
 
+    public function test_it_renders_active_state_for_header_filters(): void
+    {
+        $html = $this->createRenderer()->render($this->createDefinition(), [
+            'filterLayout' => 'header',
+            'filters' => [
+                'email' => 'alice@example.test',
+            ],
+        ]);
+
+        self::assertStringContainsString('zhortein-datatable__column-filter-toggle active text-primary fw-bold', $html);
+        self::assertStringContainsString('value="alice@example.test"', $html);
+        self::assertStringContainsString('data-action="zhortein--datatable-bundle--datatable#clearFilter"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-filter-param="email"', $html);
+    }
+
     private function createDefinition(): DatatableDefinition
     {
         $definition = new DatatableDefinition('users');

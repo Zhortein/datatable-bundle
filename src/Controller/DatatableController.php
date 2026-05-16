@@ -36,6 +36,7 @@ final readonly class DatatableController
         $result = $provider->getData($definition, $datatableRequest);
 
         $renderOptions = $datatableRequest->getColumnVisibilityOptions();
+        $renderOptions['filters'] = $datatableRequest->getFilters();
         $renderOptions['filterLayout'] = $request->query->get('filterLayout', 'toolbar');
 
         return new JsonResponse([

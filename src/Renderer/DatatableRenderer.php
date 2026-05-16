@@ -52,6 +52,7 @@ final readonly class DatatableRenderer
         );
 
         $options['filterLayout'] = $this->resolveFilterLayout($options)->value;
+        $filters = $options['filters'] ?? [];
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/datatable.html.twig', $this->theme), [
             'definition' => $definition,
@@ -61,6 +62,7 @@ final readonly class DatatableRenderer
             'hasRowActions' => [] !== $definition->getRowActions(),
             'htmlId' => $this->createHtmlId($definition),
             'options' => $options,
+            'filters' => $filters,
             'rowActionDisplayMode' => $this->resolveRowActionDisplayMode($definition, $options)->value,
         ]);
     }
@@ -76,6 +78,7 @@ final readonly class DatatableRenderer
             'hasRowActions' => [] !== $definition->getRowActions(),
             'htmlId' => $this->createHtmlId($definition),
             'options' => $options,
+            'filters' => $options['filters'] ?? [],
         ]);
     }
 

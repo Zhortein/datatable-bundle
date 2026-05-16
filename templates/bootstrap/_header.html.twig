@@ -69,7 +69,8 @@
                         {% include '@ZhorteinDatatable/bootstrap/_column_filter.html.twig' with {
                             column: column,
                             filter: column_filter,
-                            htmlId: htmlId
+                            htmlId: htmlId,
+                            filters: filters|default({})
                         } only %}
                     {% endif %}
                 </div>

@@ -31,7 +31,8 @@
         {% if toolbar_filters_enabled %}
             {% include '@ZhorteinDatatable/bootstrap/_filters.html.twig' with {
                 definition: definition,
-                htmlId: htmlId
+                htmlId: htmlId,
+                filters: filters|default({})
             } only %}
         {% endif %}
 
