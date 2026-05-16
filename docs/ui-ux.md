@@ -95,4 +95,4 @@ The bundle follows a strong accessibility baseline:
 
 - [Actions and Security](actions.md)
 - [Theming and Templates](theming.md)
-- [Architecture](architecture.md)
+- [Architecture](architecture/overview.md)

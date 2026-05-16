@@ -377,5 +377,5 @@ Before shipping a Doctrine-backed datatable:
 - [Doctrine-backed datatables](doctrine-provider.md)
 - [Filters](filters.md)
 - [Server-side exports](exports.md)
-- [Architecture](architecture.md)
+- [Architecture](architecture/doctrine.md)
 - [Roadmap](roadmap.md)

@@ -85,4 +85,4 @@ The export endpoint does not include a built-in authorization layer beyond the r
 
 - [Doctrine provider](doctrine-provider.md)
 - [UI/UX customization](ui-ux.md)
-- [Architecture](architecture.md)
+- [Architecture](architecture/overview.md)
