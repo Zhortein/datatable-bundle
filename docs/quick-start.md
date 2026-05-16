@@ -57,8 +57,8 @@ When you visit the page:
 
 ## Next Steps
 
-- **Doctrine Provider**: Connect your datatable to a database using the [Doctrine Provider](usage/doctrine-provider.md).
-- **Filters**: Add user-facing [Filters](usage/filters.md) to your columns.
-- **Actions**: Add row or global [Actions](usage/actions.md).
-- **Exports**: Enable server-side [Exports](usage/exports.md) (CSV/XLSX).
-- **Theming**: Customize the look and feel in [Theming & Customization](usage/theming.md).
+- **Doctrine Provider**: Connect your datatable to a database using the [Doctrine Provider](doctrine-provider.md).
+- **Filters**: Add user-facing [Filters](filters.md) to your columns.
+- **Actions**: Add row or global [Actions](actions.md).
+- **Exports**: Enable server-side [Exports](exports.md) (CSV/XLSX).
+- **Theming**: Customize the look and feel in [Theming & Customization](theming.md).

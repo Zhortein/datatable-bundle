@@ -22,20 +22,25 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 ## Technical Architecture
 
 - [Architecture Overview](architecture.md)
-- [High-level flow](end-to-end-flow.md)
 - [Architecture Decisions](decisions/index.md)
 
 ## In-depth guides
 
 - [Doctrine-backed datatables](doctrine-provider.md)
 - [Doctrine performance](doctrine-performance.md)
-- [Stimulus & AssetMapper integration](stimulus-assetmapper.md)
 
 ## Development and Reference
 
 - [Roadmap](roadmap.md)
+- [Changelog](changelog.md)
 - [Routes](routes.md)
 - [Frontend tests](frontend-tests.md)
+- [Development docs](development.md)
+
+## Historical and Archive
+
+- [Documentation Audit](documentation-audit.md)
+- [Archive index](./archive/milestones/go-no-go-first-alpha.md)
 
 ---
 

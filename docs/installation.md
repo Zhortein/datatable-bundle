@@ -105,7 +105,11 @@ Ensure your datatable class is in a directory that is autowired and tagged as a 
 Ensure that `bootstrap.bundle.js` (which includes Popper.js) is properly loaded. Dropdown-based controls like column visibility or export menus require Bootstrap's JavaScript.
 
 ### Routes missing
-Run `php bin/console debug:router` and look for routes starting with `_zhortein_datatable_`. If they are missing, verify your route import in `config/routes/`.
+Run `php bin/console debug:router` and look for routes starting with `zhortein_datatable_`. If they are missing, verify your route import in `config/routes/`.
+
+### Search input does not refresh
+- Check that the rendered search input contains `data-action="input->zhortein--datatable-bundle--datatable#search"`.
+- Verify that the browser console doesn't show any JavaScript errors during input.
 
 ### Exports not working
 - **CSV**: Works out of the box.

@@ -9,14 +9,15 @@ The bundle is **Bootstrap-first** and uses a **Stimulus-powered** interaction mo
 Currently implemented:
 -   **Interactions**: Global search, pagination, sortable headers, page size selector.
 -   **UI Features**: Loading and error states, summary updates, Bootstrap table variants.
+-   **Column Visibility**: User-controlled column visibility with persistent state.
 -   **Customization**: Action icons, display modes (inline, dropdown), boolean rendering modes.
 -   **Layouts**: Default toolbar layout and Split layout (moving some controls below the table).
+-   **Testing**: Automated frontend test suite for the Stimulus controller.
 
 Not implemented yet:
--   Column visibility UI (coming soon).
 -   Icon provider abstraction (currently CSS-class based).
 -   Icon-only actions (accessibility first).
--   Frontend test suite for the Stimulus controller.
+-   Persisted filter presets.
 
 ## Table Controls
 

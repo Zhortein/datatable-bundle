@@ -177,7 +177,7 @@ The next recommended step is a fresh Symfony application smoke test before taggi
 
 Before tagging the first alpha, run the smoke test plan:
 
-- [Fresh Symfony smoke test plan](smoke-test.md)
+- [Fresh Symfony smoke test plan](archive/smoke-reports/smoke-test.md)
 
 The smoke test must validate:
 
@@ -199,4 +199,4 @@ Blocking issues must be resolved before tagging.
 
 The go/no-go decision for the first alpha is documented in:
 
-- [Go/no-go review for first alpha](releases/go-no-go-first-alpha.md)
+- [Go/no-go review for first alpha](archive/milestones/go-no-go-first-alpha.md)

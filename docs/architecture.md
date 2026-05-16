@@ -15,4 +15,3 @@ This document serves as the index for the technical architecture of `zhortein/da
 
 - [**Architecture Decisions**](decisions/index.md): Historical record of significant design choices.
 - [**Roadmap**](roadmap.md): Planned features and future direction.
-- [**End-to-End Flow**](end-to-end-flow.md): Detailed sequence of a datatable request.

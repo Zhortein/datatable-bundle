@@ -192,7 +192,7 @@ More details are available in [`release.md`](release.md).
 
 ## Packagist readiness
 
-Before creating a public release, review [`packagist.md`](packagist.md).
+Before creating a public release, review [`archive/milestones/packagist.md`](archive/milestones/packagist.md).
 
 The package should not be presented as stable until:
 

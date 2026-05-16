@@ -790,7 +790,7 @@ Out of scope for the first pass:
 
 ---
 
-## 0.22 - Documentation overhaul 🕒
+## 0.22 - Documentation overhaul ✅
 
 Goal:
 
@@ -798,21 +798,21 @@ Goal:
 Audit, reorganize and rewrite the documentation before moving closer to beta/stable releases.
 ```
 
-Planned:
+Delivered:
 
-- audit documentation and classify files;
-- rewrite README as project landing page;
-- rewrite installation and quick-start documentation;
-- consolidate provider documentation;
-- consolidate feature documentation;
-- split architecture documentation into focused pages;
-- remove obsolete snippets and stale notes;
-- run final documentation review.
+- Audit documentation and classify files.
+- Rewrite README as project landing page.
+- Rewrite installation and quick-start documentation.
+- Consolidate provider documentation.
+- Consolidate feature documentation.
+- Split architecture documentation into focused pages.
+- Remove obsolete snippets and stale notes.
+- Documentation link audit and final cleanup.
 
-Main expected outcome:
+Main outcome:
 
 ```text
-The documentation becomes clear enough for external users to install, evaluate and use the bundle without relying on conversation history.
+The documentation is now structured, clear and professional, providing a solid foundation for external users.
 ```
 
 ---
@@ -887,18 +887,18 @@ Key entry points:
 
 - [`../README.md`](../README.md);
 - [`index.md`](index.md);
-- [`basic-usage.md`](basic-usage.md);
+- [`quick-start.md`](quick-start.md);
 - [`installation.md`](installation.md);
 - [`configuration.md`](configuration.md);
 - [`roadmap.md`](roadmap.md).
 
-A dedicated documentation review checklist exists in [`documentation-review.md`](documentation-review.md).
+A dedicated documentation review checklist exists in [`archive/milestones/documentation-review.md`](archive/milestones/documentation-review.md).
 
 ---
 
 ## Public API review notes
 
-A public API review exists in [`public-api-review.md`](public-api-review.md).
+A public API review exists in [`archive/milestones/public-api-review.md`](archive/milestones/public-api-review.md).
 
 Before a stable 1.0 release, revisit:
 
