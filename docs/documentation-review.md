@@ -35,6 +35,26 @@ The documentation has been reviewed for accuracy, consistency, and completeness.
 - [x] **XLSX**: `openspout/openspout` optional dependency is mentioned.
 - [x] **Large Exports**: Synchronous/Memory limitations are explicitly stated.
 
+## Final code/documentation consistency review (2026-05-16)
+
+Performed a final consistency check between the current codebase and the documentation.
+
+### Summary of checks
+- Verified all public APIs (`AsDatatable`, `DatatableInterface`, `DatatableDefinition`) against source code.
+- Verified all Twig options and Bootstrap templates against implementation.
+- Verified Doctrine provider capabilities (joins, filters, search, sorting, aggregates).
+- Verified Export formats and modes.
+- Verified Frontend test coverage against actual Vitest suites.
+- Verified `CHANGELOG.md` reflects major additions since `alpha.1`.
+
+### Documentation updates made
+- Updated `CHANGELOG.md` with unreleased changes from milestones 0.16 to 0.22.
+- Verified `docs/roadmap.md` reflects current completion status.
+- Verified `README.md` and `docs/index.md` links and examples.
+
+### Remaining code/doc mismatches
+- None identified in this pass. The documentation is now fully aligned with the implemented code.
+
 ## Remaining Known Documentation Limitations
 - No hosted demo site (planned for future).
 - No automated Markdown link checking in CI (suggested).

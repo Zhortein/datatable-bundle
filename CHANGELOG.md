@@ -6,7 +6,33 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-_No unreleased changes have been collected yet._
+### Added
+
+- Added action display modes: `inline`, `dropdown`, `list`.
+- Added action icon positioning: `before`, `after`.
+- Added boolean cell display modes: `badge`, `icon`, `switch`, `text`.
+- Added configurable datatable control layout: `default`, `split`.
+- Added `rootClass`, `tableWrapperClass` and `tableClass` options for CSS customization.
+- Added `filterLayout` option: `toolbar`, `header`, `none`.
+- Added column header filter dropdowns.
+- Added optional XLSX export support via `openspout/openspout`.
+- Added conditional XLSX export controls in the UI.
+- Added aggregate column foundation for Doctrine provider.
+- Added explicit chained joins and safe custom joins for Doctrine provider.
+- Added custom join parameters support for Doctrine provider.
+- Added Vitest/jsdom frontend test suite for the Stimulus controller.
+
+### Changed
+
+- Performed major documentation overhaul, reorganizing and consolidating all guides.
+- Improved export URL generation to support multi-format exports.
+- Improved Doctrine provider internal decomposition for better maintainability.
+
+### Fixed
+
+- Fixed action confirmation behavior to support both native `window.confirm` and Bootstrap modals.
+- Fixed export link propagation for multiple formats.
+
 ## [0.1.0-alpha.1] - 2026-05-11
 
 ### Added
