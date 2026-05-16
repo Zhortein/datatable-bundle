@@ -1,8 +1,6 @@
-# Doctrine provider performance guidance
+# Doctrine Provider Performance Guidance
 
-This document gives practical performance guidance for Doctrine-backed datatables.
-
-The Doctrine provider is designed for business datatables with server-side pagination, filtering, sorting and exports.
+This document gives practical performance guidance for Doctrine-backed datatables. For usage instructions, see the **[Doctrine ORM Provider](doctrine-provider.md)**.
 
 Performance depends heavily on:
 

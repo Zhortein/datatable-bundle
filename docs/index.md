@@ -7,13 +7,13 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 ## Start here
 
 - [Installation](installation.md)
+- [Quick Start](quick-start.md)
 - [Configuration](configuration.md)
-- [Basic usage](basic-usage.md)
 - [First end-to-end flow](end-to-end-flow.md)
 
 ## Examples
 
-- [Minimal array datatable example](examples/array-datatable.md)
+- [Minimal array datatable example](array-provider.md)
 - [Doctrine datatable example](examples/doctrine-datatable.md)
 
 ## Core concepts
@@ -28,8 +28,10 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 
 ## Providers
 
-- [Doctrine-backed datatables](doctrine-provider.md)
-- [Doctrine provider performance guidance](doctrine-performance.md)
+- [Overview](providers.md)
+- [Doctrine ORM provider](doctrine-provider.md)
+- [Array provider](array-provider.md)
+- [Doctrine performance guidance](doctrine-performance.md)
 - [User-facing filters](filters.md)
 - [Server-side exports](exports.md)
 
