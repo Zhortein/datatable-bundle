@@ -199,7 +199,7 @@ export default class extends Controller {
 
         this.searchDebounceTimeout = window.setTimeout(() => {
             this.refresh();
-        }, 300);
+        }, 750);
     }
 
     changeFilter() {
@@ -414,10 +414,11 @@ export default class extends Controller {
     }
 
     applyFragments(payload) {
-        const activeElement = document.activeElement;
-        const isHeaderFocused = this.headerTarget.contains(activeElement);
+        const isInteractingWithHeader =
+            this.headerTarget.contains(document.activeElement) ||
+            this.headerTarget.querySelector('[aria-expanded="true"]') !== null;
 
-        if (!isHeaderFocused && this.hasHeaderTarget && typeof payload.header === 'string') {
+        if (!isInteractingWithHeader && this.hasHeaderTarget && typeof payload.header === 'string') {
             this.headerTarget.outerHTML = payload.header;
         }
 
