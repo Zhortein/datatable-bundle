@@ -832,4 +832,4 @@ Important recommendations:
 
 - [`architecture.md`](architecture.md)
 - [`end-to-end-flow.md`](end-to-end-flow.md)
-- [`actions-and-cells.md`](actions-and-cells.md)
+- [`actions.md`](actions.md)

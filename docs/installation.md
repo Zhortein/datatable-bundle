@@ -267,7 +267,7 @@ Current limitations include:
 - Doctrine provider supports only main alias `e`;
 - association traversal is not implemented yet;
 - custom joins are not implemented yet;
-- exports are not implemented yet;
+- exports are now implemented (CSV and XLSX);
 - advanced filters/search builder are not implemented yet;
 - frontend tests are not implemented yet.
 
@@ -341,4 +341,4 @@ Then enable XLSX controls when rendering a datatable:
 }) }}
 ```
 
-See [`xlsx-export.md`](xlsx-export.md) for details and limitations.
+See [`exports.md`](exports.md) for details and limitations.

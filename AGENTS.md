@@ -32,7 +32,7 @@ The bundle provides Bootstrap-first datatables driven by PHP definitions, render
 
 ## Legacy warning
 
-The files in `docs/legacy-ncmanager` come from an existing application implementation.
+The files in `docs/legacy-reference` come from an existing application implementation.
 
 They show:
 - expected developer experience;

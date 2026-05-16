@@ -83,23 +83,18 @@ Entry points:
 - [ ] `docs/index.md` is current.
 - [ ] `docs/installation.md` is current.
 - [ ] `docs/configuration.md` is current.
-- [ ] `docs/basic-usage.md` is current.
+- [ ] `docs/quick-start.md` is current.
 - [ ] `docs/roadmap.md` is current.
 
 Feature documentation:
 
 - [ ] Doctrine provider documentation is current.
 - [ ] Filters documentation is current.
-- [ ] Actions and cells documentation is current.
-- [ ] Action security documentation is current.
+- [ ] Actions and Security documentation is current.
 - [ ] Exports documentation is current.
 - [ ] Preferences documentation is current.
-- [ ] Table controls documentation is current.
-- [ ] Template override documentation is current.
-- [ ] Template context reference is current.
-- [ ] Cell template reference is current.
-- [ ] Theming documentation is current.
-- [ ] Icons documentation is current.
+- [ ] UI/UX and Controls documentation is current.
+- [ ] Theming and Templates documentation is current.
 
 Maintenance documentation:
 
@@ -241,7 +236,7 @@ The first pre-release should clearly state limitations:
 - [ ] Stimulus controller import is manual.
 - [ ] Doctrine provider supports explicit joins but not deep traversal.
 - [ ] No ManyToMany/collection aggregation.
-- [ ] CSV export only.
+- [ ] CSV and XLSX exports only.
 - [ ] No async export.
 - [ ] No built-in preference persistence.
 - [ ] No frontend test suite yet.

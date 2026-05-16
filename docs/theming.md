@@ -1,137 +1,77 @@
-# Theming and rendering customization
+# Theming and Templates
 
-This document explains the current theming capabilities and limitations of `zhortein/datatable-bundle`.
+`zhortein/datatable-bundle` uses a Twig-first rendering strategy, making it easy to customize and override the UI. The bundle is currently **Bootstrap-first**.
 
-The bundle is currently **Bootstrap-first**.
+## Status
 
-It does not provide multiple maintained themes yet.
-
-## Current status
-
-Implemented:
-
-- Bootstrap template tree;
-- Twig template overrides;
-- custom column templates;
-- typed cell templates;
-- Bootstrap table display variants;
-- Bootstrap rendering defaults through bundle configuration;
-- optional CSS-class based action icons;
-- documented template context.
+Currently implemented:
+-   **Theme**: Bootstrap 5.
+-   **Overrides**: Standard Symfony bundle template overrides.
+-   **Cells**: Typed cell templates (string, numeric, boolean, datetime, array, enum).
+-   **Context**: Comprehensive Twig context for all rendering stages.
+-   **Variants**: Runtime Bootstrap table options (striped, hover, bordered, etc.).
 
 Not implemented yet:
+-   Tailwind or other built-in themes.
+-   Rich enum badges/icons by default.
+-   Generic icon provider abstraction.
 
-- Tailwind theme;
-- custom theme registry;
-- theme discovery;
-- multi-theme template namespaces;
-- CSS asset generation;
-- icon provider abstraction;
-- Symfony UX Icons integration;
-- full design system abstraction.
+## Template Override Strategy
 
-## Current theme
+To customize the look and feel, use Symfony's bundle override mechanism. Place your custom templates in:
 
-The only supported theme is:
+`templates/bundles/ZhorteinDatatableBundle/bootstrap/...`
 
-```text
-bootstrap
+### Recommended Path for Customization
+1.  **Custom Column Template**: Use `template: '...'` in `addColumn()` for specific column needs.
+2.  **Cell Templates**: Override `cell/*.html.twig` to change how specific types are rendered globally.
+3.  **Partial Templates**: Override `_toolbar.html.twig`, `_header.html.twig`, etc., for layout changes.
+4.  **Full Shell**: Override `datatable.html.twig` only if you need to restructure the entire component.
+
+## Typed Cell Rendering
+
+The bundle automatically selects a template based on the column type.
+
+| Type | Template | Default Alignment |
+|---|---|---|
+| `string` | `cell/string.html.twig` | `text-start` |
+| `numeric` | `cell/numeric.html.twig` | `text-end` |
+| `boolean` | `cell/boolean.html.twig` | `text-center` |
+| `datetime` | `cell/datetime.html.twig` | `text-start` |
+| `array` | `cell/array.html.twig` | `text-start` |
+| `enum` | `cell/enum.html.twig` | `text-center` |
+| `default` | `cell/default.html.twig` | `text-start` |
+
+### Custom Column Template Example
+```php
+$definition->addColumn(
+    name: 'e.status',
+    label: 'Status',
+    template: 'admin/datatable/cell/status.html.twig'
+);
 ```
 
-Configuration:
-
-```yaml
-zhortein_datatable:
-    default_theme: bootstrap
-```
-
-The renderer uses this value to resolve templates such as:
-
-```text
-@ZhorteinDatatable/bootstrap/datatable.html.twig
-@ZhorteinDatatable/bootstrap/_toolbar.html.twig
-@ZhorteinDatatable/bootstrap/cell/string.html.twig
-```
-
-## Bootstrap templates
-
-Templates live under:
-
-```text
-templates/bootstrap/
-```
-
-The template tree is documented in [`templates.md`](templates.md).
-
-Important templates:
-
-```text
-datatable.html.twig
-_toolbar.html.twig
-_header.html.twig
-_body.html.twig
-_row.html.twig
-_cell.html.twig
-_action.html.twig
-_pagination.html.twig
-_filter.html.twig
-_column_visibility.html.twig
-_export.html.twig
-cell/*.html.twig
-```
-
-## Template override strategy
-
-Host applications can override bundle templates using Symfony's standard bundle override mechanism.
-
-Example:
-
-```text
-templates/bundles/ZhorteinDatatableBundle/bootstrap/_toolbar.html.twig
-```
-
-This is currently the recommended customization strategy.
-
-Prefer small overrides:
-
-1. custom column template;
-2. cell template;
-3. action template;
-4. toolbar partial;
-5. full datatable shell only when necessary.
-
-More details are available in [`templates.md`](templates.md).
-
-## Runtime Bootstrap variants
-
-Bootstrap table variants can be configured at render time.
-
-Example:
-
+In your Twig template:
 ```twig
-{{ zhortein_datatable('users', {
-    tableStriped: true,
-    tableHover: true,
-    tableBordered: true,
-    tableSmall: true,
-    tableResponsive: true
-}) }}
+{# templates/admin/datatable/cell/status.html.twig #}
+<span class="badge text-bg-info">{{ value }}</span>
 ```
 
-Supported runtime options:
+## Template Context Reference
 
-```text
-tableStriped
-tableHover
-tableBordered
-tableBorderless
-tableSmall
-tableResponsive
-```
+### Global Context (`datatable.html.twig`)
+Available variables: `definition`, `visibleColumns`, `rowActions`, `globalActions`, `htmlId`, `options`.
 
-## Global Bootstrap defaults
+### Cell Context (`_cell.html.twig` and `cell/*.html.twig`)
+-   `column`: The `ColumnDefinition` object.
+-   `value`: The raw value from the provider.
 
-Bootstrap table variants can also be configured globally.
+### Action Context (`_action.html.twig`)
+-   `action`: Array containing `name`, `label`, `url`, `httpMethod`, `csrfToken`, `className`, `attributes`.
+
+## Bootstrap Configuration
+
+You can set global Bootstrap defaults in your configuration:
 
 ```yaml
 zhortein_datatable:
@@ -139,220 +79,20 @@ zhortein_datatable:
         table:
             striped: true
             hover: true
-            bordered: false
-            borderless: false
-            small: false
             responsive: true
 ```
 
-Runtime options still take precedence over configuration.
-
-## Cell rendering customization
-
-The renderer supports:
-
-- built-in typed cell templates;
-- custom column templates;
-- default alignment by cell type.
-
-Example:
-
-```php
-$definition->addColumn(
-    name: 'e.status',
-    label: 'Status',
-    template: 'admin/datatable/cell/status.html.twig',
-    type: 'string',
-);
-```
-
-More details are available in [`cell-templates.md`](cell-templates.md).
-
-## Icon strategy
-
-Icons are optional and CSS-class based.
-
-Example:
-
-```php
-$definition->addRowAction(
-    name: 'view',
-    route: 'app_user_show',
-    label: 'View',
-    icon: 'bi bi-eye',
-    routeParameters: [
-        'id' => 'e.id',
-    ],
-);
-```
-
-The bundle does not require:
-
-- Bootstrap Icons;
-- FontAwesome;
-- Symfony UX Icons;
-- any SVG icon package.
-
-The host application is responsible for loading the icon CSS.
-
-More details are available in [`icons.md`](icons.md).
-
-## Template context
-
-Template context is documented in [`template-context.md`](template-context.md).
-
-This document describes variables available in:
-
-- datatable shell;
-- toolbar;
-- header;
-- rows;
-- cells;
-- actions;
-- filters;
-- pagination.
-
-## Current limitations
-
-### Bootstrap only
-
-The bundle currently supports only the Bootstrap template tree.
-
-There is no Tailwind theme and no generic theme registry yet.
-
-### Theme string only
-
-The renderer currently uses a simple theme string.
-
-There is no dedicated `ThemeInterface`, theme registry or theme discovery mechanism yet.
-
-### No CSS asset package
-
-The bundle does not ship a dedicated CSS file yet.
-
-It assumes the host application already loads Bootstrap or Bootstrap-compatible styles.
-
-### No icon provider abstraction
-
-Action icons are rendered as CSS classes only.
-
-There is no icon alias mapping, SVG provider or Symfony UX Icons integration yet.
-
-### Template context may still evolve
-
-The project is not stable yet.
-
-Some template context details may change before 1.0, especially around:
-
-- filters;
-- exports;
-- preferences;
-- actions;
-- advanced Doctrine fields.
-
-### No design system abstraction
-
-The bundle is meant to provide business-oriented datatable rendering, not a full design system.
-
-Applications with strict design systems should override templates.
-
-## Recommended customization path
-
-For most applications:
-
-1. Keep the default Bootstrap templates.
-2. Use runtime Bootstrap options for small variants.
-3. Use `className` for column-level styling.
-4. Use custom column templates for special cells.
-5. Override partial templates for global layout changes.
-6. Avoid overriding `datatable.html.twig` unless truly necessary.
-
-## Bootstrap host requirements
-
-The bundle is Bootstrap-first, but Bootstrap is provided by the host application.
-
-The bundle does not install or load:
-
-- Bootstrap CSS;
-- Bootstrap JavaScript;
-- Bootstrap Icons.
-
-Host applications must load Bootstrap CSS for styling.
-
-Host applications must load Bootstrap JavaScript for dropdown controls.
-
-With AssetMapper/importmap:
-
-```bash
-php bin/console importmap:require bootstrap
-php bin/console importmap:require bootstrap/dist/css/bootstrap.min.css
-```
-
-Then import Bootstrap:
-
-```js
-// assets/app.js
-import 'bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-```
-
-This was validated during the fresh Symfony smoke test.
-
-## Dropdown-dependent controls
-
-The following controls use Bootstrap dropdown markup:
-
-- column visibility;
-- CSV export.
-
-Without Bootstrap JavaScript, these controls may render but not open.
-
-## Additional CSS classes
-
-For project-specific styling, applications can append CSS classes without overriding templates.
+Or override them at runtime:
 
 ```twig
 {{ zhortein_datatable('users', {
-    rootClass: 'datatable datatable-users',
-    tableWrapperClass: 'datatable-wrapper',
-    tableClass: 'datatable-table'
+    tableSmall: true,
+    tableBordered: true
 }) }}
 ```
 
-The bundle keeps its default Bootstrap classes and appends the provided classes.
-
-## UI/UX rendering customization
-
-The UI/UX customization options are summarized in [`ui-ux-rendering.md`](ui-ux-rendering.md).
-
-It covers:
-
-- action icons;
-- action display modes;
-- boolean display modes;
-- sortable header indicators;
-- control layout;
-- additional CSS classes;
-- Bootstrap table variants.
-
-## Future direction
-
-Potential future work:
-
-- formal theme registry;
-- documented template stability levels;
-- optional icon renderer interface;
-- optional Symfony UX Icons integration;
-- richer enum badge templates;
-- compact table variant;
-- custom theme documentation;
-- Tailwind evaluation after Bootstrap API stabilizes.
-
 ## Related documentation
 
-- [`templates.md`](templates.md)
-- [`template-context.md`](template-context.md)
-- [`cell-templates.md`](cell-templates.md)
-- [`icons.md`](icons.md)
-- [`configuration.md`](configuration.md)
-- [`architecture.md`](architecture.md)
+- [UI/UX Rendering](ui-ux.md)
+- [Actions and Security](actions.md)
+- [Architecture](architecture.md)

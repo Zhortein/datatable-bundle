@@ -7,107 +7,32 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 ## Start here
 
 - [Installation](installation.md)
+- [Quick Start](quick-start.md)
 - [Configuration](configuration.md)
-- [Basic usage](basic-usage.md)
-- [First end-to-end flow](end-to-end-flow.md)
 
-## Examples
+## Core features
 
-- [Minimal array datatable example](examples/array-datatable.md)
-- [Doctrine datatable example](examples/doctrine-datatable.md)
+- [Providers](providers.md): Array and Doctrine data sources.
+- [Filters](filters.md): Toolbar and header-based data filtering.
+- [Actions and Security](actions.md): Row-level and global table actions with CSRF and authorization.
+- [UI/UX and Controls](ui-ux.md): Search, pagination, sorting, and UI customization.
+- [Theming and Templates](theming.md): Customizing the look, icon strategies, and template overrides.
+- [Server-side Exports](exports.md): CSV and XLSX data exports.
 
-## Core concepts
-
-- [Architecture](architecture.md)
-- [Features](features.md)
-- [Public API review](public-api-review.md)
-- [Roadmap](roadmap.md)
-- [Routes](routes.md)
-- [CI matrix and dependency strategy](ci.md)
-- [Frontend test strategy](frontend-tests.md)
-
-## Providers
+## In-depth guides
 
 - [Doctrine-backed datatables](doctrine-provider.md)
-- [Doctrine provider performance guidance](doctrine-performance.md)
-- [User-facing filters](filters.md)
-- [Server-side exports](exports.md)
+- [Doctrine performance](doctrine-performance.md)
+- [Architecture overview](architecture.md)
+- [Stimulus & AssetMapper integration](stimulus-assetmapper.md)
 
-## Rendering and frontend
+## Development and Reference
 
-- [Stimulus and AssetMapper integration](stimulus-assetmapper.md)
-- [Table controls and interactions](table-controls.md)
-- [Twig templates and overrides](templates.md)
-- [Template context reference](template-context.md)
-- [Cell template reference](cell-templates.md)
-- [Theming and rendering customization](theming.md)
-- [Optional icon rendering strategy](icons.md)
-- [UI/UX rendering customization](ui-ux-rendering.md)
+- [Roadmap](roadmap.md)
+- [Routes](routes.md)
+- [Frontend tests](frontend-tests.md)
+- [Architecture decisions](decisions/index.md)
 
-## Actions and security
+---
 
-- [Actions and typed cell rendering](actions-and-cells.md)
-- [Action security and visibility](action-security.md)
-
-## Preferences and customization
-
-- [Column visibility and preferences](preferences.md)
-- [XLSX export](xlsx-export.md)
-
-## Release and maintenance
-
-- [Changelog strategy](changelog.md)
-- [Release workflow](release.md)
-- [First pre-release checklist](release-checklist.md)
-- [Fresh Symfony smoke test plan](smoke-test.md)
-- [Fresh Symfony smoke test report template](smoke-test-report-template.md)
-- [Packagist readiness](packagist.md)
-- [Documentation review checklist](documentation-review.md)
-- [Documentation overhaul plan](documentation-overhaul-plan.md)
-- [Documentation audit](documentation-audit.md)
-- [Frontend test strategy](frontend-tests.md)
-
-## Legacy reference
-
-The bundle is inspired by a previous application-specific datatable implementation, but no private source code is included in this repository.
-
-- [Functional lessons](legacy-reference/functional-lessons.md)
-- [Anti-patterns](legacy-reference/anti-patterns.md)
-- [Sanitized examples](legacy-reference/sanitized-examples.md)
-
-## Architecture decisions
-
-Architecture decisions are stored in `docs/decisions`.
-
-Current decisions:
-
-- [0001 - Legacy code as functional reference only](decisions/0001-legacy-code-as-functional-reference-only.md)
-- [0002 - Initial public datatable API](decisions/0002-initial-public-api.md)
-- [0003 - Bootstrap rendering strategy](decisions/0003-bootstrap-rendering-strategy.md)
-- [0004 - Vanilla Stimulus interaction model](decisions/0004-vanilla-stimulus-interaction-model.md)
-- [0005 - Doctrine ORM provider architecture](decisions/0005-doctrine-orm-provider-architecture.md)
-- [0006 - Column header filter dropdowns](decisions/0006-column-header-filter-dropdowns.md)
-- [0007 - XLSX export strategy](decisions/0007-xlsx-export-strategy.md)
-
-## Current status
-
-The bundle is still under active development.
-
-It is not stable yet.
-
-Current implemented areas include:
-
-- PHP datatable declarations;
-- service discovery;
-- data providers;
-- Doctrine ORM provider;
-- Twig/Bootstrap rendering;
-- Stimulus Ajax fragments;
-- actions;
-- filters;
-- column visibility;
-- server-side CSV export;
-- translations;
-- documentation and CI tooling.
-
-See [Roadmap](roadmap.md) for the detailed milestone status.
+*This bundle is currently in **Alpha** (API may change before 1.0).*
