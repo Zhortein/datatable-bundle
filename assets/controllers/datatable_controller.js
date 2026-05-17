@@ -25,6 +25,8 @@ export default class extends Controller {
         'selectAllCheckbox',
         'rowCheckbox',
         'selectedCount',
+        'bulkToolbar',
+        'bulkAction',
     ];
 
     static values = {
@@ -368,7 +370,19 @@ export default class extends Controller {
         }
 
         if (this.hasSelectedCountTarget) {
-            this.selectedCountTarget.textContent = String(selectedCount);
+            this.selectedCountTargets.forEach((target) => {
+                target.textContent = String(selectedCount);
+            });
+        }
+
+        if (this.hasBulkToolbarTarget) {
+            this.bulkToolbarTarget.hidden = selectedCount === 0;
+        }
+
+        if (this.hasBulkActionTarget) {
+            this.bulkActionTargets.forEach((target) => {
+                target.disabled = selectedCount === 0;
+            });
         }
     }
 

@@ -81,6 +81,10 @@
         filters: filters|default({})
     } only %}
 
+    {% include '@ZhorteinDatatable/bootstrap/_bulk_actions.html.twig' with {
+        bulkActions: bulkActions|default([])
+    } only %}
+
     <div
         class="alert alert-danger d-none align-items-center gap-2"
         role="alert"

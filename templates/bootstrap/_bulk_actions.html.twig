@@ -1,0 +1,54 @@
+{% if bulkActions is not empty %}
+    <div
+        class="zhortein-datatable__bulk-actions alert alert-info d-flex align-items-center justify-content-between gap-3 mb-3"
+        data-zhortein--datatable-bundle--datatable-target="bulkToolbar"
+        hidden
+    >
+        <div class="d-flex align-items-center gap-2">
+            <span class="fw-bold">
+                <span data-zhortein--datatable-bundle--datatable-target="selectedCount">0</span>
+                {{ 'zhortein_datatable.bulk_actions.selected'|trans({}, 'zhortein_datatable') }}
+            </span>
+        </div>
+
+        <div class="btn-group btn-group-sm">
+            {% for action in bulkActions %}
+                <form
+                    method="post"
+                    action="{{ action.url }}"
+                    class="d-inline"
+                    {% if action.confirmationMessage is not null %}
+                        data-zhortein--datatable-bundle--datatable-confirmation-message="{{ action.confirmationMessage }}"
+                        data-action="submit->zhortein--datatable-bundle--datatable#confirmAction"
+                    {% endif %}
+                >
+                    <input type="hidden" name="_method" value="{{ action.httpMethod }}">
+
+                    {% if action.csrfToken is not null %}
+                        <input type="hidden" name="_token" value="{{ action.csrfToken }}">
+                    {% endif %}
+
+                    <button
+                        type="submit"
+                        class="{{ action.className ?? 'btn btn-outline-primary' }}"
+                        disabled
+                        data-zhortein--datatable-bundle--datatable-target="bulkAction"
+                        {% for attribute_name, attribute_value in action.attributes %}
+                            {{ attribute_name }}="{{ attribute_value }}"
+                        {% endfor %}
+                    >
+                        {% if action.icon is not empty and action.iconPosition == 'before' %}
+                            <span class="{{ action.icon }} me-1" aria-hidden="true"></span>
+                        {% endif %}
+
+                        <span>{{ action.label ?? action.name }}</span>
+
+                        {% if action.icon is not empty and action.iconPosition == 'after' %}
+                            <span class="{{ action.icon }} ms-1" aria-hidden="true"></span>
+                        {% endif %}
+                    </button>
+                </form>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

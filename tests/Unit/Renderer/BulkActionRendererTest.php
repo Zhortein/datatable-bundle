@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Tests\Unit\Renderer;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RequestContext;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
@@ -122,6 +124,53 @@ final class BulkActionRendererTest extends TestCase
 
         // 1 column + 1 selector column = colspan 2
         self::assertStringContainsString('colspan="2"', $html);
+    }
+
+    public function test_it_renders_bulk_action_toolbar(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition->addColumn('email', label: 'Email');
+        $definition->addBulkAction('delete', 'user_bulk_delete', label: 'Delete selected', icon: 'fa fa-trash');
+
+        $renderer = new DatatableRenderer(
+            twig: $this->createTwigEnvironment(),
+            urlGenerator: $this->createUrlGeneratorStub(),
+        );
+
+        $html = $renderer->render($definition);
+
+        self::assertStringContainsString('zhortein-datatable__bulk-actions', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="bulkToolbar"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="selectedCount"', $html);
+        self::assertStringContainsString('Delete selected', $html);
+        self::assertStringContainsString('fa fa-trash', $html);
+        self::assertStringContainsString('disabled', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="bulkAction"', $html);
+    }
+
+    private function createUrlGeneratorStub(): UrlGeneratorInterface
+    {
+        return new class implements UrlGeneratorInterface {
+            /**
+             * @param array<mixed> $parameters
+             */
+            public function generate(
+                string $name,
+                array $parameters = [],
+                int $referenceType = self::ABSOLUTE_PATH,
+            ): string {
+                return '/'.$name;
+            }
+
+            public function setContext(RequestContext $context): void
+            {
+            }
+
+            public function getContext(): RequestContext
+            {
+                return new RequestContext();
+            }
+        };
     }
 
     private function createTwigEnvironment(): Environment

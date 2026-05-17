@@ -11,6 +11,7 @@ use Zhortein\DatatableBundle\Action\ActionVisibilityCheckerInterface;
 use Zhortein\DatatableBundle\Action\ActionVisibilityContext;
 use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
 use Zhortein\DatatableBundle\Definition\ActionDefinition;
+use Zhortein\DatatableBundle\Definition\BulkActionDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ActionDisplayMode;
@@ -54,6 +55,7 @@ final readonly class DatatableRenderer
             'visibleColumns' => $this->getVisibleColumns($definition, $options),
             'rowActions' => $definition->getRowActions(),
             'globalActions' => $this->normalizeGlobalActions($definition),
+            'bulkActions' => $this->normalizeBulkActions($definition),
             'hasRowActions' => [] !== $definition->getRowActions(),
             'hasBulkActions' => [] !== $definition->getBulkActions(),
             'htmlId' => $this->createHtmlId($definition),
@@ -240,9 +242,30 @@ final readonly class DatatableRenderer
     }
 
     /**
+     * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null}>
+     */
+    private function normalizeBulkActions(DatatableDefinition $definition): array
+    {
+        if (null === $this->urlGenerator) {
+            return [];
+        }
+
+        $actions = [];
+
+        foreach ($definition->getBulkActions() as $action) {
+            $actions[] = $this->normalizeAction(
+                action: $action,
+                url: $this->urlGenerator->generate($action->getRoute(), $action->getRouteParameters()),
+            );
+        }
+
+        return $actions;
+    }
+
+    /**
      * @return array<string, string>
      */
-    private function normalizeStaticRouteParameters(ActionDefinition $action): array
+    private function normalizeStaticRouteParameters(ActionDefinition|BulkActionDefinition $action): array
     {
         return $action->getRouteParameters();
     }
@@ -360,9 +383,9 @@ final readonly class DatatableRenderer
     }
 
     /**
-     * @return array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>}
+     * @return array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null}
      */
-    private function normalizeAction(ActionDefinition $action, string $url): array
+    private function normalizeAction(ActionDefinition|BulkActionDefinition $action, string $url): array
     {
         $httpMethod = strtoupper($action->getHttpMethod());
 
@@ -377,6 +400,7 @@ final readonly class DatatableRenderer
             'csrfToken' => $this->generateCsrfToken($action, $httpMethod),
             'className' => $action->getClassName(),
             'attributes' => $action->getAttributes(),
+            'selectedRowsParameterName' => $action instanceof BulkActionDefinition ? $action->getSelectedRowsParameterName() : null,
         ];
     }
 
@@ -396,7 +420,7 @@ final readonly class DatatableRenderer
         return ActionDisplayMode::fromNullableString(is_string($definitionMode) ? $definitionMode : null);
     }
 
-    private function generateCsrfToken(ActionDefinition $action, string $httpMethod): ?string
+    private function generateCsrfToken(ActionDefinition|BulkActionDefinition $action, string $httpMethod): ?string
     {
         if ('GET' === $httpMethod || null === $this->csrfTokenManager) {
             return null;

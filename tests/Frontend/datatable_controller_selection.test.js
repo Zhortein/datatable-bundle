@@ -13,7 +13,10 @@ function createDatatableHtml() {
             data-${CONTROLLER_IDENTIFIER}-fragments-url-value="/_zhortein/datatable/users/fragments"
             data-${CONTROLLER_IDENTIFIER}-auto-load-value="false"
         >
-            <span data-${CONTROLLER_IDENTIFIER}-target="selectedCount">0</span>
+            <div data-${CONTROLLER_IDENTIFIER}-target="bulkToolbar" hidden>
+                <span data-${CONTROLLER_IDENTIFIER}-target="selectedCount">0</span>
+                <button data-${CONTROLLER_IDENTIFIER}-target="bulkAction" disabled>Delete</button>
+            </div>
 
             <table>
                 <thead data-${CONTROLLER_IDENTIFIER}-target="header">
@@ -214,5 +217,32 @@ describe('datatable_controller row selection', () => {
         expect(newCheckboxes.length).toBe(1);
         expect(newCheckboxes[0].value).toBe('3');
         expect(newCheckboxes[0].checked).toBe(false);
+    });
+
+    it('toggles bulk toolbar and buttons based on selection', async () => {
+        document.body.innerHTML = createDatatableHtml();
+        application = startApplication();
+        const { controller } = await getController(application);
+
+        const checkboxes = document.querySelectorAll(`[data-${CONTROLLER_IDENTIFIER}-target="rowCheckbox"]`);
+        const bulkToolbar = document.querySelector(`[data-${CONTROLLER_IDENTIFIER}-target="bulkToolbar"]`);
+        const bulkAction = document.querySelector(`[data-${CONTROLLER_IDENTIFIER}-target="bulkAction"]`);
+
+        expect(bulkToolbar.hidden).toBe(true);
+        expect(bulkAction.disabled).toBe(true);
+
+        // Select first row
+        checkboxes[0].checked = true;
+        checkboxes[0].dispatchEvent(new Event('change'));
+
+        expect(bulkToolbar.hidden).toBe(false);
+        expect(bulkAction.disabled).toBe(false);
+
+        // Unselect first row
+        checkboxes[0].checked = false;
+        checkboxes[0].dispatchEvent(new Event('change'));
+
+        expect(bulkToolbar.hidden).toBe(true);
+        expect(bulkAction.disabled).toBe(true);
     });
 });
