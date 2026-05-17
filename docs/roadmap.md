@@ -901,89 +901,168 @@ This decision should be revisited after more real-world installations.
 
 The next milestone should focus on browser-level validation and accessibility.
 
-## 0.24 - Frontend E2E and accessibility evaluation 🚧
+The next milestone should focus on production-oriented table actions.
+
+## 0.24 - Bulk actions and row selection 🚧
 
 Goal:
 
 ```text
-Validate the most interactive datatable behavior in a real browser and define the accessibility baseline before moving toward 1.0.
+Add first-class support for row selection and bulk actions in business datatables.
 ```
 
-Possible work:
+Planned:
 
-- choose whether Playwright is useful for this bundle;
+- define the bulk action declaration API;
+- add row selection column rendering;
+- add selected row state management in Stimulus;
+- support selecting/unselecting one row;
+- support selecting/unselecting all visible rows;
+- render bulk action toolbar or bottom action area;
+- submit selected identifiers through CSRF-aware non-GET forms;
+- support confirmation metadata for bulk actions;
+- integrate action visibility/security for bulk actions;
+- support current-page selected rows first;
+- document limitations around filtered dataset / all matching rows;
+- smoke test bulk actions in the fresh Symfony app.
+
+Main expected outcome:
+
+```text
+Datatables can perform safe backend-defined actions on multiple selected rows, which is required for production back-office workflows.
+```
+
+Out of scope for first implementation:
+
+- selecting all rows across all filtered pages;
+- async bulk operations;
+- queueing;
+- progress UI;
+- persisted selection across navigation;
+- complex permission matrix;
+- bulk edit forms;
+- tree/hierarchical bulk actions.
+
+---
+
+## 0.25 - Icon system and visual consistency 🕒
+
+Goal:
+
+```text
+Provide a consistent, configurable icon strategy across actions, booleans, sorting, filters and exports.
+```
+
+Planned:
+
+- define a lightweight icon strategy;
+- keep CSS-class based icons supported;
+- document Bootstrap Icons and FontAwesome usage;
+- provide default icon names/classes;
+- support icons for:
+  - row actions;
+  - global actions;
+  - bulk actions;
+  - booleans;
+  - sort indicators;
+  - filters;
+  - exports;
+- keep icon libraries optional;
+- avoid hard dependency on a specific icon set.
+
+Main expected outcome:
+
+```text
+Generated datatables have a coherent visual language while allowing host applications to choose their icon system.
+```
+
+---
+
+## 0.26 - Advanced filter expressions 🕒
+
+Goal:
+
+```text
+Introduce a safe advanced filter expression model without exposing Doctrine QueryBuilder directly to the frontend.
+```
+
+Planned:
+
+- design a filter expression model;
+- support grouped conditions;
+- support AND / OR combinations;
+- support type-aware operators;
+- support Doctrine-safe mapping;
+- keep frontend input declarative and validated;
+- document limitations;
+- add tests for expression normalization and Doctrine application.
+
+Suggested public terminology:
+
+```text
+Advanced filter expressions
+```
+
+Avoid public wording such as “query builder” if it could imply exposing Doctrine internals.
+
+Main expected outcome:
+
+```text
+Users can build richer filters safely while the backend remains in control of query generation.
+```
+
+---
+
+## 0.27 - Frontend E2E and accessibility evaluation 🕒
+
+Goal:
+
+```text
+Validate the most interactive UI behavior in a real browser and define an accessibility baseline.
+```
+
+Planned:
+
+- decide whether Playwright or another browser-level tool is needed;
 - test Bootstrap dropdown behavior in a real browser;
 - test keyboard navigation;
-- test column header filter dropdown UX;
-- test action dropdown UX;
-- test modal confirmation UX;
-- test CSV/XLSX export link behavior;
-- test loading and error state visibility;
+- test modal confirmations;
+- test row selection and bulk actions;
+- test column header filters;
+- test export links;
 - add basic accessibility checks where practical;
 - document findings and limitations.
 
 Main expected outcome:
 
 ```text
-The bundle has a clear browser-level and accessibility validation strategy for its Bootstrap/Stimulus UI.
-```
-
-Out of scope for the first pass:
-
-- full visual regression testing;
-- cross-browser matrix;
-- complete WCAG audit;
-- hosted demo application.
-
----
-
-## 0.25 - Bulk actions and row selection 🕒
-
-Goal:
-
-```text
-Add first-class support for selecting rows and executing bulk actions safely.
-```
-
-Possible work:
-
-- selector column;
-- selected-row state in Stimulus;
-- current-page and filtered-dataset action modes;
-- CSRF-aware POST actions;
-- authorization-aware visibility;
-- backend payload normalization;
-- documentation and smoke tests.
-
-Main expected outcome:
-
-```text
-Datatables can support common back-office bulk workflows without each application reinventing row selection.
+The most interactive Bootstrap/Stimulus behaviors are validated beyond jsdom unit tests.
 ```
 
 ---
 
-## 0.26 - Hierarchical tables / expandable child datatables 🕒
+## 0.28 - Hierarchical tables / expandable child datatables 🕒
 
 Goal:
 
 ```text
-Support expandable detail rows and nested datatable scenarios for hierarchical business data.
+Support expandable rows and child datatables for hierarchical business data.
 ```
 
-Possible work:
+Planned:
 
-- expandable detail rows;
-- nested datatable rendering;
-- parent-row context propagation;
-- lazy Ajax loading;
-- recursion and performance safeguards;
-- accessibility review.
+- design parent/child datatable API;
+- support expandable detail rows;
+- support lazy Ajax loading;
+- propagate parent row context;
+- define recursion/performance safeguards;
+- document limitations;
+- smoke test hierarchical UI.
 
 Main expected outcome:
 
 ```text
-Applications can represent parent/child business data without leaving the datatable interaction model.
+Datatables can represent parent/child business structures without custom per-project table code.
 ```
 
 ---
