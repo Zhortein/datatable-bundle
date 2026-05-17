@@ -35,6 +35,11 @@ final class DatatableDefinition
     private array $globalActions = [];
 
     /**
+     * @var array<string, BulkActionDefinition>
+     */
+    private array $bulkActions = [];
+
+    /**
      * @var list<FilterDefinition>
      */
     private array $permanentFilters = [];
@@ -282,6 +287,51 @@ final class DatatableDefinition
     public function getGlobalActions(): array
     {
         return $this->globalActions;
+    }
+
+    /**
+     * @param array<string, string> $routeParameters
+     * @param array<string, string> $attributes
+     */
+    public function addBulkAction(
+        string $name,
+        string $route,
+        ?string $label = null,
+        ?string $icon = null,
+        ActionIconPosition|string $iconPosition = ActionIconPosition::Before,
+        string $httpMethod = 'POST',
+        ?string $confirmationMessage = null,
+        ?string $className = null,
+        array $routeParameters = [],
+        array $attributes = [],
+        string $selectedRowsParameterName = 'ids',
+    ): self {
+        if (is_string($iconPosition)) {
+            $iconPosition = ActionIconPosition::tryFrom($iconPosition) ?? ActionIconPosition::Before;
+        }
+        $this->bulkActions[$name] = new BulkActionDefinition(
+            name: $name,
+            route: $route,
+            label: $label,
+            icon: $icon,
+            iconPosition: $iconPosition,
+            httpMethod: $httpMethod,
+            confirmationMessage: $confirmationMessage,
+            className: $className,
+            routeParameters: $routeParameters,
+            attributes: $attributes,
+            selectedRowsParameterName: $selectedRowsParameterName,
+        );
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, BulkActionDefinition>
+     */
+    public function getBulkActions(): array
+    {
+        return $this->bulkActions;
     }
 
     public function addPermanentFilter(
