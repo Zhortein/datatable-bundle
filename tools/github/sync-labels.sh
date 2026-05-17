@@ -58,7 +58,11 @@ sync_label "area: configuration" "006b75" "Bundle configuration"
 sync_label "area: export" "006b75" "CSV/XLSX or other export features"
 sync_label "area: security" "006b75" "Security, CSRF, permissions or safe defaults"
 sync_label "area: i18n" "006b75" "Translations and localization"
-sync_label "area: actions" "006b75" "Translations and localization"
+sync_label "area: actions" "006b75" "Actions"
+sync_label "area: provider" "006b75" "PRoviders"
+sync_label "area: filters" "006b75" "Filters"
+sync_label "area: definition" "006b75" "Definitions"
+sync_label "area: request" "006b75" "Request"
 
 # Priorities
 sync_label "priority: high" "b60205" "High priority"
