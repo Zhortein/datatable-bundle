@@ -39,7 +39,12 @@ To enable XLSX in the UI, update your `zhortein_datatable` call:
 
 ## Export Modes
 
-Exports respect the current state of the datatable (search, filters, sorting, and column visibility).
+Exports respect the current state of the datatable:
+- Search queries
+- Simple filters
+- **Advanced filter expressions**
+- Sorting
+- Runtime column visibility
 
 | Mode | Behavior |
 |---|---|
