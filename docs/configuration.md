@@ -209,45 +209,17 @@ A runtime option can still override it:
 
 Type: `array<string, string>`
 
-Default:
-
-```yaml
-icons:
-    view: "bi bi-eye"
-    edit: "bi bi-pencil"
-    delete: "bi bi-trash"
-    add: "bi bi-plus-lg"
-    check: "bi bi-check-lg"
-    cancel: "bi bi-x-lg"
-    sort_neutral: "bi bi-arrow-down-up"
-    sort_asc: "bi bi-arrow-up"
-    sort_desc: "bi bi-arrow-down"
-    filter: "bi bi-funnel"
-    filter_active: "bi bi-funnel-fill"
-    export: "bi bi-download"
-    export_csv: "bi bi-filetype-csv"
-    export_xlsx: "bi bi-filetype-xlsx"
-    export_excel: "bi bi-filetype-xlsx"
-    action_view: "bi bi-eye"
-    action_edit: "bi bi-pencil"
-    action_delete: "bi bi-trash"
-    action_create: "bi bi-plus-lg"
-    bulk_actions: "bi bi-collection"
-    boolean_true: "bi bi-check-lg"
-    boolean_false: "bi bi-x-lg"
-```
-
 The bundle uses a lightweight icon resolver to map internal icon keys to CSS classes. By default, it uses [Bootstrap Icons](https://icons.getbootstrap.com/) class names.
 
-**Note**: The host application is responsible for loading the icon library (e.g., Bootstrap Icons) if it wants these classes to render visually.
+See [Icon System documentation](icons.md) for the full list of available keys and detailed strategy.
 
-You can override specific icons in your configuration:
+Example:
 
 ```yaml
 zhortein_datatable:
     icons:
-        view: "fas fa-eye"
-        edit: "fas fa-edit"
+        action_view: "fas fa-eye"
+        action_edit: "fas fa-edit"
 ```
 
 ## Default export values

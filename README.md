@@ -94,8 +94,9 @@ final class UserDatatable implements DatatableInterface
 - [Actions & Security](docs/actions.md)
 - [Bulk Actions & Selection](docs/bulk-actions.md)
 - [Exports](docs/exports.md)
-- [Theming & Templates](docs/theming.md)
 - [UI/UX & Controls](docs/ui-ux.md)
+- [Icon System](docs/icons.md)
+- [Theming & Templates](docs/theming.md)
 - [Frontend Test Strategy](docs/frontend-tests.md)
 - [Roadmap](docs/roadmap.md)
 
