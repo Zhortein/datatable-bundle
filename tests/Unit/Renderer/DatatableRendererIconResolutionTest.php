@@ -87,11 +87,82 @@ final class DatatableRendererIconResolutionTest extends TestCase
         self::assertStringContainsString('View Details', $html);
     }
 
-    private function createRenderer(): DatatableRenderer
+    public function test_filter_icons_rendered(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition->addColumn('username');
+        $definition->addFilter('username', 'username');
+
+        $html = $this->createRenderer()->renderHeader($definition, [
+            'filterLayout' => 'header',
+        ]);
+
+        self::assertStringContainsString('bi bi-funnel', $html);
+    }
+
+    public function test_filter_active_icon_rendered(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition->addColumn('username');
+        $definition->addFilter('username', 'username');
+
+        $html = $this->createRenderer()->renderHeader($definition, [
+            'filterLayout' => 'header',
+            'filters' => ['username' => 'admin'],
+        ]);
+
+        self::assertStringContainsString('bi bi-funnel-fill', $html);
+    }
+
+    public function test_export_icons_rendered(): void
+    {
+        $definition = new DatatableDefinition('users');
+
+        $html = $this->createRenderer()->render($definition, [
+            'exportFormats' => ['csv', 'xlsx'],
+        ]);
+
+        self::assertStringContainsString('bi bi-download', $html);
+        self::assertStringContainsString('bi bi-filetype-csv', $html);
+        self::assertStringContainsString('bi bi-filetype-xlsx', $html);
+    }
+
+    public function test_custom_icon_overrides(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition->addColumn('username');
+        $definition->addFilter('username', 'username');
+
+        $iconResolver = new IconResolver([
+            'filter' => 'custom-filter',
+            'filter_active' => 'custom-filter-active',
+            'export' => 'custom-export',
+            'export_csv' => 'custom-csv',
+            'export_xlsx' => 'custom-xlsx',
+        ]);
+
+        $renderer = $this->createRenderer($iconResolver);
+
+        $htmlHeader = $renderer->renderHeader($definition, ['filterLayout' => 'header']);
+        self::assertStringContainsString('custom-filter', $htmlHeader);
+
+        $htmlHeaderActive = $renderer->renderHeader($definition, [
+            'filterLayout' => 'header',
+            'filters' => ['username' => 'admin'],
+        ]);
+        self::assertStringContainsString('custom-filter-active', $htmlHeaderActive);
+
+        $html = $renderer->render($definition, ['exportFormats' => ['csv', 'xlsx']]);
+        self::assertStringContainsString('custom-export', $html);
+        self::assertStringContainsString('custom-csv', $html);
+        self::assertStringContainsString('custom-xlsx', $html);
+    }
+
+    private function createRenderer(?IconResolver $iconResolver = null): DatatableRenderer
     {
         return new DatatableRenderer(
             twig: $this->createTwigEnvironment(),
-            iconResolver: new IconResolver(),
+            iconResolver: $iconResolver ?? new IconResolver(),
             urlGenerator: $this->createUrlGeneratorStub(),
             routeParameterResolver: new RowActionRouteParameterResolver(),
         );
