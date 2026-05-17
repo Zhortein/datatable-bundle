@@ -41,6 +41,36 @@ final class ArrayDataProviderAdvancedFiltersTest extends TestCase
         ], $result->getRows());
     }
 
+    public function test_it_applies_nested_and_or_groups(): void
+    {
+        // (age > 20) AND ((name starts_with 'J') OR (name eq 'Alice'))
+        $expression = new AdvancedFilterExpression(
+            new Group(LogicOperator::And, [
+                new Condition('age', ComparisonOperator::GreaterThan, 20),
+                new Group(LogicOperator::Or, [
+                    new Condition('name', ComparisonOperator::StartsWith, 'J'),
+                    new Condition('name', ComparisonOperator::Equals, 'Alice'),
+                ]),
+            ])
+        );
+
+        $result = new ArrayDataProvider()->getData(
+            $this->createDefinition(),
+            DatatableRequest::create(advancedFilterExpression: $expression),
+        );
+
+        $names = [];
+        foreach ($result->getRows() as $row) {
+            $name = $row['name'] ?? null;
+            if (is_string($name)) {
+                $names[] = $name;
+            }
+        }
+        sort($names);
+
+        self::assertSame(['Jane', 'John'], $names);
+    }
+
     public function test_it_combines_with_simple_search(): void
     {
         $expression = new AdvancedFilterExpression(

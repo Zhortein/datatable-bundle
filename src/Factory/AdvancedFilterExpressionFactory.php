@@ -6,7 +6,6 @@ namespace Zhortein\DatatableBundle\Factory;
 
 use Zhortein\DatatableBundle\Definition\AdvancedFilterFieldDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
-use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Exception\InvalidExpressionException;
 use Zhortein\DatatableBundle\Filter\Expression\AdvancedFilterExpression;
 use Zhortein\DatatableBundle\Filter\Expression\ComparisonOperator;
@@ -44,12 +43,14 @@ final readonly class AdvancedFilterExpressionFactory
         $logic = is_string($logicValue) ? LogicOperator::tryFrom(strtoupper($logicValue)) : null;
         $logic ??= LogicOperator::And;
 
-        $children = [];
-        $childrenPayload = $payload['children'] ?? [];
+        // Accept both "conditions" (spec) and "children" (legacy) as the group's children key.
+        $childrenPayload = $payload['conditions'] ?? $payload['children'] ?? [];
 
         if (!is_array($childrenPayload) || [] === $childrenPayload) {
             throw new InvalidExpressionException('Group must have at least one child.');
         }
+
+        $children = [];
 
         foreach ($childrenPayload as $childPayload) {
             if (!is_array($childPayload)) {
@@ -57,7 +58,7 @@ final readonly class AdvancedFilterExpressionFactory
             }
 
             /** @var array<string, mixed> $childPayload */
-            if (isset($childPayload['children'])) {
+            if (isset($childPayload['conditions']) || isset($childPayload['children'])) {
                 try {
                     $children[] = $this->parseGroup($childPayload, $definition);
                 } catch (InvalidExpressionException) {
@@ -104,11 +105,8 @@ final readonly class AdvancedFilterExpressionFactory
 
             $allowedOperators = $fieldDefinition->getAllowedOperators();
 
-            if ([] !== $allowedOperators) {
-                $mappedFilterOperator = $this->mapToFilterOperator($operator);
-                if (!in_array($mappedFilterOperator, $allowedOperators, true)) {
-                    return null;
-                }
+            if ([] !== $allowedOperators && !in_array($operator, $allowedOperators, true)) {
+                return null;
             }
         }
 
@@ -161,26 +159,5 @@ final readonly class AdvancedFilterExpressionFactory
         }
 
         return $value;
-    }
-
-    private function mapToFilterOperator(ComparisonOperator $operator): FilterOperator
-    {
-        return match ($operator) {
-            ComparisonOperator::Equals => FilterOperator::Equals,
-            ComparisonOperator::NotEquals => FilterOperator::NotEquals,
-            ComparisonOperator::Contains,
-            ComparisonOperator::StartsWith,
-            ComparisonOperator::EndsWith => FilterOperator::Like,
-            ComparisonOperator::NotContains => FilterOperator::NotLike,
-            ComparisonOperator::GreaterThan => FilterOperator::GreaterThan,
-            ComparisonOperator::GreaterThanOrEquals => FilterOperator::GreaterThanOrEquals,
-            ComparisonOperator::LessThan => FilterOperator::LessThan,
-            ComparisonOperator::LessThanOrEquals => FilterOperator::LessThanOrEquals,
-            ComparisonOperator::Between => FilterOperator::Between,
-            ComparisonOperator::IsNull => FilterOperator::IsNull,
-            ComparisonOperator::IsNotNull => FilterOperator::IsNotNull,
-            ComparisonOperator::In => FilterOperator::In,
-            ComparisonOperator::NotIn => FilterOperator::NotIn,
-        };
     }
 }

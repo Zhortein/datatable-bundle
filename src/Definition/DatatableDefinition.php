@@ -9,6 +9,7 @@ use Zhortein\DatatableBundle\Enum\AggregateFunction;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Enum\JoinType;
+use Zhortein\DatatableBundle\Filter\Expression\ComparisonOperator;
 
 final class DatatableDefinition
 {
@@ -452,9 +453,9 @@ final class DatatableDefinition
     }
 
     /**
-     * @param list<FilterOperator>           $allowedOperators
-     * @param array<string, string>          $choices
-     * @param class-string<\BackedEnum>|null $enumClass
+     * @param list<FilterOperator|ComparisonOperator> $allowedOperators
+     * @param array<string, string>                   $choices
+     * @param class-string<\BackedEnum>|null          $enumClass
      */
     public function addAdvancedFilterField(
         string $name,

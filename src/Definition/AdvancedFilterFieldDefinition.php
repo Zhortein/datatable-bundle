@@ -22,16 +22,21 @@ final readonly class AdvancedFilterFieldDefinition
     private ?string $resolvedEnumClass;
 
     /**
-     * @param list<FilterOperator>           $allowedOperators
-     * @param array<string, string>          $choices
-     * @param class-string<\BackedEnum>|null $enumClass
+     * @var list<ComparisonOperator>
+     */
+    private array $normalizedAllowedOperators;
+
+    /**
+     * @param list<FilterOperator|ComparisonOperator> $allowedOperators
+     * @param array<string, string>                   $choices
+     * @param class-string<\BackedEnum>|null          $enumClass
      */
     public function __construct(
         private string $name,
         private string $field,
         private ?string $label = null,
         private FilterType $type = FilterType::Text,
-        private array $allowedOperators = [],
+        array $allowedOperators = [],
         array $choices = [],
         ?string $enumClass = null,
         private bool $nullable = false,
@@ -43,6 +48,8 @@ final readonly class AdvancedFilterFieldDefinition
         if ('' === trim($this->field)) {
             throw new \InvalidArgumentException('The advanced filter field cannot be empty.');
         }
+
+        $this->normalizedAllowedOperators = $this->normalizeAllowedOperators($allowedOperators);
 
         $this->resolvedEnumClass = $this->resolveEnumClass($enumClass);
 
@@ -74,11 +81,16 @@ final readonly class AdvancedFilterFieldDefinition
     }
 
     /**
-     * @return list<FilterOperator>
+     * Returns the developer-declared allowed operators, normalized to the advanced
+     * comparison operator model.
+     *
+     * An empty list means "no restriction beyond type-compatibility".
+     *
+     * @return list<ComparisonOperator>
      */
     public function getAllowedOperators(): array
     {
-        return $this->allowedOperators;
+        return $this->normalizedAllowedOperators;
     }
 
     /**
@@ -106,22 +118,23 @@ final readonly class AdvancedFilterFieldDefinition
      * Returns the list of ComparisonOperator string values effectively allowed for this field,
      * computed as the intersection of type-compatible operators and per-field allowed operators.
      *
+     * Incompatible developer-declared operators are silently filtered out so they are
+     * never displayed in the UI nor accepted from the frontend.
+     *
      * @return list<string>
      */
     public function getEffectiveOperatorValues(): array
     {
         $typeOperators = OperatorCompatibility::operatorsFor($this->type, $this->nullable);
 
-        if ([] === $this->allowedOperators) {
+        if ([] === $this->normalizedAllowedOperators) {
             return array_map(static fn (ComparisonOperator $op): string => $op->value, $typeOperators);
         }
-
-        $allowedFilterOperators = $this->allowedOperators;
 
         $result = [];
 
         foreach ($typeOperators as $operator) {
-            if (in_array($this->mapComparisonToFilter($operator), $allowedFilterOperators, true)) {
+            if (in_array($operator, $this->normalizedAllowedOperators, true)) {
                 $result[] = $operator->value;
             }
         }
@@ -129,24 +142,82 @@ final readonly class AdvancedFilterFieldDefinition
         return $result;
     }
 
-    private function mapComparisonToFilter(ComparisonOperator $operator): FilterOperator
+    /**
+     * Returns the list of ComparisonOperator effectively allowed for this field.
+     *
+     * @return list<ComparisonOperator>
+     */
+    public function getEffectiveOperators(): array
+    {
+        $typeOperators = OperatorCompatibility::operatorsFor($this->type, $this->nullable);
+
+        if ([] === $this->normalizedAllowedOperators) {
+            return $typeOperators;
+        }
+
+        $result = [];
+
+        foreach ($typeOperators as $operator) {
+            if (in_array($operator, $this->normalizedAllowedOperators, true)) {
+                $result[] = $operator;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param list<FilterOperator|ComparisonOperator> $allowedOperators
+     *
+     * @return list<ComparisonOperator>
+     */
+    private function normalizeAllowedOperators(array $allowedOperators): array
+    {
+        $normalized = [];
+
+        foreach ($allowedOperators as $operator) {
+            if ($operator instanceof ComparisonOperator) {
+                if (!in_array($operator, $normalized, true)) {
+                    $normalized[] = $operator;
+                }
+                continue;
+            }
+
+            foreach (self::mapFilterToComparison($operator) as $mapped) {
+                if (!in_array($mapped, $normalized, true)) {
+                    $normalized[] = $mapped;
+                }
+            }
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * Maps a legacy FilterOperator to one or more advanced ComparisonOperator values.
+     *
+     * @return list<ComparisonOperator>
+     */
+    private static function mapFilterToComparison(FilterOperator $operator): array
     {
         return match ($operator) {
-            ComparisonOperator::Equals => FilterOperator::Equals,
-            ComparisonOperator::NotEquals => FilterOperator::NotEquals,
-            ComparisonOperator::Contains,
-            ComparisonOperator::StartsWith,
-            ComparisonOperator::EndsWith => FilterOperator::Like,
-            ComparisonOperator::NotContains => FilterOperator::NotLike,
-            ComparisonOperator::GreaterThan => FilterOperator::GreaterThan,
-            ComparisonOperator::GreaterThanOrEquals => FilterOperator::GreaterThanOrEquals,
-            ComparisonOperator::LessThan => FilterOperator::LessThan,
-            ComparisonOperator::LessThanOrEquals => FilterOperator::LessThanOrEquals,
-            ComparisonOperator::Between => FilterOperator::Between,
-            ComparisonOperator::IsNull => FilterOperator::IsNull,
-            ComparisonOperator::IsNotNull => FilterOperator::IsNotNull,
-            ComparisonOperator::In => FilterOperator::In,
-            ComparisonOperator::NotIn => FilterOperator::NotIn,
+            FilterOperator::Equals => [ComparisonOperator::Equals],
+            FilterOperator::NotEquals => [ComparisonOperator::NotEquals],
+            FilterOperator::GreaterThan => [ComparisonOperator::GreaterThan],
+            FilterOperator::GreaterThanOrEquals => [ComparisonOperator::GreaterThanOrEquals],
+            FilterOperator::LessThan => [ComparisonOperator::LessThan],
+            FilterOperator::LessThanOrEquals => [ComparisonOperator::LessThanOrEquals],
+            FilterOperator::In => [ComparisonOperator::In],
+            FilterOperator::NotIn => [ComparisonOperator::NotIn],
+            FilterOperator::IsNull => [ComparisonOperator::IsNull],
+            FilterOperator::IsNotNull => [ComparisonOperator::IsNotNull],
+            FilterOperator::Between => [ComparisonOperator::Between],
+            FilterOperator::Like => [
+                ComparisonOperator::Contains,
+                ComparisonOperator::StartsWith,
+                ComparisonOperator::EndsWith,
+            ],
+            FilterOperator::NotLike => [ComparisonOperator::NotContains],
         };
     }
 

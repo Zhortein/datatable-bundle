@@ -30,6 +30,7 @@ export default class extends Controller {
         'searchBuilder',
         'searchBuilderConditions',
         'searchBuilderConditionTemplate',
+        'searchBuilderGroupTemplate',
     ];
 
     static values = {
@@ -549,12 +550,33 @@ export default class extends Controller {
     addSearchBuilderCondition(event) {
         if (event) event.preventDefault();
 
-        if (!this.hasSearchBuilderConditionsTarget || !this.hasSearchBuilderConditionTemplateTarget) {
+        if (!this.hasSearchBuilderConditionTemplateTarget) {
+            return;
+        }
+
+        const container = this.resolveSearchBuilderConditionsContainer(event);
+        if (container === null) {
             return;
         }
 
         const template = this.searchBuilderConditionTemplateTarget.content.cloneNode(true);
-        this.searchBuilderConditionsTarget.appendChild(template);
+        container.appendChild(template);
+    }
+
+    addSearchBuilderSubgroup(event) {
+        if (event) event.preventDefault();
+
+        if (!this.hasSearchBuilderGroupTemplateTarget) {
+            return;
+        }
+
+        const container = this.resolveSearchBuilderConditionsContainer(event);
+        if (container === null) {
+            return;
+        }
+
+        const template = this.searchBuilderGroupTemplateTarget.content.cloneNode(true);
+        container.appendChild(template);
     }
 
     removeSearchBuilderCondition(event) {
@@ -567,17 +589,61 @@ export default class extends Controller {
         }
     }
 
+    removeSearchBuilderSubgroup(event) {
+        if (event) event.preventDefault();
+
+        const group = event.currentTarget.closest('.zhortein-datatable__search-builder-group--nested');
+        if (group) {
+            group.remove();
+            this.refresh();
+        }
+    }
+
     clearSearchBuilder(event) {
         if (event) event.preventDefault();
 
         if (this.hasSearchBuilderConditionsTarget) {
             this.searchBuilderConditionsTarget.innerHTML = '';
-            this.refresh();
         }
+
+        const rootGroup = this.getRootSearchBuilderGroupElement();
+        if (rootGroup !== null) {
+            const logicSelect = rootGroup.querySelector(':scope > .zhortein-datatable__search-builder-header select.zhortein-datatable__search-builder-logic')
+                || rootGroup.querySelector('select.zhortein-datatable__search-builder-logic')
+                || (this.hasSearchBuilderTarget ? this.searchBuilderTarget.querySelector('select[data-action*="updateSearchBuilderLogic"]') : null);
+            if (logicSelect) {
+                logicSelect.value = 'AND';
+            }
+        }
+
+        this.refresh();
     }
 
     updateSearchBuilderLogic() {
         this.refresh();
+    }
+
+    resolveSearchBuilderConditionsContainer(event) {
+        if (event && event.currentTarget instanceof Element) {
+            const group = event.currentTarget.closest('.zhortein-datatable__search-builder-group');
+            if (group) {
+                const container = group.querySelector(':scope > .zhortein-datatable__search-builder-conditions');
+                if (container) {
+                    return container;
+                }
+            }
+        }
+
+        return this.hasSearchBuilderConditionsTarget ? this.searchBuilderConditionsTarget : null;
+    }
+
+    getRootSearchBuilderGroupElement() {
+        if (!this.hasSearchBuilderTarget) {
+            return null;
+        }
+
+        return this.searchBuilderTarget.querySelector('.zhortein-datatable__search-builder-group--root')
+            || this.searchBuilderTarget;
     }
 
     onSearchBuilderFieldChange(event) {
@@ -676,44 +742,114 @@ export default class extends Controller {
             return;
         }
 
-        const conditions = Array.from(this.searchBuilderConditionsTarget.querySelectorAll('.zhortein-datatable__search-builder-condition'));
-        if (conditions.length === 0) {
+        const rootGroup = this.getRootSearchBuilderGroupElement();
+        if (rootGroup === null) {
             return;
         }
 
-        const logic = this.searchBuilderTarget.querySelector('select[data-action*="updateSearchBuilderLogic"]').value;
+        const serialized = this.serializeSearchBuilderGroup(rootGroup);
+        if (serialized === null || serialized.conditions.length === 0) {
+            return;
+        }
 
-        searchParams.set('advancedFilters[logic]', logic);
+        this.appendSearchBuilderEntries(searchParams, 'advancedFilters', serialized);
+    }
 
-        conditions.forEach((condition, index) => {
-            const fieldSelect = condition.querySelector('select[data-action*="onSearchBuilderFieldChange"]');
-            const field = fieldSelect.value;
-            const operator = condition.querySelector('select[data-action*="onSearchBuilderOperatorChange"]').value;
+    serializeSearchBuilderGroup(groupElement) {
+        const logicSelect = groupElement.querySelector(':scope > .zhortein-datatable__search-builder-header select.zhortein-datatable__search-builder-logic')
+            || groupElement.querySelector(':scope > select.zhortein-datatable__search-builder-logic')
+            || groupElement.querySelector(':scope > select[data-action*="updateSearchBuilderLogic"]')
+            || (groupElement.classList.contains('zhortein-datatable__search-builder-group--root') && this.hasSearchBuilderTarget
+                ? this.searchBuilderTarget.querySelector('select[data-action*="updateSearchBuilderLogic"]')
+                : null);
 
-            if (!field || !operator) {
-                return;
-            }
+        const logicValue = (logicSelect && typeof logicSelect.value === 'string' && logicSelect.value !== '')
+            ? logicSelect.value
+            : 'AND';
 
-            searchParams.set(`advancedFilters[children][${index}][field]`, field);
-            searchParams.set(`advancedFilters[children][${index}][operator]`, operator);
+        const conditionsContainer = groupElement.querySelector(':scope > .zhortein-datatable__search-builder-conditions')
+            || (groupElement.classList.contains('zhortein-datatable__search-builder-group--root') && this.hasSearchBuilderConditionsTarget
+                ? this.searchBuilderConditionsTarget
+                : null);
 
-            const valueContainer = condition.querySelector('.zhortein-datatable__search-builder-value-container');
-            const inputs = valueContainer.querySelectorAll('input, select');
+        const conditions = [];
 
-            if (inputs.length === 1) {
-                const input = inputs[0];
-                if (input instanceof HTMLSelectElement && input.multiple) {
-                    Array.from(input.selectedOptions).forEach((opt, optIndex) => {
-                        searchParams.append(`advancedFilters[children][${index}][value][${optIndex}]`, opt.value);
-                    });
-                } else {
-                    searchParams.set(`advancedFilters[children][${index}][value]`, input.value);
+        if (conditionsContainer) {
+            Array.from(conditionsContainer.children).forEach((child) => {
+                if (child.classList.contains('zhortein-datatable__search-builder-condition')) {
+                    const serialized = this.serializeSearchBuilderCondition(child);
+                    if (serialized !== null) {
+                        conditions.push(serialized);
+                    }
+                } else if (child.classList.contains('zhortein-datatable__search-builder-group')) {
+                    const serialized = this.serializeSearchBuilderGroup(child);
+                    if (serialized !== null && serialized.conditions.length > 0) {
+                        conditions.push(serialized);
+                    }
                 }
-            } else if (inputs.length === 2) {
-                // Between
-                searchParams.set(`advancedFilters[children][${index}][value][from]`, inputs[0].value);
-                searchParams.set(`advancedFilters[children][${index}][value][to]`, inputs[1].value);
+            });
+        }
+
+        return { logic: String(logicValue).toLowerCase(), conditions };
+    }
+
+    serializeSearchBuilderCondition(conditionElement) {
+        const fieldSelect = conditionElement.querySelector('select[data-action*="onSearchBuilderFieldChange"]');
+        const operatorSelect = conditionElement.querySelector('select[data-action*="onSearchBuilderOperatorChange"]');
+
+        if (!fieldSelect || !operatorSelect) {
+            return null;
+        }
+
+        const field = fieldSelect.value;
+        const operator = operatorSelect.value;
+
+        if (!field || !operator) {
+            return null;
+        }
+
+        const valueContainer = conditionElement.querySelector('.zhortein-datatable__search-builder-value-container');
+        const inputs = valueContainer ? valueContainer.querySelectorAll('input, select') : [];
+
+        let value = null;
+
+        if (operator === 'is_null' || operator === 'is_not_null') {
+            value = null;
+        } else if (inputs.length === 1) {
+            const input = inputs[0];
+            if (input instanceof HTMLSelectElement && input.multiple) {
+                value = Array.from(input.selectedOptions).map((opt) => opt.value);
+            } else {
+                value = input.value;
             }
+        } else if (inputs.length === 2) {
+            value = { from: inputs[0].value, to: inputs[1].value };
+        }
+
+        const result = { field, operator };
+
+        if (value !== null) {
+            result.value = value;
+        }
+
+        return result;
+    }
+
+    appendSearchBuilderEntries(searchParams, prefix, payload) {
+        if (payload === null || typeof payload !== 'object') {
+            searchParams.set(prefix, String(payload ?? ''));
+            return;
+        }
+
+        if (Array.isArray(payload)) {
+            payload.forEach((item, index) => {
+                this.appendSearchBuilderEntries(searchParams, `${prefix}[${index}]`, item);
+            });
+            return;
+        }
+
+        Object.entries(payload).forEach(([key, val]) => {
+            this.appendSearchBuilderEntries(searchParams, `${prefix}[${key}]`, val);
         });
     }
 

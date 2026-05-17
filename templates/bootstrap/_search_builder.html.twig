@@ -37,12 +37,12 @@
         'between_to': 'zhortein_datatable.search_builder.operators.between_to'|trans({}, 'zhortein_datatable')|default('To')
     }|json_encode|e('html_attr') }}"
 >
-    <div class="card card-body">
-        <div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="card card-body zhortein-datatable__search-builder-group zhortein-datatable__search-builder-group--root">
+        <div class="d-flex align-items-center justify-content-between mb-3 zhortein-datatable__search-builder-header">
             <h5 class="card-title mb-0">{{ 'zhortein_datatable.search_builder.title'|trans({}, 'zhortein_datatable') }}</h5>
             <div class="d-flex align-items-center gap-2">
                 <select
-                    class="form-select form-select-sm w-auto"
+                    class="form-select form-select-sm w-auto zhortein-datatable__search-builder-logic"
                     data-action="change->zhortein--datatable-bundle--datatable#updateSearchBuilderLogic"
                 >
                     <option value="AND">{{ 'zhortein_datatable.search_builder.and'|trans({}, 'zhortein_datatable') }}</option>
@@ -59,16 +59,25 @@
         </div>
 
         <div class="zhortein-datatable__search-builder-conditions mb-3" data-zhortein--datatable-bundle--datatable-target="searchBuilderConditions">
-            {# Conditions will be added here via JS #}
+            {# Conditions and subgroups will be added here via JS #}
         </div>
 
-        <button
-            type="button"
-            class="btn btn-sm btn-outline-primary"
-            data-action="zhortein--datatable-bundle--datatable#addSearchBuilderCondition"
-        >
-            <i class="bi bi-plus-lg"></i> {{ 'zhortein_datatable.search_builder.add_condition'|trans({}, 'zhortein_datatable') }}
-        </button>
+        <div class="d-flex align-items-center gap-2">
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-primary"
+                data-action="zhortein--datatable-bundle--datatable#addSearchBuilderCondition"
+            >
+                <i class="bi bi-plus-lg"></i> {{ 'zhortein_datatable.search_builder.add_condition'|trans({}, 'zhortein_datatable') }}
+            </button>
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                data-action="zhortein--datatable-bundle--datatable#addSearchBuilderSubgroup"
+            >
+                <i class="bi bi-folder-plus"></i> {{ 'zhortein_datatable.search_builder.add_subgroup'|trans({}, 'zhortein_datatable') }}
+            </button>
+        </div>
     </div>
 
     {# Template for a single condition #}
@@ -100,9 +109,52 @@
                 type="button"
                 class="btn btn-sm btn-outline-danger"
                 data-action="zhortein--datatable-bundle--datatable#removeSearchBuilderCondition"
+                aria-label="{{ 'zhortein_datatable.search_builder.remove_condition'|trans({}, 'zhortein_datatable') }}"
             >
                 <i class="bi bi-trash"></i>
             </button>
+        </div>
+    </template>
+
+    {# Template for a nested subgroup #}
+    <template data-zhortein--datatable-bundle--datatable-target="searchBuilderGroupTemplate">
+        <div class="zhortein-datatable__search-builder-group zhortein-datatable__search-builder-group--nested border rounded p-2 mb-2">
+            <div class="d-flex align-items-center justify-content-between mb-2 zhortein-datatable__search-builder-header">
+                <select
+                    class="form-select form-select-sm w-auto zhortein-datatable__search-builder-logic"
+                    data-action="change->zhortein--datatable-bundle--datatable#updateSearchBuilderLogic"
+                >
+                    <option value="AND">{{ 'zhortein_datatable.search_builder.and'|trans({}, 'zhortein_datatable') }}</option>
+                    <option value="OR">{{ 'zhortein_datatable.search_builder.or'|trans({}, 'zhortein_datatable') }}</option>
+                </select>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    data-action="zhortein--datatable-bundle--datatable#removeSearchBuilderSubgroup"
+                    aria-label="{{ 'zhortein_datatable.search_builder.remove_subgroup'|trans({}, 'zhortein_datatable') }}"
+                >
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+
+            <div class="zhortein-datatable__search-builder-conditions mb-2"></div>
+
+            <div class="d-flex align-items-center gap-2">
+                <button
+                    type="button"
+                    class="btn btn-sm btn-outline-primary"
+                    data-action="zhortein--datatable-bundle--datatable#addSearchBuilderCondition"
+                >
+                    <i class="bi bi-plus-lg"></i> {{ 'zhortein_datatable.search_builder.add_condition'|trans({}, 'zhortein_datatable') }}
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-outline-secondary"
+                    data-action="zhortein--datatable-bundle--datatable#addSearchBuilderSubgroup"
+                >
+                    <i class="bi bi-folder-plus"></i> {{ 'zhortein_datatable.search_builder.add_subgroup'|trans({}, 'zhortein_datatable') }}
+                </button>
+            </div>
         </div>
     </template>
 </div>
