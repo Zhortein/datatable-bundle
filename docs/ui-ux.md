@@ -46,12 +46,16 @@ Clicking a header toggles sorting between `asc`, `desc`, and back to `asc`. Neut
 ## Rendering Customization
 
 ### Action Icons
-Actions can declare an optional icon CSS class. The bundle remains accessible by keeping labels visible alongside icons.
+Actions can declare an optional icon CSS class. If no explicit icon is provided, the bundle resolves a default icon from the `IconResolver` based on the action name.
+
+Common action names like `view`, `edit`, `delete`, and `create` have built-in defaults. Bulk actions also have a default icon fallback.
+
+The bundle remains accessible by keeping labels visible alongside icons.
 
 ```php
 $definition->addRowAction(
     name: 'edit',
-    icon: 'bi bi-pencil',
+    // icon: 'bi bi-pencil', // Optional, resolved automatically for 'edit'
     label: 'Edit',
     // ...
 );
