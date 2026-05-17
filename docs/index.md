@@ -14,6 +14,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 
 - [Providers](providers.md): Array and Doctrine data sources.
 - [Filters](filters.md): Toolbar and header-based data filtering.
+- [Advanced Filters](advanced-filters.md): Complex nested filtering with Search Builder.
 - [Actions and Security](actions.md): Row-level and global table actions with CSRF and authorization.
 - [Bulk Actions and Selection](bulk-actions.md): Managing multiple rows at once.
 - [UI/UX and Controls](ui-ux.md): Search, pagination, sorting, and UI customization.

@@ -10,10 +10,10 @@ Currently implemented:
 -   **Types**: Text, Choice, Boolean, Date, Date Range, Number, Number Range.
 -   **Layouts**: Toolbar (default) and Column Header Dropdowns.
 -   **Features**: Active filter summary, clear filters action, Stimulus-powered refresh with debouncing.
+-   **Advanced Filters**: [Advanced search builder](advanced-filters.md) for complex `AND`/`OR` logic.
 
 Not implemented yet:
--   Advanced SearchBuilder-style expressions (only `AND` is supported).
--   Nested filter groups.
+-   Nested filter groups (simple filters only).
 -   Persisted filter presets.
 -   Custom filter widgets (Select2, datepickers).
 -   Collection-valued association filters.
