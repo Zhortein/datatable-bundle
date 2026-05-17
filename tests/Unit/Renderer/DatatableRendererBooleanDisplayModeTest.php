@@ -7,8 +7,10 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Renderer;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
+use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\BooleanDisplayMode;
+use Zhortein\DatatableBundle\Icon\IconResolver;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
@@ -32,7 +34,7 @@ final class DatatableRendererBooleanDisplayModeTest extends TestCase
         self::assertStringContainsString('No', $html);
     }
 
-    public function test_it_renders_boolean_as_icon(): void
+    public function test_it_renders_boolean_as_icon_fallback_when_no_resolver(): void
     {
         $html = $this->renderBoolean(true, BooleanDisplayMode::Icon);
 
@@ -43,13 +45,47 @@ final class DatatableRendererBooleanDisplayModeTest extends TestCase
         self::assertStringNotContainsString('badge text-bg-success', $html);
     }
 
-    public function test_it_renders_boolean_false_as_icon(): void
+    public function test_it_renders_boolean_false_as_icon_fallback_when_no_resolver(): void
     {
         $html = $this->renderBoolean(false, BooleanDisplayMode::Icon);
 
         self::assertStringContainsString('text-danger', $html);
         self::assertStringContainsString('×', $html);
         self::assertStringContainsString('No', $html);
+    }
+
+    public function test_it_renders_boolean_as_icon_with_resolver(): void
+    {
+        $html = $this->renderBoolean(true, BooleanDisplayMode::Icon, new IconResolver());
+
+        self::assertStringContainsString('bi bi-check-lg', $html);
+        self::assertStringContainsString('text-success', $html);
+        self::assertStringContainsString('visually-hidden', $html);
+        self::assertStringContainsString('Yes', $html);
+    }
+
+    public function test_it_renders_boolean_false_as_icon_with_resolver(): void
+    {
+        $html = $this->renderBoolean(false, BooleanDisplayMode::Icon, new IconResolver());
+
+        self::assertStringContainsString('bi bi-x-lg', $html);
+        self::assertStringContainsString('text-danger', $html);
+        self::assertStringContainsString('visually-hidden', $html);
+        self::assertStringContainsString('No', $html);
+    }
+
+    public function test_it_renders_boolean_as_custom_icon(): void
+    {
+        $resolver = new IconResolver([
+            'boolean_true' => 'custom-true-icon',
+            'boolean_false' => 'custom-false-icon',
+        ]);
+
+        $html = $this->renderBoolean(true, BooleanDisplayMode::Icon, $resolver);
+        self::assertStringContainsString('custom-true-icon', $html);
+
+        $html = $this->renderBoolean(false, BooleanDisplayMode::Icon, $resolver);
+        self::assertStringContainsString('custom-false-icon', $html);
     }
 
     public function test_it_renders_boolean_as_switch(): void
@@ -95,7 +131,7 @@ final class DatatableRendererBooleanDisplayModeTest extends TestCase
         self::assertStringContainsString('form-check form-switch', $html);
     }
 
-    private function renderBoolean(bool $value, ?BooleanDisplayMode $mode = null): string
+    private function renderBoolean(bool $value, ?BooleanDisplayMode $mode = null, ?IconResolverInterface $iconResolver = null): string
     {
         $definition = new DatatableDefinition('users');
 
@@ -111,7 +147,10 @@ final class DatatableRendererBooleanDisplayModeTest extends TestCase
             $options['booleanDisplayMode'] = $mode->value;
         }
 
-        return new DatatableRenderer($this->createTwigEnvironment())->renderBody(
+        return new DatatableRenderer(
+            twig: $this->createTwigEnvironment(),
+            iconResolver: $iconResolver,
+        )->renderBody(
             $definition,
             new DatatableResult(
                 rows: [
