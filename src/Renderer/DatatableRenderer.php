@@ -54,7 +54,7 @@ final readonly class DatatableRenderer
 
         $bulkActions = $this->normalizeBulkActions($definition);
 
-        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/datatable.html.twig', $this->theme), [
+        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/datatable.html.twig', $this->theme), array_merge([
             'definition' => $definition,
             'visibleColumns' => $this->getVisibleColumns($definition, $options),
             'rowActions' => $definition->getRowActions(),
@@ -66,7 +66,7 @@ final readonly class DatatableRenderer
             'options' => $options,
             'filters' => $filters,
             'rowActionDisplayMode' => $this->resolveRowActionDisplayMode($definition, $options)->value,
-        ]);
+        ], $this->resolveSortIcons()));
     }
 
     /**
@@ -76,7 +76,7 @@ final readonly class DatatableRenderer
     {
         $options = $this->resolveOptions($options);
 
-        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_header.html.twig', $this->theme), [
+        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_header.html.twig', $this->theme), array_merge([
             'definition' => $definition,
             'visibleColumns' => $this->getVisibleColumns($definition, $options),
             'hasRowActions' => [] !== $definition->getRowActions(),
@@ -84,7 +84,7 @@ final readonly class DatatableRenderer
             'htmlId' => $this->createHtmlId($definition),
             'options' => $options,
             'filters' => $options['filters'] ?? [],
-        ]);
+        ], $this->resolveSortIcons()));
     }
 
     /**
@@ -589,5 +589,17 @@ final readonly class DatatableRenderer
         }
 
         return PaginationSize::fromNullableString(is_string($size) ? $size : null);
+    }
+
+    /**
+     * @return array{sort_neutral: string|null, sort_asc: string|null, sort_desc: string|null}
+     */
+    private function resolveSortIcons(): array
+    {
+        return [
+            'sort_neutral' => $this->iconResolver?->resolve('sort_neutral'),
+            'sort_asc' => $this->iconResolver?->resolve('sort_asc'),
+            'sort_desc' => $this->iconResolver?->resolve('sort_desc'),
+        ];
     }
 }

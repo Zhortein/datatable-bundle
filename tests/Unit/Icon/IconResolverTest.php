@@ -19,7 +19,7 @@ final class IconResolverTest extends TestCase
         self::assertSame('bi bi-plus-lg', $resolver->resolve('add'));
         self::assertSame('bi bi-check-lg', $resolver->resolve('check'));
         self::assertSame('bi bi-x-lg', $resolver->resolve('cancel'));
-        self::assertSame('bi bi-arrow-down-up', $resolver->resolve('sort'));
+        self::assertSame('bi bi-arrow-down-up', $resolver->resolve('sort_neutral'));
         self::assertSame('bi bi-arrow-up', $resolver->resolve('sort_asc'));
         self::assertSame('bi bi-arrow-down', $resolver->resolve('sort_desc'));
         self::assertSame('bi bi-funnel', $resolver->resolve('filter'));

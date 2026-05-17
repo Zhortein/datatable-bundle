@@ -219,7 +219,7 @@ icons:
     add: "bi bi-plus-lg"
     check: "bi bi-check-lg"
     cancel: "bi bi-x-lg"
-    sort: "bi bi-arrow-down-up"
+    sort_neutral: "bi bi-arrow-down-up"
     sort_asc: "bi bi-arrow-up"
     sort_desc: "bi bi-arrow-down"
     filter: "bi bi-funnel"
