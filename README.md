@@ -18,7 +18,7 @@ A Symfony 8+ bundle for Bootstrap-first business datatables driven by PHP defini
 - **Twig Rendering**: Render tables with a single Twig function: `{{ zhortein_datatable() }}`.
 - **Ajax Fragments**: Seamless server-side updates using vanilla Stimulus.
 - **Data Providers**: Native support for **Doctrine ORM** and **Array** providers.
-- **Filtering**: Built-in global search and permanent backend filters.
+- **Filtering**: Built-in global search, toolbar/header filters, and advanced **Search Builder**.
 - **Actions**: Declarative row and global actions with CSRF-aware non-GET support.
 - **Exports**: Server-side CSV and optional XLSX exports.
 - **Customization**: Flexible UI/UX customization via Twig blocks and themes.
@@ -91,6 +91,7 @@ final class UserDatatable implements DatatableInterface
 - [Providers Overview](docs/providers.md)
 - [Doctrine Provider](docs/doctrine-provider.md)
 - [Filters](docs/filters.md)
+- [Advanced Filters](docs/advanced-filters.md)
 - [Actions & Security](docs/actions.md)
 - [Bulk Actions & Selection](docs/bulk-actions.md)
 - [Exports](docs/exports.md)
