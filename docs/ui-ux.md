@@ -100,6 +100,7 @@ The bundle follows a strong accessibility baseline:
 ## Related documentation
 
 - [Actions and Security](actions.md)
+- [Icon System](icons.md)
 - [Bulk Actions and Selection](bulk-actions.md)
 - [Theming and Templates](theming.md)
 - [Architecture](architecture/overview.md)
