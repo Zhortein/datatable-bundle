@@ -37,6 +37,7 @@ final readonly class DatatableRenderer
         private string $theme = 'bootstrap',
         private int $defaultPageSize = 25,
         private bool $searchEnabled = false,
+        private bool $searchBuilderEnabled = false,
         private array $defaultTableOptions = [],
     ) {
     }
@@ -160,6 +161,7 @@ final readonly class DatatableRenderer
             $this->defaultTableOptions,
             [
                 'search' => $this->searchEnabled,
+                'searchBuilder' => $this->searchBuilderEnabled,
                 'pageSize' => $this->defaultPageSize,
             ],
             $options,
@@ -605,6 +607,7 @@ final readonly class DatatableRenderer
             'export_icon' => $this->iconResolver?->resolve('export'),
             'export_csv_icon' => $this->iconResolver?->resolve('export_csv'),
             'export_xlsx_icon' => $this->iconResolver?->resolve('export_xlsx'),
+            'search_builder_icon' => $this->iconResolver?->resolve('search_builder'),
         ];
     }
 }

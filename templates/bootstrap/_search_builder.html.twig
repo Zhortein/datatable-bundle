@@ -1,0 +1,100 @@
+<div
+    class="zhortein-datatable__search-builder collapse mb-3"
+    id="{{ htmlId }}-search-builder"
+    data-zhortein--datatable-bundle--datatable-target="searchBuilder"
+    data-zhortein--datatable-bundle--datatable-operators-value="{{ {
+        'text': ['eq', 'neq', 'contains', 'not_contains', 'starts_with', 'ends_with', 'is_null', 'is_not_null'],
+        'choice': ['in', 'not_in', 'eq', 'neq', 'is_null', 'is_not_null'],
+        'boolean': ['eq'],
+        'number': ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'between', 'is_null', 'is_not_null'],
+        'number_range': ['between'],
+        'date': ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'between', 'is_null', 'is_not_null'],
+        'date_range': ['between']
+    }|json_encode|e('html_attr') }}"
+    data-zhortein--datatable-bundle--datatable-operator-labels-value="{{ {
+        'eq': 'zhortein_datatable.search_builder.operators.eq'|trans({}, 'zhortein_datatable'),
+        'neq': 'zhortein_datatable.search_builder.operators.neq'|trans({}, 'zhortein_datatable'),
+        'contains': 'zhortein_datatable.search_builder.operators.contains'|trans({}, 'zhortein_datatable'),
+        'not_contains': 'zhortein_datatable.search_builder.operators.not_contains'|trans({}, 'zhortein_datatable'),
+        'starts_with': 'zhortein_datatable.search_builder.operators.starts_with'|trans({}, 'zhortein_datatable'),
+        'ends_with': 'zhortein_datatable.search_builder.operators.ends_with'|trans({}, 'zhortein_datatable'),
+        'gt': 'zhortein_datatable.search_builder.operators.gt'|trans({}, 'zhortein_datatable'),
+        'gte': 'zhortein_datatable.search_builder.operators.gte'|trans({}, 'zhortein_datatable'),
+        'lt': 'zhortein_datatable.search_builder.operators.lt'|trans({}, 'zhortein_datatable'),
+        'lte': 'zhortein_datatable.search_builder.operators.lte'|trans({}, 'zhortein_datatable'),
+        'between': 'zhortein_datatable.search_builder.operators.between'|trans({}, 'zhortein_datatable'),
+        'is_null': 'zhortein_datatable.search_builder.operators.is_null'|trans({}, 'zhortein_datatable'),
+        'is_not_null': 'zhortein_datatable.search_builder.operators.is_not_null'|trans({}, 'zhortein_datatable'),
+        'in': 'zhortein_datatable.search_builder.operators.in'|trans({}, 'zhortein_datatable'),
+        'not_in': 'zhortein_datatable.search_builder.operators.not_in'|trans({}, 'zhortein_datatable')
+    }|json_encode|e('html_attr') }}"
+>
+    <div class="card card-body">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h5 class="card-title mb-0">{{ 'zhortein_datatable.search_builder.title'|trans({}, 'zhortein_datatable') }}</h5>
+            <div class="d-flex align-items-center gap-2">
+                <select
+                    class="form-select form-select-sm w-auto"
+                    data-action="change->zhortein--datatable-bundle--datatable#updateSearchBuilderLogic"
+                >
+                    <option value="AND">{{ 'zhortein_datatable.search_builder.and'|trans({}, 'zhortein_datatable') }}</option>
+                    <option value="OR">{{ 'zhortein_datatable.search_builder.or'|trans({}, 'zhortein_datatable') }}</option>
+                </select>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    data-action="zhortein--datatable-bundle--datatable#clearSearchBuilder"
+                >
+                    {{ 'zhortein_datatable.search_builder.clear'|trans({}, 'zhortein_datatable') }}
+                </button>
+            </div>
+        </div>
+
+        <div class="zhortein-datatable__search-builder-conditions mb-3" data-zhortein--datatable-bundle--datatable-target="searchBuilderConditions">
+            {# Conditions will be added here via JS #}
+        </div>
+
+        <button
+            type="button"
+            class="btn btn-sm btn-outline-primary"
+            data-action="zhortein--datatable-bundle--datatable#addSearchBuilderCondition"
+        >
+            <i class="bi bi-plus-lg"></i> {{ 'zhortein_datatable.search_builder.add_condition'|trans({}, 'zhortein_datatable') }}
+        </button>
+    </div>
+
+    {# Template for a single condition #}
+    <template data-zhortein--datatable-bundle--datatable-target="searchBuilderConditionTemplate">
+        <div class="zhortein-datatable__search-builder-condition d-flex align-items-center gap-2 mb-2">
+            <select
+                class="form-select form-select-sm w-auto"
+                data-action="change->zhortein--datatable-bundle--datatable#onSearchBuilderFieldChange"
+            >
+                <option value="">{{ 'zhortein_datatable.search_builder.select_field'|trans({}, 'zhortein_datatable') }}</option>
+                {% for name, field in definition.advancedFilterFields %}
+                    <option value="{{ name }}" data-type="{{ field.type.value }}" data-choices="{{ field.choices|json_encode|e('html_attr') }}">{{ field.label|default(name)|trans({}, definition.translationDomain) }}</option>
+                {% endfor %}
+            </select>
+
+            <select
+                class="form-select form-select-sm w-auto"
+                data-action="change->zhortein--datatable-bundle--datatable#onSearchBuilderOperatorChange"
+                disabled
+            >
+                <option value="">{{ 'zhortein_datatable.search_builder.select_operator'|trans({}, 'zhortein_datatable') }}</option>
+            </select>
+
+            <div class="zhortein-datatable__search-builder-value-container flex-grow-1">
+                <input type="text" class="form-control form-control-sm" disabled>
+            </div>
+
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-danger"
+                data-action="zhortein--datatable-bundle--datatable#removeSearchBuilderCondition"
+            >
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    </template>
+</div>

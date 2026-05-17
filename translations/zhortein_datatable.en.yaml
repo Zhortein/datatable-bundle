@@ -2,6 +2,30 @@ zhortein_datatable:
     search:
         label: 'Search'
         placeholder: 'Search'
+    search_builder:
+        title: 'Search Builder'
+        and: 'AND'
+        or: 'OR'
+        clear: 'Clear search builder'
+        add_condition: 'Add condition'
+        select_field: 'Select field'
+        select_operator: 'Select operator'
+        operators:
+            eq: 'Equals'
+            neq: 'Not Equals'
+            contains: 'Contains'
+            not_contains: 'Does not contain'
+            starts_with: 'Starts with'
+            ends_with: 'Ends with'
+            gt: 'Greater than'
+            gte: 'Greater than or equals'
+            lt: 'Less than'
+            lte: 'Less than or equals'
+            between: 'Between'
+            is_null: 'Is null'
+            is_not_null: 'Is not null'
+            in: 'In'
+            not_in: 'Not in'
     page_size:
         label: 'Rows per page'
     filters:

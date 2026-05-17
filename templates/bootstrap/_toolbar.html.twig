@@ -76,6 +76,23 @@
             } %}
         {% endif %}
 
+        {% if options.searchBuilder is defined and options.searchBuilder %}
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                data-bs-toggle="collapse"
+                data-bs-target="#{{ htmlId }}-search-builder"
+                aria-expanded="false"
+                aria-controls="{{ htmlId }}-search-builder"
+                title="{{ 'zhortein_datatable.search_builder.title'|trans({}, 'zhortein_datatable') }}"
+            >
+                {% if search_builder_icon is not empty %}
+                    <i class="{{ search_builder_icon }}"></i>
+                {% endif %}
+                <span class="d-none d-md-inline">{{ 'zhortein_datatable.search_builder.title'|trans({}, 'zhortein_datatable') }}</span>
+            </button>
+        {% endif %}
+
         {% if not is_split_layout and page_size_selector_enabled %}
             <label class="text-body-secondary small" for="{{ htmlId }}_page_size">
                 {{ 'zhortein_datatable.page_size.label'|trans({}, 'zhortein_datatable') }}

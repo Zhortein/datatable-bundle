@@ -2,6 +2,30 @@ zhortein_datatable:
     search:
         label: 'Rechercher'
         placeholder: 'Rechercher'
+    search_builder:
+        title: 'Constructeur de recherche'
+        and: 'ET'
+        or: 'OU'
+        clear: 'Effacer le constructeur'
+        add_condition: 'Ajouter une condition'
+        select_field: 'Sélectionner un champ'
+        select_operator: 'Sélectionner un opérateur'
+        operators:
+            eq: 'Égal à'
+            neq: 'Différent de'
+            contains: 'Contient'
+            not_contains: 'Ne contient pas'
+            starts_with: 'Commence par'
+            ends_with: 'Se termine par'
+            gt: 'Plus grand que'
+            gte: 'Plus grand ou égal à'
+            lt: 'Plus petit que'
+            lte: 'Plus petit ou égal à'
+            between: 'Entre'
+            is_null: 'Est nul'
+            is_not_null: 'N’est pas nul'
+            in: 'Dans'
+            not_in: 'Pas dans'
     page_size:
         label: 'Lignes par page'
     filters:
