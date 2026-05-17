@@ -934,7 +934,7 @@ Current limitations:
 
 ---
 
-## 0.25 - Icon system and visual consistency 🚧
+## 0.25 - Icon system and visual consistency ✅
 
 Goal:
 
@@ -944,26 +944,23 @@ Provide a consistent, configurable icon strategy across actions, booleans, sorti
 
 Delivered:
 
-- icon strategy and configuration model decision.
+- **icon resolver**: a flexible icon resolution system;
+- **configuration overrides**: global and per-datatable icon overrides;
+- **actions**: icons for row and global actions;
+- **bulk actions**: icons for bulk action triggers;
+- **booleans**: configurable icons for boolean values;
+- **sort indicators**: customizable icons for ascending/descending states;
+- **filters**: icons for filter headers and actions;
+- **exports**: icons for export formats.
 
-Planned:
+Current limitations:
 
-- define a lightweight icon strategy;
-- keep CSS-class based icons supported;
-- document Bootstrap Icons and FontAwesome usage;
-- provide default icon names/classes;
-- support icons for:
-  - row actions;
-  - global actions;
-  - bulk actions;
-  - booleans;
-  - sort indicators;
-  - filters;
-  - exports;
-- keep icon libraries optional;
-- avoid hard dependency on a specific icon set.
+- no mandatory icon library;
+- no SVG provider;
+- no UX Icons hard integration;
+- no icon-only actions unless implemented.
 
-Main expected outcome:
+Main outcome:
 
 ```text
 Generated datatables have a coherent visual language while allowing host applications to choose their icon system.
@@ -971,7 +968,7 @@ Generated datatables have a coherent visual language while allowing host applica
 
 ---
 
-## 0.26 - Advanced filter expressions 🕒
+## 0.26 - Advanced filter expressions 🚧
 
 Goal:
 
