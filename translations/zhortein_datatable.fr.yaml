@@ -21,6 +21,7 @@ zhortein_datatable:
     bulk_actions:
         select_all: 'Tout sélectionner'
         select_row: 'Sélectionner la ligne %id%'
+        selected: 'lignes sélectionnées'
     loading: 'Chargement...'
     error:
         generic: 'Impossible de charger les données du tableau.'

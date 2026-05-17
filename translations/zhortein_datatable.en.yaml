@@ -21,6 +21,7 @@ zhortein_datatable:
     bulk_actions:
         select_all: 'Select all'
         select_row: 'Select row %id%'
+        selected: 'rows selected'
     loading: 'Loading...'
     error:
         generic: 'Unable to load datatable data.'
