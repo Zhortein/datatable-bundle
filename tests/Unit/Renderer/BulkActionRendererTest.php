@@ -131,6 +131,7 @@ final class BulkActionRendererTest extends TestCase
         $definition = new DatatableDefinition('users');
         $definition->addColumn('email', label: 'Email');
         $definition->addBulkAction('delete', 'user_bulk_delete', label: 'Delete selected', icon: 'fa fa-trash');
+        $definition->addBulkAction('archive', 'user_bulk_archive', label: 'Archive selected', confirmationMessage: 'Are you sure?', selectedRowsParameterName: 'rows');
 
         $renderer = new DatatableRenderer(
             twig: $this->createTwigEnvironment(),
@@ -142,10 +143,19 @@ final class BulkActionRendererTest extends TestCase
         self::assertStringContainsString('zhortein-datatable__bulk-actions', $html);
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="bulkToolbar"', $html);
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="selectedCount"', $html);
+
+        // Delete action
         self::assertStringContainsString('Delete selected', $html);
         self::assertStringContainsString('fa fa-trash', $html);
         self::assertStringContainsString('disabled', $html);
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="bulkAction"', $html);
+        self::assertStringContainsString('data-action="submit->zhortein--datatable-bundle--datatable#submitBulkAction"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-selected-rows-parameter-name="ids"', $html);
+
+        // Archive action
+        self::assertStringContainsString('Archive selected', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-confirmation-message="Are you sure?"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-selected-rows-parameter-name="rows"', $html);
     }
 
     private function createUrlGeneratorStub(): UrlGeneratorInterface

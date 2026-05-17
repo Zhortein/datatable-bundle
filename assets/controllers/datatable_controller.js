@@ -189,6 +189,10 @@ export default class extends Controller {
 
     executeConfirmedTarget(target) {
         if (target instanceof HTMLFormElement) {
+            if (target.hasAttribute('data-zhortein--datatable-bundle--datatable-selected-rows-parameter-name')) {
+                this.injectSelectedIds(target);
+            }
+
             target.submit();
 
             return;
@@ -197,6 +201,38 @@ export default class extends Controller {
         if (target instanceof HTMLAnchorElement) {
             window.location.assign(target.href);
         }
+    }
+
+    submitBulkAction(event) {
+        if (this.selectedIds.size === 0) {
+            event.preventDefault();
+
+            return;
+        }
+
+        const message = this.resolveConfirmationMessage(event.currentTarget);
+
+        if (message !== null) {
+            this.confirmAction(event);
+
+            return;
+        }
+
+        this.injectSelectedIds(event.currentTarget);
+    }
+
+    injectSelectedIds(form) {
+        const parameterName = form.getAttribute('data-zhortein--datatable-bundle--datatable-selected-rows-parameter-name') || 'ids';
+
+        form.querySelectorAll(`input[name="${parameterName}[]"]`).forEach((input) => input.remove());
+
+        this.selectedIds.forEach((id) => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = `${parameterName}[]`;
+            input.value = id;
+            form.appendChild(input);
+        });
     }
 
     search(event) {
