@@ -10,6 +10,7 @@ use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Definition\UserFilterDefinition;
 use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Enum\SortDirection;
+use Zhortein\DatatableBundle\Filter\Expression\ArrayExpressionEvaluator;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
@@ -31,6 +32,7 @@ final readonly class ArrayDataProvider implements DataProviderInterface
         $totalItems = count($rows);
 
         $rows = $this->applyUserFilters($rows, $definition, $request);
+        $rows = $this->applyAdvancedFilters($rows, $request);
         $rows = $this->applySearch($rows, $definition, $request);
 
         $filteredItems = count($rows);
@@ -423,5 +425,30 @@ final readonly class ArrayDataProvider implements DataProviderInterface
         }
 
         return strnatcasecmp(get_debug_type($leftValue), get_debug_type($rightValue));
+    }
+
+    /**
+     * @param list<array<string, mixed>> $rows
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function applyAdvancedFilters(array $rows, DatatableRequest $request): array
+    {
+        if (!$request->hasAdvancedFilters()) {
+            return $rows;
+        }
+
+        $expression = $request->getAdvancedFilterExpression();
+
+        if (null === $expression) {
+            return $rows;
+        }
+
+        $evaluator = new ArrayExpressionEvaluator();
+
+        return array_values(array_filter(
+            $rows,
+            fn (array $row): bool => $evaluator->evaluate($expression, $row),
+        ));
     }
 }
