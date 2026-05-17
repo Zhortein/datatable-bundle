@@ -92,6 +92,7 @@ final class UserDatatable implements DatatableInterface
 - [Doctrine Provider](docs/doctrine-provider.md)
 - [Filters](docs/filters.md)
 - [Actions & Security](docs/actions.md)
+- [Bulk Actions & Selection](docs/bulk-actions.md)
 - [Exports](docs/exports.md)
 - [Theming & Templates](docs/theming.md)
 - [UI/UX & Controls](docs/ui-ux.md)
