@@ -17,6 +17,10 @@ zhortein_datatable:
     default_page_size: 25
     max_page_size: 500
     search_enabled: false
+    icons:
+        view: "bi bi-eye"
+        edit: "bi bi-pencil"
+        delete: "bi bi-trash"
     export:
       csv:
         delimiter: ';'
@@ -198,6 +202,41 @@ A runtime option can still override it:
 {{ zhortein_datatable('users', {
     search: false
 }) }}
+```
+
+## `icons`
+
+Type: `array<string, string>`
+
+Default:
+
+```yaml
+icons:
+    view: "bi bi-eye"
+    edit: "bi bi-pencil"
+    delete: "bi bi-trash"
+    add: "bi bi-plus-lg"
+    check: "bi bi-check-lg"
+    cancel: "bi bi-x-lg"
+    sort: "bi bi-arrow-down-up"
+    sort_asc: "bi bi-arrow-up"
+    sort_desc: "bi bi-arrow-down"
+    filter: "bi bi-funnel"
+    export_csv: "bi bi-filetype-csv"
+    export_excel: "bi bi-filetype-xlsx"
+```
+
+The bundle uses a lightweight icon resolver to map internal icon keys to CSS classes. By default, it uses [Bootstrap Icons](https://icons.getbootstrap.com/) class names.
+
+**Note**: The host application is responsible for loading the icon library (e.g., Bootstrap Icons) if it wants these classes to render visually.
+
+You can override specific icons in your configuration:
+
+```yaml
+zhortein_datatable:
+    icons:
+        view: "fas fa-eye"
+        edit: "fas fa-edit"
 ```
 
 ## Default export values

@@ -11,6 +11,8 @@ use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineJoinApplier;
 use Zhortein\DatatableBundle\Doctrine\DoctrinePaginationApplier;
 use Zhortein\DatatableBundle\Export\XlsxExportWriter;
+use Zhortein\DatatableBundle\Icon\IconResolver;
+use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Renderer\DatatableSummaryRenderer;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
@@ -64,6 +66,13 @@ return static function (ContainerConfigurator $container): void {
     $services->set(NullDatatablePreferenceProvider::class);
 
     $services->alias(DatatablePreferenceProviderInterface::class, NullDatatablePreferenceProvider::class);
+
+    $services
+        ->set(IconResolver::class)
+        ->arg('$icons', param('zhortein_datatable.icons'))
+    ;
+
+    $services->alias(IconResolverInterface::class, IconResolver::class);
 
     if (interface_exists(ManagerRegistry::class)) {
         $services->set(DoctrineFieldTypeGuesser::class);
