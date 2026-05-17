@@ -69,6 +69,11 @@ final class DatatableDefinition
      */
     private array $aggregateColumns = [];
 
+    /**
+     * @var array<string, AdvancedFilterFieldDefinition>
+     */
+    private array $advancedFilterFields = [];
+
     public function __construct(
         private readonly string $name,
     ) {
@@ -444,5 +449,37 @@ final class DatatableDefinition
     public function getAggregateColumns(): array
     {
         return $this->aggregateColumns;
+    }
+
+    /**
+     * @param list<FilterOperator>  $allowedOperators
+     * @param array<string, string> $choices
+     */
+    public function addAdvancedFilterField(
+        string $name,
+        string $field,
+        ?string $label = null,
+        FilterType $type = FilterType::Text,
+        array $allowedOperators = [],
+        array $choices = [],
+    ): self {
+        $this->advancedFilterFields[$name] = new AdvancedFilterFieldDefinition(
+            name: $name,
+            field: $field,
+            label: $label,
+            type: $type,
+            allowedOperators: $allowedOperators,
+            choices: $choices,
+        );
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, AdvancedFilterFieldDefinition>
+     */
+    public function getAdvancedFilterFields(): array
+    {
+        return $this->advancedFilterFields;
     }
 }
