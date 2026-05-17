@@ -27,6 +27,9 @@ export default class extends Controller {
         'selectedCount',
         'bulkToolbar',
         'bulkAction',
+        'searchBuilder',
+        'searchBuilderConditions',
+        'searchBuilderConditionTemplate',
     ];
 
     static values = {
@@ -40,6 +43,7 @@ export default class extends Controller {
         sortDirection: { type: String, default: 'asc' },
         autoLoad: { type: Boolean, default: true },
         filterLayout: String,
+        searchBuilder: { type: Boolean, default: false },
         booleanDisplayMode: String,
         paginationSize: { type: String, default: 'default' },
         tableSmall: { type: Boolean, default: false },
@@ -452,6 +456,7 @@ export default class extends Controller {
         }
 
         this.appendFilterParameters(url.searchParams);
+        this.appendAdvancedFilterParameters(url.searchParams);
         this.appendColumnVisibilityParameters(url.searchParams);
 
         return url.toString();
@@ -539,6 +544,157 @@ export default class extends Controller {
     getColumnVisibilityControls() {
         return Array.from(this.element.querySelectorAll('[data-zhortein--datatable-bundle--datatable-column-visibility-control="true"]'))
             .filter((control) => control instanceof HTMLInputElement && control.type === 'checkbox');
+    }
+
+    addSearchBuilderCondition(event) {
+        if (event) event.preventDefault();
+
+        if (!this.hasSearchBuilderConditionsTarget || !this.hasSearchBuilderConditionTemplateTarget) {
+            return;
+        }
+
+        const template = this.searchBuilderConditionTemplateTarget.content.cloneNode(true);
+        this.searchBuilderConditionsTarget.appendChild(template);
+    }
+
+    removeSearchBuilderCondition(event) {
+        if (event) event.preventDefault();
+
+        const condition = event.target.closest('.zhortein-datatable__search-builder-condition');
+        if (condition) {
+            condition.remove();
+            this.refresh();
+        }
+    }
+
+    clearSearchBuilder(event) {
+        if (event) event.preventDefault();
+
+        if (this.hasSearchBuilderConditionsTarget) {
+            this.searchBuilderConditionsTarget.innerHTML = '';
+            this.refresh();
+        }
+    }
+
+    updateSearchBuilderLogic() {
+        this.refresh();
+    }
+
+    onSearchBuilderFieldChange(event) {
+        const select = event.target;
+        const condition = select.closest('.zhortein-datatable__search-builder-condition');
+        const operatorSelect = condition.querySelector('select[data-action*="onSearchBuilderOperatorChange"]');
+        const valueContainer = condition.querySelector('.zhortein-datatable__search-builder-value-container');
+
+        const selectedOption = select.options[select.selectedIndex];
+        const type = selectedOption.dataset.type;
+
+        if (!type) {
+            operatorSelect.disabled = true;
+            operatorSelect.innerHTML = `<option value="">${this.searchBuilderTarget.dataset.zhorteinDatatableBundleDatatableSelectOperatorPlaceholder || 'Select operator'}</option>`;
+            valueContainer.innerHTML = '<input type="text" class="form-control form-control-sm" disabled>';
+            return;
+        }
+
+        operatorSelect.disabled = false;
+        const operators = JSON.parse(this.searchBuilderTarget.dataset.zhorteinDatatableBundleDatatableOperatorsValue)[type] || [];
+        const operatorLabels = JSON.parse(this.searchBuilderTarget.dataset.zhorteinDatatableBundleDatatableOperatorLabelsValue);
+
+        operatorSelect.innerHTML = `<option value="">${this.searchBuilderTarget.dataset.zhorteinDatatableBundleDatatableSelectOperatorPlaceholder || 'Select operator'}</option>` +
+            operators.map((op) => `<option value="${op}">${operatorLabels[op] || op}</option>`).join('');
+
+        this.updateSearchBuilderValueInput(condition, type, selectedOption.dataset.choices);
+    }
+
+    onSearchBuilderOperatorChange() {
+        this.refresh();
+    }
+
+    updateSearchBuilderValueInput(condition, type, choicesJson) {
+        const valueContainer = condition.querySelector('.zhortein-datatable__search-builder-value-container');
+        const operatorSelect = condition.querySelector('select[data-action*="onSearchBuilderOperatorChange"]');
+        const operator = operatorSelect.value;
+
+        if (operator === 'is_null' || operator === 'is_not_null') {
+            valueContainer.innerHTML = '';
+            this.refresh();
+
+            return;
+        }
+
+        let html = '';
+        if (type === 'choice' && choicesJson) {
+            const choices = JSON.parse(choicesJson);
+            const isMultiple = operator === 'in' || operator === 'not_in';
+            html = `<select class="form-select form-select-sm" ${isMultiple ? 'multiple' : ''} data-action="change->zhortein--datatable-bundle--datatable#refresh">`;
+            for (const [label, value] of Object.entries(choices)) {
+                html += `<option value="${value}">${label}</option>`;
+            }
+            html += '</select>';
+        } else if (type === 'boolean') {
+            html = `<select class="form-select form-select-sm" data-action="change->zhortein--datatable-bundle--datatable#refresh">
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </select>`;
+        } else if (operator === 'between') {
+            const inputType = (type === 'date' || type === 'date_range') ? 'date' : 'number';
+            html = `<div class="d-flex gap-2">
+                <input type="${inputType}" class="form-control form-control-sm" placeholder="From" data-action="input->zhortein--datatable-bundle--datatable#refresh">
+                <input type="${inputType}" class="form-control form-control-sm" placeholder="To" data-action="input->zhortein--datatable-bundle--datatable#refresh">
+            </div>`;
+        } else {
+            const inputType = (type === 'date' || type === 'date_range') ? 'date' : (type === 'number' ? 'number' : 'text');
+            html = `<input type="${inputType}" class="form-control form-control-sm" data-action="input->zhortein--datatable-bundle--datatable#refresh">`;
+        }
+
+        valueContainer.innerHTML = html;
+        this.refresh();
+    }
+
+    appendAdvancedFilterParameters(searchParams) {
+        if (!this.hasSearchBuilderTarget) {
+            return;
+        }
+
+        const conditions = Array.from(this.searchBuilderConditionsTarget.querySelectorAll('.zhortein-datatable__search-builder-condition'));
+        if (conditions.length === 0) {
+            return;
+        }
+
+        const logic = this.searchBuilderTarget.querySelector('select[data-action*="updateSearchBuilderLogic"]').value;
+
+        searchParams.set('advancedFilters[logic]', logic);
+
+        conditions.forEach((condition, index) => {
+            const fieldSelect = condition.querySelector('select[data-action*="onSearchBuilderFieldChange"]');
+            const field = fieldSelect.value;
+            const operator = condition.querySelector('select[data-action*="onSearchBuilderOperatorChange"]').value;
+
+            if (!field || !operator) {
+                return;
+            }
+
+            searchParams.set(`advancedFilters[children][${index}][field]`, field);
+            searchParams.set(`advancedFilters[children][${index}][operator]`, operator);
+
+            const valueContainer = condition.querySelector('.zhortein-datatable__search-builder-value-container');
+            const inputs = valueContainer.querySelectorAll('input, select');
+
+            if (inputs.length === 1) {
+                const input = inputs[0];
+                if (input instanceof HTMLSelectElement && input.multiple) {
+                    Array.from(input.selectedOptions).forEach((opt, optIndex) => {
+                        searchParams.append(`advancedFilters[children][${index}][value][${optIndex}]`, opt.value);
+                    });
+                } else {
+                    searchParams.set(`advancedFilters[children][${index}][value]`, input.value);
+                }
+            } else if (inputs.length === 2) {
+                // Between
+                searchParams.set(`advancedFilters[children][${index}][value][from]`, inputs[0].value);
+                searchParams.set(`advancedFilters[children][${index}][value][to]`, inputs[1].value);
+            }
+        });
     }
 
     resolveConfirmationMessage(target) {

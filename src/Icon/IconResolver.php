@@ -31,6 +31,7 @@ final readonly class IconResolver implements IconResolverInterface
         'bulk_actions' => 'bi bi-collection',
         'boolean_true' => 'bi bi-check-lg',
         'boolean_false' => 'bi bi-x-lg',
+        'search_builder' => 'bi bi-sliders',
     ];
 
     /**
