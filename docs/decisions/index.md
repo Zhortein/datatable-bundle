@@ -10,3 +10,4 @@ This directory contains records of significant architectural decisions made duri
 - [0006 - Column header filter dropdowns](0006-column-header-filter-dropdowns.md)
 - [0007 - XLSX export strategy](0007-xlsx-export-strategy.md)
 - [0008 - Icon strategy and configuration model](0008-icon-strategy-and-configuration-model.md)
+- [0009 - Advanced filter expressions model](0009-advanced-filter-expressions-model.md)
