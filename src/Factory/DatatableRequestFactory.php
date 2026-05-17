@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Factory;
 
 use Symfony\Component\HttpFoundation\Request;
+use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
 
@@ -15,6 +16,7 @@ final readonly class DatatableRequestFactory
     public const int MAX_PAGE_SIZE = 500;
 
     public function __construct(
+        private AdvancedFilterExpressionFactory $advancedFilterExpressionFactory,
         private int $defaultPage = self::DEFAULT_PAGE,
         private int $defaultPageSize = self::DEFAULT_PAGE_SIZE,
         private int $maxPageSize = self::MAX_PAGE_SIZE,
@@ -32,12 +34,17 @@ final readonly class DatatableRequestFactory
         }
     }
 
-    public function createFromRequest(Request $request): DatatableRequest
+    public function createFromRequest(Request $request, ?DatatableDefinition $definition = null): DatatableRequest
     {
         $parameters = array_replace(
             $request->query->all(),
             $request->request->all(),
         );
+
+        $advancedFilters = $this->readArrayParameter($parameters, 'advancedFilters');
+        if ([] === $advancedFilters) {
+            $advancedFilters = $this->readArrayParameter($parameters, 'filterExpression');
+        }
 
         return DatatableRequest::create(
             page: $this->readPositiveInteger($parameters, 'page', $this->defaultPage),
@@ -49,6 +56,7 @@ final readonly class DatatableRequestFactory
             visibleColumns: $this->readStringListParameter($parameters, 'visibleColumns'),
             hiddenColumns: $this->readStringListParameter($parameters, 'hiddenColumns'),
             options: $this->readArrayParameter($parameters, 'options'),
+            advancedFilterExpression: $this->advancedFilterExpressionFactory->createFromArray($advancedFilters, $definition),
         );
     }
 

@@ -7,15 +7,21 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Factory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zhortein\DatatableBundle\Enum\SortDirection;
+use Zhortein\DatatableBundle\Factory\AdvancedFilterExpressionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
 
 final class DatatableRequestFactoryTest extends TestCase
 {
+    private DatatableRequestFactory $factory;
+
+    protected function setUp(): void
+    {
+        $this->factory = new DatatableRequestFactory(new AdvancedFilterExpressionFactory());
+    }
+
     public function test_it_creates_request_from_query_parameters(): void
     {
-        $factory = new DatatableRequestFactory();
-
-        $datatableRequest = $factory->createFromRequest(new Request([
+        $datatableRequest = $this->factory->createFromRequest(new Request([
             'page' => '3',
             'pageSize' => '50',
             'search' => ' john ',
@@ -41,9 +47,7 @@ final class DatatableRequestFactoryTest extends TestCase
 
     public function test_request_payload_overrides_query_parameters(): void
     {
-        $factory = new DatatableRequestFactory();
-
-        $datatableRequest = $factory->createFromRequest(new Request(
+        $datatableRequest = $this->factory->createFromRequest(new Request(
             query: [
                 'page' => '1',
                 'pageSize' => '10',
@@ -73,9 +77,7 @@ final class DatatableRequestFactoryTest extends TestCase
 
     public function test_it_uses_defaults_when_parameters_are_missing(): void
     {
-        $factory = new DatatableRequestFactory();
-
-        $datatableRequest = $factory->createFromRequest(new Request());
+        $datatableRequest = $this->factory->createFromRequest(new Request());
 
         self::assertSame(DatatableRequestFactory::DEFAULT_PAGE, $datatableRequest->getPage());
         self::assertSame(DatatableRequestFactory::DEFAULT_PAGE_SIZE, $datatableRequest->getPageSize());
@@ -88,9 +90,7 @@ final class DatatableRequestFactoryTest extends TestCase
 
     public function test_it_falls_back_to_defaults_for_invalid_values(): void
     {
-        $factory = new DatatableRequestFactory();
-
-        $datatableRequest = $factory->createFromRequest(new Request([
+        $datatableRequest = $this->factory->createFromRequest(new Request([
             'page' => '-10',
             'pageSize' => 'invalid',
             'search' => [],
@@ -111,9 +111,7 @@ final class DatatableRequestFactoryTest extends TestCase
 
     public function test_it_caps_page_size(): void
     {
-        $factory = new DatatableRequestFactory();
-
-        $datatableRequest = $factory->createFromRequest(new Request([
+        $datatableRequest = $this->factory->createFromRequest(new Request([
             'pageSize' => '999999',
         ]));
 
@@ -122,14 +120,58 @@ final class DatatableRequestFactoryTest extends TestCase
 
     public function test_it_normalizes_empty_strings(): void
     {
-        $factory = new DatatableRequestFactory();
-
-        $datatableRequest = $factory->createFromRequest(new Request([
+        $datatableRequest = $this->factory->createFromRequest(new Request([
             'search' => '   ',
             'sortField' => '',
         ]));
 
         self::assertNull($datatableRequest->getSearchQuery());
         self::assertNull($datatableRequest->getSortField());
+    }
+
+    public function test_it_reads_advanced_filters_from_query_parameters(): void
+    {
+        $payload = [
+            'logic' => 'AND',
+            'children' => [
+                [
+                    'field' => 'email',
+                    'operator' => 'contains',
+                    'value' => 'gmail.com',
+                ],
+            ],
+        ];
+
+        $datatableRequest = $this->factory->createFromRequest(new Request([
+            'advancedFilters' => $payload,
+        ]));
+
+        self::assertTrue($datatableRequest->hasAdvancedFilters());
+        self::assertNotNull($datatableRequest->getAdvancedFilterExpression());
+
+        /** @var \Zhortein\DatatableBundle\Filter\Expression\Condition $condition */
+        $condition = $datatableRequest->getAdvancedFilterExpression()->root->children[0];
+        self::assertSame('email', $condition->field);
+    }
+
+    public function test_it_reads_advanced_filters_from_alternative_key(): void
+    {
+        $payload = [
+            'logic' => 'AND',
+            'children' => [
+                [
+                    'field' => 'email',
+                    'operator' => 'contains',
+                    'value' => 'gmail.com',
+                ],
+            ],
+        ];
+
+        $datatableRequest = $this->factory->createFromRequest(new Request([
+            'filterExpression' => $payload,
+        ]));
+
+        self::assertTrue($datatableRequest->hasAdvancedFilters());
+        self::assertNotNull($datatableRequest->getAdvancedFilterExpression());
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Request;
 
 use Zhortein\DatatableBundle\Enum\SortDirection;
+use Zhortein\DatatableBundle\Filter\Expression\AdvancedFilterExpression;
 
 final readonly class DatatableRequest
 {
@@ -24,6 +25,7 @@ final readonly class DatatableRequest
         private array $visibleColumns = [],
         private array $hiddenColumns = [],
         private array $options = [],
+        private ?AdvancedFilterExpression $advancedFilterExpression = null,
     ) {
         if ($this->page < 1) {
             throw new \InvalidArgumentException('The datatable page must be greater than or equal to 1.');
@@ -50,6 +52,7 @@ final readonly class DatatableRequest
         array $visibleColumns = [],
         array $hiddenColumns = [],
         array $options = [],
+        ?AdvancedFilterExpression $advancedFilterExpression = null,
     ): self {
         return new self(
             page: $page,
@@ -61,6 +64,7 @@ final readonly class DatatableRequest
             visibleColumns: self::normalizeColumnList($visibleColumns),
             hiddenColumns: self::normalizeColumnList($hiddenColumns),
             options: $options,
+            advancedFilterExpression: $advancedFilterExpression,
         );
     }
 
@@ -78,6 +82,7 @@ final readonly class DatatableRequest
             options: array_replace($this->options, [
                 'disablePagination' => true,
             ]),
+            advancedFilterExpression: $this->advancedFilterExpression,
         );
     }
 
@@ -147,6 +152,16 @@ final readonly class DatatableRequest
     public function getFilter(string $name, mixed $default = null): mixed
     {
         return $this->filters[$name] ?? $default;
+    }
+
+    public function getAdvancedFilterExpression(): ?AdvancedFilterExpression
+    {
+        return $this->advancedFilterExpression;
+    }
+
+    public function hasAdvancedFilters(): bool
+    {
+        return null !== $this->advancedFilterExpression;
     }
 
     /**
