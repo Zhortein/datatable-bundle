@@ -6,32 +6,63 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.1] - YYYY-MM-DD
+
 ### Added
 
-- Added action display modes: `inline`, `dropdown`, `list`.
-- Added action icon positioning: `before`, `after`.
-- Added boolean cell display modes: `badge`, `icon`, `switch`, `text`.
-- Added configurable datatable control layout: `default`, `split`.
-- Added `rootClass`, `tableWrapperClass` and `tableClass` options for CSS customization.
-- Added `filterLayout` option: `toolbar`, `header`, `none`.
-- Added column header filter dropdowns.
-- Added optional XLSX export support via `openspout/openspout`.
-- Added conditional XLSX export controls in the UI.
-- Added aggregate column foundation for Doctrine provider.
-- Added explicit chained joins and safe custom joins for Doctrine provider.
-- Added custom join parameters support for Doctrine provider.
-- Added Vitest/jsdom frontend test suite for the Stimulus controller.
+- Added action icon rendering improvements and icon positioning.
+- Added row action display modes: inline, dropdown and list.
+- Added boolean cell display modes: badge, icon, switch and text.
+- Added configurable control layout and additional CSS class options.
+- Added column header filter dropdown support.
+- Added frontend tests with Vitest and jsdom.
+- Added advanced Doctrine provider capabilities, including chained joins, safe custom joins, aggregate columns and count strategy review.
+- Added optional XLSX export support based on OpenSpout.
+- Added conditional XLSX export controls.
+- Added Bootstrap modal action confirmation with native confirmation fallback.
+- Added documentation overhaul and updated feature documentation.
 
 ### Changed
 
-- Performed major documentation overhaul, reorganizing and consolidating all guides.
-- Improved export URL generation to support multi-format exports.
-- Improved Doctrine provider internal decomposition for better maintainability.
+- Improved export URL generation to support per-format export links.
+- Improved export filename generation to use the selected export format extension.
+- Improved split control layout rendering.
+- Improved row action dropdown overflow handling.
+- Improved row action list rendering for non-GET actions.
+- Improved sortable header state rendering after Ajax refresh.
+- Improved documentation structure and navigation.
 
 ### Fixed
 
-- Fixed action confirmation behavior to support both native `window.confirm` and Bootstrap modals.
-- Fixed export link propagation for multiple formats.
+- Fixed XLSX export filename/format propagation.
+- Fixed duplicated controls in split layout.
+- Fixed row action dropdown overflow in short tables.
+- Fixed non-GET action width in list display mode.
+- Fixed sortable header indicator state after sorting.
+- Fixed header filter dropdown rendering and behavior.
+- Fixed documentation gaps found during smoke testing.
+
+### Documentation
+
+- Reworked README and documentation navigation.
+- Reworked installation and quick-start documentation.
+- Consolidated provider documentation.
+- Consolidated feature documentation.
+- Split architecture documentation into focused pages.
+- Added XLSX usage and performance documentation.
+- Added Doctrine provider performance guidance.
+- Added frontend test strategy documentation.
+
+### Known limitations
+
+- The package remains alpha-quality.
+- Public APIs may still change before stable 1.0.
+- Async exports are not implemented.
+- Streaming export provider contracts are not implemented.
+- Bulk actions are not implemented yet.
+- Hierarchical tables are not implemented yet.
+- Advanced Doctrine collection-valued association support remains out of scope.
+
 
 ## [0.1.0-alpha.1] - 2026-05-11
 
