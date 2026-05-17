@@ -903,49 +903,38 @@ The next milestone should focus on browser-level validation and accessibility.
 
 The next milestone should focus on production-oriented table actions.
 
-## 0.24 - Bulk actions and row selection 🚧
+## 0.24 - Bulk actions and row selection ✅
 
-Goal:
+Delivered:
 
-```text
-Add first-class support for row selection and bulk actions in business datatables.
-```
+- `BulkActionDefinition` value object.
+- `DatatableDefinition::addBulkAction()` API.
+- Automatic selector column rendering (checkboxes).
+- "Select all" checkbox in header (current page).
+- Stimulus state management for selected IDs.
+- Bulk action toolbar rendering when rows are selected.
+- Selection count display.
+- CSRF-aware form submission for bulk actions.
+- Confirmation metadata support.
+- Customizable parameter name for selected IDs.
+- Documentation for bulk actions.
 
-Planned:
-
-- define the bulk action declaration API;
-- add row selection column rendering;
-- add selected row state management in Stimulus;
-- support selecting/unselecting one row;
-- support selecting/unselecting all visible rows;
-- render bulk action toolbar or bottom action area;
-- submit selected identifiers through CSRF-aware non-GET forms;
-- support confirmation metadata for bulk actions;
-- integrate action visibility/security for bulk actions;
-- support current-page selected rows first;
-- document limitations around filtered dataset / all matching rows;
-- smoke test bulk actions in the fresh Symfony app.
-
-Main expected outcome:
+Main outcome:
 
 ```text
 Datatables can perform safe backend-defined actions on multiple selected rows, which is required for production back-office workflows.
 ```
 
-Out of scope for first implementation:
+Current limitations:
 
-- selecting all rows across all filtered pages;
-- async bulk operations;
-- queueing;
-- progress UI;
-- persisted selection across navigation;
-- complex permission matrix;
-- bulk edit forms;
-- tree/hierarchical bulk actions.
+- no "select all matching rows" across pages;
+- no selection persistence across navigation/refresh;
+- no async/background bulk processing built-in;
+- no bulk edit forms.
 
 ---
 
-## 0.25 - Icon system and visual consistency 🕒
+## 0.25 - Icon system and visual consistency 🚧
 
 Goal:
 
