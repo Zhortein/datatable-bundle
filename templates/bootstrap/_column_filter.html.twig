@@ -18,7 +18,13 @@
             '%column%': filter_label
         }, 'zhortein_datatable') }}"
     >
-        <span aria-hidden="true">⌕</span>
+        {% if is_active and filter_active_icon %}
+            <i class="{{ filter_active_icon }}" aria-hidden="true"></i>
+        {% elseif filter_icon %}
+            <i class="{{ filter_icon }}" aria-hidden="true"></i>
+        {% else %}
+            <span aria-hidden="true">⌕</span>
+        {% endif %}
     </button>
 
     <div

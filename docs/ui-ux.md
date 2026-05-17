@@ -11,12 +11,12 @@ Currently implemented:
 -   **Row Selection**: Checkbox-based selection and bulk action toolbar.
 -   **UI Features**: Loading and error states, summary updates, Bootstrap table variants.
 -   **Column Visibility**: User-controlled column visibility with persistent state.
+-   **Icons**: Consistent icon system for actions, filters, and exports via `IconResolver`.
 -   **Customization**: Action icons, display modes (inline, dropdown), boolean rendering modes.
 -   **Layouts**: Default toolbar layout and Split layout (moving some controls below the table).
 -   **Testing**: Automated frontend test suite for the Stimulus controller.
 
 Not implemented yet:
--   Icon provider abstraction (currently CSS-class based).
 -   Icon-only actions (accessibility first).
 -   Persisted filter presets.
 

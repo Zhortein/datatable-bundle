@@ -66,7 +66,7 @@ final readonly class DatatableRenderer
             'options' => $options,
             'filters' => $filters,
             'rowActionDisplayMode' => $this->resolveRowActionDisplayMode($definition, $options)->value,
-        ], $this->resolveSortIcons()));
+        ], $this->resolveCommonIcons()));
     }
 
     /**
@@ -84,7 +84,7 @@ final readonly class DatatableRenderer
             'htmlId' => $this->createHtmlId($definition),
             'options' => $options,
             'filters' => $options['filters'] ?? [],
-        ], $this->resolveSortIcons()));
+        ], $this->resolveCommonIcons()));
     }
 
     /**
@@ -592,14 +592,19 @@ final readonly class DatatableRenderer
     }
 
     /**
-     * @return array{sort_neutral: string|null, sort_asc: string|null, sort_desc: string|null}
+     * @return array{sort_neutral: string|null, sort_asc: string|null, sort_desc: string|null, filter_icon: string|null, filter_active_icon: string|null, export_icon: string|null, export_csv_icon: string|null, export_xlsx_icon: string|null}
      */
-    private function resolveSortIcons(): array
+    private function resolveCommonIcons(): array
     {
         return [
             'sort_neutral' => $this->iconResolver?->resolve('sort_neutral'),
             'sort_asc' => $this->iconResolver?->resolve('sort_asc'),
             'sort_desc' => $this->iconResolver?->resolve('sort_desc'),
+            'filter_icon' => $this->iconResolver?->resolve('filter'),
+            'filter_active_icon' => $this->iconResolver?->resolve('filter_active'),
+            'export_icon' => $this->iconResolver?->resolve('export'),
+            'export_csv_icon' => $this->iconResolver?->resolve('export_csv'),
+            'export_xlsx_icon' => $this->iconResolver?->resolve('export_xlsx'),
         ];
     }
 }
