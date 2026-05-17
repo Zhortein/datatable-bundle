@@ -379,7 +379,7 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
 
         match ($filter->getType()) {
             FilterType::Text => $this->applyTextUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
-            FilterType::Choice => $this->applyChoiceUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
+            FilterType::Choice, FilterType::Enum => $this->applyChoiceUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
             FilterType::Boolean => $this->applyBooleanUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
             FilterType::Date => $this->applyDateUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
             FilterType::DateRange => $this->applyRangeUserFilter($queryBuilder, $fieldReference, $parameterName, $value),

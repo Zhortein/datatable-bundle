@@ -109,7 +109,7 @@ final readonly class ArrayDataProvider implements DataProviderInterface
 
         return match ($filter->getType()) {
             FilterType::Text => $this->matchesTextFilter($rowValue, $filterValue),
-            FilterType::Choice => $this->matchesChoiceFilter($rowValue, $filterValue),
+            FilterType::Choice, FilterType::Enum => $this->matchesChoiceFilter($rowValue, $filterValue),
             FilterType::Boolean => $this->matchesBooleanFilter($rowValue, $filterValue),
             FilterType::Date => $this->matchesDateFilter($rowValue, $filterValue),
             FilterType::DateRange => $this->matchesRangeFilter($rowValue, $filterValue),

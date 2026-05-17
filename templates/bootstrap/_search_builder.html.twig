@@ -3,10 +3,11 @@
     id="{{ htmlId }}-search-builder"
     data-zhortein--datatable-bundle--datatable-target="searchBuilder"
     data-zhortein--datatable-bundle--datatable-operators-value="{{ {
-        'text': ['eq', 'neq', 'contains', 'not_contains', 'starts_with', 'ends_with', 'is_null', 'is_not_null'],
-        'choice': ['in', 'not_in', 'eq', 'neq', 'is_null', 'is_not_null'],
-        'boolean': ['eq'],
-        'number': ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'between', 'is_null', 'is_not_null'],
+        'text': ['eq', 'neq', 'contains', 'not_contains', 'starts_with', 'ends_with', 'in', 'not_in', 'is_null', 'is_not_null'],
+        'choice': ['eq', 'neq', 'in', 'not_in', 'is_null', 'is_not_null'],
+        'enum': ['eq', 'neq', 'in', 'not_in', 'is_null', 'is_not_null'],
+        'boolean': ['eq', 'neq', 'is_null', 'is_not_null'],
+        'number': ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'between', 'in', 'not_in', 'is_null', 'is_not_null'],
         'number_range': ['between'],
         'date': ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'between', 'is_null', 'is_not_null'],
         'date_range': ['between']
@@ -79,7 +80,7 @@
             >
                 <option value="">{{ 'zhortein_datatable.search_builder.select_field'|trans({}, 'zhortein_datatable') }}</option>
                 {% for name, field in definition.advancedFilterFields %}
-                    <option value="{{ name }}" data-type="{{ field.type.value }}" data-choices="{{ field.choices|json_encode|e('html_attr') }}">{{ field.label|default(name)|trans({}, definition.translationDomain) }}</option>
+                    <option value="{{ name }}" data-type="{{ field.type.value }}" data-choices="{{ field.choices|json_encode|e('html_attr') }}" data-nullable="{{ field.nullable ? '1' : '0' }}" data-allowed-operators="{{ field.effectiveOperatorValues|json_encode|e('html_attr') }}">{{ field.label|default(name)|trans({}, definition.translationDomain) }}</option>
                 {% endfor %}
             </select>
 
