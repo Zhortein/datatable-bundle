@@ -48,6 +48,7 @@ sync_label "type: refactor" "c2e0c6" "Refactoring without behavior change"
 sync_label "type: legacy-analysis" "bfd4f2" "Analysis of legacy NC Manager implementation"
 
 # Areas
+sync_label "area: ui" "006b75" "UI"
 sync_label "area: doctrine" "006b75" "Doctrine ORM provider, metadata or query logic"
 sync_label "area: twig" "006b75" "Twig rendering and templates"
 sync_label "area: stimulus" "006b75" "Stimulus controller and frontend behavior"
