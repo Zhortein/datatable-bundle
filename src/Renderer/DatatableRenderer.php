@@ -55,6 +55,7 @@ final readonly class DatatableRenderer
             'rowActions' => $definition->getRowActions(),
             'globalActions' => $this->normalizeGlobalActions($definition),
             'hasRowActions' => [] !== $definition->getRowActions(),
+            'hasBulkActions' => [] !== $definition->getBulkActions(),
             'htmlId' => $this->createHtmlId($definition),
             'options' => $options,
             'filters' => $filters,
@@ -73,6 +74,7 @@ final readonly class DatatableRenderer
             'definition' => $definition,
             'visibleColumns' => $this->getVisibleColumns($definition, $options),
             'hasRowActions' => [] !== $definition->getRowActions(),
+            'hasBulkActions' => [] !== $definition->getBulkActions(),
             'htmlId' => $this->createHtmlId($definition),
             'options' => $options,
             'filters' => $options['filters'] ?? [],
@@ -92,6 +94,7 @@ final readonly class DatatableRenderer
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_body.html.twig', $this->theme), [
             'rows' => $this->normalizeRows($definition, $result, $options),
+            'hasBulkActions' => [] !== $definition->getBulkActions(),
             'htmlId' => $this->createHtmlId($definition),
             'rowActionDisplayMode' => $this->resolveRowActionDisplayMode($definition, $options)->value,
         ]);
@@ -107,6 +110,7 @@ final readonly class DatatableRenderer
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_empty.html.twig', $this->theme), [
             'visibleColumns' => $this->getVisibleColumns($definition, $options),
             'hasRowActions' => [] !== $definition->getRowActions(),
+            'hasBulkActions' => [] !== $definition->getBulkActions(),
         ]);
     }
 
@@ -246,11 +250,12 @@ final readonly class DatatableRenderer
     /**
      * @param array<string, mixed> $options
      *
-     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed, template: string, className: string|null}>, actions: list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>}>}>
+     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed, template: string, className: string|null, booleanDisplayMode: string}>, actions: list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>}>, identifier: string|null}>
      */
     private function normalizeRows(DatatableDefinition $definition, DatatableResult $result, array $options = []): array
     {
         $visibleColumns = $this->getVisibleColumns($definition, $options);
+        $hasBulkActions = [] !== $definition->getBulkActions();
         $normalizedRows = [];
 
         foreach ($result->getRows() as $row) {
@@ -266,13 +271,44 @@ final readonly class DatatableRenderer
                 ];
             }
 
-            $normalizedRows[] = [
+            $normalizedRow = [
                 'cells' => $cells,
                 'actions' => $this->normalizeRowActions($definition, $row),
+                'identifier' => null,
             ];
+
+            if ($hasBulkActions) {
+                $normalizedRow['identifier'] = $this->resolveRowIdentifier($row, $definition);
+            }
+
+            $normalizedRows[] = $normalizedRow;
         }
 
         return $normalizedRows;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function resolveRowIdentifier(array $row, DatatableDefinition $definition): ?string
+    {
+        $identifierKey = $definition->getOption('identifier');
+
+        if (is_string($identifierKey)) {
+            $value = $row[$identifierKey] ?? null;
+
+            return is_scalar($value) ? (string) $value : null;
+        }
+
+        foreach (['id', 'e_id'] as $candidate) {
+            if (array_key_exists($candidate, $row)) {
+                $value = $row[$candidate];
+
+                return is_scalar($value) ? (string) $value : null;
+            }
+        }
+
+        return null;
     }
 
     /**

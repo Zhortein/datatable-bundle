@@ -18,6 +18,9 @@ zhortein_datatable:
         csv_full: 'CSV full dataset'
         xlsx_current: 'XLSX current view'
         xlsx_full: 'XLSX full dataset'
+    bulk_actions:
+        select_all: 'Select all'
+        select_row: 'Select row %id%'
     loading: 'Loading...'
     error:
         generic: 'Unable to load datatable data.'
