@@ -1,6 +1,6 @@
 {
   "name": "zhortein/datatable-bundle",
-  "description": "A Symfony 8+ bundle for Bootstrap-first business datatables driven by PHP definitions.",
+  "description": "A Symfony 8+ bundle for Bootstrap-first business datatables driven by PHP definitions, with Twig rendering, Stimulus Ajax refresh, Doctrine provider, actions, filters and CSV/XLSX exports.",
   "type": "symfony-bundle",
   "license": "MIT",
   "authors": [
@@ -14,10 +14,16 @@
     "symfony-ux",
     "bundle",
     "datatable",
+    "datagrid",
+    "grid",
     "bootstrap",
     "twig",
     "stimulus",
-    "doctrine"
+    "doctrine",
+    "ajax",
+    "export",
+    "csv",
+    "xlsx"
   ],
   "require": {
     "php": ">=8.4",
