@@ -10,6 +10,7 @@ use Twig\Environment;
 use Zhortein\DatatableBundle\Action\ActionVisibilityCheckerInterface;
 use Zhortein\DatatableBundle\Action\ActionVisibilityContext;
 use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
+use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Definition\ActionDefinition;
 use Zhortein\DatatableBundle\Definition\BulkActionDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
@@ -28,6 +29,7 @@ final readonly class DatatableRenderer
      */
     public function __construct(
         private Environment $twig,
+        private ?IconResolverInterface $iconResolver = null,
         private ?UrlGeneratorInterface $urlGenerator = null,
         private ?RowActionRouteParameterResolver $routeParameterResolver = null,
         private ?ActionVisibilityCheckerInterface $actionVisibilityChecker = null,
@@ -409,7 +411,7 @@ final readonly class DatatableRenderer
         return [
             'name' => $action->getName(),
             'label' => $action->getLabel(),
-            'icon' => $action->getIcon(),
+            'icon' => $this->resolveActionIcon($action),
             'iconPosition' => $action->getIconPosition()->value,
             'url' => $url,
             'httpMethod' => $httpMethod,
@@ -419,6 +421,37 @@ final readonly class DatatableRenderer
             'attributes' => $action->getAttributes(),
             'selectedRowsParameterName' => $action instanceof BulkActionDefinition ? $action->getSelectedRowsParameterName() : null,
         ];
+    }
+
+    private function resolveActionIcon(ActionDefinition|BulkActionDefinition $action): ?string
+    {
+        if (null !== $action->getIcon()) {
+            return $action->getIcon();
+        }
+
+        if (null === $this->iconResolver) {
+            return null;
+        }
+
+        $name = $action->getName();
+
+        $icon = match ($name) {
+            'view', 'show' => $this->iconResolver->resolve('action_view'),
+            'edit' => $this->iconResolver->resolve('action_edit'),
+            'delete', 'remove' => $this->iconResolver->resolve('action_delete'),
+            'create' => $this->iconResolver->resolve('action_create'),
+            default => $this->iconResolver->resolve(sprintf('action_%s', $name)),
+        };
+
+        if (null !== $icon) {
+            return $icon;
+        }
+
+        if ($action instanceof BulkActionDefinition) {
+            return $this->iconResolver->resolve('bulk_actions');
+        }
+
+        return null;
     }
 
     /**

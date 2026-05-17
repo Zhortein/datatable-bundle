@@ -21,6 +21,7 @@ zhortein_datatable:
         view: "bi bi-eye"
         edit: "bi bi-pencil"
         delete: "bi bi-trash"
+        bulk_actions: "bi bi-collection"
     export:
       csv:
         delimiter: ';'
@@ -224,6 +225,11 @@ icons:
     filter: "bi bi-funnel"
     export_csv: "bi bi-filetype-csv"
     export_excel: "bi bi-filetype-xlsx"
+    action_view: "bi bi-eye"
+    action_edit: "bi bi-pencil"
+    action_delete: "bi bi-trash"
+    action_create: "bi bi-plus-lg"
+    bulk_actions: "bi bi-collection"
 ```
 
 The bundle uses a lightweight icon resolver to map internal icon keys to CSS classes. By default, it uses [Bootstrap Icons](https://icons.getbootstrap.com/) class names.

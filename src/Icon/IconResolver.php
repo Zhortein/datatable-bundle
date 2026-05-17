@@ -21,6 +21,11 @@ final readonly class IconResolver implements IconResolverInterface
         'filter' => 'bi bi-funnel',
         'export_csv' => 'bi bi-filetype-csv',
         'export_excel' => 'bi bi-filetype-xlsx',
+        'action_view' => 'bi bi-eye',
+        'action_edit' => 'bi bi-pencil',
+        'action_delete' => 'bi bi-trash',
+        'action_create' => 'bi bi-plus-lg',
+        'bulk_actions' => 'bi bi-collection',
     ];
 
     /**

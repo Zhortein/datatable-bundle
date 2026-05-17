@@ -114,7 +114,7 @@ By default, this uses `window.confirm()`. If Bootstrap JavaScript and a modal ta
 
 ## Customization
 
--   **Icons**: Provide a CSS class via the `icon` option. See [UI/UX](ui-ux.md) for details.
+-   **Icons**: Provide a CSS class via the `icon` option. If no explicit icon is provided, the bundle attempts to resolve a default icon based on the action name (e.g., `view`, `edit`, `delete`). See [UI/UX](ui-ux.md) for details.
 -   **Position**: Use `ActionIconPosition` enum to place icons `Before` or `After` the label.
 -   **Attributes**: Pass arbitrary HTML attributes via the `attributes` array.
 
