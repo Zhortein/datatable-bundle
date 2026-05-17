@@ -6,6 +6,7 @@ namespace Zhortein\DatatableBundle\Action;
 
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Definition\ActionDefinition;
+use Zhortein\DatatableBundle\Definition\BulkActionDefinition;
 
 final readonly class AuthorizationActionVisibilityChecker implements ActionVisibilityCheckerInterface
 {
@@ -15,7 +16,7 @@ final readonly class AuthorizationActionVisibilityChecker implements ActionVisib
     ) {
     }
 
-    public function isVisible(ActionDefinition $action, ActionVisibilityContext $context): bool
+    public function isVisible(ActionDefinition|BulkActionDefinition $action, ActionVisibilityContext $context): bool
     {
         $attribute = $action->getAttribute('permission');
 

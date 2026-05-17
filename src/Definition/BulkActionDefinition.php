@@ -6,6 +6,15 @@ namespace Zhortein\DatatableBundle\Definition;
 
 use Zhortein\DatatableBundle\Enum\ActionIconPosition;
 
+/**
+ * Bulk actions are used to perform actions on multiple rows at once.
+ *
+ * NOTE: Visibility checks only control whether the action is rendered in the UI.
+ * The backend route MUST also enforce authorization and validate the request.
+ *
+ * @param array<string, string> $routeParameters
+ * @param array<string, string> $attributes
+ */
 final readonly class BulkActionDefinition
 {
     /**

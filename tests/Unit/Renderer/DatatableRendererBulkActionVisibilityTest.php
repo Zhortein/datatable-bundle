@@ -17,44 +17,45 @@ use Zhortein\DatatableBundle\Definition\BulkActionDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 
-final class DatatableRendererGlobalActionVisibilityTest extends TestCase
+final class DatatableRendererBulkActionVisibilityTest extends TestCase
 {
     use TranslatableRendererTestTrait;
 
-    public function test_it_hides_global_actions_when_visibility_checker_denies_them(): void
+    public function test_it_hides_bulk_actions_when_visibility_checker_denies_them(): void
     {
-        $urlGenerator = new GlobalActionCountingUrlGenerator();
+        $urlGenerator = new BulkActionCountingUrlGenerator();
 
         $renderer = new DatatableRenderer(
             twig: $this->createTwigEnvironment(),
             urlGenerator: $urlGenerator,
             routeParameterResolver: new RowActionRouteParameterResolver(),
-            actionVisibilityChecker: new DenyGlobalActionVisibilityChecker(),
+            actionVisibilityChecker: new DenyBulkActionVisibilityChecker(),
         );
 
         $html = $renderer->render($this->createDefinition());
 
-        self::assertStringNotContainsString('Create', $html);
-        self::assertStringNotContainsString('/users/create', $html);
+        self::assertStringNotContainsString('Bulk delete', $html);
+        self::assertStringNotContainsString('/users/bulk-delete', $html);
+        // If all bulk actions are hidden, the selection checkbox column should also be hidden
+        self::assertStringNotContainsString('data-zhortein--datatable-bundle--datatable-target="selectAllCheckbox"', $html);
         self::assertSame(0, $urlGenerator->getGenerateCallCount());
     }
 
-    public function test_it_renders_global_actions_when_visibility_checker_allows_them(): void
+    public function test_it_renders_bulk_actions_when_visibility_checker_allows_them(): void
     {
-        $urlGenerator = new GlobalActionCountingUrlGenerator();
+        $urlGenerator = new BulkActionCountingUrlGenerator();
 
         $renderer = new DatatableRenderer(
             twig: $this->createTwigEnvironment(),
             urlGenerator: $urlGenerator,
             routeParameterResolver: new RowActionRouteParameterResolver(),
-            actionVisibilityChecker: new AllowCreateGlobalActionVisibilityChecker(),
+            actionVisibilityChecker: new AllowDeleteBulkActionVisibilityChecker(),
         );
 
         $html = $renderer->render($this->createDefinition());
 
-        self::assertStringContainsString('href="/users/create"', $html);
-        self::assertStringContainsString('Create', $html);
-        self::assertStringNotContainsString('Bulk delete', $html);
+        self::assertStringContainsString('Bulk delete', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="selectAllCheckbox"', $html);
         self::assertSame(1, $urlGenerator->getGenerateCallCount());
     }
 
@@ -64,16 +65,10 @@ final class DatatableRendererGlobalActionVisibilityTest extends TestCase
 
         $definition
             ->addColumn('e.email', label: 'Email')
-            ->addGlobalAction(
-                name: 'create',
-                route: 'app_user_create',
-                label: 'Create',
-            )
-            ->addGlobalAction(
+            ->addBulkAction(
                 name: 'bulk-delete',
                 route: 'app_user_bulk_delete',
                 label: 'Bulk delete',
-                httpMethod: 'POST',
             )
         ;
 
@@ -96,7 +91,7 @@ final class DatatableRendererGlobalActionVisibilityTest extends TestCase
     }
 }
 
-final class DenyGlobalActionVisibilityChecker implements ActionVisibilityCheckerInterface
+final class DenyBulkActionVisibilityChecker implements ActionVisibilityCheckerInterface
 {
     public function isVisible(ActionDefinition|BulkActionDefinition $action, ActionVisibilityContext $context): bool
     {
@@ -104,15 +99,15 @@ final class DenyGlobalActionVisibilityChecker implements ActionVisibilityChecker
     }
 }
 
-final class AllowCreateGlobalActionVisibilityChecker implements ActionVisibilityCheckerInterface
+final class AllowDeleteBulkActionVisibilityChecker implements ActionVisibilityCheckerInterface
 {
     public function isVisible(ActionDefinition|BulkActionDefinition $action, ActionVisibilityContext $context): bool
     {
-        return 'create' === $action->getName();
+        return 'bulk-delete' === $action->getName();
     }
 }
 
-final class GlobalActionCountingUrlGenerator implements UrlGeneratorInterface
+final class BulkActionCountingUrlGenerator implements UrlGeneratorInterface
 {
     private int $generateCallCount = 0;
 
@@ -127,7 +122,6 @@ final class GlobalActionCountingUrlGenerator implements UrlGeneratorInterface
         ++$this->generateCallCount;
 
         return match ($name) {
-            'app_user_create' => '/users/create',
             'app_user_bulk_delete' => '/users/bulk-delete',
             default => '/'.$name,
         };
