@@ -5,6 +5,17 @@
 
 <thead data-zhortein--datatable-bundle--datatable-target="header">
     <tr>
+        {% if hasBulkActions|default(false) %}
+            <th scope="col" class="zhortein-datatable__selector-column">
+                <input
+                    type="checkbox"
+                    class="form-check-input"
+                    data-action="zhortein--datatable-bundle--datatable#selectAll"
+                    aria-label="{{ 'zhortein_datatable.bulk_actions.select_all'|trans({}, 'zhortein_datatable') }}"
+                >
+            </th>
+        {% endif %}
+
         {% for column in visibleColumns %}
             {% set is_current_sort = column.name == current_sort_field %}
             {% set aria_sort = null %}

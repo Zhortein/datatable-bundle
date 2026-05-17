@@ -18,6 +18,9 @@ zhortein_datatable:
         csv_full: 'CSV complet'
         xlsx_current: 'XLSX vue courante'
         xlsx_full: 'XLSX complet'
+    bulk_actions:
+        select_all: 'Tout sélectionner'
+        select_row: 'Sélectionner la ligne %id%'
     loading: 'Chargement...'
     error:
         generic: 'Impossible de charger les données du tableau.'

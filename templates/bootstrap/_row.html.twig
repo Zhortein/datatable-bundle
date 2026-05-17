@@ -1,4 +1,17 @@
 <tr>
+    {% if hasBulkActions and row.identifier is defined %}
+        <td class="zhortein-datatable__selector-column">
+            <input
+                type="checkbox"
+                class="form-check-input"
+                name="selected_rows[]"
+                value="{{ row.identifier }}"
+                data-action="zhortein--datatable-bundle--datatable#selectRow"
+                aria-label="{{ 'zhortein_datatable.bulk_actions.select_row'|trans({'%id%': row.identifier}, 'zhortein_datatable') }}"
+            >
+        </td>
+    {% endif %}
+
     {% for cell in row.cells %}
         {% include '@ZhorteinDatatable/bootstrap/_cell.html.twig' with {
             column: cell.column,
