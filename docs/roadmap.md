@@ -942,6 +942,10 @@ Goal:
 Provide a consistent, configurable icon strategy across actions, booleans, sorting, filters and exports.
 ```
 
+Delivered:
+
+- icon strategy and configuration model decision.
+
 Planned:
 
 - define a lightweight icon strategy;

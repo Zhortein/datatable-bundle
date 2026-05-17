@@ -9,3 +9,4 @@ This directory contains records of significant architectural decisions made duri
 - [0005 - Doctrine ORM provider architecture](0005-doctrine-orm-provider-architecture.md)
 - [0006 - Column header filter dropdowns](0006-column-header-filter-dropdowns.md)
 - [0007 - XLSX export strategy](0007-xlsx-export-strategy.md)
+- [0008 - Icon strategy and configuration model](0008-icon-strategy-and-configuration-model.md)
