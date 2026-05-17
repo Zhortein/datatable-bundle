@@ -15,6 +15,7 @@ use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Definition\FilterDefinition;
 use Zhortein\DatatableBundle\Definition\UserFilterDefinition;
 use Zhortein\DatatableBundle\Doctrine\DoctrineCountExpressionFactory;
+use Zhortein\DatatableBundle\Doctrine\DoctrineExpressionApplier;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldMetadataResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineJoinApplier;
@@ -39,6 +40,8 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
 
     private DoctrineCountExpressionFactory $countExpressionFactory;
 
+    private DoctrineExpressionApplier $expressionApplier;
+
     public function __construct(
         private ManagerRegistry $managerRegistry,
         ?DoctrineFieldReferenceResolver $fieldReferenceResolver = null,
@@ -46,12 +49,17 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
         ?DoctrineJoinApplier $joinApplier = null,
         ?DoctrinePaginationApplier $paginationApplier = null,
         ?DoctrineCountExpressionFactory $countExpressionFactory = null,
+        ?DoctrineExpressionApplier $expressionApplier = null,
     ) {
         $this->fieldReferenceResolver = $fieldReferenceResolver ?? new DoctrineFieldReferenceResolver();
         $this->fieldMetadataResolver = $fieldMetadataResolver ?? new DoctrineFieldMetadataResolver();
         $this->joinApplier = $joinApplier ?? new DoctrineJoinApplier();
         $this->paginationApplier = $paginationApplier ?? new DoctrinePaginationApplier();
         $this->countExpressionFactory = $countExpressionFactory ?? new DoctrineCountExpressionFactory();
+        $this->expressionApplier = $expressionApplier ?? new DoctrineExpressionApplier(
+            fieldReferenceResolver: $this->fieldReferenceResolver,
+            fieldMetadataResolver: $this->fieldMetadataResolver,
+        );
     }
 
     public function supports(DatatableDefinition $definition): bool
@@ -72,7 +80,7 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
 
         $rows = $this->loadRows($entityManager, $entityClass, $selectedColumns, $definition, $request);
         $totalItems = $this->countRows($entityManager, $entityClass, $definition);
-        $filteredItems = $request->hasSearchQuery() || $request->hasFilters()
+        $filteredItems = $request->hasSearchQuery() || $request->hasFilters() || $request->hasAdvancedFilters()
             ? $this->countRows($entityManager, $entityClass, $definition, $request)
             : $totalItems;
 
@@ -163,6 +171,7 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
 
         $this->applyPermanentFilters($queryBuilder, $definition);
         $this->applyUserFilters($queryBuilder, $entityManager, $entityClass, $definition, $request);
+        $this->applyAdvancedFilters($queryBuilder, $entityManager, $entityClass, $definition, $request);
         $this->applySearch($queryBuilder, $entityManager, $entityClass, $definition, $request);
         $this->applySorting($queryBuilder, $entityManager, $entityClass, $definition, $request);
 
@@ -199,6 +208,7 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
 
         if (null !== $request) {
             $this->applyUserFilters($queryBuilder, $entityManager, $entityClass, $definition, $request);
+            $this->applyAdvancedFilters($queryBuilder, $entityManager, $entityClass, $definition, $request);
             $this->applySearch($queryBuilder, $entityManager, $entityClass, $definition, $request);
         }
 
@@ -316,6 +326,35 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
                 value: $filterValue,
             );
         }
+    }
+
+    /**
+     * @param class-string $entityClass
+     */
+    private function applyAdvancedFilters(
+        QueryBuilder $queryBuilder,
+        EntityManagerInterface $entityManager,
+        string $entityClass,
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+    ): void {
+        if (!$request->hasAdvancedFilters()) {
+            return;
+        }
+
+        $expression = $request->getAdvancedFilterExpression();
+
+        if (null === $expression) {
+            return;
+        }
+
+        $this->expressionApplier->apply(
+            queryBuilder: $queryBuilder,
+            expression: $expression,
+            definition: $definition,
+            entityManager: $entityManager,
+            entityClass: $entityClass,
+        );
     }
 
     /**
