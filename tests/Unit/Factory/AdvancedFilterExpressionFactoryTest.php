@@ -235,6 +235,122 @@ final class AdvancedFilterExpressionFactoryTest extends TestCase
         self::assertNotContains('contains', $advancedField->getEffectiveOperatorValues());
     }
 
+    public function test_it_accepts_spec_payload_using_conditions_key_and_lowercase_logic(): void
+    {
+        $payload = [
+            'logic' => 'and',
+            'conditions' => [
+                [
+                    'field' => 'email',
+                    'operator' => 'contains',
+                    'value' => 'alice',
+                ],
+                [
+                    'logic' => 'or',
+                    'conditions' => [
+                        [
+                            'field' => 'enabled',
+                            'operator' => 'eq',
+                            'value' => true,
+                        ],
+                        [
+                            'field' => 'status',
+                            'operator' => 'eq',
+                            'value' => 'admin',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $expression = $this->factory->createFromArray($payload);
+
+        self::assertNotNull($expression);
+        self::assertSame(LogicOperator::And, $expression->root->logic);
+        self::assertCount(2, $expression->root->children);
+
+        /** @var Condition $first */
+        $first = $expression->root->children[0];
+        self::assertSame('email', $first->field);
+        self::assertSame(ComparisonOperator::Contains, $first->operator);
+
+        self::assertInstanceOf(Group::class, $expression->root->children[1]);
+        self::assertSame(LogicOperator::Or, $expression->root->children[1]->logic);
+        self::assertCount(2, $expression->root->children[1]->children);
+    }
+
+    public function test_it_rejects_incompatible_submitted_operator_for_field_type(): void
+    {
+        $definition = new DatatableDefinition('test');
+        $definition->addAdvancedFilterField('enabled', 'e.enabled', type: FilterType::Boolean);
+
+        $payload = [
+            'logic' => 'and',
+            'conditions' => [
+                // contains is not compatible with boolean
+                ['field' => 'enabled', 'operator' => 'contains', 'value' => 'yes'],
+            ],
+        ];
+
+        self::assertNull($this->factory->createFromArray($payload, $definition));
+    }
+
+    public function test_it_rejects_developer_disallowed_operator(): void
+    {
+        $definition = new DatatableDefinition('test');
+        $definition->addAdvancedFilterField(
+            'email',
+            'e.email',
+            type: FilterType::Text,
+            allowedOperators: [ComparisonOperator::Contains],
+        );
+
+        $payload = [
+            'logic' => 'and',
+            'conditions' => [
+                ['field' => 'email', 'operator' => 'eq', 'value' => 'foo@bar.test'],
+                ['field' => 'email', 'operator' => 'contains', 'value' => 'foo'],
+            ],
+        ];
+
+        $expression = $this->factory->createFromArray($payload, $definition);
+
+        self::assertNotNull($expression);
+        self::assertCount(1, $expression->root->children);
+
+        /** @var Condition $remaining */
+        $remaining = $expression->root->children[0];
+        self::assertSame(ComparisonOperator::Contains, $remaining->operator);
+    }
+
+    public function test_it_rejects_legacy_filter_operator_when_not_in_allowed_set(): void
+    {
+        $definition = new DatatableDefinition('test');
+        $definition->addAdvancedFilterField(
+            'email',
+            'e.email',
+            type: FilterType::Text,
+            allowedOperators: [FilterOperator::Equals],
+        );
+
+        $payload = [
+            'logic' => 'and',
+            'conditions' => [
+                ['field' => 'email', 'operator' => 'eq', 'value' => 'foo@bar.test'],
+                ['field' => 'email', 'operator' => 'contains', 'value' => 'foo'],
+            ],
+        ];
+
+        $expression = $this->factory->createFromArray($payload, $definition);
+
+        self::assertNotNull($expression);
+        self::assertCount(1, $expression->root->children);
+
+        /** @var Condition $remaining */
+        $remaining = $expression->root->children[0];
+        self::assertSame(ComparisonOperator::Equals, $remaining->operator);
+    }
+
     public function test_it_returns_null_on_max_depth_exceeded(): void
     {
         $payload = [

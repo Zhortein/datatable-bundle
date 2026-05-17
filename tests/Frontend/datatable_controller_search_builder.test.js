@@ -20,13 +20,18 @@ function createDatatableHtml() {
                 data-${CONTROLLER_IDENTIFIER}-operator-labels-value='{"eq":"Equals","neq":"Not Equals","contains":"Contains","in":"In","gt":"Greater than","between":"Between"}'
                 data-${CONTROLLER_IDENTIFIER}-i18n-value='{"select_operator":"Select operator","boolean_yes":"Yes","boolean_no":"No","between_from":"From","between_to":"To"}'
             >
-                <select data-action="change->${CONTROLLER_IDENTIFIER}#updateSearchBuilderLogic">
-                    <option value="AND">AND</option>
-                    <option value="OR">OR</option>
-                </select>
-                <button data-action="${CONTROLLER_IDENTIFIER}#clearSearchBuilder">Clear</button>
-                <div data-${CONTROLLER_IDENTIFIER}-target="searchBuilderConditions"></div>
-                <button data-action="${CONTROLLER_IDENTIFIER}#addSearchBuilderCondition">Add</button>
+                <div class="zhortein-datatable__search-builder-group zhortein-datatable__search-builder-group--root">
+                    <div class="zhortein-datatable__search-builder-header">
+                        <select class="zhortein-datatable__search-builder-logic" data-action="change->${CONTROLLER_IDENTIFIER}#updateSearchBuilderLogic">
+                            <option value="AND">AND</option>
+                            <option value="OR">OR</option>
+                        </select>
+                        <button data-action="${CONTROLLER_IDENTIFIER}#clearSearchBuilder">Clear</button>
+                    </div>
+                    <div class="zhortein-datatable__search-builder-conditions" data-${CONTROLLER_IDENTIFIER}-target="searchBuilderConditions"></div>
+                    <button data-action="${CONTROLLER_IDENTIFIER}#addSearchBuilderCondition">Add</button>
+                    <button data-action="${CONTROLLER_IDENTIFIER}#addSearchBuilderSubgroup">Add subgroup</button>
+                </div>
 
                 <template data-${CONTROLLER_IDENTIFIER}-target="searchBuilderConditionTemplate">
                     <div class="zhortein-datatable__search-builder-condition">
@@ -45,6 +50,21 @@ function createDatatableHtml() {
                             <input type="text" disabled>
                         </div>
                         <button data-action="${CONTROLLER_IDENTIFIER}#removeSearchBuilderCondition">Remove</button>
+                    </div>
+                </template>
+
+                <template data-${CONTROLLER_IDENTIFIER}-target="searchBuilderGroupTemplate">
+                    <div class="zhortein-datatable__search-builder-group zhortein-datatable__search-builder-group--nested">
+                        <div class="zhortein-datatable__search-builder-header">
+                            <select class="zhortein-datatable__search-builder-logic" data-action="change->${CONTROLLER_IDENTIFIER}#updateSearchBuilderLogic">
+                                <option value="AND">AND</option>
+                                <option value="OR">OR</option>
+                            </select>
+                            <button data-action="${CONTROLLER_IDENTIFIER}#removeSearchBuilderSubgroup">Remove group</button>
+                        </div>
+                        <div class="zhortein-datatable__search-builder-conditions"></div>
+                        <button data-action="${CONTROLLER_IDENTIFIER}#addSearchBuilderCondition">Add</button>
+                        <button data-action="${CONTROLLER_IDENTIFIER}#addSearchBuilderSubgroup">Add subgroup</button>
                     </div>
                 </template>
             </div>
@@ -95,6 +115,22 @@ function getLastRequestedUrl(fetchMock) {
     return new URL(rawUrl, window.location.origin);
 }
 
+function getRootAddConditionButton(element) {
+    const rootGroup = element.querySelector('.zhortein-datatable__search-builder-group--root');
+
+    return rootGroup.querySelector(':scope > button[data-action$="#addSearchBuilderCondition"]');
+}
+
+function getRootAddSubgroupButton(element) {
+    const rootGroup = element.querySelector('.zhortein-datatable__search-builder-group--root');
+
+    return rootGroup.querySelector(':scope > button[data-action$="#addSearchBuilderSubgroup"]');
+}
+
+function clickWithCurrentTarget(controller, methodName, button) {
+    controller[methodName]({ currentTarget: button, preventDefault: () => {} });
+}
+
 describe('datatable_controller search builder interactions', () => {
     let application = null;
 
@@ -115,15 +151,15 @@ describe('datatable_controller search builder interactions', () => {
         application = startApplication();
 
         const { element, controller } = await getController(application);
-        const addButton = element.querySelector('button[data-action$="#addSearchBuilderCondition"]');
-        const conditionsContainer = element.querySelector('[data-zhortein--datatable-bundle--datatable-target="searchBuilderConditions"]');
+        const addButton = getRootAddConditionButton(element);
+        const conditionsContainer = element.querySelector('.zhortein-datatable__search-builder-group--root > .zhortein-datatable__search-builder-conditions');
 
         expect(conditionsContainer.children.length).toBe(0);
 
-        addButton.click();
+        clickWithCurrentTarget(controller, 'addSearchBuilderCondition', addButton);
         expect(conditionsContainer.children.length).toBe(1);
 
-        addButton.click();
+        clickWithCurrentTarget(controller, 'addSearchBuilderCondition', addButton);
         expect(conditionsContainer.children.length).toBe(2);
 
         const removeButton = conditionsContainer.children[0].querySelector('button[data-action$="#removeSearchBuilderCondition"]');
@@ -136,7 +172,7 @@ describe('datatable_controller search builder interactions', () => {
         application = startApplication();
 
         const { element, controller } = await getController(application);
-        element.querySelector('button[data-action$="#addSearchBuilderCondition"]').click();
+        clickWithCurrentTarget(controller, 'addSearchBuilderCondition', getRootAddConditionButton(element));
 
         const condition = element.querySelector('.zhortein-datatable__search-builder-condition');
         const fieldSelect = condition.querySelector('select[data-action$="#onSearchBuilderFieldChange"]');
@@ -158,7 +194,7 @@ describe('datatable_controller search builder interactions', () => {
         application = startApplication();
 
         const { element, controller } = await getController(application);
-        element.querySelector('button[data-action$="#addSearchBuilderCondition"]').click();
+        clickWithCurrentTarget(controller, 'addSearchBuilderCondition', getRootAddConditionButton(element));
 
         const condition = element.querySelector('.zhortein-datatable__search-builder-condition');
         const fieldSelect = condition.querySelector('select[data-action$="#onSearchBuilderFieldChange"]');
@@ -183,7 +219,7 @@ describe('datatable_controller search builder interactions', () => {
         const operatorSelect = condition.querySelector('select[data-action$="#onSearchBuilderOperatorChange"]');
         operatorSelect.value = 'between';
         controller.onSearchBuilderOperatorChange();
-        controller.updateSearchBuilderValueInput(condition, 'number', null); // Manual trigger because of how test is set up
+        controller.updateSearchBuilderValueInput(condition, 'number', null);
 
         expect(valueContainer.querySelectorAll('input').length).toBe(2);
         expect(valueContainer.querySelectorAll('input')[0].placeholder).toBe('From');
@@ -197,7 +233,7 @@ describe('datatable_controller search builder interactions', () => {
         application = startApplication();
 
         const { element, controller } = await getController(application);
-        element.querySelector('button[data-action$="#addSearchBuilderCondition"]').click();
+        clickWithCurrentTarget(controller, 'addSearchBuilderCondition', getRootAddConditionButton(element));
 
         const condition = element.querySelector('.zhortein-datatable__search-builder-condition');
         const fieldSelect = condition.querySelector('select[data-action$="#onSearchBuilderFieldChange"]');
@@ -210,16 +246,16 @@ describe('datatable_controller search builder interactions', () => {
 
         const valueInput = condition.querySelector('.zhortein-datatable__search-builder-value-container input');
         valueInput.value = 'example';
-        
+
         controller.refresh();
 
         await flushPromises();
 
         const url = getLastRequestedUrl(fetchMock);
-        expect(url.searchParams.get('advancedFilters[logic]')).toBe('AND');
-        expect(url.searchParams.get('advancedFilters[children][0][field]')).toBe('email');
-        expect(url.searchParams.get('advancedFilters[children][0][operator]')).toBe('contains');
-        expect(url.searchParams.get('advancedFilters[children][0][value]')).toBe('example');
+        expect(url.searchParams.get('advancedFilters[logic]')).toBe('and');
+        expect(url.searchParams.get('advancedFilters[conditions][0][field]')).toBe('email');
+        expect(url.searchParams.get('advancedFilters[conditions][0][operator]')).toBe('contains');
+        expect(url.searchParams.get('advancedFilters[conditions][0][value]')).toBe('example');
     });
 
     it('restricts operator list to per-field allowed operators', async () => {
@@ -227,7 +263,7 @@ describe('datatable_controller search builder interactions', () => {
         application = startApplication();
 
         const { element, controller } = await getController(application);
-        element.querySelector('button[data-action$="#addSearchBuilderCondition"]').click();
+        clickWithCurrentTarget(controller, 'addSearchBuilderCondition', getRootAddConditionButton(element));
 
         const condition = element.querySelector('.zhortein-datatable__search-builder-condition');
         const fieldSelect = condition.querySelector('select[data-action$="#onSearchBuilderFieldChange"]');
@@ -258,7 +294,7 @@ describe('datatable_controller search builder interactions', () => {
         application = startApplication();
         const { element, controller } = await getController(application);
 
-        element.querySelector('button[data-action$="#addSearchBuilderCondition"]').click();
+        clickWithCurrentTarget(controller, 'addSearchBuilderCondition', getRootAddConditionButton(element));
         const condition = element.querySelector('.zhortein-datatable__search-builder-condition');
         const fieldSelect = condition.querySelector('select[data-action$="#onSearchBuilderFieldChange"]');
         fieldSelect.value = 'email';
@@ -280,10 +316,10 @@ describe('datatable_controller search builder interactions', () => {
 
         expect(assignSpy).toHaveBeenCalledTimes(1);
         const url = new URL(assignSpy.mock.calls.at(-1)[0]);
-        expect(url.searchParams.get('advancedFilters[logic]')).toBe('AND');
-        expect(url.searchParams.get('advancedFilters[children][0][field]')).toBe('email');
-        expect(url.searchParams.get('advancedFilters[children][0][operator]')).toBe('contains');
-        expect(url.searchParams.get('advancedFilters[children][0][value]')).toBe('example');
+        expect(url.searchParams.get('advancedFilters[logic]')).toBe('and');
+        expect(url.searchParams.get('advancedFilters[conditions][0][field]')).toBe('email');
+        expect(url.searchParams.get('advancedFilters[conditions][0][operator]')).toBe('contains');
+        expect(url.searchParams.get('advancedFilters[conditions][0][value]')).toBe('example');
     });
 
     it('clears search builder and refreshes', async () => {
@@ -294,15 +330,145 @@ describe('datatable_controller search builder interactions', () => {
         application = startApplication();
 
         const { element } = await getController(application);
-        element.querySelector('button[data-action$="#addSearchBuilderCondition"]').click();
-        
+        const addButton = getRootAddConditionButton(element);
+        addButton.click();
+
         const clearButton = element.querySelector('button[data-action$="#clearSearchBuilder"]');
         clearButton.click();
 
         await flushPromises();
 
         const url = getLastRequestedUrl(fetchMock);
-        expect(element.querySelector('[data-zhortein--datatable-bundle--datatable-target="searchBuilderConditions"]').children.length).toBe(0);
+        expect(element.querySelector('.zhortein-datatable__search-builder-group--root > .zhortein-datatable__search-builder-conditions').children.length).toBe(0);
+        expect(url.searchParams.has('advancedFilters[logic]')).toBe(false);
+    });
+
+    it('adds and removes a nested subgroup with its own conditions', async () => {
+        document.body.innerHTML = createDatatableHtml();
+        application = startApplication();
+
+        const { element, controller } = await getController(application);
+
+        clickWithCurrentTarget(controller, 'addSearchBuilderSubgroup', getRootAddSubgroupButton(element));
+
+        const subgroup = element.querySelector('.zhortein-datatable__search-builder-group--nested');
+        expect(subgroup).not.toBeNull();
+
+        const subgroupAddCondition = subgroup.querySelector(':scope > button[data-action$="#addSearchBuilderCondition"]');
+        clickWithCurrentTarget(controller, 'addSearchBuilderCondition', subgroupAddCondition);
+
+        const conditions = subgroup.querySelectorAll(':scope > .zhortein-datatable__search-builder-conditions > .zhortein-datatable__search-builder-condition');
+        expect(conditions.length).toBe(1);
+
+        const removeSubgroupBtn = subgroup.querySelector('button[data-action$="#removeSearchBuilderSubgroup"]');
+        controller.removeSearchBuilderSubgroup({ currentTarget: removeSubgroupBtn, preventDefault: () => {} });
+
+        expect(element.querySelector('.zhortein-datatable__search-builder-group--nested')).toBeNull();
+    });
+
+    it('serializes nested groups using the conditions key', async () => {
+        const fetchMock = vi.fn(() => Promise.resolve(createJsonResponse()));
+        vi.stubGlobal('fetch', fetchMock);
+
+        document.body.innerHTML = createDatatableHtml();
+        application = startApplication();
+
+        const { element, controller } = await getController(application);
+
+        // Root condition: email contains "alice"
+        clickWithCurrentTarget(controller, 'addSearchBuilderCondition', getRootAddConditionButton(element));
+        const rootCondition = element.querySelector('.zhortein-datatable__search-builder-group--root > .zhortein-datatable__search-builder-conditions > .zhortein-datatable__search-builder-condition');
+        const rootFieldSelect = rootCondition.querySelector('select[data-action$="#onSearchBuilderFieldChange"]');
+        rootFieldSelect.value = 'email';
+        controller.onSearchBuilderFieldChange({ target: rootFieldSelect });
+        rootCondition.querySelector('select[data-action$="#onSearchBuilderOperatorChange"]').value = 'contains';
+        controller.onSearchBuilderOperatorChange();
+        rootCondition.querySelector('.zhortein-datatable__search-builder-value-container input').value = 'alice';
+
+        // Subgroup with logic OR
+        clickWithCurrentTarget(controller, 'addSearchBuilderSubgroup', getRootAddSubgroupButton(element));
+        const subgroup = element.querySelector('.zhortein-datatable__search-builder-group--nested');
+        subgroup.querySelector('select.zhortein-datatable__search-builder-logic').value = 'OR';
+
+        // Condition inside subgroup
+        const subAddCondition = subgroup.querySelector(':scope > button[data-action$="#addSearchBuilderCondition"]');
+        clickWithCurrentTarget(controller, 'addSearchBuilderCondition', subAddCondition);
+        const subCondition = subgroup.querySelector(':scope > .zhortein-datatable__search-builder-conditions > .zhortein-datatable__search-builder-condition');
+        const subFieldSelect = subCondition.querySelector('select[data-action$="#onSearchBuilderFieldChange"]');
+        subFieldSelect.value = 'enabled';
+        controller.onSearchBuilderFieldChange({ target: subFieldSelect });
+        subCondition.querySelector('select[data-action$="#onSearchBuilderOperatorChange"]').value = 'eq';
+        controller.onSearchBuilderOperatorChange();
+        // Boolean field swaps the input for a select with value "1" already
+        const booleanValueSelect = subCondition.querySelector('.zhortein-datatable__search-builder-value-container select');
+        if (booleanValueSelect) {
+            booleanValueSelect.value = '1';
+        }
+
+        controller.refresh();
+        await flushPromises();
+
+        const url = getLastRequestedUrl(fetchMock);
+        expect(url.searchParams.get('advancedFilters[logic]')).toBe('and');
+        expect(url.searchParams.get('advancedFilters[conditions][0][field]')).toBe('email');
+        expect(url.searchParams.get('advancedFilters[conditions][0][operator]')).toBe('contains');
+        expect(url.searchParams.get('advancedFilters[conditions][0][value]')).toBe('alice');
+        expect(url.searchParams.get('advancedFilters[conditions][1][logic]')).toBe('or');
+        expect(url.searchParams.get('advancedFilters[conditions][1][conditions][0][field]')).toBe('enabled');
+        expect(url.searchParams.get('advancedFilters[conditions][1][conditions][0][operator]')).toBe('eq');
+    });
+
+    it('changes subgroup logic and triggers refresh', async () => {
+        const fetchMock = vi.fn(() => Promise.resolve(createJsonResponse()));
+        vi.stubGlobal('fetch', fetchMock);
+
+        document.body.innerHTML = createDatatableHtml();
+        application = startApplication();
+
+        const { element, controller } = await getController(application);
+
+        clickWithCurrentTarget(controller, 'addSearchBuilderSubgroup', getRootAddSubgroupButton(element));
+        const subgroup = element.querySelector('.zhortein-datatable__search-builder-group--nested');
+
+        // Add condition inside subgroup so it is serialized
+        const subAddCondition = subgroup.querySelector(':scope > button[data-action$="#addSearchBuilderCondition"]');
+        clickWithCurrentTarget(controller, 'addSearchBuilderCondition', subAddCondition);
+        const subCondition = subgroup.querySelector(':scope > .zhortein-datatable__search-builder-conditions > .zhortein-datatable__search-builder-condition');
+        const subFieldSelect = subCondition.querySelector('select[data-action$="#onSearchBuilderFieldChange"]');
+        subFieldSelect.value = 'email';
+        controller.onSearchBuilderFieldChange({ target: subFieldSelect });
+        subCondition.querySelector('select[data-action$="#onSearchBuilderOperatorChange"]').value = 'eq';
+        controller.onSearchBuilderOperatorChange();
+        subCondition.querySelector('.zhortein-datatable__search-builder-value-container input').value = 'bob';
+
+        const subgroupLogicSelect = subgroup.querySelector('select.zhortein-datatable__search-builder-logic');
+        subgroupLogicSelect.value = 'OR';
+        controller.updateSearchBuilderLogic();
+        await flushPromises();
+
+        const url = getLastRequestedUrl(fetchMock);
+        expect(url.searchParams.get('advancedFilters[conditions][0][logic]')).toBe('or');
+    });
+
+    it('clears nested filters when clearing the search builder', async () => {
+        const fetchMock = vi.fn(() => Promise.resolve(createJsonResponse()));
+        vi.stubGlobal('fetch', fetchMock);
+
+        document.body.innerHTML = createDatatableHtml();
+        application = startApplication();
+
+        const { element, controller } = await getController(application);
+        clickWithCurrentTarget(controller, 'addSearchBuilderCondition', getRootAddConditionButton(element));
+        clickWithCurrentTarget(controller, 'addSearchBuilderSubgroup', getRootAddSubgroupButton(element));
+
+        const rootConditionsContainer = element.querySelector('.zhortein-datatable__search-builder-group--root > .zhortein-datatable__search-builder-conditions');
+        expect(rootConditionsContainer.children.length).toBe(2);
+
+        element.querySelector('button[data-action$="#clearSearchBuilder"]').click();
+        await flushPromises();
+
+        expect(rootConditionsContainer.children.length).toBe(0);
+        const url = getLastRequestedUrl(fetchMock);
         expect(url.searchParams.has('advancedFilters[logic]')).toBe(false);
     });
 });

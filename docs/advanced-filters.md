@@ -32,6 +32,7 @@ Unlike simple filters, fields for the Search Builder must be explicitly declared
 ```php
 use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
+use Zhortein\DatatableBundle\Filter\Expression\ComparisonOperator;
 
 $definition->addAdvancedFilterField(
     name: 'email',
@@ -39,9 +40,9 @@ $definition->addAdvancedFilterField(
     label: 'Email',
     type: FilterType::Text,
     allowedOperators: [
-        FilterOperator::Equals,
-        FilterOperator::Contains,
-        FilterOperator::StartsWith,
+        ComparisonOperator::Equals,
+        ComparisonOperator::Contains,
+        ComparisonOperator::StartsWith,
     ]
 );
 ```
@@ -53,9 +54,55 @@ $definition->addAdvancedFilterField(
 | `name` | Public field name used in the frontend payload. |
 | `field` | Provider field targeted (e.g., `e.email` or `organization.name`). |
 | `label` | (Optional) Human-readable label rendered in the UI. Defaults to a capitalized version of `name`. |
-| `type` | `FilterType` enum value (Text, Choice, Boolean, Date, Number). |
-| `allowedOperators` | (Optional) List of `FilterOperator` allowed for this field. If empty, all operators compatible with the type are allowed. |
+| `type` | `FilterType` enum value (Text, Choice, Enum, Boolean, Date, Number). |
+| `allowedOperators` | (Optional) List of operators allowed for this field. Accepts both advanced `ComparisonOperator` values and legacy/simple `FilterOperator` values. Operators are normalized internally to the advanced `ComparisonOperator` model. If empty, all operators compatible with the type are allowed. |
 | `choices` | (Optional) Array of choices for `Choice` fields. |
+| `enumClass` | (Optional) Backed enum class. When provided, the field type is upgraded to `FilterType::Enum` and choices are derived from the enum. |
+| `nullable` | (Optional) When `true`, `is_null` / `is_not_null` operators are exposed for this field. |
+
+### Mixing `ComparisonOperator` and `FilterOperator`
+
+Both operator enums may be used in `allowedOperators`. The bundle normalizes them
+to `ComparisonOperator` internally. Legacy `FilterOperator::Like` expands to
+`Contains`, `StartsWith` and `EndsWith`; `FilterOperator::NotLike` maps to
+`NotContains`.
+
+```php
+// Using ComparisonOperator (advanced enum)
+$definition->addAdvancedFilterField(
+    name: 'email',
+    field: 'e.email',
+    type: FilterType::Text,
+    allowedOperators: [
+        ComparisonOperator::Contains,
+        ComparisonOperator::StartsWith,
+    ],
+);
+
+// Using legacy FilterOperator (still supported)
+$definition->addAdvancedFilterField(
+    name: 'enabled',
+    field: 'e.enabled',
+    type: FilterType::Boolean,
+    allowedOperators: [
+        FilterOperator::Equals,
+        FilterOperator::NotEquals,
+    ],
+);
+```
+
+### Effective operators
+
+The operator list displayed in the UI and accepted from the frontend is computed
+as the intersection of:
+
+1. **Type-compatible operators** for the field's `FilterType` (and nullability), and
+2. **Developer-allowed operators** declared via `allowedOperators`.
+
+If a developer accidentally allows an operator incompatible with the field type
+(e.g., `Contains` on a `Boolean`), that operator is silently filtered out: it
+will not appear in the UI and the backend will reject any condition that uses
+it.
 
 ## Supported Types and Operators
 
@@ -64,9 +111,25 @@ $definition->addAdvancedFilterField(
 The Search Builder supports the following types from the `FilterType` enum:
 - `Text`
 - `Choice`
+- `Enum`
 - `Boolean`
 - `Date`
 - `Number`
+- `NumberRange`
+- `DateRange`
+
+### Enum / Choice fields
+
+`Choice` fields use a static `choices` map (`label => value`).
+
+`Enum` fields accept a backed enum class via the `enumClass` option. The bundle
+automatically derives the choice map from the enum cases (case name → backed
+value). Enum values are submitted as their backed (scalar) values.
+
+For both `Choice` and `Enum`, the operators effectively available are limited to
+the equality and set operators: `eq`, `neq`, `in`, `not_in` (and `is_null` /
+`is_not_null` when the field is nullable). Operator restrictions declared via
+`allowedOperators` apply on top.
 
 ### Operators
 
@@ -92,10 +155,48 @@ The following operators are supported (see `ComparisonOperator` enum for interna
 
 ## Logic and Nesting
 
-The Search Builder supports `AND` and `OR` logic. Users can create nested groups to build complex expressions:
+The Search Builder supports `AND` and `OR` logic. Users can create nested groups
+to build complex expressions:
 
 - **Root Group**: The top-level group (defaults to `AND`).
-- **Sub-groups**: Additional groups can be added inside other groups (up to a depth of 3).
+- **Sub-groups**: Additional groups can be added inside other groups (up to a
+  depth of 3).
+- **Add condition / Add subgroup**: Each group exposes buttons to add either a
+  leaf condition or a nested subgroup.
+- **Remove condition / Remove subgroup**: Each condition and each nested
+  subgroup can be removed individually.
+- **Change logic**: Each group exposes a logic select (`AND` / `OR`).
+- **Clear**: The root group's "Clear" button removes all conditions and nested
+  subgroups and resets the root logic to `AND`.
+
+### Payload shape
+
+The frontend serializes the tree using lowercase `logic` values and a
+`conditions` array containing either leaf conditions or nested groups:
+
+```json
+{
+  "logic": "and",
+  "conditions": [
+    {
+      "field": "email",
+      "operator": "contains",
+      "value": "alice"
+    },
+    {
+      "logic": "or",
+      "conditions": [
+        { "field": "enabled", "operator": "eq", "value": true },
+        { "field": "status",  "operator": "eq", "value": "admin" }
+      ]
+    }
+  ]
+}
+```
+
+The backend factory also accepts the legacy `children` key in place of
+`conditions`, and uppercase `AND` / `OR` for `logic`, for backward
+compatibility.
 
 ## Provider Behavior
 
