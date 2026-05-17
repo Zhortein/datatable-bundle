@@ -10,6 +10,7 @@ zhortein_datatable:
         add_condition: 'Add condition'
         select_field: 'Select field'
         select_operator: 'Select operator'
+        add_subgroup: 'Add subgroup'
         operators:
             eq: 'Equals'
             neq: 'Not Equals'
