@@ -22,6 +22,9 @@ export default class extends Controller {
         'confirmationModal',
         'confirmationMessage',
         'confirmationConfirmButton',
+        'selectAllCheckbox',
+        'rowCheckbox',
+        'selectedCount',
     ];
 
     static values = {
@@ -48,6 +51,7 @@ export default class extends Controller {
         this.pendingConfirmationTarget = null;
         this.pendingConfirmationType = null;
         this.confirmationModalInstance = null;
+        this.selectedIds = new Set();
 
         this.updateActiveFilterState();
 
@@ -322,6 +326,52 @@ export default class extends Controller {
         this.refresh();
     }
 
+    selectRow(event) {
+        const checkbox = event.target;
+        const id = checkbox.value;
+
+        if (checkbox.checked) {
+            this.selectedIds.add(id);
+        } else {
+            this.selectedIds.delete(id);
+        }
+
+        this.updateSelectionUI();
+    }
+
+    selectAll(event) {
+        const checkbox = event.target;
+        const isChecked = checkbox.checked;
+
+        this.rowCheckboxTargets.forEach((rowCheckbox) => {
+            rowCheckbox.checked = isChecked;
+            const id = rowCheckbox.value;
+
+            if (isChecked) {
+                this.selectedIds.add(id);
+            } else {
+                this.selectedIds.delete(id);
+            }
+        });
+
+        this.updateSelectionUI();
+    }
+
+    updateSelectionUI() {
+        const selectedCount = this.selectedIds.size;
+        const visibleRowsCount = this.rowCheckboxTargets.length;
+        const selectedVisibleRowsCount = this.rowCheckboxTargets.filter((cb) => cb.checked).length;
+
+        if (this.hasSelectAllCheckboxTarget) {
+            this.selectAllCheckboxTarget.checked = visibleRowsCount > 0 && selectedVisibleRowsCount === visibleRowsCount;
+            this.selectAllCheckboxTarget.indeterminate = selectedVisibleRowsCount > 0 && selectedVisibleRowsCount < visibleRowsCount;
+        }
+
+        if (this.hasSelectedCountTarget) {
+            this.selectedCountTarget.textContent = String(selectedCount);
+        }
+    }
+
     buildFragmentsUrl() {
         const url = new URL(this.fragmentsUrlValue, window.location.origin);
 
@@ -467,6 +517,8 @@ export default class extends Controller {
 
         if (this.hasBodyTarget && typeof payload.body === 'string') {
             this.bodyTarget.innerHTML = payload.body;
+            this.selectedIds.clear();
+            this.updateSelectionUI();
         }
 
         if (this.hasPaginationTarget && typeof payload.pagination === 'string') {
