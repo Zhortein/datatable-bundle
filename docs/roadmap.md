@@ -968,7 +968,7 @@ Generated datatables have a coherent visual language while allowing host applica
 
 ---
 
-## 0.26 - Advanced filter expressions 🚧
+## 0.26 - Advanced filter expressions ✅
 
 Goal:
 
@@ -976,34 +976,34 @@ Goal:
 Introduce a safe advanced filter expression model without exposing Doctrine QueryBuilder directly to the frontend.
 ```
 
-Planned:
+Delivered:
 
-- design a filter expression model;
-- support grouped conditions;
-- support AND / OR combinations;
-- support type-aware operators;
-- support Doctrine-safe mapping;
-- keep frontend input declarative and validated;
-- document limitations;
-- add tests for expression normalization and Doctrine application.
+- **backend expression model**: structural `Expression`, `Group` and `Condition` value objects;
+- **field declarations**: `addAdvancedFilterField()` API with strict security boundaries;
+- **request normalization**: robust JSON payload normalization into internal expressions;
+- **Bootstrap UI**: a recursive "Search Builder" interface with group/condition management;
+- **Stimulus serialization**: vanilla Stimulus state management and Ajax serialization;
+- **Array provider support**: full in-memory evaluation of advanced expressions;
+- **Doctrine provider support**: DQL translation with automatic joins and case-insensitivity;
+- **export compatibility**: filters automatically applied to CSV and XLSX exports.
 
-Suggested public terminology:
+Current limitations:
+
+- no saved filter presets;
+- no persistence between sessions or page reloads;
+- no specialized third-party widgets (Select2, datepickers, etc.);
+- no collection-valued associations (one-to-many/many-to-many filtering);
+- tree depth is limited to 3 to prevent complex query exhaustion.
+
+Main outcome:
 
 ```text
-Advanced filter expressions
-```
-
-Avoid public wording such as “query builder” if it could imply exposing Doctrine internals.
-
-Main expected outcome:
-
-```text
-Users can build richer filters safely while the backend remains in control of query generation.
+Users can build richer, nested filters safely using a Search Builder UI while the backend remains in control of query generation.
 ```
 
 ---
 
-## 0.27 - Frontend E2E and accessibility evaluation 🕒
+## 0.27 - Frontend E2E and accessibility evaluation 🚧
 
 Goal:
 
@@ -1095,7 +1095,6 @@ Expected stable scope:
 Potential future work:
 
 - multi-column sorting;
-- SearchBuilder-like advanced expressions;
 - async exports;
 - streaming export provider contracts;
 - additional export formats;
@@ -1104,8 +1103,6 @@ Potential future work:
 - Elasticsearch provider;
 - UX Icons integration;
 - richer enum badge/icon rendering;
-- accessibility audit;
-- browser E2E test suite;
 - Symfony Flex recipe if external demand justifies it;
 - Tailwind or custom theme support;
 - icon provider abstraction;
