@@ -6,6 +6,7 @@
                 class="form-check-input"
                 name="selected_rows[]"
                 value="{{ row.identifier }}"
+                data-zhortein--datatable-bundle--datatable-target="rowCheckbox"
                 data-action="zhortein--datatable-bundle--datatable#selectRow"
                 aria-label="{{ 'zhortein_datatable.bulk_actions.select_row'|trans({'%id%': row.identifier}, 'zhortein_datatable') }}"
             >
