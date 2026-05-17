@@ -27,6 +27,7 @@ use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Export\CsvExportWriter;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
+use Zhortein\DatatableBundle\Factory\AdvancedFilterExpressionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
 use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
@@ -50,6 +51,8 @@ return static function (ContainerConfigurator $container): void {
     $services->set(AllowAllActionVisibilityChecker::class);
 
     $services->alias(ActionVisibilityCheckerInterface::class, AllowAllActionVisibilityChecker::class);
+
+    $services->set(AdvancedFilterExpressionFactory::class);
 
     $services->set(DatatableDefinitionFactory::class);
 

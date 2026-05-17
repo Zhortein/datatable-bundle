@@ -16,6 +16,7 @@ use Zhortein\DatatableBundle\Controller\DatatableController;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Export\CsvExportWriter;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
+use Zhortein\DatatableBundle\Factory\AdvancedFilterExpressionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
 use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
@@ -185,7 +186,7 @@ final class DatatableControllerTest extends TestCase
     {
         return new DatatableController(
             definitionFactory: new DatatableDefinitionFactory($this->createDatatableRegistry()),
-            requestFactory: new DatatableRequestFactory(),
+            requestFactory: new DatatableRequestFactory(new AdvancedFilterExpressionFactory()),
             providerRegistry: new DataProviderRegistry([
                 ArrayDataProvider::PROVIDER_NAME => new ArrayDataProvider(),
             ]),

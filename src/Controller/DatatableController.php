@@ -31,7 +31,7 @@ final readonly class DatatableController
     public function fragments(Request $request, string $name): JsonResponse
     {
         $definition = $this->definitionFactory->create($name);
-        $datatableRequest = $this->requestFactory->createFromRequest($request);
+        $datatableRequest = $this->requestFactory->createFromRequest($request, $definition);
         $provider = $this->providerRegistry->resolve($definition);
         $result = $provider->getData($definition, $datatableRequest);
 
@@ -58,7 +58,7 @@ final readonly class DatatableController
     public function export(Request $request, string $name, string $format = 'csv'): Response
     {
         $definition = $this->definitionFactory->create($name);
-        $datatableRequest = $this->requestFactory->createFromRequest($request);
+        $datatableRequest = $this->requestFactory->createFromRequest($request, $definition);
         $exportFormat = ExportFormat::fromString($format);
         $mode = $request->query->get('mode', 'current');
         $filename = $request->query->get('filename');

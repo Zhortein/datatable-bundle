@@ -7,6 +7,7 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Factory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zhortein\DatatableBundle\Enum\SortDirection;
+use Zhortein\DatatableBundle\Factory\AdvancedFilterExpressionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
 
 final class DatatableRequestFactoryConfiguredDefaultsTest extends TestCase
@@ -14,6 +15,7 @@ final class DatatableRequestFactoryConfiguredDefaultsTest extends TestCase
     public function test_it_uses_configured_defaults(): void
     {
         $factory = new DatatableRequestFactory(
+            advancedFilterExpressionFactory: new AdvancedFilterExpressionFactory(),
             defaultPage: 1,
             defaultPageSize: 50,
             maxPageSize: 200,
@@ -29,6 +31,7 @@ final class DatatableRequestFactoryConfiguredDefaultsTest extends TestCase
     public function test_it_caps_page_size_with_configured_maximum(): void
     {
         $factory = new DatatableRequestFactory(
+            advancedFilterExpressionFactory: new AdvancedFilterExpressionFactory(),
             defaultPage: 1,
             defaultPageSize: 50,
             maxPageSize: 100,
@@ -44,6 +47,7 @@ final class DatatableRequestFactoryConfiguredDefaultsTest extends TestCase
     public function test_runtime_request_values_override_configured_defaults(): void
     {
         $factory = new DatatableRequestFactory(
+            advancedFilterExpressionFactory: new AdvancedFilterExpressionFactory(),
             defaultPage: 1,
             defaultPageSize: 50,
             maxPageSize: 100,
@@ -63,6 +67,9 @@ final class DatatableRequestFactoryConfiguredDefaultsTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('The default datatable page size must be greater than or equal to 1.');
 
-        new DatatableRequestFactory(defaultPageSize: 0);
+        new DatatableRequestFactory(
+            advancedFilterExpressionFactory: new AdvancedFilterExpressionFactory(),
+            defaultPageSize: 0,
+        );
     }
 }
