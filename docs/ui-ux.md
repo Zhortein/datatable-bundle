@@ -8,6 +8,7 @@ The bundle is **Bootstrap-first** and uses a **Stimulus-powered** interaction mo
 
 Currently implemented:
 -   **Interactions**: Global search, pagination, sortable headers, page size selector.
+-   **Row Selection**: Checkbox-based selection and bulk action toolbar.
 -   **UI Features**: Loading and error states, summary updates, Bootstrap table variants.
 -   **Column Visibility**: User-controlled column visibility with persistent state.
 -   **Customization**: Action icons, display modes (inline, dropdown), boolean rendering modes.
@@ -95,5 +96,6 @@ The bundle follows a strong accessibility baseline:
 ## Related documentation
 
 - [Actions and Security](actions.md)
+- [Bulk Actions and Selection](bulk-actions.md)
 - [Theming and Templates](theming.md)
 - [Architecture](architecture/overview.md)
