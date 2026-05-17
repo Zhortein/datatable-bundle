@@ -82,6 +82,14 @@ final readonly class ArrayExpressionEvaluator
 
     private function compareEquals(mixed $rowValue, mixed $conditionValue): bool
     {
+        if ($rowValue instanceof \BackedEnum) {
+            $rowValue = $rowValue->value;
+        }
+
+        if ($conditionValue instanceof \BackedEnum) {
+            $conditionValue = $conditionValue->value;
+        }
+
         if (is_numeric($rowValue) && is_numeric($conditionValue)) {
             return (float) $rowValue === (float) $conditionValue;
         }

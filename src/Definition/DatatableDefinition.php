@@ -452,8 +452,9 @@ final class DatatableDefinition
     }
 
     /**
-     * @param list<FilterOperator>  $allowedOperators
-     * @param array<string, string> $choices
+     * @param list<FilterOperator>           $allowedOperators
+     * @param array<string, string>          $choices
+     * @param class-string<\BackedEnum>|null $enumClass
      */
     public function addAdvancedFilterField(
         string $name,
@@ -462,7 +463,13 @@ final class DatatableDefinition
         FilterType $type = FilterType::Text,
         array $allowedOperators = [],
         array $choices = [],
+        ?string $enumClass = null,
+        bool $nullable = false,
     ): self {
+        if (null !== $enumClass && FilterType::Text === $type) {
+            $type = FilterType::Enum;
+        }
+
         $this->advancedFilterFields[$name] = new AdvancedFilterFieldDefinition(
             name: $name,
             field: $field,
@@ -470,6 +477,8 @@ final class DatatableDefinition
             type: $type,
             allowedOperators: $allowedOperators,
             choices: $choices,
+            enumClass: $enumClass,
+            nullable: $nullable,
         );
 
         return $this;

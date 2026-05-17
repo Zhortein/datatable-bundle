@@ -13,4 +13,5 @@ enum FilterType: string
     case DateRange = 'date_range';
     case Number = 'number';
     case NumberRange = 'number_range';
+    case Enum = 'enum';
 }

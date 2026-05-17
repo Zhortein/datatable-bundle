@@ -205,15 +205,28 @@ final class DoctrineExpressionApplier
 
     private function createBetweenExpression(QueryBuilder $queryBuilder, string $field, string $parameterName, mixed $value): ?string
     {
-        if (!is_array($value) || 2 !== count($value)) {
+        if (!is_array($value)) {
             return null;
+        }
+
+        if (isset($value['from'], $value['to'])) {
+            $start = $value['from'];
+            $end = $value['to'];
+        } else {
+            $values = array_values($value);
+
+            if (2 !== count($values)) {
+                return null;
+            }
+
+            [$start, $end] = $values;
         }
 
         $startParam = $parameterName.'_start';
         $endParam = $parameterName.'_end';
 
-        $queryBuilder->setParameter($startParam, $value[0]);
-        $queryBuilder->setParameter($endParam, $value[1]);
+        $queryBuilder->setParameter($startParam, $start);
+        $queryBuilder->setParameter($endParam, $end);
 
         return $queryBuilder->expr()->between($field, ':'.$startParam, ':'.$endParam);
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Factory;
 
+use Zhortein\DatatableBundle\Definition\AdvancedFilterFieldDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Exception\InvalidExpressionException;
@@ -12,6 +13,7 @@ use Zhortein\DatatableBundle\Filter\Expression\ComparisonOperator;
 use Zhortein\DatatableBundle\Filter\Expression\Condition;
 use Zhortein\DatatableBundle\Filter\Expression\Group;
 use Zhortein\DatatableBundle\Filter\Expression\LogicOperator;
+use Zhortein\DatatableBundle\Filter\Expression\OperatorCompatibility;
 
 final readonly class AdvancedFilterExpressionFactory
 {
@@ -56,7 +58,11 @@ final readonly class AdvancedFilterExpressionFactory
 
             /** @var array<string, mixed> $childPayload */
             if (isset($childPayload['children'])) {
-                $children[] = $this->parseGroup($childPayload, $definition);
+                try {
+                    $children[] = $this->parseGroup($childPayload, $definition);
+                } catch (InvalidExpressionException) {
+                    continue;
+                }
             } else {
                 $condition = $this->parseCondition($childPayload, $definition);
                 if (null !== $condition) {
@@ -82,6 +88,8 @@ final readonly class AdvancedFilterExpressionFactory
             return null;
         }
 
+        $fieldDefinition = null;
+
         if (null !== $definition) {
             $advancedFilterFields = $definition->getAdvancedFilterFields();
             if (!isset($advancedFilterFields[$field])) {
@@ -89,6 +97,11 @@ final readonly class AdvancedFilterExpressionFactory
             }
 
             $fieldDefinition = $advancedFilterFields[$field];
+
+            if (!OperatorCompatibility::isCompatible($fieldDefinition->getType(), $operator, $fieldDefinition->isNullable())) {
+                return null;
+            }
+
             $allowedOperators = $fieldDefinition->getAllowedOperators();
 
             if ([] !== $allowedOperators) {
@@ -99,11 +112,55 @@ final readonly class AdvancedFilterExpressionFactory
             }
         }
 
+        $value = $this->normalizeValue($value, $operator, $fieldDefinition);
+
         try {
             return new Condition($field, $operator, $value);
         } catch (InvalidExpressionException) {
             return null;
         }
+    }
+
+    private function normalizeValue(mixed $value, ComparisonOperator $operator, ?AdvancedFilterFieldDefinition $fieldDefinition): mixed
+    {
+        if (ComparisonOperator::IsNull === $operator || ComparisonOperator::IsNotNull === $operator) {
+            return null;
+        }
+
+        if (ComparisonOperator::Between === $operator) {
+            if (!is_array($value)) {
+                return $value;
+            }
+
+            $values = array_values($value);
+
+            if (2 !== count($values)) {
+                if (isset($value['from'], $value['to'])) {
+                    $values = [$value['from'], $value['to']];
+                }
+            }
+
+            return $values;
+        }
+
+        if (ComparisonOperator::In === $operator || ComparisonOperator::NotIn === $operator) {
+            if (!is_array($value)) {
+                $value = [$value];
+            }
+
+            return array_values($value);
+        }
+
+        if (null !== $fieldDefinition && null !== $fieldDefinition->getEnumClass() && is_scalar($value)) {
+            $enumClass = $fieldDefinition->getEnumClass();
+            $allowedValues = array_map(static fn (\BackedEnum $case): string => (string) $case->value, $enumClass::cases());
+
+            if (!in_array((string) $value, $allowedValues, true)) {
+                return $value;
+            }
+        }
+
+        return $value;
     }
 
     private function mapToFilterOperator(ComparisonOperator $operator): FilterOperator

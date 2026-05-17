@@ -36,6 +36,7 @@ function createDatatableHtml() {
                             <option value="status" data-type="choice" data-choices='{"Active":"active","Inactive":"inactive"}'>Status</option>
                             <option value="age" data-type="number">Age</option>
                             <option value="enabled" data-type="boolean">Enabled</option>
+                            <option value="name" data-type="text" data-allowed-operators='["eq","contains"]'>Name (restricted)</option>
                         </select>
                         <select data-action="change->${CONTROLLER_IDENTIFIER}#onSearchBuilderOperatorChange" disabled>
                             <option value="">Select operator</option>
@@ -215,6 +216,70 @@ describe('datatable_controller search builder interactions', () => {
         await flushPromises();
 
         const url = getLastRequestedUrl(fetchMock);
+        expect(url.searchParams.get('advancedFilters[logic]')).toBe('AND');
+        expect(url.searchParams.get('advancedFilters[children][0][field]')).toBe('email');
+        expect(url.searchParams.get('advancedFilters[children][0][operator]')).toBe('contains');
+        expect(url.searchParams.get('advancedFilters[children][0][value]')).toBe('example');
+    });
+
+    it('restricts operator list to per-field allowed operators', async () => {
+        document.body.innerHTML = createDatatableHtml();
+        application = startApplication();
+
+        const { element, controller } = await getController(application);
+        element.querySelector('button[data-action$="#addSearchBuilderCondition"]').click();
+
+        const condition = element.querySelector('.zhortein-datatable__search-builder-condition');
+        const fieldSelect = condition.querySelector('select[data-action$="#onSearchBuilderFieldChange"]');
+        const operatorSelect = condition.querySelector('select[data-action$="#onSearchBuilderOperatorChange"]');
+
+        fieldSelect.value = 'name';
+        controller.onSearchBuilderFieldChange({ target: fieldSelect });
+
+        const operatorValues = Array.from(operatorSelect.options).map((o) => o.value);
+        expect(operatorValues).toEqual(['', 'eq', 'contains']);
+    });
+
+    it('includes advanced filters in export URL', async () => {
+        const assignSpy = vi.fn();
+        Object.defineProperty(window, 'location', {
+            value: {
+                origin: 'https://example.test',
+                href: 'https://example.test/current-page',
+                assign: assignSpy,
+            },
+            writable: true,
+        });
+
+        document.body.innerHTML = createDatatableHtml();
+        const exportEl = document.querySelector('#zhortein-datatable-users');
+        exportEl.setAttribute(`data-${CONTROLLER_IDENTIFIER}-export-url-value`, '/_zhortein/datatable/users/export');
+
+        application = startApplication();
+        const { element, controller } = await getController(application);
+
+        element.querySelector('button[data-action$="#addSearchBuilderCondition"]').click();
+        const condition = element.querySelector('.zhortein-datatable__search-builder-condition');
+        const fieldSelect = condition.querySelector('select[data-action$="#onSearchBuilderFieldChange"]');
+        fieldSelect.value = 'email';
+        controller.onSearchBuilderFieldChange({ target: fieldSelect });
+        const operatorSelect = condition.querySelector('select[data-action$="#onSearchBuilderOperatorChange"]');
+        operatorSelect.value = 'contains';
+        controller.onSearchBuilderOperatorChange();
+        const valueInput = condition.querySelector('.zhortein-datatable__search-builder-value-container input');
+        valueInput.value = 'example';
+
+        const anchor = document.createElement('a');
+        anchor.href = '/_zhortein/datatable/users/export';
+
+        controller.export({
+            preventDefault: () => {},
+            currentTarget: anchor,
+            params: { exportMode: 'all' },
+        });
+
+        expect(assignSpy).toHaveBeenCalledTimes(1);
+        const url = new URL(assignSpy.mock.calls.at(-1)[0]);
         expect(url.searchParams.get('advancedFilters[logic]')).toBe('AND');
         expect(url.searchParams.get('advancedFilters[children][0][field]')).toBe('email');
         expect(url.searchParams.get('advancedFilters[children][0][operator]')).toBe('contains');

@@ -599,8 +599,25 @@ export default class extends Controller {
         }
 
         operatorSelect.disabled = false;
-        const operators = JSON.parse(this.searchBuilderTarget.getAttribute('data-zhortein--datatable-bundle--datatable-operators-value'))[type] || [];
+        const typeOperators = JSON.parse(this.searchBuilderTarget.getAttribute('data-zhortein--datatable-bundle--datatable-operators-value'))[type] || [];
         const operatorLabels = JSON.parse(this.searchBuilderTarget.getAttribute('data-zhortein--datatable-bundle--datatable-operator-labels-value'));
+
+        let allowedOperators = null;
+        const rawAllowed = selectedOption.dataset.allowedOperators;
+        if (typeof rawAllowed === 'string' && rawAllowed !== '') {
+            try {
+                const parsed = JSON.parse(rawAllowed);
+                if (Array.isArray(parsed)) {
+                    allowedOperators = parsed;
+                }
+            } catch (e) {
+                allowedOperators = null;
+            }
+        }
+
+        const operators = allowedOperators === null
+            ? typeOperators
+            : typeOperators.filter((op) => allowedOperators.includes(op));
 
         operatorSelect.innerHTML = `<option value="">${i18n.select_operator}</option>` +
             operators.map((op) => `<option value="${op}">${operatorLabels[op] || op}</option>`).join('');
@@ -836,6 +853,7 @@ export default class extends Controller {
         }
 
         this.appendFilterParameters(searchParams);
+        this.appendAdvancedFilterParameters(searchParams);
         this.appendColumnVisibilityParameters(searchParams);
     }
 
