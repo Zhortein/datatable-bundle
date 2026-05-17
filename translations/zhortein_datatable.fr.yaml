@@ -22,6 +22,8 @@ zhortein_datatable:
             lt: 'Plus petit que'
             lte: 'Plus petit ou égal à'
             between: 'Entre'
+            between_from: 'De'
+            between_to: 'À'
             is_null: 'Est nul'
             is_not_null: 'N’est pas nul'
             in: 'Dans'

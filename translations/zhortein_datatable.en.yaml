@@ -22,6 +22,8 @@ zhortein_datatable:
             lt: 'Less than'
             lte: 'Less than or equals'
             between: 'Between'
+            between_from: 'From'
+            between_to: 'To'
             is_null: 'Is null'
             is_not_null: 'Is not null'
             in: 'In'

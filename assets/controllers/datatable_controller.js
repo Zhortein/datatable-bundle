@@ -560,7 +560,7 @@ export default class extends Controller {
     removeSearchBuilderCondition(event) {
         if (event) event.preventDefault();
 
-        const condition = event.target.closest('.zhortein-datatable__search-builder-condition');
+        const condition = event.currentTarget.closest('.zhortein-datatable__search-builder-condition');
         if (condition) {
             condition.remove();
             this.refresh();
@@ -589,18 +589,20 @@ export default class extends Controller {
         const selectedOption = select.options[select.selectedIndex];
         const type = selectedOption.dataset.type;
 
+        const i18n = JSON.parse(this.searchBuilderTarget.getAttribute('data-zhortein--datatable-bundle--datatable-i18n-value'));
+
         if (!type) {
             operatorSelect.disabled = true;
-            operatorSelect.innerHTML = `<option value="">${this.searchBuilderTarget.dataset.zhorteinDatatableBundleDatatableSelectOperatorPlaceholder || 'Select operator'}</option>`;
+            operatorSelect.innerHTML = `<option value="">${i18n.select_operator}</option>`;
             valueContainer.innerHTML = '<input type="text" class="form-control form-control-sm" disabled>';
             return;
         }
 
         operatorSelect.disabled = false;
-        const operators = JSON.parse(this.searchBuilderTarget.dataset.zhorteinDatatableBundleDatatableOperatorsValue)[type] || [];
-        const operatorLabels = JSON.parse(this.searchBuilderTarget.dataset.zhorteinDatatableBundleDatatableOperatorLabelsValue);
+        const operators = JSON.parse(this.searchBuilderTarget.getAttribute('data-zhortein--datatable-bundle--datatable-operators-value'))[type] || [];
+        const operatorLabels = JSON.parse(this.searchBuilderTarget.getAttribute('data-zhortein--datatable-bundle--datatable-operator-labels-value'));
 
-        operatorSelect.innerHTML = `<option value="">${this.searchBuilderTarget.dataset.zhorteinDatatableBundleDatatableSelectOperatorPlaceholder || 'Select operator'}</option>` +
+        operatorSelect.innerHTML = `<option value="">${i18n.select_operator}</option>` +
             operators.map((op) => `<option value="${op}">${operatorLabels[op] || op}</option>`).join('');
 
         this.updateSearchBuilderValueInput(condition, type, selectedOption.dataset.choices);
@@ -614,6 +616,7 @@ export default class extends Controller {
         const valueContainer = condition.querySelector('.zhortein-datatable__search-builder-value-container');
         const operatorSelect = condition.querySelector('select[data-action*="onSearchBuilderOperatorChange"]');
         const operator = operatorSelect.value;
+        const i18n = JSON.parse(this.searchBuilderTarget.getAttribute('data-zhortein--datatable-bundle--datatable-i18n-value'));
 
         if (operator === 'is_null' || operator === 'is_not_null') {
             valueContainer.innerHTML = '';
@@ -633,14 +636,14 @@ export default class extends Controller {
             html += '</select>';
         } else if (type === 'boolean') {
             html = `<select class="form-select form-select-sm" data-action="change->zhortein--datatable-bundle--datatable#refresh">
-                <option value="1">Yes</option>
-                <option value="0">No</option>
+                <option value="1">${i18n.boolean_yes}</option>
+                <option value="0">${i18n.boolean_no}</option>
             </select>`;
         } else if (operator === 'between') {
             const inputType = (type === 'date' || type === 'date_range') ? 'date' : 'number';
             html = `<div class="d-flex gap-2">
-                <input type="${inputType}" class="form-control form-control-sm" placeholder="From" data-action="input->zhortein--datatable-bundle--datatable#refresh">
-                <input type="${inputType}" class="form-control form-control-sm" placeholder="To" data-action="input->zhortein--datatable-bundle--datatable#refresh">
+                <input type="${inputType}" class="form-control form-control-sm" placeholder="${i18n.between_from}" data-action="input->zhortein--datatable-bundle--datatable#refresh">
+                <input type="${inputType}" class="form-control form-control-sm" placeholder="${i18n.between_to}" data-action="input->zhortein--datatable-bundle--datatable#refresh">
             </div>`;
         } else {
             const inputType = (type === 'date' || type === 'date_range') ? 'date' : (type === 'number' ? 'number' : 'text');
