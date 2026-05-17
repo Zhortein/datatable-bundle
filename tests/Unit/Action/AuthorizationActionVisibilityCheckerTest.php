@@ -11,6 +11,7 @@ use Zhortein\DatatableBundle\Action\ActionVisibilityContext;
 use Zhortein\DatatableBundle\Action\AllowAllActionVisibilityChecker;
 use Zhortein\DatatableBundle\Action\AuthorizationActionVisibilityChecker;
 use Zhortein\DatatableBundle\Definition\ActionDefinition;
+use Zhortein\DatatableBundle\Definition\BulkActionDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 
 final class AuthorizationActionVisibilityCheckerTest extends TestCase
@@ -92,6 +93,32 @@ final class AuthorizationActionVisibilityCheckerTest extends TestCase
         self::assertTrue($checker->isVisible($action, $context));
         self::assertSame(1, $authorizationChecker->getCallCount());
         self::assertSame('USER_CREATE', $authorizationChecker->getLastAttribute());
+        self::assertSame($definition, $authorizationChecker->getLastSubject());
+    }
+
+    public function test_it_uses_definition_as_subject_for_bulk_actions(): void
+    {
+        $definition = new DatatableDefinition('users');
+
+        $authorizationChecker = new RecordingAuthorizationChecker([
+            'USER_BULK_DELETE' => true,
+        ]);
+
+        $checker = new AuthorizationActionVisibilityChecker($authorizationChecker);
+
+        $action = new BulkActionDefinition(
+            name: 'bulk_delete',
+            route: 'app_user_bulk_delete',
+            attributes: [
+                'permission' => 'USER_BULK_DELETE',
+            ],
+        );
+
+        $context = new ActionVisibilityContext(definition: $definition);
+
+        self::assertTrue($checker->isVisible($action, $context));
+        self::assertSame(1, $authorizationChecker->getCallCount());
+        self::assertSame('USER_BULK_DELETE', $authorizationChecker->getLastAttribute());
         self::assertSame($definition, $authorizationChecker->getLastSubject());
     }
 

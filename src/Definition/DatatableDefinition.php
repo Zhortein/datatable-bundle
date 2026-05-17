@@ -292,6 +292,9 @@ final class DatatableDefinition
     /**
      * @param array<string, string> $routeParameters
      * @param array<string, string> $attributes
+     *
+     * NOTE: Visibility checks only control whether the action is rendered in the UI.
+     * The backend route MUST also enforce authorization and validate the request.
      */
     public function addBulkAction(
         string $name,

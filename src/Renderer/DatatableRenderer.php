@@ -50,14 +50,16 @@ final readonly class DatatableRenderer
         $options['paginationSize'] = $this->resolvePaginationSize($options)->value;
         $filters = $options['filters'] ?? [];
 
+        $bulkActions = $this->normalizeBulkActions($definition);
+
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/datatable.html.twig', $this->theme), [
             'definition' => $definition,
             'visibleColumns' => $this->getVisibleColumns($definition, $options),
             'rowActions' => $definition->getRowActions(),
             'globalActions' => $this->normalizeGlobalActions($definition),
-            'bulkActions' => $this->normalizeBulkActions($definition),
+            'bulkActions' => $bulkActions,
             'hasRowActions' => [] !== $definition->getRowActions(),
-            'hasBulkActions' => [] !== $definition->getBulkActions(),
+            'hasBulkActions' => [] !== $bulkActions,
             'htmlId' => $this->createHtmlId($definition),
             'options' => $options,
             'filters' => $filters,
@@ -76,7 +78,7 @@ final readonly class DatatableRenderer
             'definition' => $definition,
             'visibleColumns' => $this->getVisibleColumns($definition, $options),
             'hasRowActions' => [] !== $definition->getRowActions(),
-            'hasBulkActions' => [] !== $definition->getBulkActions(),
+            'hasBulkActions' => $this->hasBulkActions($definition),
             'htmlId' => $this->createHtmlId($definition),
             'options' => $options,
             'filters' => $options['filters'] ?? [],
@@ -96,7 +98,7 @@ final readonly class DatatableRenderer
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_body.html.twig', $this->theme), [
             'rows' => $this->normalizeRows($definition, $result, $options),
-            'hasBulkActions' => [] !== $definition->getBulkActions(),
+            'hasBulkActions' => $this->hasBulkActions($definition),
             'htmlId' => $this->createHtmlId($definition),
             'rowActionDisplayMode' => $this->resolveRowActionDisplayMode($definition, $options)->value,
         ]);
@@ -112,7 +114,7 @@ final readonly class DatatableRenderer
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_empty.html.twig', $this->theme), [
             'visibleColumns' => $this->getVisibleColumns($definition, $options),
             'hasRowActions' => [] !== $definition->getRowActions(),
-            'hasBulkActions' => [] !== $definition->getBulkActions(),
+            'hasBulkActions' => $this->hasBulkActions($definition),
         ]);
     }
 
@@ -253,6 +255,10 @@ final readonly class DatatableRenderer
         $actions = [];
 
         foreach ($definition->getBulkActions() as $action) {
+            if (!$this->isActionVisible($action, $definition, null)) {
+                continue;
+            }
+
             $actions[] = $this->normalizeAction(
                 action: $action,
                 url: $this->urlGenerator->generate($action->getRoute(), $action->getRouteParameters()),
@@ -260,6 +266,17 @@ final readonly class DatatableRenderer
         }
 
         return $actions;
+    }
+
+    private function hasBulkActions(DatatableDefinition $definition): bool
+    {
+        foreach ($definition->getBulkActions() as $action) {
+            if ($this->isActionVisible($action, $definition, null)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -278,7 +295,7 @@ final readonly class DatatableRenderer
     private function normalizeRows(DatatableDefinition $definition, DatatableResult $result, array $options = []): array
     {
         $visibleColumns = $this->getVisibleColumns($definition, $options);
-        $hasBulkActions = [] !== $definition->getBulkActions();
+        $hasBulkActions = $this->hasBulkActions($definition);
         $normalizedRows = [];
 
         foreach ($result->getRows() as $row) {
@@ -367,7 +384,7 @@ final readonly class DatatableRenderer
     /**
      * @param array<string, mixed>|null $row
      */
-    private function isActionVisible(ActionDefinition $action, DatatableDefinition $definition, ?array $row): bool
+    private function isActionVisible(ActionDefinition|BulkActionDefinition $action, DatatableDefinition $definition, ?array $row): bool
     {
         if (null === $this->actionVisibilityChecker) {
             return true;
