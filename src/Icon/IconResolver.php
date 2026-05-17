@@ -26,6 +26,8 @@ final readonly class IconResolver implements IconResolverInterface
         'action_delete' => 'bi bi-trash',
         'action_create' => 'bi bi-plus-lg',
         'bulk_actions' => 'bi bi-collection',
+        'boolean_true' => 'bi bi-check-lg',
+        'boolean_false' => 'bi bi-x-lg',
     ];
 
     /**

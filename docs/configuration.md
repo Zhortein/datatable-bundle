@@ -230,6 +230,8 @@ icons:
     action_delete: "bi bi-trash"
     action_create: "bi bi-plus-lg"
     bulk_actions: "bi bi-collection"
+    boolean_true: "bi bi-check-lg"
+    boolean_false: "bi bi-x-lg"
 ```
 
 The bundle uses a lightweight icon resolver to map internal icon keys to CSS classes. By default, it uses [Bootstrap Icons](https://icons.getbootstrap.com/) class names.
@@ -286,7 +288,7 @@ Default: `badge`
 
 Available modes:
 - `badge`: Renders a Bootstrap badge (Success/Secondary).
-- `icon`: Renders a checkmark (✓) or cross (×) with appropriate colors.
+- `icon`: Renders an icon from the `IconResolver` (defaults to `bi bi-check-lg` and `bi bi-x-lg`).
 - `switch`: Renders a Bootstrap switch (checkbox). **Note**: This mode is display-only; inline editing is not supported.
 - `text`: Renders translated "Yes" or "No" text.
 

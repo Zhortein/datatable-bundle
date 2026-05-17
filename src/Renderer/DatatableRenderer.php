@@ -298,6 +298,9 @@ final readonly class DatatableRenderer
     {
         $visibleColumns = $this->getVisibleColumns($definition, $options);
         $hasBulkActions = $this->hasBulkActions($definition);
+        $booleanDisplayMode = $this->resolveBooleanDisplayMode($options);
+        $booleanTrueIcon = $this->iconResolver?->resolve('boolean_true');
+        $booleanFalseIcon = $this->iconResolver?->resolve('boolean_false');
         $normalizedRows = [];
 
         foreach ($result->getRows() as $row) {
@@ -309,7 +312,9 @@ final readonly class DatatableRenderer
                     'value' => $this->readColumnValue($row, $column),
                     'template' => $this->resolveCellTemplate($column),
                     'className' => $this->resolveCellClassName($column),
-                    'booleanDisplayMode' => $this->resolveBooleanDisplayMode($options)->value,
+                    'booleanDisplayMode' => $booleanDisplayMode->value,
+                    'booleanTrueIcon' => $booleanTrueIcon,
+                    'booleanFalseIcon' => $booleanFalseIcon,
                 ];
             }
 
