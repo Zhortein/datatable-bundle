@@ -28,6 +28,13 @@
         'in': 'zhortein_datatable.search_builder.operators.in'|trans({}, 'zhortein_datatable'),
         'not_in': 'zhortein_datatable.search_builder.operators.not_in'|trans({}, 'zhortein_datatable')
     }|json_encode|e('html_attr') }}"
+    data-zhortein--datatable-bundle--datatable-i18n-value="{{ {
+        'select_operator': 'zhortein_datatable.search_builder.select_operator'|trans({}, 'zhortein_datatable'),
+        'boolean_yes': 'zhortein_datatable.boolean.yes'|trans({}, 'zhortein_datatable'),
+        'boolean_no': 'zhortein_datatable.boolean.no'|trans({}, 'zhortein_datatable'),
+        'between_from': 'zhortein_datatable.search_builder.operators.between_from'|trans({}, 'zhortein_datatable')|default('From'),
+        'between_to': 'zhortein_datatable.search_builder.operators.between_to'|trans({}, 'zhortein_datatable')|default('To')
+    }|json_encode|e('html_attr') }}"
 >
     <div class="card card-body">
         <div class="d-flex align-items-center justify-content-between mb-3">
