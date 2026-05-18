@@ -8,9 +8,11 @@ zhortein_datatable:
         or: 'OR'
         clear: 'Clear search builder'
         add_condition: 'Add condition'
+        remove_condition: 'Remove condition'
         select_field: 'Select field'
         select_operator: 'Select operator'
         add_subgroup: 'Add subgroup'
+        remove_subgroup: 'Remove subgroup'
         operators:
             eq: 'Equals'
             neq: 'Not Equals'
