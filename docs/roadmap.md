@@ -1003,6 +1003,32 @@ Users can build richer, nested filters safely using a Search Builder UI while th
 
 ---
 
+## 0.28 - First beta preparation 🚧
+
+
+Goal:
+
+```text
+Prepare the first beta release after bulk actions, icon system and advanced filter expressions. 
+Target release: v0.3.0-beta.1.
+```
+
+Planned:
+- Run first beta smoke test
+- Resolve first beta blockers
+- Review public API before first beta
+- Prepare changelog for first beta
+- Review go-no-go for first beta tag
+- Tag and publish first beta
+- Update roadmap after first beta
+
+Main expected outcome:
+```text
+Target release: v0.3.0-beta.1.
+```
+
+---
+
 ## 0.27 - Frontend E2E and accessibility evaluation 🚧
 
 Goal:
