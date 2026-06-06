@@ -195,11 +195,11 @@ Current configuration options:
 
 ```yaml
 zhortein_datatable:
-    default_provider: doctrine
-    default_theme: bootstrap
-    default_page_size: 25
-    max_page_size: 500
-    search_enabled: false
+  default_provider: doctrine
+  default_theme: bootstrap
+  default_page_size: 25
+  max_page_size: 500
+  search_enabled: false
 ```
 
 Main outcome:
@@ -751,68 +751,334 @@ Current limitations:
 
 ---
 
+## 0.21 - UI/UX smoke test fixes ✅
+
+Delivered:
+
+- Fixed XLSX export filename/format behavior discovered during smoke testing.
+- Fixed duplicated controls in `controlsLayout: split`.
+- Fixed row action dropdown overflow in short tables.
+- Added Bootstrap modal action confirmations with native confirmation fallback.
+- Fixed non-GET action width in list display mode.
+- Fixed sortable header indicator state after Ajax sorting.
+- Fixed header filter dropdown rendering.
+- Added bulk actions and hierarchical tables to roadmap ideas.
+- Planned a dedicated documentation overhaul milestone.
+- Recorded post-0.20 UI/UX smoke test findings.
+
+Main outcome:
+
+```text
+The UI/UX regressions found after the XLSX milestone were resolved before preparing the next alpha release.
+```
+
+Current UI/UX smoke status:
+
+- split controls layout is usable;
+- row action dropdown/list modes are usable;
+- modal confirmation improves action UX;
+- sort indicators reflect current sort state;
+- header filters render correctly;
+- CSV/XLSX exports use correct routes and filenames.
+
+---
+
+## 0.22 - Documentation overhaul ✅
+
+Delivered:
+
+- Documentation audit and classification.
+- README rewritten as project landing page.
+- Installation and quick-start documentation rewritten.
+- Provider documentation consolidated.
+- Feature documentation consolidated.
+- Architecture documentation split into focused pages.
+- Obsolete snippets and stale notes removed.
+- Final documentation consistency review against implemented features.
+- Documentation navigation cleaned.
+
+Main outcome:
+
+```text
+The documentation is now structured, clearer, and more suitable for external users evaluating or integrating the bundle.
+```
+
+Current documentation status:
+
+- README acts as a project landing page.
+- `docs/index.md` acts as the documentation table of contents.
+- installation and quick-start paths are clearer.
+- user-facing docs, reference docs, architecture docs, decisions, development docs and smoke reports are separated.
+- known limitations remain explicit.
+
+---
+
+## 0.23 - Second alpha preparation ✅
+
+Delivered:
+
+- Second alpha smoke test.
+- Second alpha blockers resolved.
+- Composer and Packagist metadata review.
+- Changelog prepared for the second alpha.
+- Go/no-go decision recorded.
+- Release tag published.
+- GitHub Release published.
+- Packagist updated automatically.
+- Roadmap updated after second alpha.
+- Dependabot PRs merged successfully after release preparation.
+
+Main outcome:
+
+```text
+The bundle reached its second public alpha release after major improvements to UI/UX, Doctrine capabilities, XLSX exports, frontend tests and documentation.
+```
+
+Released version:
+
+```text
+v0.2.0-alpha.1
+```
+
+Release status:
+
+- GitHub Release published.
+- Packagist updated.
+- PHP 8.4 and PHP 8.5 CI are green.
+- Highest and lowest dependency checks are green.
+- Fresh Symfony smoke testing passed after fixes.
+
+Known limitations after second alpha:
+
+- The package remains alpha-quality.
+- Public APIs may still change before stable 1.0.
+- Async exports are not implemented.
+- Streaming export provider contracts are not implemented.
+- Very large XLSX exports are not considered supported yet.
+- Bulk actions are not implemented yet.
+- Hierarchical tables are not implemented yet.
+- Advanced Doctrine collection-valued association support remains out of scope.
+- Full browser E2E coverage and accessibility audit are not implemented yet.
+- No Symfony Flex recipe is provided for now.
+
+---
+
+# Current installation stance
+
+Symfony Flex recipe support is postponed for now.
+
+The bundle works without a recipe as long as the host application follows the documented manual setup.
+
+Current required integration steps:
+
+- install the Composer package;
+- register the bundle if Symfony does not do it automatically;
+- import the bundle routes;
+- enable the Stimulus controller through `assets/controllers.json` when using Symfony UX;
+- provide Bootstrap CSS and JavaScript in the host application.
+
+The main repeated manual step is route import.
+
+A Symfony Flex recipe may become useful later to automate:
+
+- route import;
+- optional configuration skeleton;
+- installation notes for Bootstrap and Stimulus.
+
+For now, a recipe is not blocking because:
+
+- the bundle has working defaults;
+- configuration is optional;
+- documentation covers manual setup;
+- publishing and maintaining a recipe adds process overhead;
+- external usage feedback is still limited.
+
+This decision should be revisited after more real-world installations.
+
+---
+
 # Next roadmap direction
 
-The next milestone should focus on backend/provider capabilities or export evolution rather than Symfony Flex.
+The next milestone should focus on browser-level validation and accessibility.
 
-## 0.21 - Frontend E2E and accessibility evaluation 🚧
+The next milestone should focus on production-oriented table actions.
+
+## 0.24 - Bulk actions and row selection ✅
+
+Delivered:
+
+- `BulkActionDefinition` value object.
+- `DatatableDefinition::addBulkAction()` API.
+- Automatic selector column rendering (checkboxes).
+- "Select all" checkbox in header (current page).
+- Stimulus state management for selected IDs.
+- Bulk action toolbar rendering when rows are selected.
+- Selection count display.
+- CSRF-aware form submission for bulk actions.
+- Confirmation metadata support.
+- Customizable parameter name for selected IDs.
+- Documentation for bulk actions.
+
+Main outcome:
+
+```text
+Datatables can perform safe backend-defined actions on multiple selected rows, which is required for production back-office workflows.
+```
+
+Current limitations:
+
+- no "select all matching rows" across pages;
+- no selection persistence across navigation/refresh;
+- no async/background bulk processing built-in;
+- no bulk edit forms.
+
+---
+
+## 0.25 - Icon system and visual consistency ✅
 
 Goal:
 
 ```text
-Validate the most interactive datatable behavior in a real browser and define the accessibility baseline before moving toward 1.0.
+Provide a consistent, configurable icon strategy across actions, booleans, sorting, filters and exports.
 ```
 
-Possible work:
+Delivered:
 
-- choose whether Playwright is useful for this bundle;
+- **icon resolver**: a flexible icon resolution system;
+- **configuration overrides**: global and per-datatable icon overrides;
+- **actions**: icons for row and global actions;
+- **bulk actions**: icons for bulk action triggers;
+- **booleans**: configurable icons for boolean values;
+- **sort indicators**: customizable icons for ascending/descending states;
+- **filters**: icons for filter headers and actions;
+- **exports**: icons for export formats.
+
+Current limitations:
+
+- no mandatory icon library;
+- no SVG provider;
+- no UX Icons hard integration;
+- no icon-only actions unless implemented.
+
+Main outcome:
+
+```text
+Generated datatables have a coherent visual language while allowing host applications to choose their icon system.
+```
+
+---
+
+## 0.26 - Advanced filter expressions ✅
+
+Goal:
+
+```text
+Introduce a safe advanced filter expression model without exposing Doctrine QueryBuilder directly to the frontend.
+```
+
+Delivered:
+
+- **backend expression model**: structural `Expression`, `Group` and `Condition` value objects;
+- **field declarations**: `addAdvancedFilterField()` API with strict security boundaries;
+- **request normalization**: robust JSON payload normalization into internal expressions;
+- **Bootstrap UI**: a recursive "Search Builder" interface with group/condition management;
+- **Stimulus serialization**: vanilla Stimulus state management and Ajax serialization;
+- **Array provider support**: full in-memory evaluation of advanced expressions;
+- **Doctrine provider support**: DQL translation with automatic joins and case-insensitivity;
+- **export compatibility**: filters automatically applied to CSV and XLSX exports.
+
+Current limitations:
+
+- no saved filter presets;
+- no persistence between sessions or page reloads;
+- no specialized third-party widgets (Select2, datepickers, etc.);
+- no collection-valued associations (one-to-many/many-to-many filtering);
+- tree depth is limited to 3 to prevent complex query exhaustion.
+
+Main outcome:
+
+```text
+Users can build richer, nested filters safely using a Search Builder UI while the backend remains in control of query generation.
+```
+
+---
+
+## 0.27 - First beta preparation ✅
+
+
+Goal:
+
+```text
+Prepare the first beta release after bulk actions, icon system and advanced filter expressions. 
+Target release: v0.3.0-beta.1.
+```
+
+Delivered:
+- Run first beta smoke test
+- Resolve first beta blockers
+- Review public API before first beta
+- Prepare changelog for first beta
+- Review go-no-go for first beta tag
+- Tag and publish first beta
+- Update roadmap after first beta
+
+Main outcome:
+```text
+Target release: v0.3.0-beta.1.
+```
+
+---
+
+## 0.28 - Frontend E2E and accessibility evaluation 🚧
+
+Goal:
+
+```text
+Validate the most interactive UI behavior in a real browser and define an accessibility baseline.
+```
+
+Planned:
+
+- decide whether Playwright or another browser-level tool is needed;
 - test Bootstrap dropdown behavior in a real browser;
 - test keyboard navigation;
-- test column header filter dropdown UX;
-- test action dropdown UX;
-- test CSV/XLSX export link behavior;
-- test loading and error state visibility;
+- test modal confirmations;
+- test row selection and bulk actions;
+- test column header filters;
+- test export links;
 - add basic accessibility checks where practical;
 - document findings and limitations.
 
 Main expected outcome:
 
 ```text
-The bundle has a clear browser-level and accessibility validation strategy for its Bootstrap/Stimulus UI.
+The most interactive Bootstrap/Stimulus behaviors are validated beyond jsdom unit tests.
 ```
-
-Out of scope for the first pass:
-
-- full visual regression testing;
-- cross-browser matrix;
-- complete WCAG audit;
-- hosted demo application.
 
 ---
 
-## 0.22 - Documentation overhaul ✅
+## 0.29 - Hierarchical tables / expandable child datatables 🕒
 
 Goal:
 
 ```text
-Audit, reorganize and rewrite the documentation before moving closer to beta/stable releases.
+Support expandable rows and child datatables for hierarchical business data.
 ```
 
-Delivered:
+Planned:
 
-- Audit documentation and classify files.
-- Rewrite README as project landing page.
-- Rewrite installation and quick-start documentation.
-- Consolidate provider documentation.
-- Consolidate feature documentation.
-- Split architecture documentation into focused pages.
-- Remove obsolete snippets and stale notes.
-- Documentation link audit and final cleanup.
+- design parent/child datatable API;
+- support expandable detail rows;
+- support lazy Ajax loading;
+- propagate parent row context;
+- define recursion/performance safeguards;
+- document limitations;
+- smoke test hierarchical UI.
 
-Main outcome:
+Main expected outcome:
 
 ```text
-The documentation is now structured, clear and professional, providing a solid foundation for external users.
+Datatables can represent parent/child business structures without custom per-project table code.
 ```
 
 ---
@@ -825,22 +1091,26 @@ Expected stable scope:
 
 - PHP-first datatable declarations.
 - Symfony service discovery.
-- Doctrine provider with simple joins.
+- Array and Doctrine providers.
+- Doctrine provider with explicit joins.
 - Global search.
 - Typed filters.
+- Header and toolbar filter layouts.
 - Sorting.
 - Pagination.
+- Column visibility.
 - Row/global actions.
 - CSRF-aware non-GET actions.
 - Action visibility extension point.
+- Bootstrap modal confirmation.
 - Twig/Bootstrap rendering.
 - Stimulus Ajax refresh.
-- Column visibility.
-- Server-side CSV export.
+- CSV export.
+- Optional XLSX export.
 - Translation catalog.
 - Documentation.
 - CI and quality tooling.
-- Validated fresh Symfony integration.
+- Fresh Symfony integration validated.
 
 1.0 should not be tagged until the public API feels stable enough for real projects.
 
@@ -851,31 +1121,19 @@ Expected stable scope:
 Potential future work:
 
 - multi-column sorting;
-- SearchBuilder-like advanced expressions;
 - async exports;
+- streaming export provider contracts;
 - additional export formats;
 - user preference persistence adapters;
 - API/data-source providers;
 - Elasticsearch provider;
-- bulk actions with row selection:
-  - selector column;
-  - selected-row state in Stimulus;
-  - current-page and filtered-dataset action modes;
-  - CSRF-aware POST actions;
-  - authorization-aware visibility;
-- hierarchical tables / expandable child datatables:
-  - expandable detail rows;
-  - nested datatable rendering;
-  - parent-row context propagation;
-  - lazy Ajax loading;
-  - recursion and performance safeguards;- UX Icons integration;
+- UX Icons integration;
 - richer enum badge/icon rendering;
-- accessibility audit;
-- frontend test suite;
-- Symfony Flex recipe;
+- Symfony Flex recipe if external demand justifies it;
 - Tailwind or custom theme support;
 - icon provider abstraction;
-- frontend smoke test automation.
+- frontend smoke test automation;
+- export size limits and queued export jobs.
 
 ---
 
@@ -905,7 +1163,11 @@ Before a stable 1.0 release, revisit:
 - `DatatableRenderer` size;
 - action metadata vs HTML attributes;
 - `JoinDefinition` naming and namespace;
+- `CustomJoinDefinition` naming and namespace;
+- aggregate column builder API;
+- custom join parameters API;
 - `DatatableExportResult` usefulness;
+- `ExportWriterInterface` streaming suitability;
 - template context stability;
 - filter layout API;
 - action display mode API;

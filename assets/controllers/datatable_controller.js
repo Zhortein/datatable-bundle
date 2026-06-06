@@ -22,6 +22,15 @@ export default class extends Controller {
         'confirmationModal',
         'confirmationMessage',
         'confirmationConfirmButton',
+        'selectAllCheckbox',
+        'rowCheckbox',
+        'selectedCount',
+        'bulkToolbar',
+        'bulkAction',
+        'searchBuilder',
+        'searchBuilderConditions',
+        'searchBuilderConditionTemplate',
+        'searchBuilderGroupTemplate',
     ];
 
     static values = {
@@ -35,6 +44,7 @@ export default class extends Controller {
         sortDirection: { type: String, default: 'asc' },
         autoLoad: { type: Boolean, default: true },
         filterLayout: String,
+        searchBuilder: { type: Boolean, default: false },
         booleanDisplayMode: String,
         paginationSize: { type: String, default: 'default' },
         tableSmall: { type: Boolean, default: false },
@@ -48,6 +58,7 @@ export default class extends Controller {
         this.pendingConfirmationTarget = null;
         this.pendingConfirmationType = null;
         this.confirmationModalInstance = null;
+        this.selectedIds = new Set();
 
         this.updateActiveFilterState();
 
@@ -183,6 +194,10 @@ export default class extends Controller {
 
     executeConfirmedTarget(target) {
         if (target instanceof HTMLFormElement) {
+            if (target.hasAttribute('data-zhortein--datatable-bundle--datatable-selected-rows-parameter-name')) {
+                this.injectSelectedIds(target);
+            }
+
             target.submit();
 
             return;
@@ -191,6 +206,38 @@ export default class extends Controller {
         if (target instanceof HTMLAnchorElement) {
             window.location.assign(target.href);
         }
+    }
+
+    submitBulkAction(event) {
+        if (this.selectedIds.size === 0) {
+            event.preventDefault();
+
+            return;
+        }
+
+        const message = this.resolveConfirmationMessage(event.currentTarget);
+
+        if (message !== null) {
+            this.confirmAction(event);
+
+            return;
+        }
+
+        this.injectSelectedIds(event.currentTarget);
+    }
+
+    injectSelectedIds(form) {
+        const parameterName = form.getAttribute('data-zhortein--datatable-bundle--datatable-selected-rows-parameter-name') || 'ids';
+
+        form.querySelectorAll(`input[name="${parameterName}[]"]`).forEach((input) => input.remove());
+
+        this.selectedIds.forEach((id) => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = `${parameterName}[]`;
+            input.value = id;
+            form.appendChild(input);
+        });
     }
 
     search(event) {
@@ -322,6 +369,64 @@ export default class extends Controller {
         this.refresh();
     }
 
+    selectRow(event) {
+        const checkbox = event.target;
+        const id = checkbox.value;
+
+        if (checkbox.checked) {
+            this.selectedIds.add(id);
+        } else {
+            this.selectedIds.delete(id);
+        }
+
+        this.updateSelectionUI();
+    }
+
+    selectAll(event) {
+        const checkbox = event.target;
+        const isChecked = checkbox.checked;
+
+        this.rowCheckboxTargets.forEach((rowCheckbox) => {
+            rowCheckbox.checked = isChecked;
+            const id = rowCheckbox.value;
+
+            if (isChecked) {
+                this.selectedIds.add(id);
+            } else {
+                this.selectedIds.delete(id);
+            }
+        });
+
+        this.updateSelectionUI();
+    }
+
+    updateSelectionUI() {
+        const selectedCount = this.selectedIds.size;
+        const visibleRowsCount = this.rowCheckboxTargets.length;
+        const selectedVisibleRowsCount = this.rowCheckboxTargets.filter((cb) => cb.checked).length;
+
+        if (this.hasSelectAllCheckboxTarget) {
+            this.selectAllCheckboxTarget.checked = visibleRowsCount > 0 && selectedVisibleRowsCount === visibleRowsCount;
+            this.selectAllCheckboxTarget.indeterminate = selectedVisibleRowsCount > 0 && selectedVisibleRowsCount < visibleRowsCount;
+        }
+
+        if (this.hasSelectedCountTarget) {
+            this.selectedCountTargets.forEach((target) => {
+                target.textContent = String(selectedCount);
+            });
+        }
+
+        if (this.hasBulkToolbarTarget) {
+            this.bulkToolbarTarget.hidden = selectedCount === 0;
+        }
+
+        if (this.hasBulkActionTarget) {
+            this.bulkActionTargets.forEach((target) => {
+                target.disabled = selectedCount === 0;
+            });
+        }
+    }
+
     buildFragmentsUrl() {
         const url = new URL(this.fragmentsUrlValue, window.location.origin);
 
@@ -352,6 +457,7 @@ export default class extends Controller {
         }
 
         this.appendFilterParameters(url.searchParams);
+        this.appendAdvancedFilterParameters(url.searchParams);
         this.appendColumnVisibilityParameters(url.searchParams);
 
         return url.toString();
@@ -441,6 +547,312 @@ export default class extends Controller {
             .filter((control) => control instanceof HTMLInputElement && control.type === 'checkbox');
     }
 
+    addSearchBuilderCondition(event) {
+        if (event) event.preventDefault();
+
+        if (!this.hasSearchBuilderConditionTemplateTarget) {
+            return;
+        }
+
+        const container = this.resolveSearchBuilderConditionsContainer(event);
+        if (container === null) {
+            return;
+        }
+
+        const template = this.searchBuilderConditionTemplateTarget.content.cloneNode(true);
+        container.appendChild(template);
+    }
+
+    addSearchBuilderSubgroup(event) {
+        if (event) event.preventDefault();
+
+        if (!this.hasSearchBuilderGroupTemplateTarget) {
+            return;
+        }
+
+        const container = this.resolveSearchBuilderConditionsContainer(event);
+        if (container === null) {
+            return;
+        }
+
+        const template = this.searchBuilderGroupTemplateTarget.content.cloneNode(true);
+        container.appendChild(template);
+    }
+
+    removeSearchBuilderCondition(event) {
+        if (event) event.preventDefault();
+
+        const condition = event.currentTarget.closest('.zhortein-datatable__search-builder-condition');
+        if (condition) {
+            condition.remove();
+            this.refresh();
+        }
+    }
+
+    removeSearchBuilderSubgroup(event) {
+        if (event) event.preventDefault();
+
+        const group = event.currentTarget.closest('.zhortein-datatable__search-builder-group--nested');
+        if (group) {
+            group.remove();
+            this.refresh();
+        }
+    }
+
+    clearSearchBuilder(event) {
+        if (event) event.preventDefault();
+
+        if (this.hasSearchBuilderConditionsTarget) {
+            this.searchBuilderConditionsTarget.innerHTML = '';
+        }
+
+        const rootGroup = this.getRootSearchBuilderGroupElement();
+        if (rootGroup !== null) {
+            const logicSelect = rootGroup.querySelector(':scope > .zhortein-datatable__search-builder-header select.zhortein-datatable__search-builder-logic')
+                || rootGroup.querySelector('select.zhortein-datatable__search-builder-logic')
+                || (this.hasSearchBuilderTarget ? this.searchBuilderTarget.querySelector('select[data-action*="updateSearchBuilderLogic"]') : null);
+            if (logicSelect) {
+                logicSelect.value = 'AND';
+            }
+        }
+
+        this.refresh();
+    }
+
+    updateSearchBuilderLogic() {
+        this.refresh();
+    }
+
+    resolveSearchBuilderConditionsContainer(event) {
+        if (event && event.currentTarget instanceof Element) {
+            const group = event.currentTarget.closest('.zhortein-datatable__search-builder-group');
+            if (group) {
+                const container = group.querySelector(':scope > .zhortein-datatable__search-builder-conditions');
+                if (container) {
+                    return container;
+                }
+            }
+        }
+
+        return this.hasSearchBuilderConditionsTarget ? this.searchBuilderConditionsTarget : null;
+    }
+
+    getRootSearchBuilderGroupElement() {
+        if (!this.hasSearchBuilderTarget) {
+            return null;
+        }
+
+        return this.searchBuilderTarget.querySelector('.zhortein-datatable__search-builder-group--root')
+            || this.searchBuilderTarget;
+    }
+
+    onSearchBuilderFieldChange(event) {
+        const select = event.target;
+        const condition = select.closest('.zhortein-datatable__search-builder-condition');
+        const operatorSelect = condition.querySelector('select[data-action*="onSearchBuilderOperatorChange"]');
+        const valueContainer = condition.querySelector('.zhortein-datatable__search-builder-value-container');
+
+        const selectedOption = select.options[select.selectedIndex];
+        const type = selectedOption.dataset.type;
+
+        const i18n = JSON.parse(this.searchBuilderTarget.getAttribute('data-zhortein--datatable-bundle--datatable-i18n-value'));
+
+        if (!type) {
+            operatorSelect.disabled = true;
+            operatorSelect.innerHTML = `<option value="">${i18n.select_operator}</option>`;
+            valueContainer.innerHTML = '<input type="text" class="form-control form-control-sm" disabled>';
+            return;
+        }
+
+        operatorSelect.disabled = false;
+        const typeOperators = JSON.parse(this.searchBuilderTarget.getAttribute('data-zhortein--datatable-bundle--datatable-operators-value'))[type] || [];
+        const operatorLabels = JSON.parse(this.searchBuilderTarget.getAttribute('data-zhortein--datatable-bundle--datatable-operator-labels-value'));
+
+        let allowedOperators = null;
+        const rawAllowed = selectedOption.dataset.allowedOperators;
+        if (typeof rawAllowed === 'string' && rawAllowed !== '') {
+            try {
+                const parsed = JSON.parse(rawAllowed);
+                if (Array.isArray(parsed)) {
+                    allowedOperators = parsed;
+                }
+            } catch (e) {
+                allowedOperators = null;
+            }
+        }
+
+        const operators = allowedOperators === null
+            ? typeOperators
+            : typeOperators.filter((op) => allowedOperators.includes(op));
+
+        operatorSelect.innerHTML = `<option value="">${i18n.select_operator}</option>` +
+            operators.map((op) => `<option value="${op}">${operatorLabels[op] || op}</option>`).join('');
+
+        this.updateSearchBuilderValueInput(condition, type, selectedOption.dataset.choices);
+    }
+
+    onSearchBuilderOperatorChange() {
+        this.refresh();
+    }
+
+    updateSearchBuilderValueInput(condition, type, choicesJson) {
+        const valueContainer = condition.querySelector('.zhortein-datatable__search-builder-value-container');
+        const operatorSelect = condition.querySelector('select[data-action*="onSearchBuilderOperatorChange"]');
+        const operator = operatorSelect.value;
+        const i18n = JSON.parse(this.searchBuilderTarget.getAttribute('data-zhortein--datatable-bundle--datatable-i18n-value'));
+
+        if (operator === 'is_null' || operator === 'is_not_null') {
+            valueContainer.innerHTML = '';
+            this.refresh();
+
+            return;
+        }
+
+        let html = '';
+        if (type === 'choice' && choicesJson) {
+            const choices = JSON.parse(choicesJson);
+            const isMultiple = operator === 'in' || operator === 'not_in';
+            html = `<select class="form-select form-select-sm" ${isMultiple ? 'multiple' : ''} data-action="change->zhortein--datatable-bundle--datatable#refresh">`;
+            for (const [label, value] of Object.entries(choices)) {
+                html += `<option value="${value}">${label}</option>`;
+            }
+            html += '</select>';
+        } else if (type === 'boolean') {
+            html = `<select class="form-select form-select-sm" data-action="change->zhortein--datatable-bundle--datatable#refresh">
+                <option value="1">${i18n.boolean_yes}</option>
+                <option value="0">${i18n.boolean_no}</option>
+            </select>`;
+        } else if (operator === 'between') {
+            const inputType = (type === 'date' || type === 'date_range') ? 'date' : 'number';
+            html = `<div class="d-flex gap-2">
+                <input type="${inputType}" class="form-control form-control-sm" placeholder="${i18n.between_from}" data-action="input->zhortein--datatable-bundle--datatable#refresh">
+                <input type="${inputType}" class="form-control form-control-sm" placeholder="${i18n.between_to}" data-action="input->zhortein--datatable-bundle--datatable#refresh">
+            </div>`;
+        } else {
+            const inputType = (type === 'date' || type === 'date_range') ? 'date' : (type === 'number' ? 'number' : 'text');
+            html = `<input type="${inputType}" class="form-control form-control-sm" data-action="input->zhortein--datatable-bundle--datatable#refresh">`;
+        }
+
+        valueContainer.innerHTML = html;
+        this.refresh();
+    }
+
+    appendAdvancedFilterParameters(searchParams) {
+        if (!this.hasSearchBuilderTarget) {
+            return;
+        }
+
+        const rootGroup = this.getRootSearchBuilderGroupElement();
+        if (rootGroup === null) {
+            return;
+        }
+
+        const serialized = this.serializeSearchBuilderGroup(rootGroup);
+        if (serialized === null || serialized.conditions.length === 0) {
+            return;
+        }
+
+        this.appendSearchBuilderEntries(searchParams, 'advancedFilters', serialized);
+    }
+
+    serializeSearchBuilderGroup(groupElement) {
+        const logicSelect = groupElement.querySelector(':scope > .zhortein-datatable__search-builder-header select.zhortein-datatable__search-builder-logic')
+            || groupElement.querySelector(':scope > select.zhortein-datatable__search-builder-logic')
+            || groupElement.querySelector(':scope > select[data-action*="updateSearchBuilderLogic"]')
+            || (groupElement.classList.contains('zhortein-datatable__search-builder-group--root') && this.hasSearchBuilderTarget
+                ? this.searchBuilderTarget.querySelector('select[data-action*="updateSearchBuilderLogic"]')
+                : null);
+
+        const logicValue = (logicSelect && typeof logicSelect.value === 'string' && logicSelect.value !== '')
+            ? logicSelect.value
+            : 'AND';
+
+        const conditionsContainer = groupElement.querySelector(':scope > .zhortein-datatable__search-builder-conditions')
+            || (groupElement.classList.contains('zhortein-datatable__search-builder-group--root') && this.hasSearchBuilderConditionsTarget
+                ? this.searchBuilderConditionsTarget
+                : null);
+
+        const conditions = [];
+
+        if (conditionsContainer) {
+            Array.from(conditionsContainer.children).forEach((child) => {
+                if (child.classList.contains('zhortein-datatable__search-builder-condition')) {
+                    const serialized = this.serializeSearchBuilderCondition(child);
+                    if (serialized !== null) {
+                        conditions.push(serialized);
+                    }
+                } else if (child.classList.contains('zhortein-datatable__search-builder-group')) {
+                    const serialized = this.serializeSearchBuilderGroup(child);
+                    if (serialized !== null && serialized.conditions.length > 0) {
+                        conditions.push(serialized);
+                    }
+                }
+            });
+        }
+
+        return { logic: String(logicValue).toLowerCase(), conditions };
+    }
+
+    serializeSearchBuilderCondition(conditionElement) {
+        const fieldSelect = conditionElement.querySelector('select[data-action*="onSearchBuilderFieldChange"]');
+        const operatorSelect = conditionElement.querySelector('select[data-action*="onSearchBuilderOperatorChange"]');
+
+        if (!fieldSelect || !operatorSelect) {
+            return null;
+        }
+
+        const field = fieldSelect.value;
+        const operator = operatorSelect.value;
+
+        if (!field || !operator) {
+            return null;
+        }
+
+        const valueContainer = conditionElement.querySelector('.zhortein-datatable__search-builder-value-container');
+        const inputs = valueContainer ? valueContainer.querySelectorAll('input, select') : [];
+
+        let value = null;
+
+        if (operator === 'is_null' || operator === 'is_not_null') {
+            value = null;
+        } else if (inputs.length === 1) {
+            const input = inputs[0];
+            if (input instanceof HTMLSelectElement && input.multiple) {
+                value = Array.from(input.selectedOptions).map((opt) => opt.value);
+            } else {
+                value = input.value;
+            }
+        } else if (inputs.length === 2) {
+            value = { from: inputs[0].value, to: inputs[1].value };
+        }
+
+        const result = { field, operator };
+
+        if (value !== null) {
+            result.value = value;
+        }
+
+        return result;
+    }
+
+    appendSearchBuilderEntries(searchParams, prefix, payload) {
+        if (payload === null || typeof payload !== 'object') {
+            searchParams.set(prefix, String(payload ?? ''));
+            return;
+        }
+
+        if (Array.isArray(payload)) {
+            payload.forEach((item, index) => {
+                this.appendSearchBuilderEntries(searchParams, `${prefix}[${index}]`, item);
+            });
+            return;
+        }
+
+        Object.entries(payload).forEach(([key, val]) => {
+            this.appendSearchBuilderEntries(searchParams, `${prefix}[${key}]`, val);
+        });
+    }
+
     resolveConfirmationMessage(target) {
         if (!(target instanceof HTMLElement)) {
             return null;
@@ -467,6 +879,8 @@ export default class extends Controller {
 
         if (this.hasBodyTarget && typeof payload.body === 'string') {
             this.bodyTarget.innerHTML = payload.body;
+            this.selectedIds.clear();
+            this.updateSelectionUI();
         }
 
         if (this.hasPaginationTarget && typeof payload.pagination === 'string') {
@@ -575,6 +989,7 @@ export default class extends Controller {
         }
 
         this.appendFilterParameters(searchParams);
+        this.appendAdvancedFilterParameters(searchParams);
         this.appendColumnVisibilityParameters(searchParams);
     }
 

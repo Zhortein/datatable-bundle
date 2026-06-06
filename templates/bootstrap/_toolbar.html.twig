@@ -33,7 +33,7 @@
                 definition: definition,
                 htmlId: htmlId,
                 filters: filters|default({})
-            } only %}
+            } %}
         {% endif %}
 
         {% if definition.filters is not empty %}
@@ -66,14 +66,31 @@
                 htmlId: htmlId,
                 runtime_visible_columns: runtime_visible_columns,
                 runtime_hidden_columns: runtime_hidden_columns
-            } only %}
+            } %}
         {% endif %}
 
         {% if export_enabled %}
             {% include '@ZhorteinDatatable/bootstrap/_export.html.twig' with {
                 definition: definition,
                 options: options
-            } only %}
+            } %}
+        {% endif %}
+
+        {% if options.searchBuilder is defined and options.searchBuilder %}
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                data-bs-toggle="collapse"
+                data-bs-target="#{{ htmlId }}-search-builder"
+                aria-expanded="false"
+                aria-controls="{{ htmlId }}-search-builder"
+                title="{{ 'zhortein_datatable.search_builder.title'|trans({}, 'zhortein_datatable') }}"
+            >
+                {% if search_builder_icon is not empty %}
+                    <i class="{{ search_builder_icon }}"></i>
+                {% endif %}
+                <span class="d-none d-md-inline">{{ 'zhortein_datatable.search_builder.title'|trans({}, 'zhortein_datatable') }}</span>
+            </button>
         {% endif %}
 
         {% if not is_split_layout and page_size_selector_enabled %}

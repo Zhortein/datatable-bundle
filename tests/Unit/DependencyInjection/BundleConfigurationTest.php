@@ -20,6 +20,22 @@ final class BundleConfigurationTest extends TestCase
         self::assertSame(25, $container->getParameter('zhortein_datatable.default_page_size'));
         self::assertSame(500, $container->getParameter('zhortein_datatable.max_page_size'));
         self::assertFalse($container->getParameter('zhortein_datatable.search_enabled'));
+        self::assertSame([], $container->getParameter('zhortein_datatable.icons'));
+    }
+
+    public function test_it_accepts_custom_icons(): void
+    {
+        $container = $this->loadBundleConfiguration([
+            'icons' => [
+                'view' => 'fa fa-eye',
+                'custom' => 'fa fa-star',
+            ],
+        ]);
+
+        self::assertSame([
+            'view' => 'fa fa-eye',
+            'custom' => 'fa fa-star',
+        ], $container->getParameter('zhortein_datatable.icons'));
     }
 
     public function test_it_accepts_custom_configuration_values(): void

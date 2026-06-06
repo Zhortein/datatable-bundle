@@ -4,10 +4,18 @@
 
 {% if display_mode == 'icon' %}
     {% if value %}
-        <span class="text-success" aria-hidden="true">✓</span>
+        {% if boolean_true_icon %}
+            <i class="{{ boolean_true_icon }} text-success" aria-hidden="true"></i>
+        {% else %}
+            <span class="text-success" aria-hidden="true">✓</span>
+        {% endif %}
         <span class="visually-hidden">{{ yes_label }}</span>
     {% else %}
-        <span class="text-danger" aria-hidden="true">×</span>
+        {% if boolean_false_icon %}
+            <i class="{{ boolean_false_icon }} text-danger" aria-hidden="true"></i>
+        {% else %}
+            <span class="text-danger" aria-hidden="true">×</span>
+        {% endif %}
         <span class="visually-hidden">{{ no_label }}</span>
     {% endif %}
 {% elseif display_mode == 'switch' %}

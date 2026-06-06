@@ -9,6 +9,7 @@
         data-bs-toggle="dropdown"
         aria-expanded="false"
     >
+        {% if export_icon %}<i class="{{ export_icon }}" aria-hidden="true"></i> {% endif %}
         {{ 'zhortein_datatable.export.label'|trans({}, 'zhortein_datatable') }}
     </button>
 
@@ -16,6 +17,7 @@
         {% for export_format in export_formats %}
             {% if export_format in ['csv', 'xlsx'] %}
                 {% set format_export_url = export_urls[export_format] is defined ? export_urls[export_format] : (export_format == 'csv' ? default_export_url : '/_zhortein/datatable/' ~ definition.name ~ '/export/' ~ export_format) %}
+                {% set item_icon = export_format == 'csv' ? export_csv_icon : (export_format == 'xlsx' ? export_xlsx_icon : null) %}
 
                 <a
                     class="dropdown-item"
@@ -28,6 +30,7 @@
                     data-zhortein--datatable-bundle--datatable-export-url-param="{{ format_export_url }}"
                     data-zhortein--datatable-bundle--datatable-export-mode="current"
                 >
+                    {% if item_icon %}<i class="{{ item_icon }}" aria-hidden="true"></i> {% endif %}
                     {{ ('zhortein_datatable.export.' ~ export_format ~ '_current')|trans({}, 'zhortein_datatable') }}
                 </a>
                 <a
@@ -41,6 +44,7 @@
                     data-zhortein--datatable-bundle--datatable-export-url-param="{{ format_export_url }}"
                     data-zhortein--datatable-bundle--datatable-export-mode="full"
                 >
+                    {% if item_icon %}<i class="{{ item_icon }}" aria-hidden="true"></i> {% endif %}
                     {{ ('zhortein_datatable.export.' ~ export_format ~ '_full')|trans({}, 'zhortein_datatable') }}
                 </a>
             {% endif %}

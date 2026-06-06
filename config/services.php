@@ -11,6 +11,8 @@ use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineJoinApplier;
 use Zhortein\DatatableBundle\Doctrine\DoctrinePaginationApplier;
 use Zhortein\DatatableBundle\Export\XlsxExportWriter;
+use Zhortein\DatatableBundle\Icon\IconResolver;
+use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Renderer\DatatableSummaryRenderer;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
@@ -25,6 +27,7 @@ use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Export\CsvExportWriter;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
+use Zhortein\DatatableBundle\Factory\AdvancedFilterExpressionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
 use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
@@ -49,6 +52,8 @@ return static function (ContainerConfigurator $container): void {
 
     $services->alias(ActionVisibilityCheckerInterface::class, AllowAllActionVisibilityChecker::class);
 
+    $services->set(AdvancedFilterExpressionFactory::class);
+
     $services->set(DatatableDefinitionFactory::class);
 
     $services
@@ -64,6 +69,13 @@ return static function (ContainerConfigurator $container): void {
     $services->set(NullDatatablePreferenceProvider::class);
 
     $services->alias(DatatablePreferenceProviderInterface::class, NullDatatablePreferenceProvider::class);
+
+    $services
+        ->set(IconResolver::class)
+        ->arg('$icons', param('zhortein_datatable.icons'))
+    ;
+
+    $services->alias(IconResolverInterface::class, IconResolver::class);
 
     if (interface_exists(ManagerRegistry::class)) {
         $services->set(DoctrineFieldTypeGuesser::class);
@@ -125,6 +137,7 @@ return static function (ContainerConfigurator $container): void {
         ->arg('$theme', param('zhortein_datatable.default_theme'))
         ->arg('$defaultPageSize', param('zhortein_datatable.default_page_size'))
         ->arg('$searchEnabled', param('zhortein_datatable.search_enabled'))
+        ->arg('$searchBuilderEnabled', param('zhortein_datatable.search_builder_enabled'))
         ->arg('$actionVisibilityChecker', service(ActionVisibilityCheckerInterface::class))
         ->arg('$defaultTableOptions', [
             'tableStriped' => param('zhortein_datatable.bootstrap.table_striped'),

@@ -38,6 +38,26 @@ final class DatatableRendererHeaderFragmentTest extends TestCase
         self::assertStringNotContainsString('Display name', $html);
     }
 
+    public function test_it_renders_header_fragment_with_sort_icons(): void
+    {
+        $renderer = new DatatableRenderer(
+            $this->createTwigEnvironment(),
+            new \Zhortein\DatatableBundle\Icon\IconResolver([
+                'sort_neutral' => 'neutral-icon',
+                'sort_asc' => 'asc-icon',
+                'sort_desc' => 'desc-icon',
+            ])
+        );
+
+        $html = $renderer->renderHeader($this->createDefinition(), [
+            'sortField' => 'e.email',
+            'sortDirection' => 'desc',
+        ]);
+
+        self::assertStringContainsString('<i class="desc-icon"></i>', $html);
+        self::assertStringContainsString('<i class="neutral-icon"></i>', $html);
+    }
+
     private function createDefinition(): DatatableDefinition
     {
         $definition = new DatatableDefinition('users');

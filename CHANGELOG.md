@@ -6,7 +6,18 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [0.2.0-alpha.1] - YYYY-MM-DD
+## [0.3.0-beta.1] - 2026-06-06
+
+### Added
+- Added Advanced filter expressions
+- Added Icon system and visual consistency
+- Added Bulk actions and row selection
+
+### Documentation
+- Added new features documentation
+- Fixed few mistakes
+
+## [0.2.0-alpha.1] - 2026-05-16
 
 ### Added
 

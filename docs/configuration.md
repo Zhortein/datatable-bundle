@@ -17,6 +17,11 @@ zhortein_datatable:
     default_page_size: 25
     max_page_size: 500
     search_enabled: false
+    icons:
+        view: "bi bi-eye"
+        edit: "bi bi-pencil"
+        delete: "bi bi-trash"
+        bulk_actions: "bi bi-collection"
     export:
       csv:
         delimiter: ';'
@@ -200,6 +205,23 @@ A runtime option can still override it:
 }) }}
 ```
 
+## `icons`
+
+Type: `array<string, string>`
+
+The bundle uses a lightweight icon resolver to map internal icon keys to CSS classes. By default, it uses [Bootstrap Icons](https://icons.getbootstrap.com/) class names.
+
+See [Icon System documentation](icons.md) for the full list of available keys and detailed strategy.
+
+Example:
+
+```yaml
+zhortein_datatable:
+    icons:
+        action_view: "fas fa-eye"
+        action_edit: "fas fa-edit"
+```
+
 ## Default export values
 ```yaml
 zhortein_datatable:
@@ -241,7 +263,7 @@ Default: `badge`
 
 Available modes:
 - `badge`: Renders a Bootstrap badge (Success/Secondary).
-- `icon`: Renders a checkmark (✓) or cross (×) with appropriate colors.
+- `icon`: Renders an icon from the `IconResolver` (defaults to `bi bi-check-lg` and `bi bi-x-lg`).
 - `switch`: Renders a Bootstrap switch (checkbox). **Note**: This mode is display-only; inline editing is not supported.
 - `text`: Renders translated "Yes" or "No" text.
 

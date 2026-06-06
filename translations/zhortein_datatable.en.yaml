@@ -2,6 +2,35 @@ zhortein_datatable:
     search:
         label: 'Search'
         placeholder: 'Search'
+    search_builder:
+        title: 'Search Builder'
+        and: 'AND'
+        or: 'OR'
+        clear: 'Clear search builder'
+        add_condition: 'Add condition'
+        remove_condition: 'Remove condition'
+        select_field: 'Select field'
+        select_operator: 'Select operator'
+        add_subgroup: 'Add subgroup'
+        remove_subgroup: 'Remove subgroup'
+        operators:
+            eq: 'Equals'
+            neq: 'Not Equals'
+            contains: 'Contains'
+            not_contains: 'Does not contain'
+            starts_with: 'Starts with'
+            ends_with: 'Ends with'
+            gt: 'Greater than'
+            gte: 'Greater than or equals'
+            lt: 'Less than'
+            lte: 'Less than or equals'
+            between: 'Between'
+            between_from: 'From'
+            between_to: 'To'
+            is_null: 'Is null'
+            is_not_null: 'Is not null'
+            in: 'In'
+            not_in: 'Not in'
     page_size:
         label: 'Rows per page'
     filters:
@@ -18,6 +47,10 @@ zhortein_datatable:
         csv_full: 'CSV full dataset'
         xlsx_current: 'XLSX current view'
         xlsx_full: 'XLSX full dataset'
+    bulk_actions:
+        select_all: 'Select all'
+        select_row: 'Select row %id%'
+        selected: 'rows selected'
     loading: 'Loading...'
     error:
         generic: 'Unable to load datatable data.'

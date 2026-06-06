@@ -13,6 +13,7 @@ use Zhortein\DatatableBundle\Action\ActionVisibilityCheckerInterface;
 use Zhortein\DatatableBundle\Action\ActionVisibilityContext;
 use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
 use Zhortein\DatatableBundle\Definition\ActionDefinition;
+use Zhortein\DatatableBundle\Definition\BulkActionDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 
@@ -97,7 +98,7 @@ final class DatatableRendererGlobalActionVisibilityTest extends TestCase
 
 final class DenyGlobalActionVisibilityChecker implements ActionVisibilityCheckerInterface
 {
-    public function isVisible(ActionDefinition $action, ActionVisibilityContext $context): bool
+    public function isVisible(ActionDefinition|BulkActionDefinition $action, ActionVisibilityContext $context): bool
     {
         return false;
     }
@@ -105,7 +106,7 @@ final class DenyGlobalActionVisibilityChecker implements ActionVisibilityChecker
 
 final class AllowCreateGlobalActionVisibilityChecker implements ActionVisibilityCheckerInterface
 {
-    public function isVisible(ActionDefinition $action, ActionVisibilityContext $context): bool
+    public function isVisible(ActionDefinition|BulkActionDefinition $action, ActionVisibilityContext $context): bool
     {
         return 'create' === $action->getName();
     }

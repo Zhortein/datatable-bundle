@@ -12,9 +12,11 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Zhortein\DatatableBundle\Action\ActionVisibilityCheckerInterface;
+use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
+use Zhortein\DatatableBundle\Icon\IconResolver;
 use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
@@ -123,6 +125,16 @@ final class TestKernel extends Kernel
 
         $services
             ->alias('test.'.ActionVisibilityCheckerInterface::class, ActionVisibilityCheckerInterface::class)
+            ->public()
+        ;
+
+        $services
+            ->alias('test.'.IconResolver::class, IconResolver::class)
+            ->public()
+        ;
+
+        $services
+            ->alias('test.'.IconResolverInterface::class, IconResolverInterface::class)
             ->public()
         ;
     }

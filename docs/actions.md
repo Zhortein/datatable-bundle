@@ -2,20 +2,20 @@
 
 This document explains how to declare datatable actions, handle security, and manage visibility.
 
-The bundle supports **Row Actions** (per row) and **Global Actions** (rendered in the toolbar).
+The bundle supports **Row Actions** (per row), **Global Actions** (rendered in the toolbar) and **Bulk Actions** (on selected rows).
 
 ## Status
 
 Currently implemented:
 -   GET actions (rendered as links).
 -   Non-GET actions (POST, PUT, DELETE - rendered as forms with CSRF protection).
+-   Bulk actions (on multiple selected rows).
 -   Route parameter resolution from row data.
 -   Action visibility checker extension point.
 -   Optional Symfony Authorization adapter (voters).
 -   Confirmation messages (native `window.confirm` or Bootstrap modal).
 
 Not implemented yet:
--   Bulk actions (on selected rows).
 -   Action visibility callbacks in the public API.
 -   Advanced icon-only action accessibility model.
 -   Async confirmations.
@@ -49,6 +49,19 @@ $definition->addGlobalAction(
     label: 'Create',
     className: 'btn btn-sm btn-primary',
     icon: 'bi bi-plus-lg',
+);
+```
+
+### Bulk Actions
+Bulk actions are used to perform operations on multiple rows. See [Bulk Actions and Selection](bulk-actions.md) for detailed documentation.
+
+```php
+$definition->addBulkAction(
+    name: 'delete_selected',
+    route: 'app_user_bulk_delete',
+    label: 'Delete Selected',
+    className: 'btn btn-outline-danger',
+    confirmationMessage: 'Are you sure you want to delete the selected rows?',
 );
 ```
 
@@ -101,12 +114,14 @@ By default, this uses `window.confirm()`. If Bootstrap JavaScript and a modal ta
 
 ## Customization
 
--   **Icons**: Provide a CSS class via the `icon` option. See [UI/UX](ui-ux.md) for details.
+-   **Icons**: Provide a CSS class via the `icon` option. If no explicit icon is provided, the bundle attempts to resolve a default icon based on the action name (e.g., `view`, `edit`, `delete`). See [Icon System](icons.md) for details.
 -   **Position**: Use `ActionIconPosition` enum to place icons `Before` or `After` the label.
 -   **Attributes**: Pass arbitrary HTML attributes via the `attributes` array.
 
 ## Related documentation
 
+- [Icon System](icons.md)
+- [Bulk Actions and Selection](bulk-actions.md)
 - [UI/UX customization](ui-ux.md)
 - [Theming](theming.md)
 - [Architecture](architecture/overview.md)

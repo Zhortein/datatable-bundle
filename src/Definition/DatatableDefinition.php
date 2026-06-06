@@ -9,6 +9,7 @@ use Zhortein\DatatableBundle\Enum\AggregateFunction;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Enum\JoinType;
+use Zhortein\DatatableBundle\Filter\Expression\ComparisonOperator;
 
 final class DatatableDefinition
 {
@@ -33,6 +34,11 @@ final class DatatableDefinition
      * @var array<string, ActionDefinition>
      */
     private array $globalActions = [];
+
+    /**
+     * @var array<string, BulkActionDefinition>
+     */
+    private array $bulkActions = [];
 
     /**
      * @var list<FilterDefinition>
@@ -63,6 +69,11 @@ final class DatatableDefinition
      * @var array<string, AggregateColumnDefinition>
      */
     private array $aggregateColumns = [];
+
+    /**
+     * @var array<string, AdvancedFilterFieldDefinition>
+     */
+    private array $advancedFilterFields = [];
 
     public function __construct(
         private readonly string $name,
@@ -284,6 +295,54 @@ final class DatatableDefinition
         return $this->globalActions;
     }
 
+    /**
+     * @param array<string, string> $routeParameters
+     * @param array<string, string> $attributes
+     *
+     * NOTE: Visibility checks only control whether the action is rendered in the UI.
+     * The backend route MUST also enforce authorization and validate the request.
+     */
+    public function addBulkAction(
+        string $name,
+        string $route,
+        ?string $label = null,
+        ?string $icon = null,
+        ActionIconPosition|string $iconPosition = ActionIconPosition::Before,
+        string $httpMethod = 'POST',
+        ?string $confirmationMessage = null,
+        ?string $className = null,
+        array $routeParameters = [],
+        array $attributes = [],
+        string $selectedRowsParameterName = 'ids',
+    ): self {
+        if (is_string($iconPosition)) {
+            $iconPosition = ActionIconPosition::tryFrom($iconPosition) ?? ActionIconPosition::Before;
+        }
+        $this->bulkActions[$name] = new BulkActionDefinition(
+            name: $name,
+            route: $route,
+            label: $label,
+            icon: $icon,
+            iconPosition: $iconPosition,
+            httpMethod: $httpMethod,
+            confirmationMessage: $confirmationMessage,
+            className: $className,
+            routeParameters: $routeParameters,
+            attributes: $attributes,
+            selectedRowsParameterName: $selectedRowsParameterName,
+        );
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, BulkActionDefinition>
+     */
+    public function getBulkActions(): array
+    {
+        return $this->bulkActions;
+    }
+
     public function addPermanentFilter(
         string $field,
         FilterOperator $operator,
@@ -391,5 +450,46 @@ final class DatatableDefinition
     public function getAggregateColumns(): array
     {
         return $this->aggregateColumns;
+    }
+
+    /**
+     * @param list<FilterOperator|ComparisonOperator> $allowedOperators
+     * @param array<string, string>                   $choices
+     * @param class-string<\BackedEnum>|null          $enumClass
+     */
+    public function addAdvancedFilterField(
+        string $name,
+        string $field,
+        ?string $label = null,
+        FilterType $type = FilterType::Text,
+        array $allowedOperators = [],
+        array $choices = [],
+        ?string $enumClass = null,
+        bool $nullable = false,
+    ): self {
+        if (null !== $enumClass && FilterType::Text === $type) {
+            $type = FilterType::Enum;
+        }
+
+        $this->advancedFilterFields[$name] = new AdvancedFilterFieldDefinition(
+            name: $name,
+            field: $field,
+            label: $label,
+            type: $type,
+            allowedOperators: $allowedOperators,
+            choices: $choices,
+            enumClass: $enumClass,
+            nullable: $nullable,
+        );
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, AdvancedFilterFieldDefinition>
+     */
+    public function getAdvancedFilterFields(): array
+    {
+        return $this->advancedFilterFields;
     }
 }

@@ -4,6 +4,7 @@
 {% set sort_field = options.sortField|default('') %}
 {% set sort_direction = options.sortDirection|default('asc') %}
 {% set auto_load = options.autoLoad is defined ? options.autoLoad : true %}
+{% set search_builder = options.searchBuilder is defined ? options.searchBuilder : false %}
 {% set controls_layout = options.controlsLayout|default('default') %}
 {% set table_striped = options.tableStriped is defined ? options.tableStriped : true %}
 {% set table_hover = options.tableHover is defined ? options.tableHover : true %}
@@ -67,6 +68,7 @@
     data-zhortein--datatable-bundle--datatable-sort-direction-value="{{ sort_direction }}"
     data-zhortein--datatable-bundle--datatable-auto-load-value="{{ auto_load ? 'true' : 'false' }}"
     data-zhortein--datatable-bundle--datatable-filter-layout-value="{{ filter_layout }}"
+    data-zhortein--datatable-bundle--datatable-search-builder-value="{{ search_builder ? 'true' : 'false' }}"
     data-zhortein--datatable-bundle--datatable-boolean-display-mode-value="{{ boolean_display_mode }}"
     data-zhortein--datatable-bundle--datatable-pagination-size-value="{{ pagination_size }}"
     data-zhortein--datatable-bundle--datatable-table-small-value="{{ table_small ? 'true' : 'false' }}"
@@ -79,7 +81,15 @@
         options: options,
         controlsLayout: controls_layout,
         filters: filters|default({})
-    } only %}
+    } %}
+
+    {% if search_builder %}
+        {% include '@ZhorteinDatatable/bootstrap/_search_builder.html.twig' %}
+    {% endif %}
+
+    {% include '@ZhorteinDatatable/bootstrap/_bulk_actions.html.twig' with {
+        bulkActions: bulkActions|default([])
+    } %}
 
     <div
         class="alert alert-danger d-none align-items-center gap-2"

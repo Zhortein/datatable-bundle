@@ -2,6 +2,35 @@ zhortein_datatable:
     search:
         label: 'Rechercher'
         placeholder: 'Rechercher'
+    search_builder:
+        title: 'Constructeur de recherche'
+        and: 'ET'
+        or: 'OU'
+        clear: 'Effacer le constructeur'
+        add_condition: 'Ajouter une condition'
+        remove_condition: 'Supprimer une condition'
+        select_field: 'Sélectionner un champ'
+        select_operator: 'Sélectionner un opérateur'
+        add_subgroup: 'Ajouter un sous-groupe'
+        remove_subgroup: 'Supprimer un sous-groupe'
+        operators:
+            eq: 'Égal à'
+            neq: 'Différent de'
+            contains: 'Contient'
+            not_contains: 'Ne contient pas'
+            starts_with: 'Commence par'
+            ends_with: 'Se termine par'
+            gt: 'Plus grand que'
+            gte: 'Plus grand ou égal à'
+            lt: 'Plus petit que'
+            lte: 'Plus petit ou égal à'
+            between: 'Entre'
+            between_from: 'De'
+            between_to: 'À'
+            is_null: 'Est nul'
+            is_not_null: 'N’est pas nul'
+            in: 'Dans'
+            not_in: 'Pas dans'
     page_size:
         label: 'Lignes par page'
     filters:
@@ -18,6 +47,10 @@ zhortein_datatable:
         csv_full: 'CSV complet'
         xlsx_current: 'XLSX vue courante'
         xlsx_full: 'XLSX complet'
+    bulk_actions:
+        select_all: 'Tout sélectionner'
+        select_row: 'Sélectionner la ligne %id%'
+        selected: 'lignes sélectionnées'
     loading: 'Chargement...'
     error:
         generic: 'Impossible de charger les données du tableau.'

@@ -8,14 +8,15 @@ The bundle is **Bootstrap-first** and uses a **Stimulus-powered** interaction mo
 
 Currently implemented:
 -   **Interactions**: Global search, pagination, sortable headers, page size selector.
+-   **Row Selection**: Checkbox-based selection and bulk action toolbar.
 -   **UI Features**: Loading and error states, summary updates, Bootstrap table variants.
 -   **Column Visibility**: User-controlled column visibility with persistent state.
+-   **Icons**: Consistent icon system for actions, filters, and exports via `IconResolver`.
 -   **Customization**: Action icons, display modes (inline, dropdown), boolean rendering modes.
 -   **Layouts**: Default toolbar layout and Split layout (moving some controls below the table).
 -   **Testing**: Automated frontend test suite for the Stimulus controller.
 
 Not implemented yet:
--   Icon provider abstraction (currently CSS-class based).
 -   Icon-only actions (accessibility first).
 -   Persisted filter presets.
 
@@ -45,12 +46,16 @@ Clicking a header toggles sorting between `asc`, `desc`, and back to `asc`. Neut
 ## Rendering Customization
 
 ### Action Icons
-Actions can declare an optional icon CSS class. The bundle remains accessible by keeping labels visible alongside icons.
+Actions can declare an optional icon CSS class. If no explicit icon is provided, the bundle resolves a default icon from the `IconResolver` based on the action name.
+
+Common action names like `view`, `edit`, `delete`, and `create` have built-in defaults. Bulk actions also have a default icon fallback.
+
+The bundle remains accessible by keeping labels visible alongside icons.
 
 ```php
 $definition->addRowAction(
     name: 'edit',
-    icon: 'bi bi-pencil',
+    // icon: 'bi bi-pencil', // Optional, resolved automatically for 'edit'
     label: 'Edit',
     // ...
 );
@@ -95,5 +100,7 @@ The bundle follows a strong accessibility baseline:
 ## Related documentation
 
 - [Actions and Security](actions.md)
+- [Icon System](icons.md)
+- [Bulk Actions and Selection](bulk-actions.md)
 - [Theming and Templates](theming.md)
 - [Architecture](architecture/overview.md)

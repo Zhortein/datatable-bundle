@@ -10,7 +10,9 @@ use Twig\Environment;
 use Zhortein\DatatableBundle\Action\ActionVisibilityCheckerInterface;
 use Zhortein\DatatableBundle\Action\ActionVisibilityContext;
 use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
+use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Definition\ActionDefinition;
+use Zhortein\DatatableBundle\Definition\BulkActionDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ActionDisplayMode;
@@ -27,6 +29,7 @@ final readonly class DatatableRenderer
      */
     public function __construct(
         private Environment $twig,
+        private ?IconResolverInterface $iconResolver = null,
         private ?UrlGeneratorInterface $urlGenerator = null,
         private ?RowActionRouteParameterResolver $routeParameterResolver = null,
         private ?ActionVisibilityCheckerInterface $actionVisibilityChecker = null,
@@ -34,6 +37,7 @@ final readonly class DatatableRenderer
         private string $theme = 'bootstrap',
         private int $defaultPageSize = 25,
         private bool $searchEnabled = false,
+        private bool $searchBuilderEnabled = false,
         private array $defaultTableOptions = [],
     ) {
     }
@@ -49,17 +53,21 @@ final readonly class DatatableRenderer
         $options['paginationSize'] = $this->resolvePaginationSize($options)->value;
         $filters = $options['filters'] ?? [];
 
-        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/datatable.html.twig', $this->theme), [
+        $bulkActions = $this->normalizeBulkActions($definition);
+
+        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/datatable.html.twig', $this->theme), array_merge([
             'definition' => $definition,
             'visibleColumns' => $this->getVisibleColumns($definition, $options),
             'rowActions' => $definition->getRowActions(),
             'globalActions' => $this->normalizeGlobalActions($definition),
+            'bulkActions' => $bulkActions,
             'hasRowActions' => [] !== $definition->getRowActions(),
+            'hasBulkActions' => [] !== $bulkActions,
             'htmlId' => $this->createHtmlId($definition),
             'options' => $options,
             'filters' => $filters,
             'rowActionDisplayMode' => $this->resolveRowActionDisplayMode($definition, $options)->value,
-        ]);
+        ], $this->resolveCommonIcons()));
     }
 
     /**
@@ -69,14 +77,15 @@ final readonly class DatatableRenderer
     {
         $options = $this->resolveOptions($options);
 
-        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_header.html.twig', $this->theme), [
+        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_header.html.twig', $this->theme), array_merge([
             'definition' => $definition,
             'visibleColumns' => $this->getVisibleColumns($definition, $options),
             'hasRowActions' => [] !== $definition->getRowActions(),
+            'hasBulkActions' => $this->hasBulkActions($definition),
             'htmlId' => $this->createHtmlId($definition),
             'options' => $options,
             'filters' => $options['filters'] ?? [],
-        ]);
+        ], $this->resolveCommonIcons()));
     }
 
     /**
@@ -92,6 +101,7 @@ final readonly class DatatableRenderer
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_body.html.twig', $this->theme), [
             'rows' => $this->normalizeRows($definition, $result, $options),
+            'hasBulkActions' => $this->hasBulkActions($definition),
             'htmlId' => $this->createHtmlId($definition),
             'rowActionDisplayMode' => $this->resolveRowActionDisplayMode($definition, $options)->value,
         ]);
@@ -107,6 +117,7 @@ final readonly class DatatableRenderer
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_empty.html.twig', $this->theme), [
             'visibleColumns' => $this->getVisibleColumns($definition, $options),
             'hasRowActions' => [] !== $definition->getRowActions(),
+            'hasBulkActions' => $this->hasBulkActions($definition),
         ]);
     }
 
@@ -150,6 +161,7 @@ final readonly class DatatableRenderer
             $this->defaultTableOptions,
             [
                 'search' => $this->searchEnabled,
+                'searchBuilder' => $this->searchBuilderEnabled,
                 'pageSize' => $this->defaultPageSize,
             ],
             $options,
@@ -236,9 +248,45 @@ final readonly class DatatableRenderer
     }
 
     /**
+     * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null}>
+     */
+    private function normalizeBulkActions(DatatableDefinition $definition): array
+    {
+        if (null === $this->urlGenerator) {
+            return [];
+        }
+
+        $actions = [];
+
+        foreach ($definition->getBulkActions() as $action) {
+            if (!$this->isActionVisible($action, $definition, null)) {
+                continue;
+            }
+
+            $actions[] = $this->normalizeAction(
+                action: $action,
+                url: $this->urlGenerator->generate($action->getRoute(), $action->getRouteParameters()),
+            );
+        }
+
+        return $actions;
+    }
+
+    private function hasBulkActions(DatatableDefinition $definition): bool
+    {
+        foreach ($definition->getBulkActions() as $action) {
+            if ($this->isActionVisible($action, $definition, null)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @return array<string, string>
      */
-    private function normalizeStaticRouteParameters(ActionDefinition $action): array
+    private function normalizeStaticRouteParameters(ActionDefinition|BulkActionDefinition $action): array
     {
         return $action->getRouteParameters();
     }
@@ -246,11 +294,15 @@ final readonly class DatatableRenderer
     /**
      * @param array<string, mixed> $options
      *
-     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed, template: string, className: string|null}>, actions: list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>}>}>
+     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed, template: string, className: string|null, booleanDisplayMode: string}>, actions: list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>}>, identifier: string|null}>
      */
     private function normalizeRows(DatatableDefinition $definition, DatatableResult $result, array $options = []): array
     {
         $visibleColumns = $this->getVisibleColumns($definition, $options);
+        $hasBulkActions = $this->hasBulkActions($definition);
+        $booleanDisplayMode = $this->resolveBooleanDisplayMode($options);
+        $booleanTrueIcon = $this->iconResolver?->resolve('boolean_true');
+        $booleanFalseIcon = $this->iconResolver?->resolve('boolean_false');
         $normalizedRows = [];
 
         foreach ($result->getRows() as $row) {
@@ -262,17 +314,50 @@ final readonly class DatatableRenderer
                     'value' => $this->readColumnValue($row, $column),
                     'template' => $this->resolveCellTemplate($column),
                     'className' => $this->resolveCellClassName($column),
-                    'booleanDisplayMode' => $this->resolveBooleanDisplayMode($options)->value,
+                    'booleanDisplayMode' => $booleanDisplayMode->value,
+                    'booleanTrueIcon' => $booleanTrueIcon,
+                    'booleanFalseIcon' => $booleanFalseIcon,
                 ];
             }
 
-            $normalizedRows[] = [
+            $normalizedRow = [
                 'cells' => $cells,
                 'actions' => $this->normalizeRowActions($definition, $row),
+                'identifier' => null,
             ];
+
+            if ($hasBulkActions) {
+                $normalizedRow['identifier'] = $this->resolveRowIdentifier($row, $definition);
+            }
+
+            $normalizedRows[] = $normalizedRow;
         }
 
         return $normalizedRows;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function resolveRowIdentifier(array $row, DatatableDefinition $definition): ?string
+    {
+        $identifierKey = $definition->getOption('identifier');
+
+        if (is_string($identifierKey)) {
+            $value = $row[$identifierKey] ?? null;
+
+            return is_scalar($value) ? (string) $value : null;
+        }
+
+        foreach (['id', 'e_id'] as $candidate) {
+            if (array_key_exists($candidate, $row)) {
+                $value = $row[$candidate];
+
+                return is_scalar($value) ? (string) $value : null;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -308,7 +393,7 @@ final readonly class DatatableRenderer
     /**
      * @param array<string, mixed>|null $row
      */
-    private function isActionVisible(ActionDefinition $action, DatatableDefinition $definition, ?array $row): bool
+    private function isActionVisible(ActionDefinition|BulkActionDefinition $action, DatatableDefinition $definition, ?array $row): bool
     {
         if (null === $this->actionVisibilityChecker) {
             return true;
@@ -324,16 +409,16 @@ final readonly class DatatableRenderer
     }
 
     /**
-     * @return array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>}
+     * @return array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null}
      */
-    private function normalizeAction(ActionDefinition $action, string $url): array
+    private function normalizeAction(ActionDefinition|BulkActionDefinition $action, string $url): array
     {
         $httpMethod = strtoupper($action->getHttpMethod());
 
         return [
             'name' => $action->getName(),
             'label' => $action->getLabel(),
-            'icon' => $action->getIcon(),
+            'icon' => $this->resolveActionIcon($action),
             'iconPosition' => $action->getIconPosition()->value,
             'url' => $url,
             'httpMethod' => $httpMethod,
@@ -341,7 +426,39 @@ final readonly class DatatableRenderer
             'csrfToken' => $this->generateCsrfToken($action, $httpMethod),
             'className' => $action->getClassName(),
             'attributes' => $action->getAttributes(),
+            'selectedRowsParameterName' => $action instanceof BulkActionDefinition ? $action->getSelectedRowsParameterName() : null,
         ];
+    }
+
+    private function resolveActionIcon(ActionDefinition|BulkActionDefinition $action): ?string
+    {
+        if (null !== $action->getIcon()) {
+            return $action->getIcon();
+        }
+
+        if (null === $this->iconResolver) {
+            return null;
+        }
+
+        $name = $action->getName();
+
+        $icon = match ($name) {
+            'view', 'show' => $this->iconResolver->resolve('action_view'),
+            'edit' => $this->iconResolver->resolve('action_edit'),
+            'delete', 'remove' => $this->iconResolver->resolve('action_delete'),
+            'create' => $this->iconResolver->resolve('action_create'),
+            default => $this->iconResolver->resolve(sprintf('action_%s', $name)),
+        };
+
+        if (null !== $icon) {
+            return $icon;
+        }
+
+        if ($action instanceof BulkActionDefinition) {
+            return $this->iconResolver->resolve('bulk_actions');
+        }
+
+        return null;
     }
 
     /**
@@ -360,7 +477,7 @@ final readonly class DatatableRenderer
         return ActionDisplayMode::fromNullableString(is_string($definitionMode) ? $definitionMode : null);
     }
 
-    private function generateCsrfToken(ActionDefinition $action, string $httpMethod): ?string
+    private function generateCsrfToken(ActionDefinition|BulkActionDefinition $action, string $httpMethod): ?string
     {
         if ('GET' === $httpMethod || null === $this->csrfTokenManager) {
             return null;
@@ -474,5 +591,23 @@ final readonly class DatatableRenderer
         }
 
         return PaginationSize::fromNullableString(is_string($size) ? $size : null);
+    }
+
+    /**
+     * @return array{sort_neutral: string|null, sort_asc: string|null, sort_desc: string|null, filter_icon: string|null, filter_active_icon: string|null, export_icon: string|null, export_csv_icon: string|null, export_xlsx_icon: string|null}
+     */
+    private function resolveCommonIcons(): array
+    {
+        return [
+            'sort_neutral' => $this->iconResolver?->resolve('sort_neutral'),
+            'sort_asc' => $this->iconResolver?->resolve('sort_asc'),
+            'sort_desc' => $this->iconResolver?->resolve('sort_desc'),
+            'filter_icon' => $this->iconResolver?->resolve('filter'),
+            'filter_active_icon' => $this->iconResolver?->resolve('filter_active'),
+            'export_icon' => $this->iconResolver?->resolve('export'),
+            'export_csv_icon' => $this->iconResolver?->resolve('export_csv'),
+            'export_xlsx_icon' => $this->iconResolver?->resolve('export_xlsx'),
+            'search_builder_icon' => $this->iconResolver?->resolve('search_builder'),
+        ];
     }
 }

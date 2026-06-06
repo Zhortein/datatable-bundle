@@ -11,11 +11,11 @@ Currently implemented:
 -   **Context**: Comprehensive Twig context for all rendering stages.
 -   **Variants**: Runtime Bootstrap table options (striped, hover, bordered, etc.).
 -   **Boolean Display Modes**: Configurable rendering for boolean columns (`badge`, `icon`, `switch`, `text`).
+-   **Icons**: Extensible `IconResolver` for common UI elements (sort, filter, export, actions).
 
 Not implemented yet:
 -   Tailwind or other built-in themes.
 -   Rich enum badges/icons by default.
--   Generic icon provider abstraction.
 
 ## Template Override Strategy
 
@@ -94,6 +94,7 @@ Or override them at runtime:
 
 ## Related documentation
 
+- [Icon System](icons.md)
 - [UI/UX Rendering](ui-ux.md)
 - [Actions and Security](actions.md)
 - [Architecture](architecture/overview.md)
