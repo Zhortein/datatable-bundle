@@ -78,7 +78,7 @@ If no `icon` is provided for an action, the bundle attempts to resolve it automa
 
 ### Using Bootstrap Icons (Default)
 
-Ensure you include the Bootstrap Icons CSS in your layout:
+Ensure you include the Bootstrap Icons CSS in your layout, if not included via AssetMapper:
 
 ```html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
@@ -111,7 +111,7 @@ zhortein_datatable:
 
 -   **Icon-only actions**: Not supported by design to maintain a high accessibility baseline.
 -   **SVG / Symfony UX Icons**: Currently, the system is optimized for CSS-class based libraries. Native SVG or Symfony UX Icons integration is not yet implemented as a core provider.
--   **Icon Libraries**: The bundle does not ship with any icon fonts or CSS. You must include your preferred icon library in your application's assets.
+-   **Icon Libraries**: The bundle does not ship with any icon fonts or CSS. You must include your preferred icon library in your application's assets...
 
 ## Related documentation
 

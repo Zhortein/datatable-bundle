@@ -1003,7 +1003,7 @@ Users can build richer, nested filters safely using a Search Builder UI while th
 
 ---
 
-## 0.28 - First beta preparation 🚧
+## 0.27 - First beta preparation ✅
 
 
 Goal:
@@ -1013,7 +1013,7 @@ Prepare the first beta release after bulk actions, icon system and advanced filt
 Target release: v0.3.0-beta.1.
 ```
 
-Planned:
+Delivered:
 - Run first beta smoke test
 - Resolve first beta blockers
 - Review public API before first beta
@@ -1022,14 +1022,14 @@ Planned:
 - Tag and publish first beta
 - Update roadmap after first beta
 
-Main expected outcome:
+Main outcome:
 ```text
 Target release: v0.3.0-beta.1.
 ```
 
 ---
 
-## 0.27 - Frontend E2E and accessibility evaluation 🚧
+## 0.28 - Frontend E2E and accessibility evaluation 🚧
 
 Goal:
 
@@ -1057,7 +1057,7 @@ The most interactive Bootstrap/Stimulus behaviors are validated beyond jsdom uni
 
 ---
 
-## 0.28 - Hierarchical tables / expandable child datatables 🕒
+## 0.29 - Hierarchical tables / expandable child datatables 🕒
 
 Goal:
 
