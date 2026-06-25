@@ -113,7 +113,7 @@
         {% endif %}
     </div>
 
-    <div class="zhortein-datatable__actions" data-zhortein--datatable-bundle--datatable-target="globalActions">
+    <div class="zhortein-datatable__actions{% if globalActions is defined and globalActions is not empty %}{% else %} d-none{% endif %}" data-zhortein--datatable-bundle--datatable-target="globalActions">
         {% if globalActions is defined and globalActions is not empty %}
             <div class="btn-group btn-group-sm" role="group">
                 {% for action in globalActions %}
