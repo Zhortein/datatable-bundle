@@ -71,7 +71,7 @@ final class UserDatatable implements DatatableInterface
             ->setEntityClass(User::class)
             ->addColumn('e.id', visible: false)
             ->addColumn('e.email', label: 'Email')
-            ->addColumn('e.createdAt', label: 'Created At', searchable: false)
+            ->addColumn('e.createdAt', label: 'Created At', searchable: false, type: 'datetime')
         ;
     }
 }
