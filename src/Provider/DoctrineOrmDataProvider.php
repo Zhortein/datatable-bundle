@@ -114,7 +114,7 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
     {
         return array_filter(
             $definition->getColumns(),
-            static fn (ColumnDefinition $column): bool => true /*$column->isVisible()*/,
+            static fn (ColumnDefinition $column): bool => true /* $column->isVisible() */,
         );
     }
 
