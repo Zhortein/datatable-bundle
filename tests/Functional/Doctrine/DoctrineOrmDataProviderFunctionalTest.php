@@ -53,10 +53,12 @@ final class DoctrineOrmDataProviderFunctionalTest extends FunctionalTestCase
 
         self::assertSame([
             [
+                'e_id' => 1,
                 'e_email' => 'alice@example.test',
                 'e_displayName' => 'Alice',
             ],
             [
+                'e_id' => 2,
                 'e_email' => 'bob@example.test',
                 'e_displayName' => 'Bob',
             ],
@@ -77,6 +79,7 @@ final class DoctrineOrmDataProviderFunctionalTest extends FunctionalTestCase
 
         self::assertSame([
             [
+                'e_id' => 3,
                 'e_email' => 'charlie@example.test',
                 'e_displayName' => 'Charlie',
             ],

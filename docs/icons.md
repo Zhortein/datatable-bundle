@@ -84,6 +84,16 @@ Ensure you include the Bootstrap Icons CSS in your layout, if not included via A
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 ```
 
+If you want to use AssetMapper (preferred):
+```bash
+php bin/console importmap:require bootstrap-icons/font/bootstrap-icons.min.css 
+```
+
+Then, import it in your app.js (or any scoped js depending on your application architecture):
+```js
+import 'bootstrap-icons/font/bootstrap-icons.min.css';
+```
+
 ### Using FontAwesome
 
 If you prefer FontAwesome, update your configuration:
