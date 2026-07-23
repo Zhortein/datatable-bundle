@@ -136,6 +136,10 @@ describe('Documentation', () => {
             resolve(documentationRoot, 'public-api.md'),
             'utf8',
         );
+        const releaseChecklist = readFileSync(
+            resolve(documentationRoot, 'release-checklist.md'),
+            'utf8',
+        );
 
         expect(index).toContain('(public-api.md)');
         expect(publicApi).toContain('Contract\\DatatableInterface');
@@ -144,6 +148,8 @@ describe('Documentation', () => {
         expect(publicApi).toContain('Definition\\DatatableDefinition');
         expect(publicApi).toContain('Implementation boundary');
         expect(publicApi).toContain('zhortein--datatable-bundle--datatable');
-        expect(publicApi).toContain('semantic-versioning promise starts with the `1.0.0` tag');
+        expect(publicApi).toContain('compatibility contract for `zhortein/datatable-bundle` 1.x');
+        expect(releaseChecklist).toContain('# Stable 1.0.0 release checklist');
+        expect(releaseChecklist).not.toContain('# First pre-release checklist');
     });
 });

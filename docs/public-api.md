@@ -1,8 +1,6 @@
 # Public API and compatibility policy
 
-This document defines the compatibility contract for `zhortein/datatable-bundle` 1.x.
-
-The semantic-versioning promise starts with the `1.0.0` tag. Before that tag, this document describes the API selected for the stable release.
+This document defines the compatibility contract for `zhortein/datatable-bundle` 1.x, starting with `1.0.0`.
 
 ## Compatibility promise
 

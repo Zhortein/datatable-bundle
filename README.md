@@ -4,7 +4,7 @@ A Symfony 8+ bundle for Bootstrap-first business datatables driven by PHP defini
 
 ## Status
 
-**Alpha Stage**. This bundle is under active development. The public API may change before the 1.0.0 release.
+**Stable 1.x**. The documented public API follows Semantic Versioning and is covered by the [compatibility policy](docs/public-api.md).
 
 ## Requirements
 

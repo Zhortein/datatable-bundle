@@ -48,4 +48,4 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 
 ---
 
-*The public API selected for 1.0 is documented in the [compatibility policy](public-api.md). The compatibility promise starts with the `1.0.0` tag.*
+*The stable 1.x public API is documented in the [compatibility policy](public-api.md).*

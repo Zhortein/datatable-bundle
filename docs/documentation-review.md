@@ -2,6 +2,14 @@
 
 This document records documentation reviews for `zhortein/datatable-bundle`. It is a review log, not a guarantee that documentation can no longer drift from the implementation.
 
+## Stable 1.0 review (2026-07-23)
+
+- The README and documentation index present the stable 1.x status.
+- The active [public API policy](public-api.md) defines the compatibility promise and implementation boundary.
+- The installation and quick-start flow are exercised by the fresh Symfony application CI job.
+- The `1.0.0` changelog section reflects every consumed release fragment.
+- The release checklist targets stable promotion through `develop`, `main` and `v1.0.0`.
+
 ## V1 getting-started review (2026-07-23)
 
 The installation and first-use path was replayed against the current bundle implementation after feedback from a real host application.
@@ -25,10 +33,10 @@ The installation and first-use path was replayed against the current bundle impl
 - The documented array-provider path is covered by a functional test from definition creation through fragments rendering.
 - A fresh Symfony 8 application installs the bundle through a Composer path repository, applies the documented AssetMapper and Stimulus setup, compiles assets and requests real datatable fragments in CI.
 
-### Remaining manual validation
+### Post-release browser validation
 
-- Verify browser-only interactions such as dropdown positioning in a real host application before tagging `1.0.0`.
-- Capture any host-application-specific assumptions that cannot be reproduced by the automated fresh-application smoke test.
+- Add browser-level E2E coverage for interactions that jsdom cannot execute, especially native navigation, form submission and Bootstrap positioning.
+- Continue capturing host-application-specific assumptions that cannot be reproduced by the automated fresh-application smoke test.
 
 ## Initial quality pass (2026-05-16)
 
@@ -56,7 +64,7 @@ The documentation was reviewed for accuracy, consistency, and completeness.
 - [x] **Doctrine**: Alias `e` usage is clearly explained.
 
 ### Required Notices
-- [x] **Alpha Status**: Explicitly stated in README, index, and multiple feature pages.
+- [x] **Prerelease status at the time of review**: Explicitly stated in README, index, and multiple feature pages.
 - [x] **Symfony Flex**: Manual steps are documented; no recipe notice included.
 - [x] **Bootstrap**: Host application requirement is clear.
 - [x] **Stimulus**: Controller activation requirement is documented.
@@ -97,4 +105,4 @@ None were identified during that pass. The later v1 review above found additiona
 
 ## Summary
 
-The documentation provides an automated installation and first-use path while maintaining transparency about the current prerelease status. Browser-only interactions still require a final manual check before the stable tag.
+The documentation provides an automated installation and first-use path, an explicit stable compatibility boundary and a release workflow guarded by CI. Browser-level E2E remains a post-1.0 improvement rather than an undocumented capability claim.

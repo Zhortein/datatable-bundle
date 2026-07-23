@@ -1,1 +1,0 @@
-- Added per-column `negate` support for rendering inverse boolean values.

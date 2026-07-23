@@ -1084,9 +1084,9 @@ Datatables can represent parent/child business structures without custom per-pro
 
 # Later milestones
 
-## 1.0 - First stable release 🔭
+## 1.0 - First stable release ✅
 
-Expected stable scope:
+Delivered stable scope:
 
 - PHP-first datatable declarations.
 - Symfony service discovery.
@@ -1110,8 +1110,15 @@ Expected stable scope:
 - Documentation.
 - CI and quality tooling.
 - Fresh Symfony integration validated.
+- Public 1.x compatibility contract.
+- Release integrity validation before promotion and tagging.
+- Real-project UI feedback fixes for toolbar slots, booleans and dropdowns.
 
-1.0 should not be tagged until the public API feels stable enough for real projects.
+Main outcome:
+
+```text
+The bundle has a documented stable API, a verified fresh-Symfony installation path and release gates suitable for the 1.0.0 tag.
+```
 
 ---
 
@@ -1155,19 +1162,8 @@ A dedicated documentation review checklist exists in [`documentation-review.md`]
 
 ## Public API review notes
 
-A public API review exists in [`archive/milestones/public-api-review.md`](archive/milestones/public-api-review.md).
+The authoritative 1.x contract is documented in [`public-api.md`](public-api.md). The earlier prerelease review remains in [`archive/milestones/public-api-review.md`](archive/milestones/public-api-review.md).
 
-Before a stable 1.0 release, revisit:
+The stable boundary keeps definition builders, extension interfaces, DTOs, enums and named integration contracts public. Renderer, registry, factory, controller and Doctrine helper implementations remain internal.
 
-- `DatatableRenderer` size;
-- action metadata vs HTML attributes;
-- `JoinDefinition` naming and namespace;
-- `CustomJoinDefinition` naming and namespace;
-- aggregate column builder API;
-- custom join parameters API;
-- `ExportWriterInterface` streaming suitability;
-- template context stability;
-- filter layout API;
-- action display mode API;
-- boolean display mode API;
-- Doctrine provider internal decomposition.
+Future streaming exports, asynchronous jobs and provider capabilities must use additive contracts during the 1.x series.

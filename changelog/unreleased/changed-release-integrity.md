@@ -1,1 +1,0 @@
-- Hardened release validation so tags must belong to `main`, match package metadata, consume changelog fragments and pass the complete QA matrix.
