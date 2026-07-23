@@ -2,11 +2,17 @@
 
 declare(strict_types=1);
 
+use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpFoundation\Request;
 
 require __DIR__.'/vendor/autoload.php';
 
-$kernel = new App\Kernel('prod', false);
+(new Dotenv())->bootEnv(__DIR__.'/.env');
+
+$environment = $_SERVER['APP_ENV'] ?? 'dev';
+$debug = filter_var($_SERVER['APP_DEBUG'] ?? true, FILTER_VALIDATE_BOOL);
+
+$kernel = new App\Kernel($environment, $debug);
 $pageRequest = Request::create('/smoke');
 $pageResponse = $kernel->handle($pageRequest);
 
