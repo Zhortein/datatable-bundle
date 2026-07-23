@@ -77,10 +77,11 @@ The import exposes:
 Verify the import:
 
 ```bash
-php bin/console debug:router zhortein_datatable
+php bin/console debug:router zhortein_datatable_fragments
+php bin/console debug:router zhortein_datatable_export
 ```
 
-Both routes should be listed. See the [route reference](routes.md) for their paths and methods.
+Both commands should display their route. See the [route reference](routes.md) for their paths and methods.
 
 ## 4. Install Bootstrap and Bootstrap Icons
 
@@ -227,7 +228,8 @@ Verify that `assets/app.js` imports `bootstrap`. The CSS alone is not enough for
 Run:
 
 ```bash
-php bin/console debug:router zhortein_datatable
+php bin/console debug:router zhortein_datatable_fragments
+php bin/console debug:router zhortein_datatable_export
 ```
 
 If the routes are absent, recheck `config/routes/zhortein_datatable.yaml`.

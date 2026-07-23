@@ -102,7 +102,7 @@ describe('Documentation', () => {
 
         expect(ciWorkflow).toContain('tools/smoke-test/fresh-symfony-app.sh');
         expect(smokeTest).toContain('composer create-project');
-        expect(smokeTest).toContain('debug:router zhortein_datatable');
+        expect(smokeTest).toContain('debug:router --format=json');
         expect(smokeTest).toContain("debug:asset-map '@zhortein/datatable-bundle'");
         expect(smokeTest).toContain('asset-map:compile');
         expect(smokeTest).toContain('php smoke.php');
@@ -116,5 +116,8 @@ describe('Documentation', () => {
 
         expect(routes).toContain('zhortein_datatable_fragments');
         expect(routes).toContain('zhortein_datatable_export');
+        expect(routes).toContain('debug:router zhortein_datatable_fragments');
+        expect(routes).toContain('debug:router zhortein_datatable_export');
+        expect(routes).not.toContain('debug:router zhortein_datatable\n');
     });
 });
