@@ -24,6 +24,7 @@ final class DatatableCompilerPass implements CompilerPassInterface
 
         $datatableReferences = [];
         $datatableServiceIds = [];
+        $datatableProviderNames = [];
 
         foreach ($container->findTaggedServiceIds(self::DATATABLE_TAG) as $serviceId => $tags) {
             $definition = $container->findDefinition($serviceId);
@@ -47,12 +48,19 @@ final class DatatableCompilerPass implements CompilerPassInterface
 
                 $datatableReferences[$name] = new Reference($serviceId);
                 $datatableServiceIds[$name] = $serviceId;
+
+                $providerName = $tag['provider'] ?? null;
+
+                if (is_string($providerName) && '' !== trim($providerName)) {
+                    $datatableProviderNames[$name] = trim($providerName);
+                }
             }
         }
 
         $registryDefinition = $container->findDefinition(DatatableRegistry::class);
         $registryDefinition->setArgument('$datatables', new ServiceLocatorArgument($datatableReferences));
         $registryDefinition->setArgument('$datatableServiceIds', $datatableServiceIds);
+        $registryDefinition->setArgument('$datatableProviderNames', $datatableProviderNames);
     }
 
     private function ensureRegistryDefinition(ContainerBuilder $container): void
@@ -68,6 +76,7 @@ final class DatatableCompilerPass implements CompilerPassInterface
             ->setPublic(false)
             ->setArgument('$datatables', new ServiceLocatorArgument([]))
             ->setArgument('$datatableServiceIds', [])
+            ->setArgument('$datatableProviderNames', [])
         ;
     }
 

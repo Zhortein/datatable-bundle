@@ -17,7 +17,7 @@ use Zhortein\DatatableBundle\Result\DatatableResult;
 final readonly class ArrayDataProvider implements DataProviderInterface
 {
     public const string PROVIDER_NAME = 'array';
-    public const string OPTION_PROVIDER = 'provider';
+    public const string OPTION_PROVIDER = DataProviderRegistry::OPTION_PROVIDER;
     public const string OPTION_ROWS = 'rows';
 
     public function supports(DatatableDefinition $definition): bool

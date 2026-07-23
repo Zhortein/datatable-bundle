@@ -1,6 +1,6 @@
 # Data Providers
 
-Data providers are responsible for fetching data, applying filters, sorting, and handles pagination.
+Data providers are responsible for fetching data, applying filters, sorting, and handling pagination.
 
 The `zhortein/datatable-bundle` supports multiple providers through a common `DataProviderInterface`.
 
@@ -21,8 +21,26 @@ You can specify the provider in the `#[AsDatatable]` attribute:
 
 If no provider is specified, the bundle uses the `default_provider` configured in `zhortein_datatable.yaml`.
 
+The default is used when it supports the definition. Otherwise, the registry falls back to another compatible provider. The built-in providers detect compatibility as follows:
+
+- Doctrine supports definitions with an entity class;
+- Array supports definitions with the `rows` option or an explicit `provider: 'array'`.
+
 ## Custom Providers
 
-You can implement your own data provider by creating a class that implements `DataProviderInterface`. Custom providers should be registered as services and tagged with `zhortein_datatable.provider`.
+You can implement your own data provider by creating a class that implements `DataProviderInterface`. Custom providers should be registered with the `zhortein_datatable.data_provider` tag and a unique `name` attribute:
+
+```php
+// config/services.php
+use App\Datatable\Provider\ApiDataProvider;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+
+return static function (ContainerConfigurator $container): void {
+    $container->services()
+        ->set(ApiDataProvider::class)
+        ->tag('zhortein_datatable.data_provider', ['name' => 'api'])
+    ;
+};
+```
 
 See [Architecture: Providers](architecture/providers.md) for internal implementation details.
