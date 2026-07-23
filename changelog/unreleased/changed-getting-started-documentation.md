@@ -1,1 +1,0 @@
-- Reworked installation, quick-start, provider and route documentation into a verified end-to-end Symfony setup.

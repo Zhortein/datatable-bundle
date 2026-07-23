@@ -1,335 +1,117 @@
-# First pre-release checklist
+# Stable 1.0.0 release checklist
+
+This checklist is the go/no-go reference for promoting `zhortein/datatable-bundle` from `develop` to `main` and publishing `v1.0.0`.
+
+## 1. Release content
+
+- [x] Real-project feedback items selected for 1.0 are resolved.
+- [x] Boolean headers/cells and dropdown carets are aligned.
+- [x] Empty toolbar slots keep their DOM targets and remain visually hidden.
+- [x] Boolean columns support `negate`.
+- [x] Hidden-column export behavior is controlled by `exportable`.
+- [x] Provider selection honors both `#[AsDatatable(provider: ...)]` and `default_provider`.
+- [x] Action permissions use dedicated metadata.
+- [x] The bundled Stimulus controller is lazy by default.
+- [x] Unused prerelease API has been removed.
+
+## 2. Documentation and public API
+
+- [x] `README.md` presents the stable 1.x status.
+- [x] The [documentation index](index.md) is current.
+- [x] The [installation guide](installation.md) is replayable.
+- [x] The [quick start](quick-start.md) is complete.
+- [x] Provider, filter, action, bulk-action and export guides match the implementation.
+- [x] Bootstrap Icons and lazy Stimulus loading are documented.
+- [x] Exact route diagnostic commands are documented.
+- [x] The [public API policy](public-api.md) defines the 1.x compatibility surface.
+- [x] Internal implementation services are excluded from the compatibility promise.
+- [x] Active local documentation links are tested.
+
+## 3. Package and release metadata
+
+- [x] `composer.json` identifies a Symfony bundle requiring PHP 8.4+ and Symfony 8.
+- [x] Optional Doctrine, XLSX, AssetMapper and Stimulus dependencies are documented through `suggest`.
+- [x] `assets/package.json` contains version `1.0.0`.
+- [x] `CHANGELOG.md` contains a dated, non-empty `1.0.0` section.
+- [x] `CHANGELOG.md` keeps an `Unreleased` section.
+- [x] All release fragments have been consumed.
+- [x] The roadmap records the stable milestone.
+
+## 4. Automated quality gates
+
+The CI workflow must pass on the release branch and again on the promotion pull request:
+
+- [x] Composer strict validation.
+- [x] PHPUnit.
+- [x] Frontend Vitest suite.
+- [x] PHPStan.
+- [x] PHP-CS-Fixer dry run.
+- [x] twigcs.
+- [x] PHP 8.4 with lowest dependencies.
+- [x] PHP 8.4 with highest dependencies.
+- [x] PHP 8.5 with lowest dependencies.
+- [x] PHP 8.5 with highest dependencies.
+- [x] Fresh Symfony 8 application smoke test.
+
+The promotion pull request to `main` additionally verifies:
+
+- [ ] no changelog fragments remain;
+- [ ] `assets/package.json` contains a valid semantic version;
+- [ ] release notes can be extracted for `v1.0.0`.
+
+## 5. Fresh application contract
+
+The automated smoke application verifies:
+
+- [x] Composer installation through a clean path repository.
+- [x] Bundle registration.
+- [x] Fragments and export routes.
+- [x] Datatable service autoconfiguration and provider selection.
+- [x] Current StimulusBundle bootstrap file.
+- [x] Lazy bundle controller metadata.
+- [x] Bootstrap and Bootstrap Icons import-map installation.
+- [x] AssetMapper discovery and production compilation.
+- [x] Rendering through Symfony's HTTP runtime.
+- [x] A real fragments response from the array provider.
+
+Browser-level interaction automation is planned after 1.0. The current frontend unit tests and feedback from a real host application cover the release fixes without claiming a full browser E2E suite.
+
+## 6. Known 1.0 limitations
+
+- [x] Bootstrap 5 is the maintained theme.
+- [x] Bundle routes and Stimulus controller activation remain manual because there is no dedicated Flex recipe.
+- [x] Doctrine collection-valued association aggregation is out of scope.
+- [x] Exports are synchronous; async and streaming export contracts are future work.
+- [x] XLSX requires the optional OpenSpout dependency.
+- [x] Preference persistence is supplied by host applications through an interface.
+- [x] Applications remain responsible for action controllers and backend authorization.
+- [x] Browser-level E2E and accessibility automation remain roadmap items.
+
+## 7. Promotion to main
+
+Before merging `develop` into `main`:
+
+- [ ] The release preparation pull request is merged into `develop`.
+- [ ] The latest `develop` commit is green.
+- [ ] The `develop` to `main` pull request contains only the intended release history.
+- [ ] `Validate release candidate` passes.
+- [ ] The complete QA matrix and fresh-application smoke test pass.
+- [ ] Branch protection and required checks allow only a reviewed green merge.
+
+## 8. Tag and publication
 
-This checklist must be reviewed before creating the first public pre-release of `zhortein/datatable-bundle`.
+After `main` is green:
 
-Recommended first pre-release direction:
-
-```text
-v0.1.0-alpha.1
-```
+- [ ] Create annotated tag `v1.0.0` on the promoted `main` commit.
+- [ ] Push the tag without moving or recreating an existing published tag.
+- [ ] `Validate release integrity` passes.
+- [ ] The tag QA matrix passes.
+- [ ] The GitHub Release is created from the `1.0.0` changelog section.
+- [ ] Packagist exposes `1.0.0`.
+- [ ] `composer require zhortein/datatable-bundle:^1.0` succeeds in a clean Symfony application.
 
-The package must not be presented as stable before the public API and integration story are proven in real projects.
+Use the [release workflow](release.md) for commands and failure policy.
 
-## 1. Branch and repository state
+## Go/no-go
 
-Before tagging:
-
-- [ ] `develop` is green.
-- [ ] `main` is green.
-- [ ] `develop` has been merged into `main`.
-- [ ] No temporary debug CI step remains.
-- [ ] No local-only generated files are committed.
-- [ ] No private/client-specific references exist in docs or examples.
-- [ ] GitHub repository topics are accurate.
-- [ ] `main` branch protection is active.
-- [ ] GitHub security settings are enabled where available.
-
-## 2. CI requirements
-
-Required checks:
-
-- [ ] Composer validation passes.
-- [ ] PHPUnit passes.
-- [ ] PHPStan max level passes.
-- [ ] PHP-CS-Fixer dry-run passes.
-- [ ] twigcs passes.
-- [ ] Highest dependency job passes.
-- [ ] Lowest dependency job passes.
-- [ ] CI uses PHP 8.4.
-- [ ] Required PHP extensions are present in CI:
-  - [ ] mbstring;
-  - [ ] intl;
-  - [ ] pdo_sqlite;
-  - [ ] dom;
-  - [ ] xml;
-  - [ ] zip.
-
-Local command:
-
-```bash
-make qa
-```
-
-CI documentation:
-
-- [CI matrix and dependency strategy](ci.md)
-
-## 3. Composer package metadata
-
-Review `composer.json`.
-
-- [ ] Package name is `zhortein/datatable-bundle`.
-- [ ] Package type is `symfony-bundle`.
-- [ ] License is MIT.
-- [ ] PHP requirement is `>=8.4`.
-- [ ] Symfony requirement is Symfony 8+.
-- [ ] Runtime dependencies are justified.
-- [ ] Development dependencies are justified.
-- [ ] Doctrine is optional from a feature perspective and documented correctly.
-- [ ] `suggest` section is accurate.
-- [ ] `support` section points to GitHub issues/source/docs.
-- [ ] Composer scripts are current.
-- [ ] `composer validate --strict` passes.
-
-Packagist checklist:
-
-- [Packagist readiness](archive/milestones/packagist.md)
-
-## 4. Documentation requirements
-
-Entry points:
-
-- [ ] `README.md` is current.
-- [ ] `docs/index.md` is current.
-- [ ] `docs/installation.md` is current.
-- [ ] `docs/configuration.md` is current.
-- [ ] `docs/quick-start.md` is current.
-- [ ] `docs/roadmap.md` is current.
-
-Feature documentation:
-
-- [ ] Doctrine provider documentation is current.
-- [ ] Filters documentation is current.
-- [ ] Actions and Security documentation is current.
-- [ ] Exports documentation is current.
-- [ ] Preferences documentation is current.
-- [ ] UI/UX and Controls documentation is current.
-- [ ] Theming and Templates documentation is current.
-
-Maintenance documentation:
-
-- [ ] Changelog strategy is documented.
-- [ ] Release workflow is documented.
-- [ ] Packagist readiness is documented.
-- [ ] Public API review is documented.
-- [ ] Documentation review checklist is documented.
-
-Documentation checklist:
-
-- [Documentation review checklist](documentation-review.md)
-
-## 5. Changelog requirements
-
-Before tagging:
-
-- [ ] `CHANGELOG.md` contains the release version section.
-- [ ] `Unreleased` section is reviewed.
-- [ ] Relevant entries are moved to the release section.
-- [ ] Release date is added.
-- [ ] Changelog fragments are either consumed or intentionally kept.
-- [ ] `composer changelog` behavior is understood.
-
-Expected version heading format:
-
-```md
-## [0.1.0-alpha.1] - YYYY-MM-DD
-```
-
-Changelog documentation:
-
-- [Changelog strategy](changelog.md)
-
-## 6. Release workflow requirements
-
-Before pushing a tag:
-
-- [ ] `.github/workflows/release.yaml` exists.
-- [ ] Workflow triggers only on tags.
-- [ ] Workflow validates tag format.
-- [ ] Workflow creates GitHub Release.
-- [ ] Workflow does not publish to Packagist automatically.
-- [ ] Release notes extraction works.
-
-Test release notes extraction locally:
-
-```bash
-php tools/changelog/extract-release-notes.php v0.1.0-alpha.1
-```
-
-Release documentation:
-
-- [Release workflow](release.md)
-
-## 7. Examples smoke review
-
-Examples:
-
-- [ ] Minimal array datatable example is current.
-- [ ] Doctrine datatable example is current.
-- [ ] Examples use current namespaces.
-- [ ] Examples do not include private/client-specific names.
-- [ ] Examples do not use unsupported features.
-
-Example docs:
-
-- [Minimal array datatable example](quick-start.md)
-- [Doctrine datatable example](examples/doctrine-datatable.md)
-
-## 8. Fresh Symfony application smoke test
-
-Before publishing, test installation in a fresh Symfony 8 app.
-
-### Create test app
-
-```bash
-symfony new datatable-bundle-smoke --webapp
-cd datatable-bundle-smoke
-```
-
-### Add local path repository
-
-```json
-{
-  "repositories": [
-    {
-      "type": "path",
-      "url": "../datatable-bundle",
-      "options": {
-        "symlink": true
-      }
-    }
-  ]
-}
-```
-
-### Require bundle
-
-```bash
-composer require zhortein/datatable-bundle:*
-```
-
-### Manual integration checks
-
-- [ ] Bundle is registered.
-- [ ] Routes are imported.
-- [ ] Translations load.
-- [ ] Stimulus controller is exposed.
-- [ ] Minimal array datatable renders.
-- [ ] Ajax fragments endpoint responds.
-- [ ] Search refresh works.
-- [ ] Page size selector works.
-- [ ] Column visibility controls render.
-- [ ] CSV export works.
-- [ ] Doctrine datatable renders if Doctrine is installed.
-- [ ] Non-GET action form renders with CSRF token if CSRF is configured.
-
-## 9. Public API review
-
-Before tagging:
-
-- [x] `docs/public-api.md` defines the supported 1.x surface.
-- [x] Critical API concerns are resolved or explicitly reserved for additive contracts.
-- [x] The implementation boundary is documented.
-- [x] Autoloadable implementation classes are not presented as supported extension points.
-
-API review:
-
-- [Public API and compatibility policy](public-api.md)
-- [Historical prerelease review](archive/milestones/public-api-review.md)
-
-## 10. Known limitations to mention
-
-The first pre-release should clearly state limitations:
-
-- [ ] API is not stable.
-- [ ] Bootstrap is the only maintained theme.
-- [ ] No Flex recipe yet.
-- [ ] Stimulus controller import is manual.
-- [ ] Doctrine provider supports explicit joins but not deep traversal.
-- [ ] No ManyToMany/collection aggregation.
-- [ ] CSV and XLSX exports only.
-- [ ] No async export.
-- [ ] No built-in preference persistence.
-- [x] Frontend test suite implemented.
-- [ ] No built-in action controllers.
-- [ ] No built-in voters/security rules.
-
-## 11. Tagging checklist
-
-When ready:
-
-```bash
-git checkout main
-git pull
-git merge --ff-only develop
-```
-
-Update changelog:
-
-```bash
-# edit CHANGELOG.md
-git add CHANGELOG.md
-git commit -m "docs: prepare release v0.1.0-alpha.1"
-```
-
-Create and push tag:
-
-```bash
-git tag v0.1.0-alpha.1
-git push origin main
-git push origin v0.1.0-alpha.1
-```
-
-Then verify:
-
-- [ ] GitHub Release was created.
-- [ ] Release notes are correct.
-- [ ] Tag points to expected commit.
-- [ ] CI is green for the tag if applicable.
-
-## 12. After release
-
-After the GitHub release:
-
-- [ ] Review GitHub release page.
-- [ ] Decide whether to submit to Packagist.
-- [ ] If submitted, verify package metadata.
-- [ ] Test `composer require zhortein/datatable-bundle`.
-- [ ] Create follow-up issues for any smoke-test findings.
-- [ ] Update roadmap if needed.
-
-## 13. Go / no-go decision
-
-A pre-release can be tagged only if:
-
-- [ ] CI is green.
-- [ ] Documentation is coherent.
-- [ ] Composer metadata is valid.
-- [ ] Changelog is ready.
-- [ ] Release workflow is ready.
-- [ ] Smoke test has no blocking issue.
-- [ ] Known limitations are explicit.
-
-If any item is not true, postpone the tag.
-
-## 14. Smoke test report
-
-When running the fresh Symfony smoke test, copy:
-
-```text
-docs/archive/smoke-reports/smoke-test-report-template.md
-```
-
-to:
-
-```text
-docs/archive/smoke-reports/YYYY-MM-DD-local-path-repository.md
-```
-
-The report should record:
-
-- environment metadata;
-- installation result;
-- array datatable checks;
-- Doctrine datatable checks;
-- actions/security checks;
-- export checks;
-- blockers;
-- documentation gaps;
-- go/no-go recommendation.
-
-## First alpha go/no-go
-
-The go/no-go decision for the first alpha is documented in:
-
-- [Go/no-go review for first alpha](archive/milestones/go-no-go-first-alpha.md)
+`v1.0.0` is a go only when sections 1 through 6 remain satisfied and every pending item in sections 7 and 8 is completed in order. A failure before tagging returns to a release/fix branch. A failure observed after publication is handled by a corrective patch release; a published stable tag is never moved.

@@ -6,6 +6,36 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+_No unreleased changes have been collected yet._
+
+## [1.0.0] - 2026-07-23
+
+### Added
+
+- Added per-column `negate` support for rendering inverse boolean values.
+- Added a nullable per-column `exportable` policy to include hidden columns or exclude visible columns from CSV and XLSX exports explicitly.
+- Added a CI smoke test that installs the bundle in a fresh Symfony application and validates the current AssetMapper and StimulusBundle integration.
+- Documented the supported PHP, Twig, routing, configuration and frontend compatibility surface for the 1.x series.
+
+### Changed
+
+- Added a dedicated action `permission` option and kept legacy permission attributes as non-rendered compatibility metadata.
+- Reworked installation, quick-start, provider and route documentation into a verified end-to-end Symfony setup.
+- Hardened release validation so tags must belong to `main`, match package metadata, consume changelog fragments and pass the complete QA matrix.
+
+### Removed
+
+- Removed the unused `DatatableExportResult` prototype; export writers return Symfony responses directly.
+
+### Fixed
+
+- Fixed provider selection so `#[AsDatatable(provider: ...)]` and `default_provider` are applied by the provider registry.
+- Replaced ambiguous route-debug commands in the installation and quick-start guides with exact route lookups.
+- Hid empty toolbar slots without removing their stable DOM targets.
+- Centered boolean column headers and vertically aligned boolean cells and switches.
+- Vertically centered Bootstrap dropdown carets.
+- Loaded the bundled Stimulus controller lazily by default.
+
 ## [0.3.0-beta.1] - 2026-06-06
 
 ### Added

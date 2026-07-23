@@ -1,1 +1,0 @@
-- Fixed provider selection so `#[AsDatatable(provider: ...)]` and `default_provider` are applied by the provider registry.

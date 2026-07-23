@@ -1,1 +1,0 @@
-- Added a dedicated action `permission` option and kept legacy permission attributes as non-rendered compatibility metadata.

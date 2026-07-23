@@ -1,4 +1,0 @@
-- Hide empty toolbar slots without removing their stable DOM targets.
-- Center boolean column headers and vertically align boolean cells and switches.
-- Vertically center Bootstrap dropdown carets.
-- Load the bundled Stimulus controller lazily by default.
