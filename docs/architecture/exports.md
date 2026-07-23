@@ -4,12 +4,12 @@ Server-side exports allow downloading datatable data in various formats while re
 
 ## Export Model
 
-The export system uses typed objects to represent the request and result:
+The export system uses typed objects to represent the request and delegates the HTTP result to each writer:
 
 - `DatatableExportRequest`: Captures the datatable name, format, mode, and current request parameters.
 - `ExportFormat`: Enum for supported formats (`csv`, `xlsx`).
 - `ExportMode`: Enum for `current` (paged) or `full` (entire filtered dataset) modes.
-- `DatatableExportResult`: Wraps the generated response.
+- Symfony `Response`: Returned directly by the selected writer.
 
 ## Export Writer Contract
 
@@ -19,7 +19,11 @@ Exports are abstracted behind `ExportWriterInterface`.
 interface ExportWriterInterface
 {
     public function supports(ExportFormat $format): bool;
-    public function write(DatatableExportRequest $request, DatatableResult $result): Response;
+    public function write(
+        DatatableExportRequest $request,
+        DatatableDefinition $definition,
+        DatatableResult $result,
+    ): Response;
 }
 ```
 
@@ -30,7 +34,7 @@ interface ExportWriterInterface
 
 ### CSV Writer
 
-`CsvExportWriter` provides native support for CSV exports without external dependencies. It uses PHP's built-in CSV handling and respects column visibility.
+`CsvExportWriter` provides native support for CSV exports without external dependencies. It uses PHP's built-in CSV handling and the resolved per-column export policy.
 
 ### XLSX Writer (Optional)
 
