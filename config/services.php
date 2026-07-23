@@ -26,6 +26,7 @@ use Zhortein\DatatableBundle\DateTime\DefaultDateTimeFormatter;
 use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Export\CsvExportWriter;
+use Zhortein\DatatableBundle\Export\ExportableColumnResolver;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
 use Zhortein\DatatableBundle\Factory\AdvancedFilterExpressionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
@@ -105,6 +106,11 @@ return static function (ContainerConfigurator $container): void {
     $services
         ->set(DataProviderRegistry::class)
         ->arg('$providers', tagged_iterator('zhortein_datatable.data_provider', 'name'))
+        ->arg('$defaultProvider', param('zhortein_datatable.default_provider'))
+    ;
+
+    $services
+        ->set(ExportableColumnResolver::class)
     ;
 
     $services

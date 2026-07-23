@@ -55,7 +55,9 @@ Default:
 default_provider: doctrine
 ```
 
-The default provider will be used when no explicit provider is selected.
+The default provider is preferred when no provider is declared explicitly and it supports the datatable definition. If it does not support the definition, the registry falls back to another compatible provider.
+
+An explicit provider declared with `#[AsDatatable(provider: '...')]` always takes precedence.
 
 Current providers:
 
@@ -276,6 +278,31 @@ Example:
 ```
 
 Runtime options take precedence over global configuration.
+
+## Boolean column negation
+
+Boolean columns can invert their rendered value with the `negate` argument:
+
+```php
+$definition->addColumn(
+    name: 'e.disabled',
+    label: 'Enabled',
+    type: 'boolean',
+    negate: true,
+);
+```
+
+This is useful when the stored field expresses the opposite of the value that should be presented. With the example above, `disabled = false` is rendered as `Yes`.
+
+Negation is disabled by default and applies only to columns whose resolved type is `boolean`. Doctrine type detection is supported, so the explicit `type` argument can be omitted for mapped boolean fields.
+
+The rendered values follow these rules:
+
+- `true` becomes `false`;
+- `false` becomes `true`;
+- `null` remains `null`.
+
+The transformed value is also passed to a custom column template. Negation is a rendering concern: it does not mutate provider data or change filtering, sorting, action parameters, or exported values.
 
 ## Routes
 

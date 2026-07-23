@@ -14,7 +14,12 @@ final class DatatableDefinitionBulkActionTest extends TestCase
         $definition = new DatatableDefinition('users');
 
         $definition
-            ->addBulkAction('delete', route: 'app_user_bulk_delete', label: 'Delete selected')
+            ->addBulkAction(
+                'delete',
+                route: 'app_user_bulk_delete',
+                label: 'Delete selected',
+                permission: 'USER_BULK_DELETE',
+            )
             ->addBulkAction('activate', route: 'app_user_bulk_activate', label: 'Activate selected', selectedRowsParameterName: 'uids')
         ;
 
@@ -26,6 +31,7 @@ final class DatatableDefinitionBulkActionTest extends TestCase
 
         self::assertSame('app_user_bulk_delete', $bulkActions['delete']->getRoute());
         self::assertSame('ids', $bulkActions['delete']->getSelectedRowsParameterName());
+        self::assertSame('USER_BULK_DELETE', $bulkActions['delete']->getPermission());
 
         self::assertSame('app_user_bulk_activate', $bulkActions['activate']->getRoute());
         self::assertSame('uids', $bulkActions['activate']->getSelectedRowsParameterName());

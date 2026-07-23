@@ -16,6 +16,7 @@ use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
+use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Icon\IconResolver;
 use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
@@ -100,6 +101,11 @@ final class TestKernel extends Kernel
 
         $services
             ->alias('test.'.DataProviderRegistry::class, DataProviderRegistry::class)
+            ->public()
+        ;
+
+        $services
+            ->alias('test.'.DatatableDefinitionFactory::class, DatatableDefinitionFactory::class)
             ->public()
         ;
 

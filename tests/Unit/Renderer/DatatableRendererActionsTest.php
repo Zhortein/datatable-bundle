@@ -46,6 +46,7 @@ final class DatatableRendererActionsTest extends TestCase
         self::assertStringContainsString('View', $html);
         self::assertStringContainsString('btn btn-sm btn-primary', $html);
         self::assertStringContainsString('data-test="view-user"', $html);
+        self::assertStringNotContainsString('permission=', $html);
     }
 
     public function test_it_renders_actions_header_when_definition_has_row_actions(): void
@@ -86,7 +87,10 @@ final class DatatableRendererActionsTest extends TestCase
                 label: 'View',
                 className: 'btn btn-sm btn-primary',
                 routeParameters: ['id' => 'e.id'],
-                attributes: ['data-test' => 'view-user'],
+                attributes: [
+                    'data-test' => 'view-user',
+                    'permission' => 'USER_VIEW',
+                ],
             )
         ;
 

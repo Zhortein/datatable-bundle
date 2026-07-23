@@ -24,6 +24,7 @@ final class BulkActionDefinitionTest extends TestCase
             routeParameters: ['foo' => 'bar'],
             attributes: ['data-test' => 'bulk-delete'],
             selectedRowsParameterName: 'user_ids',
+            permission: 'USER_BULK_DELETE',
         );
 
         self::assertSame('delete', $action->getName());
@@ -37,6 +38,7 @@ final class BulkActionDefinitionTest extends TestCase
         self::assertSame(['foo' => 'bar'], $action->getRouteParameters());
         self::assertSame(['data-test' => 'bulk-delete'], $action->getAttributes());
         self::assertSame('user_ids', $action->getSelectedRowsParameterName());
+        self::assertSame('USER_BULK_DELETE', $action->getPermission());
     }
 
     public function test_it_has_default_values(): void
@@ -49,5 +51,22 @@ final class BulkActionDefinitionTest extends TestCase
         self::assertSame('POST', $action->getHttpMethod());
         self::assertSame(ActionIconPosition::Before, $action->getIconPosition());
         self::assertSame('ids', $action->getSelectedRowsParameterName());
+        self::assertNull($action->getPermission());
+    }
+
+    public function test_it_extracts_legacy_permission_from_html_attributes(): void
+    {
+        $action = new BulkActionDefinition(
+            name: 'delete',
+            route: 'app_user_bulk_delete',
+            attributes: [
+                'permission' => 'USER_BULK_DELETE',
+                'data-test' => 'bulk-delete',
+            ],
+        );
+
+        self::assertSame('USER_BULK_DELETE', $action->getPermission());
+        self::assertSame(['data-test' => 'bulk-delete'], $action->getAttributes());
+        self::assertSame('USER_BULK_DELETE', $action->getAttribute('permission'));
     }
 }

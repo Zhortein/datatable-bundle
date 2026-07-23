@@ -41,6 +41,7 @@ final class DatatableCompilerPassTest extends TestCase
         self::assertInstanceOf(DatatableRegistry::class, $registry);
         self::assertTrue($registry->has('compiler-pass-test'));
         self::assertInstanceOf(CompilerPassTestDatatable::class, $registry->get('compiler-pass-test'));
+        self::assertSame('array', $registry->getProviderName('compiler-pass-test'));
     }
 
     public function test_it_detects_duplicate_datatable_names(): void
@@ -89,7 +90,7 @@ final class DatatableCompilerPassTest extends TestCase
     }
 }
 
-#[AsDatatable]
+#[AsDatatable(provider: 'array')]
 final class CompilerPassTestDatatable implements DatatableInterface
 {
     public function buildDatatable(DatatableDefinition $definition): void

@@ -21,6 +21,7 @@
             {% set is_current_sort = column.name == current_sort_field %}
             {% set aria_sort = null %}
             {% set column_filter = null %}
+            {% set column_class_name = columnClassNames[column.name]|default(null) %}
 
             {% if is_current_sort %}
                 {% set aria_sort = current_sort_direction == 'desc' ? 'descending' : 'ascending' %}
@@ -32,8 +33,8 @@
             {% endif %}
 
             <th
-                {% if column.className is not null %}
-                    class="{{ column.className }}"
+                {% if column_class_name is not null %}
+                    class="{{ column_class_name }}"
                 {% endif %}
                 scope="col"
                 {% if aria_sort is not null %}

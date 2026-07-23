@@ -1,35 +1,26 @@
 # Routes
 
-This document explains the bundle route loading strategy.
+This document describes the bundle routes imported from `@ZhorteinDatatableBundle/config/routes.php`.
 
-## Current route set
+## Route set
 
-The bundle currently exposes one generic Ajax fragments route:
+| Name | Path | Methods | Purpose |
+|---|---|---|---|
+| `zhortein_datatable_fragments` | `/_zhortein/datatable/{name}/fragments` | `GET`, `POST` | Refresh rendered datatable fragments |
+| `zhortein_datatable_export` | `/_zhortein/datatable/{name}/export/{format}` | `GET`, `POST` | Generate CSV or XLSX exports |
 
-```text
-zhortein_datatable_fragments
+The export `format` requirement accepts `csv` and `xlsx`. CSV is the default, so Symfony can generate a URL without the final `/csv` segment.
+
+## Importing the routes
+
+Create `config/routes/zhortein_datatable.yaml`:
+
+```yaml
+zhortein_datatable:
+    resource: '@ZhorteinDatatableBundle/config/routes.php'
 ```
 
-Path:
-
-```text
-/_zhortein/datatable/{name}/fragments
-```
-
-Allowed methods:
-
-```text
-GET
-POST
-```
-
-The route is used by the Stimulus controller to refresh server-rendered datatable fragments.
-
-## Importing routes in a Symfony application
-
-Host applications should import the bundle routes explicitly.
-
-Example with PHP routing config:
+PHP routing configuration is also supported:
 
 ```php
 <?php
@@ -43,49 +34,32 @@ return static function (RoutingConfigurator $routes): void {
 };
 ```
 
-Example with YAML routing config:
+Verify the import:
 
-```yaml
-zhortein_datatable:
-    resource: '@ZhorteinDatatableBundle/config/routes.php'
+```bash
+php bin/console debug:router zhortein_datatable_fragments
+php bin/console debug:router zhortein_datatable_export
 ```
 
-## Generated URL
+## Generated URLs
 
-The default generated URL looks like:
+For a datatable named `users`, the default URLs are:
 
 ```text
 /_zhortein/datatable/users/fragments
+/_zhortein/datatable/users/export
+/_zhortein/datatable/users/export/xlsx
 ```
 
-For a datatable named `users`.
+The Stimulus controller generates fragments and export requests from the URLs rendered into the datatable HTML.
 
-## Route naming rules
+## Security
 
-Bundle-owned route names must be prefixed with:
+The generic routes do not add application-specific authorization rules. Protect them through the host application's firewall and `access_control` configuration.
 
-```text
-zhortein_datatable_
-```
-
-This avoids collisions with application routes.
-
-## Application-specific routes
-
-Applications may wrap or replace the default route later if they need:
-
-- firewall-specific paths;
-- customer portal paths;
-- admin-only paths;
-- custom access control;
-- additional route parameters.
-
-The bundle route must remain generic and application-agnostic.
+If access depends on the datatable name, enforce that rule in an application security layer before exposing the endpoint.
 
 ## Current limitations
 
-The route prefix is not configurable yet.
-
-Multiple route contexts, such as internal and external portals, are not implemented yet.
-
-Route-level security is left to the host application configuration.
+- The route prefix is not configurable.
+- Multiple route contexts, such as separate public and administration prefixes, are not built in.

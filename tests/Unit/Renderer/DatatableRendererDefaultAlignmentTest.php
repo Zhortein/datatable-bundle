@@ -19,21 +19,34 @@ final class DatatableRendererDefaultAlignmentTest extends TestCase
     {
         $html = $this->renderSingleColumn(type: 'numeric', value: 1234);
 
-        self::assertStringContainsString('<td class="text-end">', $html);
+        self::assertStringContainsString('<td class="text-end align-middle">', $html);
     }
 
     public function test_it_centers_boolean_cells_by_default(): void
     {
         $html = $this->renderSingleColumn(type: 'boolean', value: true);
 
-        self::assertStringContainsString('<td class="text-center">', $html);
+        self::assertStringContainsString('<td class="text-center align-middle">', $html);
     }
 
     public function test_it_centers_enum_cells_by_default(): void
     {
         $html = $this->renderSingleColumn(type: 'enum', value: 'active');
 
-        self::assertStringContainsString('<td class="text-center">', $html);
+        self::assertStringContainsString('<td class="text-center align-middle">', $html);
+    }
+
+    public function test_it_applies_default_alignment_to_boolean_headers(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition->addColumn('enabled', label: 'Enabled', type: 'boolean');
+
+        $renderer = new DatatableRenderer($this->createTwigEnvironment());
+
+        $html = $renderer->renderHeader($definition);
+
+        self::assertStringContainsString('class="text-center align-middle"', $html);
+        self::assertStringContainsString('Enabled', $html);
     }
 
     public function test_it_does_not_add_alignment_to_string_cells_by_default(): void
@@ -70,6 +83,33 @@ final class DatatableRendererDefaultAlignmentTest extends TestCase
 
         self::assertStringContainsString('<td class="text-start custom-class">', $html);
         self::assertStringNotContainsString('<td class="text-end">', $html);
+    }
+
+    public function test_switch_alignment_resets_bootstrap_form_check_offsets(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition->addColumn('enabled', label: 'Enabled', type: 'boolean');
+
+        $result = new DatatableResult(
+            rows: [
+                [
+                    'enabled' => true,
+                ],
+            ],
+            totalItems: 1,
+        );
+
+        $renderer = new DatatableRenderer($this->createTwigEnvironment());
+
+        $html = $renderer->renderBody($definition, $result, [
+            'booleanDisplayMode' => 'switch',
+        ]);
+
+        self::assertStringContainsString(
+            'class="form-check form-switch d-inline-flex align-items-center justify-content-center p-0 m-0"',
+            $html,
+        );
+        self::assertStringContainsString('class="form-check-input m-0"', $html);
     }
 
     private function renderSingleColumn(string $type, mixed $value): string

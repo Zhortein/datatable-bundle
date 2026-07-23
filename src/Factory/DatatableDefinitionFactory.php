@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Factory;
 
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Registry\DatatableRegistry;
 
 final readonly class DatatableDefinitionFactory
@@ -20,6 +21,12 @@ final readonly class DatatableDefinitionFactory
         $definition = new DatatableDefinition($name);
 
         $datatable->buildDatatable($definition);
+
+        $providerName = $this->registry->getProviderName($name);
+
+        if (null !== $providerName) {
+            $definition->setOption(DataProviderRegistry::OPTION_PROVIDER, $providerName);
+        }
 
         return $definition;
     }

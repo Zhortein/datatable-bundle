@@ -18,6 +18,11 @@ final readonly class XlsxExportWriter implements ExportWriterInterface
 {
     public const string WRITER_NAME = 'xlsx';
 
+    public function __construct(
+        private ExportableColumnResolver $columnResolver = new ExportableColumnResolver(),
+    ) {
+    }
+
     public function supports(ExportFormat $format): bool
     {
         return ExportFormat::Xlsx === $format;
@@ -42,7 +47,7 @@ final readonly class XlsxExportWriter implements ExportWriterInterface
             $writer = new Writer();
             $writer->openToFile($temporaryFile);
 
-            $columns = $this->getExportableColumns($request, $definition);
+            $columns = $this->columnResolver->resolve($request, $definition);
 
             $writer->addRow(Row::fromValues(array_map(
                 static fn (ColumnDefinition $column): string => $column->getLabel() ?? $column->getName(),
@@ -78,34 +83,6 @@ final readonly class XlsxExportWriter implements ExportWriterInterface
                 @unlink($temporaryFile);
             }
         }
-    }
-
-    /**
-     * @return list<ColumnDefinition>
-     */
-    private function getExportableColumns(
-        DatatableExportRequest $request,
-        DatatableDefinition $definition,
-    ): array {
-        $datatableRequest = $request->getDatatableRequest();
-
-        $visibleColumns = $datatableRequest?->getVisibleColumns() ?? [];
-        $hiddenColumns = $datatableRequest?->getHiddenColumns() ?? [];
-
-        return array_values(array_filter(
-            $definition->getColumns(),
-            static function (ColumnDefinition $column) use ($visibleColumns, $hiddenColumns): bool {
-                if (!$column->isVisible()) {
-                    return false;
-                }
-
-                if ([] !== $visibleColumns && !in_array($column->getName(), $visibleColumns, true)) {
-                    return false;
-                }
-
-                return !in_array($column->getName(), $hiddenColumns, true);
-            },
-        ));
     }
 
     /**

@@ -19,6 +19,7 @@ final class DatatableDefinitionTest extends TestCase
             ->setTranslationDomain('user')
             ->addColumn('e.id', visible: false, sortable: false, searchable: false)
             ->addColumn('e.email', label: 'Email', className: 'text-start')
+            ->addColumn('e.enabled', type: 'boolean', negate: true, exportable: false)
         ;
 
         self::assertSame('users', $definition->getName());
@@ -34,6 +35,8 @@ final class DatatableDefinitionTest extends TestCase
         self::assertFalse($columns['e.id']->isSearchable());
         self::assertSame('Email', $columns['e.email']->getLabel());
         self::assertSame('text-start', $columns['e.email']->getClassName());
+        self::assertTrue($columns['e.enabled']->isNegated());
+        self::assertFalse($columns['e.enabled']->getExportable());
     }
 
     public function test_it_stores_row_and_global_actions(): void
@@ -41,8 +44,19 @@ final class DatatableDefinitionTest extends TestCase
         $definition = new DatatableDefinition('users');
 
         $definition
-            ->addRowAction('view', route: 'app_user_show', label: 'View', routeParameters: ['id' => 'id'])
-            ->addGlobalAction('create', route: 'app_user_create', label: 'Create')
+            ->addRowAction(
+                'view',
+                route: 'app_user_show',
+                label: 'View',
+                routeParameters: ['id' => 'id'],
+                permission: 'USER_VIEW',
+            )
+            ->addGlobalAction(
+                'create',
+                route: 'app_user_create',
+                label: 'Create',
+                permission: 'USER_CREATE',
+            )
         ;
 
         $rowActions = $definition->getRowActions();
@@ -52,7 +66,9 @@ final class DatatableDefinitionTest extends TestCase
         self::assertArrayHasKey('create', $globalActions);
         self::assertSame('app_user_show', $rowActions['view']->getRoute());
         self::assertSame(['id' => 'id'], $rowActions['view']->getRouteParameters());
+        self::assertSame('USER_VIEW', $rowActions['view']->getPermission());
         self::assertSame('app_user_create', $globalActions['create']->getRoute());
+        self::assertSame('USER_CREATE', $globalActions['create']->getPermission());
     }
 
     public function test_it_stores_permanent_filters(): void

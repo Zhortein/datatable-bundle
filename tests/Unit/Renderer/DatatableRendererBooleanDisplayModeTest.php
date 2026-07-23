@@ -117,6 +117,30 @@ final class DatatableRendererBooleanDisplayModeTest extends TestCase
         self::assertStringNotContainsString('form-check', $html);
     }
 
+    public function test_it_negates_true_boolean_values(): void
+    {
+        $html = $this->renderBoolean(true, BooleanDisplayMode::Text, negate: true);
+
+        self::assertStringContainsString('No', $html);
+        self::assertStringNotContainsString('Yes', $html);
+    }
+
+    public function test_it_negates_false_boolean_values(): void
+    {
+        $html = $this->renderBoolean(false, BooleanDisplayMode::Text, negate: true);
+
+        self::assertStringContainsString('Yes', $html);
+        self::assertStringNotContainsString('No', $html);
+    }
+
+    public function test_it_does_not_negate_null_boolean_values(): void
+    {
+        $html = $this->renderBoolean(null, BooleanDisplayMode::Text, negate: true);
+
+        self::assertStringContainsString('No', $html);
+        self::assertStringNotContainsString('Yes', $html);
+    }
+
     public function test_it_renders_boolean_from_string_option(): void
     {
         $definition = new DatatableDefinition('users');
@@ -131,14 +155,19 @@ final class DatatableRendererBooleanDisplayModeTest extends TestCase
         self::assertStringContainsString('form-check form-switch', $html);
     }
 
-    private function renderBoolean(bool $value, ?BooleanDisplayMode $mode = null, ?IconResolverInterface $iconResolver = null): string
-    {
+    private function renderBoolean(
+        ?bool $value,
+        ?BooleanDisplayMode $mode = null,
+        ?IconResolverInterface $iconResolver = null,
+        bool $negate = false,
+    ): string {
         $definition = new DatatableDefinition('users');
 
         $definition->addColumn(
             name: 'enabled',
             label: 'Enabled',
             type: 'boolean',
+            negate: $negate,
         );
 
         $options = [];

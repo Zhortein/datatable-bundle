@@ -4,8 +4,8 @@ The Doctrine ORM provider is the primary production-oriented data provider for `
 
 ## Requirements
 
-- **Doctrine ORM**: 2.14+ or 3.0+
-- **DoctrineBundle**: 2.8+
+- **Doctrine ORM**: 3.4+ or 4.0+
+- **DoctrineBundle**: 3.2+
 
 ## Basic Setup
 

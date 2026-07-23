@@ -21,6 +21,7 @@ final class ActionDefinitionTest extends TestCase
             className: 'btn btn-sm btn-primary',
             routeParameters: ['id' => 'id'],
             attributes: ['data-test' => 'edit-user'],
+            permission: 'USER_EDIT',
         );
 
         self::assertSame('edit', $action->getName());
@@ -32,5 +33,22 @@ final class ActionDefinitionTest extends TestCase
         self::assertSame('btn btn-sm btn-primary', $action->getClassName());
         self::assertSame(['id' => 'id'], $action->getRouteParameters());
         self::assertSame(['data-test' => 'edit-user'], $action->getAttributes());
+        self::assertSame('USER_EDIT', $action->getPermission());
+    }
+
+    public function test_it_extracts_legacy_permission_from_html_attributes(): void
+    {
+        $action = new ActionDefinition(
+            name: 'edit',
+            route: 'app_user_edit',
+            attributes: [
+                'permission' => 'USER_EDIT',
+                'data-test' => 'edit-user',
+            ],
+        );
+
+        self::assertSame('USER_EDIT', $action->getPermission());
+        self::assertSame(['data-test' => 'edit-user'], $action->getAttributes());
+        self::assertSame('USER_EDIT', $action->getAttribute('permission'));
     }
 }

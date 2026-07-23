@@ -27,9 +27,7 @@ final class AuthorizationActionVisibilityCheckerTest extends TestCase
         $action = new ActionDefinition(
             name: 'view',
             route: 'app_user_show',
-            attributes: [
-                'permission' => 'USER_VIEW',
-            ],
+            permission: 'USER_VIEW',
         );
 
         $context = new ActionVisibilityContext(
@@ -54,9 +52,7 @@ final class AuthorizationActionVisibilityCheckerTest extends TestCase
         $action = new ActionDefinition(
             name: 'delete',
             route: 'app_user_delete',
-            attributes: [
-                'permission' => 'USER_DELETE',
-            ],
+            permission: 'USER_DELETE',
         );
 
         $context = new ActionVisibilityContext(
@@ -83,9 +79,7 @@ final class AuthorizationActionVisibilityCheckerTest extends TestCase
         $action = new ActionDefinition(
             name: 'create',
             route: 'app_user_create',
-            attributes: [
-                'permission' => 'USER_CREATE',
-            ],
+            permission: 'USER_CREATE',
         );
 
         $context = new ActionVisibilityContext(definition: $definition);
@@ -109,9 +103,7 @@ final class AuthorizationActionVisibilityCheckerTest extends TestCase
         $action = new BulkActionDefinition(
             name: 'bulk_delete',
             route: 'app_user_bulk_delete',
-            attributes: [
-                'permission' => 'USER_BULK_DELETE',
-            ],
+            permission: 'USER_BULK_DELETE',
         );
 
         $context = new ActionVisibilityContext(definition: $definition);
@@ -122,7 +114,7 @@ final class AuthorizationActionVisibilityCheckerTest extends TestCase
         self::assertSame($definition, $authorizationChecker->getLastSubject());
     }
 
-    public function test_it_uses_fallback_checker_when_no_permission_attribute_is_defined(): void
+    public function test_it_uses_fallback_checker_when_no_permission_is_defined(): void
     {
         $authorizationChecker = new RecordingAuthorizationChecker();
 
@@ -144,7 +136,7 @@ final class AuthorizationActionVisibilityCheckerTest extends TestCase
         self::assertSame(0, $authorizationChecker->getCallCount());
     }
 
-    public function test_it_uses_fallback_checker_when_permission_attribute_is_empty(): void
+    public function test_it_uses_fallback_checker_when_permission_is_empty(): void
     {
         $authorizationChecker = new RecordingAuthorizationChecker();
 
@@ -153,9 +145,7 @@ final class AuthorizationActionVisibilityCheckerTest extends TestCase
         $action = new ActionDefinition(
             name: 'view',
             route: 'app_user_show',
-            attributes: [
-                'permission' => ' ',
-            ],
+            permission: ' ',
         );
 
         self::assertTrue($checker->isVisible(

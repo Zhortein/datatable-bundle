@@ -9,6 +9,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 use Zhortein\DatatableBundle\Contract\DatatableInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
+use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Registry\DatatableRegistry;
 
 final class DatatableDefinitionFactoryTest extends TestCase
@@ -22,6 +23,7 @@ final class DatatableDefinitionFactoryTest extends TestCase
         self::assertSame('users', $definition->getName());
         self::assertSame(\stdClass::class, $definition->getEntityClass());
         self::assertSame('user', $definition->getTranslationDomain());
+        self::assertSame('array', $definition->getOption(DataProviderRegistry::OPTION_PROVIDER));
 
         $columns = $definition->getColumns();
 
@@ -40,6 +42,7 @@ final class DatatableDefinitionFactoryTest extends TestCase
                 'users' => static fn (): FactoryTestDatatable => $datatable,
             ]),
             ['users' => FactoryTestDatatable::class],
+            ['users' => 'array'],
         );
     }
 }

@@ -20,6 +20,7 @@ final readonly class CsvExportWriter implements ExportWriterInterface
         private string $enclosure = '"',
         private string $escape = '\\',
         private bool $withBom = false,
+        private ExportableColumnResolver $columnResolver = new ExportableColumnResolver(),
     ) {
         if (1 !== strlen($this->delimiter)) {
             throw new \InvalidArgumentException('The CSV delimiter must be exactly one character.');
@@ -71,7 +72,7 @@ final readonly class CsvExportWriter implements ExportWriterInterface
             fwrite($handle, "\xEF\xBB\xBF");
         }
 
-        $columns = $this->getExportableColumns($request, $definition);
+        $columns = $this->columnResolver->resolve($request, $definition);
 
         $this->writeRow($handle, array_map(
             static fn (ColumnDefinition $column): string => $column->getLabel() ?? $column->getName(),
@@ -91,34 +92,6 @@ final readonly class CsvExportWriter implements ExportWriterInterface
         }
 
         return $content;
-    }
-
-    /**
-     * @return list<ColumnDefinition>
-     */
-    private function getExportableColumns(
-        DatatableExportRequest $request,
-        DatatableDefinition $definition,
-    ): array {
-        $datatableRequest = $request->getDatatableRequest();
-
-        $visibleColumns = $datatableRequest?->getVisibleColumns() ?? [];
-        $hiddenColumns = $datatableRequest?->getHiddenColumns() ?? [];
-
-        return array_values(array_filter(
-            $definition->getColumns(),
-            static function (ColumnDefinition $column) use ($visibleColumns, $hiddenColumns): bool {
-                if (!$column->isVisible()) {
-                    return false;
-                }
-
-                if ([] !== $visibleColumns && !in_array($column->getName(), $visibleColumns, true)) {
-                    return false;
-                }
-
-                return !in_array($column->getName(), $hiddenColumns, true);
-            },
-        ));
     }
 
     /**

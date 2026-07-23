@@ -1,49 +1,116 @@
 # Installation
 
-This guide explains how to install and configure `zhortein/datatable-bundle` in your Symfony 8+ application.
+This guide installs `zhortein/datatable-bundle` in a Symfony 8 application using AssetMapper, Stimulus and Bootstrap 5.
+
+Complete every numbered step before following the [Quick Start](quick-start.md).
 
 ## Requirements
 
-- **PHP**: 8.4+
-- **Symfony**: 8.0+
-- **Frontend**: Bootstrap 5 (CSS/JS), Symfony UX Stimulus, and AssetMapper.
-- **Optional**: Doctrine ORM (required only for Doctrine-backed datatables).
+- PHP 8.4 or newer;
+- Symfony 8.0 or newer;
+- Twig;
+- Bootstrap 5;
+- AssetMapper and StimulusBundle;
+- Doctrine ORM only for Doctrine-backed datatables.
 
-## 1. Install the Bundle
+The bundle does not currently provide a Symfony Flex recipe, so its bundle registration, routes and Stimulus controller must be configured manually.
 
-Install the bundle using Composer:
+## 1. Install the PHP packages
+
+Install the bundle:
 
 ```bash
 composer require zhortein/datatable-bundle
 ```
 
-> **Note**: As this bundle is currently in alpha, there is no Symfony Flex recipe yet. You must perform some manual configuration steps.
+Ensure AssetMapper and StimulusBundle are available:
 
-## 2. Register the Bundle
+```bash
+composer require symfony/asset-mapper symfony/asset symfony/stimulus-bundle
+```
 
-If the bundle was not automatically registered, add it to your `config/bundles.php`:
+The Symfony recipes for AssetMapper and StimulusBundle normally create:
+
+- `assets/app.js`;
+- `assets/stimulus_bootstrap.js`;
+- `assets/controllers.json`;
+- `importmap.php`;
+- the `{{ importmap('app') }}` call in `templates/base.html.twig`.
+
+Do not replace existing application files blindly. Merge the snippets below with the files created by the Symfony recipes.
+
+For Doctrine-backed datatables, also install Doctrine ORM and DoctrineBundle if the application does not already use them:
+
+```bash
+composer require doctrine/doctrine-bundle doctrine/orm
+```
+
+## 2. Register the bundle
+
+Check `config/bundles.php` and add the bundle when it is not already present:
 
 ```php
-// config/bundles.php
+<?php
+
 return [
     // ...
     Zhortein\DatatableBundle\ZhorteinDatatableBundle::class => ['all' => true],
 ];
 ```
 
-## 3. Import Routes
+## 3. Import the bundle routes
 
-The bundle uses Ajax fragments for dynamic updates. You must import its routes:
+Create `config/routes/zhortein_datatable.yaml`:
 
 ```yaml
-# config/routes/zhortein_datatable.yaml
 zhortein_datatable:
     resource: '@ZhorteinDatatableBundle/config/routes.php'
 ```
 
-## 4. Enable Stimulus Controller
+The import exposes:
 
-The bundle provides a Stimulus controller for handling table interactions and Ajax refreshes. Enable it in your `assets/controllers.json`:
+| Route | Purpose |
+|---|---|
+| `zhortein_datatable_fragments` | Ajax refresh of headers, rows, pagination and summary |
+| `zhortein_datatable_export` | CSV and XLSX exports |
+
+Verify the import:
+
+```bash
+php bin/console debug:router zhortein_datatable_fragments
+php bin/console debug:router zhortein_datatable_export
+```
+
+Both commands should display their route. See the [route reference](routes.md) for their paths and methods.
+
+## 4. Install Bootstrap and Bootstrap Icons
+
+The bundle uses Bootstrap CSS, Bootstrap JavaScript and Bootstrap Icons, but does not ship them.
+
+Add the packages to the application import map:
+
+```bash
+php bin/console importmap:require bootstrap
+php bin/console importmap:require bootstrap-icons/font/bootstrap-icons.min.css
+```
+
+Import them in `assets/app.js`. Keep any application-specific imports already present:
+
+```js
+import './stimulus_bootstrap.js';
+import 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.min.css';
+import './styles/app.css';
+```
+
+Import application styles after Bootstrap when they are intended to override Bootstrap defaults.
+
+Bootstrap JavaScript is required for dropdown controls. Bootstrap Icons provide the default icons used for sorting, filters, actions and exports.
+
+## 5. Enable the Stimulus controller
+
+Add the bundle controller to `assets/controllers.json`:
 
 ```json
 {
@@ -51,38 +118,36 @@ The bundle provides a Stimulus controller for handling table interactions and Aj
     "@zhortein/datatable-bundle": {
       "datatable": {
         "enabled": true,
-        "fetch": "eager"
+        "fetch": "lazy"
       }
     }
-  }
+  },
+  "entrypoints": []
 }
 ```
 
-## 5. Bootstrap Requirement
+If the file already contains other controllers or entrypoints, merge only the `@zhortein/datatable-bundle` entry.
 
-The bundle is designed to work with **Bootstrap 5**. It does not include Bootstrap itself. You must ensure Bootstrap CSS and JS are loaded in your application.
+The controller is lazy by default: it is downloaded only when a datatable is present on the page.
 
-### Using AssetMapper
+## 6. Check the application entrypoint
 
-If you are using AssetMapper, you can require Bootstrap via importmap:
+The base layout must render the AssetMapper entrypoint:
 
-```bash
-php bin/console importmap:require bootstrap
+```twig
+{# templates/base.html.twig #}
+{% block javascripts %}
+    {% block importmap %}{{ importmap('app') }}{% endblock %}
+{% endblock %}
 ```
 
-Then, import it in your main entrypoint (e.g., `assets/app.js`):
+The application entrypoint must import `assets/stimulus_bootstrap.js`, as shown in step 4. Without these two pieces, the table shell can render while Ajax loading, sorting, filtering and pagination remain inactive.
 
-```js
-import 'bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-```
+## 7. Optional bundle configuration
 
-## 6. Configuration (Optional)
-
-A default configuration is applied automatically. If you need to override defaults, create a configuration file:
+The defaults work without a configuration file. To override them, create `config/packages/zhortein_datatable.yaml`:
 
 ```yaml
-# config/packages/zhortein_datatable.yaml
 zhortein_datatable:
     default_provider: doctrine
     default_theme: bootstrap
@@ -91,27 +156,96 @@ zhortein_datatable:
     search_enabled: false
 ```
 
+See the [configuration reference](configuration.md) before changing other values.
+
+## 8. Verify the frontend integration
+
+Check that AssetMapper exposes the bundle assets:
+
+```bash
+php bin/console debug:asset-map '@zhortein/datatable-bundle'
+```
+
+For production deployments, compile assets with the Symfony command:
+
+```bash
+php bin/console asset-map:compile
+```
+
+The command is `asset-map:compile`, not `asset-mapper:compile`.
+
+The installation is now complete. Continue with the [Quick Start](quick-start.md) to create and display a working in-memory datatable.
+
 ## Troubleshooting
 
-### Datatable not registered
-Ensure your datatable class is in a directory that is autowired and tagged as a service. By default, classes implementing `DatatableInterface` are automatically registered if autoconfiguration is enabled.
+### The datatable class is not registered
 
-### Stimulus controller not loading
-- Check if `symfony/stimulus-bundle` is installed.
-- Verify `assets/controllers.json` contains the correct entry for `@zhortein/datatable-bundle`.
-- Run `php bin/console asset-mapper:compile` or check your browser console for loading errors.
+- Ensure the class has `#[AsDatatable]`.
+- Ensure it implements `DatatableInterface`.
+- Ensure the application service configuration loads its namespace with autoconfiguration enabled.
+- Run:
 
-### Bootstrap dropdowns not opening
-Ensure that `bootstrap.bundle.js` (which includes Popper.js) is properly loaded. Dropdown-based controls like column visibility or export menus require Bootstrap's JavaScript.
+```bash
+php bin/console debug:container --tag=zhortein_datatable.datatable
+```
 
-### Routes missing
-Run `php bin/console debug:router` and look for routes starting with `zhortein_datatable_`. If they are missing, verify your route import in `config/routes/`.
+### The table shell appears but stays empty
 
-### Search input does not refresh
-- Check that the rendered search input contains `data-action="input->zhortein--datatable-bundle--datatable#search"`.
-- Verify that the browser console doesn't show any JavaScript errors during input.
+- Check the browser console for Stimulus errors.
+- Verify `assets/controllers.json`.
+- Verify that `assets/app.js` imports `./stimulus_bootstrap.js`.
+- Verify that the base layout renders `{{ importmap('app') }}`.
+- Check the fragments request in the browser network panel.
 
-### Exports not working
-- **CSV**: Works out of the box.
-- **XLSX**: Requires `openspout/openspout`. Install it via `composer require openspout/openspout`.
-- Ensure that the export routes are imported and that the `exportFormats` option is enabled in your Twig call.
+### The browser reports an unknown Stimulus controller
+
+The expected HTML controller identifier is:
+
+```text
+zhortein--datatable-bundle--datatable
+```
+
+Recheck step 5 and run:
+
+```bash
+php bin/console debug:asset-map '@zhortein/datatable-bundle'
+```
+
+### The table has no Bootstrap styling
+
+Verify that `bootstrap/dist/css/bootstrap.min.css` is present in `importmap.php` and imported by `assets/app.js`.
+
+### Icons are missing
+
+Verify that `bootstrap-icons/font/bootstrap-icons.min.css` is present in `importmap.php` and imported by `assets/app.js`.
+
+### Dropdowns do not open
+
+Verify that `assets/app.js` imports `bootstrap`. The CSS alone is not enough for export, visibility and action dropdowns.
+
+### Fragments or exports return 404
+
+Run:
+
+```bash
+php bin/console debug:router zhortein_datatable_fragments
+php bin/console debug:router zhortein_datatable_export
+```
+
+If the routes are absent, recheck `config/routes/zhortein_datatable.yaml`.
+
+### CSV works but XLSX is unavailable
+
+XLSX support is optional:
+
+```bash
+composer require openspout/openspout
+```
+
+Then enable it in the Twig options:
+
+```twig
+{{ zhortein_datatable('users', {
+    exportFormats: ['csv', 'xlsx']
+}) }}
+```

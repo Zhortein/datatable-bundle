@@ -124,6 +124,8 @@ final class DatatableDefinition
         ?string $className = null,
         ?string $template = null,
         ?string $type = null,
+        bool $negate = false,
+        ?bool $exportable = null,
     ): self {
         $this->columns[$name] = new ColumnDefinition(
             name: $name,
@@ -134,6 +136,8 @@ final class DatatableDefinition
             className: $className,
             template: $template,
             type: $type,
+            negate: $negate,
+            exportable: $exportable,
         );
 
         return $this;
@@ -227,6 +231,7 @@ final class DatatableDefinition
         ?string $className = null,
         array $routeParameters = [],
         array $attributes = [],
+        ?string $permission = null,
     ): self {
         $this->rowActions[$name] = new ActionDefinition(
             name: $name,
@@ -239,6 +244,7 @@ final class DatatableDefinition
             className: $className,
             routeParameters: $routeParameters,
             attributes: $attributes,
+            permission: $permission,
         );
 
         return $this;
@@ -267,6 +273,7 @@ final class DatatableDefinition
         ?string $className = null,
         array $routeParameters = [],
         array $attributes = [],
+        ?string $permission = null,
     ): self {
         if (is_string($iconPosition)) {
             $iconPosition = ActionIconPosition::tryFrom($iconPosition) ?? ActionIconPosition::Before;
@@ -282,6 +289,7 @@ final class DatatableDefinition
             className: $className,
             routeParameters: $routeParameters,
             attributes: $attributes,
+            permission: $permission,
         );
 
         return $this;
@@ -314,6 +322,7 @@ final class DatatableDefinition
         array $routeParameters = [],
         array $attributes = [],
         string $selectedRowsParameterName = 'ids',
+        ?string $permission = null,
     ): self {
         if (is_string($iconPosition)) {
             $iconPosition = ActionIconPosition::tryFrom($iconPosition) ?? ActionIconPosition::Before;
@@ -330,6 +339,7 @@ final class DatatableDefinition
             routeParameters: $routeParameters,
             attributes: $attributes,
             selectedRowsParameterName: $selectedRowsParameterName,
+            permission: $permission,
         );
 
         return $this;
