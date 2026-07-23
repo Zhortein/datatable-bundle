@@ -1,0 +1,1 @@
+- Added a nullable per-column `exportable` policy to include hidden columns or exclude visible columns from CSV and XLSX exports explicitly.

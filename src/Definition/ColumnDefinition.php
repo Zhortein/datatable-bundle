@@ -16,6 +16,7 @@ final readonly class ColumnDefinition
         private ?string $template = null,
         private ?string $type = null,
         private bool $negate = false,
+        private ?bool $exportable = null,
     ) {
     }
 
@@ -64,6 +65,11 @@ final readonly class ColumnDefinition
         return $this->negate;
     }
 
+    public function getExportable(): ?bool
+    {
+        return $this->exportable;
+    }
+
     public function withType(?string $type): self
     {
         return new self(
@@ -76,6 +82,7 @@ final readonly class ColumnDefinition
             template: $this->template,
             type: $type,
             negate: $this->negate,
+            exportable: $this->exportable,
         );
     }
 }

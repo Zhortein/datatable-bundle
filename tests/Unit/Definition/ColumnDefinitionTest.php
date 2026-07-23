@@ -21,6 +21,7 @@ final class ColumnDefinitionTest extends TestCase
             template: 'email.html.twig',
             type: 'string',
             negate: true,
+            exportable: false,
         );
 
         self::assertSame('e.email', $column->getName());
@@ -32,6 +33,7 @@ final class ColumnDefinitionTest extends TestCase
         self::assertSame('email.html.twig', $column->getTemplate());
         self::assertSame('string', $column->getType());
         self::assertTrue($column->isNegated());
+        self::assertFalse($column->getExportable());
     }
 
     public function test_boolean_negation_is_disabled_by_default(): void
@@ -39,5 +41,16 @@ final class ColumnDefinitionTest extends TestCase
         $column = new ColumnDefinition(name: 'enabled', type: 'boolean');
 
         self::assertFalse($column->isNegated());
+        self::assertNull($column->getExportable());
+    }
+
+    public function test_it_preserves_the_export_policy_when_changing_type(): void
+    {
+        $column = new ColumnDefinition(name: 'enabled', exportable: true);
+
+        $typedColumn = $column->withType('boolean');
+
+        self::assertSame('boolean', $typedColumn->getType());
+        self::assertTrue($typedColumn->getExportable());
     }
 }

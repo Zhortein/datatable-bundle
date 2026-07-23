@@ -9,7 +9,7 @@ Currently implemented:
 -   **Modes**: 
     -   `current`: Exports only the currently visible page.
     -   `full`: Exports the entire filtered dataset (pagination disabled).
--   **Features**: Toolbar export dropdown, custom export URLs, column visibility awareness.
+-   **Features**: Toolbar export dropdown, custom export URLs, and per-column export policies.
 
 Not implemented yet:
 -   Asynchronous/Background exports.
@@ -80,7 +80,39 @@ Exports are enabled by default. You can disable them or provide custom URLs:
 ```
 
 ### Column Visibility
-Exports respect runtime column visibility. Columns hidden in the UI will not be included in the exported file.
+
+By default, exports respect both definition and runtime visibility. A column hidden in the UI is therefore omitted from CSV and XLSX files.
+
+The nullable `exportable` argument can override this behavior per column:
+
+| Value | Behavior |
+|---|---|
+| `null` | Follows definition and runtime visibility. This is the default. |
+| `true` | Always exports the column, even when it is hidden. |
+| `false` | Never exports the column, even when it is visible. |
+
+For example, a technical reference can remain hidden in the table while still being included in exports:
+
+```php
+$definition->addColumn(
+    name: 'e.internalReference',
+    label: 'Internal reference',
+    visible: false,
+    exportable: true,
+);
+```
+
+A visible sensitive column can be excluded explicitly:
+
+```php
+$definition->addColumn(
+    name: 'e.privateNote',
+    label: 'Private note',
+    exportable: false,
+);
+```
+
+The default is intentionally visibility-aware for backward compatibility and to prevent hidden technical or sensitive values from being exported after a bundle update without an explicit decision.
 
 ## Security
 

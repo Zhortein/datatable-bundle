@@ -112,6 +112,40 @@ final class XlsxExportWriterTest extends TestCase
         ], $this->readXlsxRows((string) $response->getContent()));
     }
 
+    public function test_it_respects_explicit_column_export_policies(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition
+            ->addColumn('e.id', label: 'Identifier', visible: false, exportable: true)
+            ->addColumn('e.email', label: 'Email')
+            ->addColumn('e.token', label: 'Token', exportable: false)
+        ;
+
+        $request = new DatatableExportRequest(
+            datatableName: 'users',
+            format: ExportFormat::Xlsx,
+            datatableRequest: DatatableRequest::create(hiddenColumns: ['e.email']),
+        );
+
+        $response = new XlsxExportWriter()->write(
+            request: $request,
+            definition: $definition,
+            result: new DatatableResult(
+                rows: [[
+                    'e_id' => 1,
+                    'e_email' => 'alice@example.test',
+                    'e_token' => 'secret',
+                ]],
+                totalItems: 1,
+            ),
+        );
+
+        self::assertSame([
+            ['Identifier'],
+            [1],
+        ], $this->readXlsxRows((string) $response->getContent()));
+    }
+
     /**
      * @return list<list<mixed>>
      */
