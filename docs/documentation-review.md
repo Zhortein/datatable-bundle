@@ -1,10 +1,36 @@
 # Documentation Review
 
-This document summarizes the final documentation quality pass for `zhortein/datatable-bundle`.
+This document records documentation reviews for `zhortein/datatable-bundle`. It is a review log, not a guarantee that documentation can no longer drift from the implementation.
 
-## Final Quality Pass (2026-05-16)
+## V1 getting-started review (2026-07-23)
 
-The documentation has been reviewed for accuracy, consistency, and completeness.
+The installation and first-use path was replayed against the current bundle implementation after feedback from a real host application.
+
+### Issues found and fixed
+
+- Replaced the invalid `asset-mapper:compile` command with `asset-map:compile`.
+- Documented Bootstrap Icons as a required frontend dependency for the default icon set.
+- Documented the complete AssetMapper, StimulusBundle and lazy controller setup.
+- Added the missing export route to the route reference.
+- Replaced the partial quick start with a complete datatable, controller and Twig page.
+- Fixed the broken release-checklist link to the array example.
+- Clarified explicit selection of built-in and custom providers.
+
+### Automated safeguards
+
+- Active local Markdown links are checked by the frontend test suite.
+- Critical installation commands and frontend dependencies are asserted by tests.
+- The route reference is checked for both fragments and export routes.
+- The documented array-provider path is covered by a functional test from definition creation through fragments rendering.
+
+### Remaining manual validation
+
+- Run the release smoke test in a fresh Symfony application before tagging `1.0.0`.
+- Capture any host-application-specific assumptions not reproducible in the bundle test kernel.
+
+## Initial quality pass (2026-05-16)
+
+The documentation was reviewed for accuracy, consistency, and completeness.
 
 ### Key Entry Points
 - [x] **README.md**: Clear landing page with status, requirements, installation summary, and minimal example.
@@ -35,7 +61,7 @@ The documentation has been reviewed for accuracy, consistency, and completeness.
 - [x] **XLSX**: `openspout/openspout` optional dependency is mentioned.
 - [x] **Large Exports**: Synchronous/Memory limitations are explicitly stated.
 
-## Final code/documentation consistency review (2026-05-16)
+## Code/documentation consistency review (2026-05-16)
 
 Performed a final consistency check between the current codebase and the documentation.
 
@@ -53,17 +79,21 @@ Performed a final consistency check between the current codebase and the documen
 - Verified `README.md` and `docs/index.md` links and examples.
 
 ### Remaining code/doc mismatches
-- None identified in this pass. The documentation is now fully aligned with the implemented code.
+
+None were identified during that pass. The later v1 review above found additional installation and route-reference gaps.
 
 ## Remaining Known Documentation Limitations
+
 - No hosted demo site (planned for future).
-- No automated Markdown link checking in CI (suggested).
 - No search functionality within documentation files.
+- No automated execution of the installation guide in a generated external Symfony application.
 
 ## Recommended Next Documentation Tasks
+
 - [ ] Add visual screenshots/GIFs to feature pages.
 - [ ] Create a "Common Recipes" section for complex Doctrine joins or custom filters.
-- [ ] Implement automated link checking in GitHub Actions.
+- [x] Implement automated local Markdown link checking in the existing frontend CI job.
 
 ## Summary
-The documentation is now structured, professional, and ready for external users. It provides clear paths for installation, evaluation, and contribution while maintaining transparency about its alpha status.
+
+The documentation provides a tested installation and first-use path while maintaining transparency about the current prerelease status. A fresh-application smoke test remains mandatory before the stable tag.

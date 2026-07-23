@@ -26,6 +26,12 @@ The default is used when it supports the definition. Otherwise, the registry fal
 - Doctrine supports definitions with an entity class;
 - Array supports definitions with the `rows` option or an explicit `provider: 'array'`.
 
+Select a custom provider with the same attribute:
+
+```php
+#[AsDatatable(name: 'remote-users', provider: 'api')]
+```
+
 ## Custom Providers
 
 You can implement your own data provider by creating a class that implements `DataProviderInterface`. Custom providers should be registered with the `zhortein_datatable.data_provider` tag and a unique `name` attribute:

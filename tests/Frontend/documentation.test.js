@@ -1,0 +1,101 @@
+import {
+    existsSync,
+    readFileSync,
+    readdirSync,
+} from 'node:fs';
+import {
+    dirname,
+    relative,
+    resolve,
+} from 'node:path';
+
+import { describe, expect, it } from 'vitest';
+
+const projectRoot = process.cwd();
+const documentationRoot = resolve(projectRoot, 'docs');
+
+const collectMarkdownFiles = (directory) => readdirSync(directory, { withFileTypes: true })
+    .flatMap((entry) => {
+        if (entry.name === 'archive') {
+            return [];
+        }
+
+        const path = resolve(directory, entry.name);
+
+        if (entry.isDirectory()) {
+            return collectMarkdownFiles(path);
+        }
+
+        return path.endsWith('.md') ? [path] : [];
+    });
+
+const documentationFiles = [
+    resolve(projectRoot, 'README.md'),
+    ...collectMarkdownFiles(documentationRoot),
+];
+
+const resolveLinkTarget = (rawTarget) => {
+    const trimmedTarget = rawTarget.trim();
+
+    if (trimmedTarget.startsWith('<')) {
+        return trimmedTarget.slice(1, trimmedTarget.indexOf('>'));
+    }
+
+    return trimmedTarget.split(/\s+/)[0];
+};
+
+describe('Documentation', () => {
+    it('contains no broken local links in active documentation', () => {
+        const brokenLinks = [];
+
+        for (const file of documentationFiles) {
+            const contents = readFileSync(file, 'utf8');
+
+            for (const match of contents.matchAll(/!?\[[^\]]*]\(([^)]+)\)/g)) {
+                const target = resolveLinkTarget(match[1]);
+
+                if (
+                    target === ''
+                    || target.startsWith('#')
+                    || /^(?:https?:|mailto:)/.test(target)
+                ) {
+                    continue;
+                }
+
+                const localTarget = decodeURIComponent(target.split('#')[0]);
+                const resolvedTarget = resolve(dirname(file), localTarget);
+
+                if (!existsSync(resolvedTarget)) {
+                    brokenLinks.push(
+                        `${relative(projectRoot, file)} -> ${localTarget}`,
+                    );
+                }
+            }
+        }
+
+        expect(brokenLinks).toEqual([]);
+    });
+
+    it('documents the critical AssetMapper integration contract', () => {
+        const installation = readFileSync(
+            resolve(documentationRoot, 'installation.md'),
+            'utf8',
+        );
+
+        expect(installation).toContain('@zhortein/datatable-bundle');
+        expect(installation).toContain('"fetch": "lazy"');
+        expect(installation).toContain('bootstrap-icons/font/bootstrap-icons.min.css');
+        expect(installation).toContain('asset-map:compile');
+        expect(installation).not.toContain('php bin/console asset-mapper:compile');
+    });
+
+    it('documents every bundle route', () => {
+        const routes = readFileSync(
+            resolve(documentationRoot, 'routes.md'),
+            'utf8',
+        );
+
+        expect(routes).toContain('zhortein_datatable_fragments');
+        expect(routes).toContain('zhortein_datatable_export');
+    });
+});

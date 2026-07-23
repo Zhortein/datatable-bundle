@@ -162,7 +162,7 @@ Examples:
 
 Example docs:
 
-- [Minimal array datatable example](examples/array-datatable.md)
+- [Minimal array datatable example](quick-start.md)
 - [Doctrine datatable example](examples/doctrine-datatable.md)
 
 ## 8. Fresh Symfony application smoke test

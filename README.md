@@ -26,29 +26,29 @@ A Symfony 8+ bundle for Bootstrap-first business datatables driven by PHP defini
 
 ## Installation Summary
 
-1. **Install the package**:
-   ```bash
-   composer require zhortein/datatable-bundle
-   ```
+Install the PHP dependencies:
 
-> Note that there is no automatic recipe for this bundle for now.
+```bash
+composer require zhortein/datatable-bundle
+composer require symfony/asset-mapper symfony/asset symfony/stimulus-bundle
+```
 
-2. **Register the bundle** (if not done by Flex) in `config/bundles.php`.
+The bundle does not currently provide a Symfony Flex recipe. The host application must:
 
-3. **Import routes**:
-   ```yaml
-   # config/routes/zhortein_datatable.yaml
-   zhortein_datatable:
-       resource: '@ZhorteinDatatableBundle/config/routes.php'
-   ```
+- register `ZhorteinDatatableBundle` in `config/bundles.php`;
+- import `@ZhorteinDatatableBundle/config/routes.php`;
+- enable `@zhortein/datatable-bundle/datatable` in `assets/controllers.json`;
+- install and import Bootstrap 5 and Bootstrap Icons;
+- render the AssetMapper `app` entrypoint in the base layout.
 
-4. **Expose the Stimulus controller**:
-   Ensure `symfony/stimulus-bundle` is installed and the controller is enabled in `assets/controllers.json`.
+Add the frontend dependencies:
 
-5. **Bootstrap requirement**:
-   Ensure Bootstrap 5 CSS and JS are loaded in your layout.
+```bash
+php bin/console importmap:require bootstrap
+php bin/console importmap:require bootstrap-icons/font/bootstrap-icons.min.css
+```
 
-See [Installation Guide](docs/installation.md) for detailed instructions.
+Follow the [Installation Guide](docs/installation.md) for the exact file contents, verification commands and troubleshooting. Then use the [Quick Start](docs/quick-start.md) to create a complete working page.
 
 ## Minimal Example
 

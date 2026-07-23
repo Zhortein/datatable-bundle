@@ -1,13 +1,16 @@
 # Quick Start
 
-Get your first datatable running in minutes using the built-in `ArrayDataProvider`.
+This guide creates a complete page backed by the in-memory array provider. It assumes every step in the [Installation Guide](installation.md) is complete.
 
-## 1. Define your Datatable
+## 1. Create the datatable
 
-Create a PHP class that implements `DatatableInterface`. Use the `#[AsDatatable]` attribute to register it.
+Create `src/Datatable/DemoUserDatatable.php`:
 
 ```php
-// src/Datatable/DemoUserDatatable.php
+<?php
+
+declare(strict_types=1);
+
 namespace App\Datatable;
 
 use Zhortein\DatatableBundle\Attribute\AsDatatable;
@@ -21,44 +24,110 @@ final class DemoUserDatatable implements DatatableInterface
     public function buildDatatable(DatatableDefinition $definition): void
     {
         $definition
+            ->setOption(ArrayDataProvider::OPTION_ROWS, [
+                ['id' => 1, 'email' => 'admin@example.test', 'role' => 'ROLE_ADMIN'],
+                ['id' => 2, 'email' => 'user@example.test', 'role' => 'ROLE_USER'],
+            ])
             ->addColumn('id', visible: false)
             ->addColumn('email', label: 'Email')
             ->addColumn('role', label: 'Role')
-            ->setOption(ArrayDataProvider::OPTION_ROWS, [
-                ['id' => 1, 'email' => 'admin@example.com', 'role' => 'ROLE_ADMIN'],
-                ['id' => 2, 'email' => 'user@example.com', 'role' => 'ROLE_USER'],
-            ])
         ;
     }
 }
 ```
 
-## 2. Render in Twig
+The `#[AsDatatable]` attribute registers the service under the `demo-users` name and explicitly selects the array provider.
 
-In your Twig template, use the `zhortein_datatable()` function with the name you defined in the attribute.
+## 2. Create a page controller
+
+Create `src/Controller/DemoUserController.php`:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+
+final class DemoUserController extends AbstractController
+{
+    #[Route('/demo/users', name: 'app_demo_users', methods: ['GET'])]
+    public function __invoke(): Response
+    {
+        return $this->render('demo/users.html.twig');
+    }
+}
+```
+
+## 3. Create the Twig template
+
+Create `templates/demo/users.html.twig`:
 
 ```twig
-{# templates/user/index.html.twig #}
 {% extends 'base.html.twig' %}
 
+{% block title %}Demo users{% endblock %}
+
 {% block body %}
-    <h1>User List</h1>
-    {{ zhortein_datatable('demo-users', { search: true }) }}
+    <main class="container py-4">
+        <h1>Demo users</h1>
+
+        {{ zhortein_datatable('demo-users', {
+            search: true
+        }) }}
+    </main>
 {% endblock %}
 ```
 
-## 3. Expected Behavior
+## 4. Verify registration and routes
 
-When you visit the page:
-1. The table structure is rendered immediately.
-2. A Stimulus controller automatically triggers an Ajax request to fetch the data fragments.
-3. The table body, pagination, and summary are populated.
-4. If `search: true` is provided, a global search input is displayed.
+Run:
 
-## Next Steps
+```bash
+php bin/console debug:container --tag=zhortein_datatable.datatable
+php bin/console debug:router app_demo_users
+php bin/console debug:router zhortein_datatable
+```
 
-- **Doctrine Provider**: Connect your datatable to a database using the [Doctrine Provider](doctrine-provider.md).
-- **Filters**: Add user-facing [Filters](filters.md) to your columns.
-- **Actions**: Add row or global [Actions](actions.md).
-- **Exports**: Enable server-side [Exports](exports.md) (CSV/XLSX).
-- **Theming**: Customize the look and feel in [Theming & Customization](theming.md).
+The datatable service and all three routes must be present before opening the page.
+
+## 5. Open the page
+
+Start the application with your usual local server and open:
+
+```text
+/demo/users
+```
+
+The initial response renders the table shell. The lazy Stimulus controller then requests:
+
+```text
+/_zhortein/datatable/demo-users/fragments
+```
+
+The final table contains the two email addresses, search, sortable headers, pagination and CSV export. The hidden `id` column is not displayed or exported by default.
+
+If the shell renders but the rows never appear, use the frontend checks in the [installation troubleshooting section](installation.md#the-table-shell-appears-but-stays-empty).
+
+## 6. Move to Doctrine
+
+For an entity-backed table:
+
+- declare `provider: 'doctrine'`;
+- call `$definition->setEntityClass(YourEntity::class)`;
+- prefix fields from the root entity with `e.`.
+
+Continue with the [Doctrine Provider Guide](doctrine-provider.md) for joins, filters, searching, sorting and performance guidance.
+
+## Next steps
+
+- [Array Provider](array-provider.md)
+- [Doctrine Provider](doctrine-provider.md)
+- [Filters](filters.md)
+- [Actions and Security](actions.md)
+- [Exports](exports.md)
+- [Theming and Templates](theming.md)
