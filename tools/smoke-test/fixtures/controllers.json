@@ -1,0 +1,11 @@
+{
+  "controllers": {
+    "@zhortein/datatable-bundle": {
+      "datatable": {
+        "enabled": true,
+        "fetch": "lazy"
+      }
+    }
+  },
+  "entrypoints": []
+}

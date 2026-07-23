@@ -84,9 +84,29 @@ describe('Documentation', () => {
 
         expect(installation).toContain('@zhortein/datatable-bundle');
         expect(installation).toContain('"fetch": "lazy"');
+        expect(installation).toContain("import './bootstrap.js';");
         expect(installation).toContain('bootstrap-icons/font/bootstrap-icons.min.css');
         expect(installation).toContain('asset-map:compile');
+        expect(installation).not.toContain('stimulus_bootstrap');
         expect(installation).not.toContain('php bin/console asset-mapper:compile');
+    });
+
+    it('runs the documented integration in a fresh Symfony application', () => {
+        const ciWorkflow = readFileSync(
+            resolve(projectRoot, '.github/workflows/ci.yaml'),
+            'utf8',
+        );
+        const smokeTest = readFileSync(
+            resolve(projectRoot, 'tools/smoke-test/fresh-symfony-app.sh'),
+            'utf8',
+        );
+
+        expect(ciWorkflow).toContain('tools/smoke-test/fresh-symfony-app.sh');
+        expect(smokeTest).toContain('composer create-project');
+        expect(smokeTest).toContain('debug:router zhortein_datatable');
+        expect(smokeTest).toContain("debug:asset-map '@zhortein/datatable-bundle'");
+        expect(smokeTest).toContain('asset-map:compile');
+        expect(smokeTest).toContain('php smoke.php');
     });
 
     it('documents every bundle route', () => {

@@ -1,0 +1,4 @@
+app_smoke:
+    path: /smoke
+    controller: App\Controller\SmokeController
+    methods: [GET]

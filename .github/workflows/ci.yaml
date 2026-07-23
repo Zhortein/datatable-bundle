@@ -49,6 +49,25 @@ jobs:
       - name: Verify release notes
         run: php tools/changelog/extract-release-notes.php "${{ steps.version.outputs.tag }}"
 
+  fresh-symfony-app:
+    name: Fresh Symfony application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer
+          extensions: mbstring, intl
+
+      - name: Run fresh application smoke test
+        run: tools/smoke-test/fresh-symfony-app.sh
+
   quality:
     name: PHP ${{ matrix.php-version }} / ${{ matrix.dependency-version }}
     runs-on: ubuntu-latest
