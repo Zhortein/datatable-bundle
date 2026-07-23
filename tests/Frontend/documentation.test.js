@@ -102,6 +102,8 @@ describe('Documentation', () => {
 
         expect(ciWorkflow).toContain('tools/smoke-test/fresh-symfony-app.sh');
         expect(smokeTest).toContain('composer create-project');
+        expect(smokeTest).toContain('php bin/console cache:clear');
+        expect(smokeTest).toContain('debug:router app_smoke');
         expect(smokeTest).toContain('debug:router zhortein_datatable_fragments');
         expect(smokeTest).toContain('debug:router zhortein_datatable_export');
         expect(smokeTest).toContain("debug:container 'App\\Datatable\\SmokeUserDatatable'");
