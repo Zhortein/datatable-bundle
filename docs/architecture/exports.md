@@ -30,6 +30,8 @@ interface ExportWriterInterface
 - **`ExportWriterRegistry`**: Resolves the appropriate writer for a given format.
 - **Writers**: Registered as services tagged with `zhortein_datatable.export_writer`.
 
+Custom writers construct and return their Symfony response directly. They do not need an intermediate bundle-specific result object.
+
 ## Format Implementations
 
 ### CSV Writer
