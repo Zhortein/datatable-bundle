@@ -1,14 +1,26 @@
 # Release workflow
 
-This document describes the GitHub release workflow.
+This document describes how a tested commit becomes a tagged GitHub and Packagist release.
 
-The project does not publish automatically to Packagist yet.
+## Branch flow
 
-The release workflow only creates a GitHub Release from a Git tag.
+Normal changes follow:
 
-## Tag format
+```text
+feature/* or fix/* -> develop
+```
 
-Release tags must use this format:
+A release is prepared on a dedicated branch and reviewed before promotion:
+
+```text
+release/<version> -> develop -> main -> v<version>
+```
+
+Release-specific changes must reach `develop` before the promotion pull request to `main`. This keeps both long-lived branches consistent.
+
+## Version format
+
+Tags must use:
 
 ```text
 vMAJOR.MINOR.PATCH
@@ -17,186 +29,116 @@ vMAJOR.MINOR.PATCH
 Examples:
 
 ```text
-v0.1.0
 v1.0.0
+v1.1.0
+v2.0.0
 ```
 
-Pre-release tags are allowed:
+Prerelease suffixes are supported:
 
 ```text
-v0.1.0-alpha.1
-v0.1.0-beta.1
 v1.0.0-rc.1
+v1.1.0-beta.1
 ```
 
-## Workflow trigger
+`assets/package.json` contains the same version without the `v` prefix.
 
-The workflow runs only when pushing a tag matching:
+## Preparing a release
 
-```yaml
-v*
+Create a branch from the latest green `develop`:
+
+```bash
+git switch develop
+git pull --ff-only
+git switch -c release/1.0.0
 ```
 
-The workflow validates the tag format before creating a release.
+Then:
 
-## What the workflow does
+1. run `composer changelog`;
+2. review the generated `Unreleased` entries;
+3. move those entries to `## [1.0.0] - YYYY-MM-DD`;
+4. leave an empty `## [Unreleased]` section;
+5. remove every consumed file from `changelog/unreleased/`;
+6. set `assets/package.json` to `1.0.0`;
+7. update README, documentation status and roadmap;
+8. run the full QA chain and the fresh-application smoke test;
+9. commit with `chore(release): prepare v1.0.0`;
+10. open and merge a pull request into `develop`.
+
+After that merge, open the promotion pull request from `develop` to `main`.
+
+## Promotion validation
+
+Every pull request targeting `main` runs the `Validate release candidate` CI job. It rejects the promotion when:
+
+- `assets/package.json` does not contain a valid semantic version;
+- changelog fragments remain unconsumed;
+- `CHANGELOG.md` has no non-empty section matching that version.
+
+The complete PHP 8.4/8.5, lowest/highest dependency matrix also runs on the pull request.
+
+Do not merge the promotion pull request while any required check is missing, skipped unexpectedly or failing.
+
+## Creating the tag
+
+After the promotion pull request is merged and `main` is green:
+
+```bash
+git switch main
+git pull --ff-only
+git tag -a v1.0.0 -m "Release v1.0.0"
+git push origin v1.0.0
+```
+
+Never create a release tag from `develop` or a feature branch.
+
+## Tag workflow
+
+Pushing a `v*` tag starts `.github/workflows/release.yaml`.
 
 The workflow:
 
-1. checks out the repository;
-2. validates the tag format;
-3. extracts release notes from `CHANGELOG.md`;
-4. creates a GitHub Release with the extracted notes.
+1. validates the tag format;
+2. verifies that the tagged commit belongs to `main`;
+3. verifies that the tag matches `assets/package.json`;
+4. rejects unconsumed changelog fragments;
+5. requires a non-empty matching changelog section;
+6. reruns the full PHP and frontend QA matrix on the tagged source;
+7. creates the GitHub Release only after every matrix job succeeds;
+8. marks suffix versions such as `-beta.1` or `-rc.1` as prereleases.
 
-## Release notes source
+The workflow never falls back to `Unreleased` and never fabricates release notes.
 
-The workflow uses:
+## GitHub Release and Packagist
 
-```bash
-php tools/changelog/extract-release-notes.php "${GITHUB_REF_NAME}"
-```
+The workflow creates the GitHub Release from the matching `CHANGELOG.md` section.
 
-The script looks for a matching version section in `CHANGELOG.md`.
+The package is already registered on [Packagist](https://packagist.org/packages/zhortein/datatable-bundle) and is automatically synchronized with repository tags. The GitHub workflow does not upload an archive or call Packagist directly.
 
-For a tag:
+After publication, verify:
 
-```text
-v0.1.0
-```
+- the GitHub Release title and notes;
+- the tag commit;
+- the stable version on Packagist;
+- `composer require zhortein/datatable-bundle` in a clean application.
 
-it looks for:
-
-```md
-## [0.1.0]
-```
-
-or:
-
-```md
-## [v0.1.0]
-```
-
-If no matching section exists, it falls back to the `Unreleased` section when it contains collected entries.
-
-If no suitable notes are found, it generates a minimal fallback note.
-
-## Recommended release process
-
-Before creating a tag:
-
-1. Ensure `develop` is green.
-2. Merge `develop` into `main`.
-3. Update `CHANGELOG.md`.
-4. Move relevant entries from `Unreleased` to a version section.
-5. Commit the changelog update.
-6. Push `main`.
-7. Create and push a tag.
-
-Example:
-
-```bash
-git checkout main
-git pull
-git merge --ff-only develop
-
-# update CHANGELOG.md
-git add CHANGELOG.md
-git commit -m "docs: prepare release v0.1.0"
-
-git tag v0.1.0
-git push origin main
-git push origin v0.1.0
-```
-
-## Permissions
-
-The workflow uses:
-
-```yaml
-permissions:
-  contents: write
-```
-
-This is required to create the GitHub Release.
-
-## What the workflow does not do
+## What remains manual
 
 The workflow does not:
 
-- publish to Packagist;
-- create or update Composer packages;
-- update the changelog automatically;
-- create a release tag automatically;
-- sign artifacts;
-- upload build artifacts.
+- choose the release version;
+- update the changelog or package metadata;
+- merge branches;
+- create the tag;
+- publish signed build artifacts.
 
-## Packagist
+These steps stay explicit so the stable release remains a deliberate decision.
 
-Packagist publication remains manual for now.
+## Failure policy
 
-Future work may include:
+If validation fails before the tag exists, fix the release branch and repeat the pull-request flow.
 
-- Packagist setup documentation;
-- GitHub release to Packagist webhook documentation;
-- first pre-release checklist;
-- Symfony Flex recipe decision.
+If a pushed tag fails before a GitHub Release is created, investigate before deleting or moving it: Packagist may already have observed that tag. Never move a published stable tag. Prefer a corrective patch release when consumers may have received it.
 
-## First pre-release checklist
-
-Before creating the first public pre-release, review [`release-checklist.md`](release-checklist.md).
-
-The checklist covers:
-
-- branch and repository state;
-- CI;
-- Composer metadata;
-- documentation;
-- changelog;
-- release workflow;
-- examples;
-- fresh Symfony app smoke test;
-- public API review;
-- known limitations;
-- tagging steps.
-
-## Release hardening completion
-
-Milestone 0.14 completed the project release-preparation documentation layer:
-
-- CI strategy;
-- changelog strategy;
-- release workflow;
-- Packagist readiness;
-- documentation review;
-- public API review;
-- first pre-release checklist.
-
-The next recommended step is a fresh Symfony application smoke test before tagging a first alpha.
-
-## Fresh Symfony smoke test
-
-Before tagging the first alpha, run the smoke test plan:
-
-- [Fresh Symfony smoke test plan](archive/smoke-reports/smoke-test.md)
-
-The smoke test must validate:
-
-- installation through a local path repository;
-- bundle registration;
-- route import;
-- Stimulus controller exposure;
-- translations;
-- minimal array datatable;
-- Doctrine datatable;
-- actions;
-- filters;
-- column visibility;
-- CSV exports.
-
-Blocking issues must be resolved before tagging.
-
-## First alpha go/no-go
-
-The go/no-go decision for the first alpha is documented in:
-
-- [Go/no-go review for first alpha](archive/milestones/go-no-go-first-alpha.md)
+Use the [release checklist](release-checklist.md) for the final go/no-go review.
