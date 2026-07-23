@@ -85,9 +85,8 @@ test -f assets/stimulus_bootstrap.js
 php bin/console importmap:require bootstrap --no-interaction
 php bin/console importmap:require bootstrap-icons/font/bootstrap-icons.min.css --no-interaction
 
-router_output="$(php bin/console debug:router --format=json)"
-grep -Fq '"zhortein_datatable_fragments"' <<< "${router_output}"
-grep -Fq '"zhortein_datatable_export"' <<< "${router_output}"
+php bin/console debug:router zhortein_datatable_fragments --format=json
+php bin/console debug:router zhortein_datatable_export --format=json
 
 datatable_services="$(php bin/console debug:container --tag=zhortein_datatable.datatable)"
 grep -Fq 'App\Datatable\SmokeUserDatatable' <<< "${datatable_services}"
