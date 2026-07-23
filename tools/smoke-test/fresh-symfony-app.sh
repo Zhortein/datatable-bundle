@@ -15,7 +15,6 @@ trap cleanup EXIT
 composer create-project \
     symfony/skeleton:"8.0.*" \
     "${app_root}" \
-    --no-install \
     --no-interaction \
     --no-progress
 
@@ -43,9 +42,8 @@ composer require \
     symfony/asset-mapper \
     symfony/stimulus-bundle \
     symfony/twig-bundle \
-    --no-update \
-    --no-interaction
-composer update --prefer-stable --no-interaction --no-progress
+    --no-interaction \
+    --no-progress
 
 php -r '
     $path = "config/bundles.php";
