@@ -9,10 +9,7 @@ require __DIR__.'/vendor/autoload.php';
 
 (new Dotenv())->bootEnv(__DIR__.'/.env');
 
-$environment = $_SERVER['APP_ENV'] ?? 'dev';
-$debug = filter_var($_SERVER['APP_DEBUG'] ?? true, FILTER_VALIDATE_BOOL);
-
-$kernel = new App\Kernel($environment, $debug);
+$kernel = new App\Kernel('dev', true);
 $pageRequest = Request::create('/smoke');
 $pageResponse = $kernel->handle($pageRequest);
 
