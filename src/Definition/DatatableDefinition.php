@@ -125,6 +125,7 @@ final class DatatableDefinition
         ?string $template = null,
         ?string $type = null,
         bool $negate = false,
+        ?bool $exportable = null,
     ): self {
         $this->columns[$name] = new ColumnDefinition(
             name: $name,
@@ -136,6 +137,7 @@ final class DatatableDefinition
             template: $template,
             type: $type,
             negate: $negate,
+            exportable: $exportable,
         );
 
         return $this;
