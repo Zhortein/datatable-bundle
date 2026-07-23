@@ -81,6 +81,28 @@ final class DatatableRendererTest extends TestCase
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="searchInput"', $html);
     }
 
+    public function test_it_keeps_empty_toolbar_slots_hidden(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition->addColumn('e.email', label: 'Email');
+
+        $renderer = new DatatableRenderer($this->createTwigEnvironment());
+
+        $html = $renderer->render($definition, [
+            'columnVisibility' => false,
+            'export' => false,
+            'pageSizeSelector' => false,
+        ]);
+
+        self::assertStringContainsString('class="zhortein-datatable__search d-none"', $html);
+        self::assertStringContainsString('class="zhortein-datatable__filter-area d-none"', $html);
+        self::assertStringContainsString(
+            'class="zhortein-datatable__controls d-flex flex-wrap align-items-center gap-2 d-none"',
+            $html,
+        );
+        self::assertStringContainsString('class="zhortein-datatable__actions d-none"', $html);
+    }
+
     public function test_it_renders_runtime_fragments_url_and_page_size(): void
     {
         $definition = new DatatableDefinition('users');

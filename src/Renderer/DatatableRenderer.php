@@ -52,12 +52,14 @@ final readonly class DatatableRenderer
         $options['filterLayout'] = $this->resolveFilterLayout($options)->value;
         $options['paginationSize'] = $this->resolvePaginationSize($options)->value;
         $filters = $options['filters'] ?? [];
+        $visibleColumns = $this->getVisibleColumns($definition, $options);
 
         $bulkActions = $this->normalizeBulkActions($definition);
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/datatable.html.twig', $this->theme), array_merge([
             'definition' => $definition,
-            'visibleColumns' => $this->getVisibleColumns($definition, $options),
+            'visibleColumns' => $visibleColumns,
+            'columnClassNames' => $this->resolveColumnClassNames($visibleColumns),
             'rowActions' => $definition->getRowActions(),
             'globalActions' => $this->normalizeGlobalActions($definition),
             'bulkActions' => $bulkActions,
@@ -76,10 +78,12 @@ final readonly class DatatableRenderer
     public function renderHeader(DatatableDefinition $definition, array $options = []): string
     {
         $options = $this->resolveOptions($options);
+        $visibleColumns = $this->getVisibleColumns($definition, $options);
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_header.html.twig', $this->theme), array_merge([
             'definition' => $definition,
-            'visibleColumns' => $this->getVisibleColumns($definition, $options),
+            'visibleColumns' => $visibleColumns,
+            'columnClassNames' => $this->resolveColumnClassNames($visibleColumns),
             'hasRowActions' => [] !== $definition->getRowActions(),
             'hasBulkActions' => $this->hasBulkActions($definition),
             'htmlId' => $this->createHtmlId($definition),
@@ -511,10 +515,26 @@ final readonly class DatatableRenderer
         }
 
         return match (CellType::fromNullableString($column->getType())) {
-            CellType::Numeric => 'text-end',
-            CellType::Boolean, CellType::Enum => 'text-center',
+            CellType::Numeric => 'text-end align-middle',
+            CellType::Boolean, CellType::Enum => 'text-center align-middle',
             default => null,
         };
+    }
+
+    /**
+     * @param array<string, ColumnDefinition> $columns
+     *
+     * @return array<string, string|null>
+     */
+    private function resolveColumnClassNames(array $columns): array
+    {
+        $classNames = [];
+
+        foreach ($columns as $column) {
+            $classNames[$column->getName()] = $this->resolveCellClassName($column);
+        }
+
+        return $classNames;
     }
 
     /**

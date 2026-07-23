@@ -51,7 +51,7 @@ The bundle provides a Stimulus controller for handling table interactions and Aj
     "@zhortein/datatable-bundle": {
       "datatable": {
         "enabled": true,
-        "fetch": "eager"
+        "fetch": "lazy"
       }
     }
   }

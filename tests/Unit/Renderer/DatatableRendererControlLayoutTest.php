@@ -33,6 +33,10 @@ final class DatatableRendererControlLayoutTest extends TestCase
 
         self::assertStringContainsString('zhortein-datatable__bottom-controls', $html);
         self::assertStringContainsString('zhortein-datatable__column-visibility', $html);
+        self::assertStringContainsString(
+            'class="btn btn-sm btn-outline-secondary dropdown-toggle d-inline-flex align-items-center gap-1"',
+            $html,
+        );
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="pageSizeInput"', $html);
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="summary"', $html);
     }
