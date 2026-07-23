@@ -1,4 +1,5 @@
 {
+  "name": "datatable-bundle",
   "private": true,
   "type": "module",
   "scripts": {
