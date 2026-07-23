@@ -5,8 +5,13 @@ set -euo pipefail
 bundle_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 smoke_root="$(mktemp -d)"
 app_root="${smoke_root}/app"
+server_pid=""
 
 cleanup() {
+    if [[ -n "${server_pid}" ]]; then
+        kill "${server_pid}" 2>/dev/null || true
+    fi
+
     rm -rf "${smoke_root}"
 }
 
@@ -19,6 +24,16 @@ composer create-project \
     --no-progress
 
 cd "${app_root}"
+
+install -D \
+    "${bundle_root}/tools/smoke-test/fixtures/SmokeController.php" \
+    src/Controller/SmokeController.php
+install -D \
+    "${bundle_root}/tools/smoke-test/fixtures/smoke.yaml" \
+    config/routes/smoke.yaml
+install -D \
+    "${bundle_root}/tools/smoke-test/fixtures/smoke.html.twig" \
+    templates/smoke.html.twig
 
 repository_config="$(
     php -r '
@@ -67,15 +82,6 @@ install -D \
 install -D \
     "${bundle_root}/tools/smoke-test/fixtures/SmokeUserDatatable.php" \
     src/Datatable/SmokeUserDatatable.php
-install -D \
-    "${bundle_root}/tools/smoke-test/fixtures/SmokeController.php" \
-    src/Controller/SmokeController.php
-install -D \
-    "${bundle_root}/tools/smoke-test/fixtures/smoke.yaml" \
-    config/routes/smoke.yaml
-install -D \
-    "${bundle_root}/tools/smoke-test/fixtures/smoke.html.twig" \
-    templates/smoke.html.twig
 install \
     "${bundle_root}/tools/smoke-test/fixtures/smoke.php" \
     smoke.php
@@ -95,4 +101,37 @@ php bin/console debug:container 'App\Datatable\SmokeUserDatatable'
 php bin/console debug:asset-map '@zhortein/datatable-bundle'
 
 php bin/console asset-map:compile
-php smoke.php
+
+server_log="${smoke_root}/server.log"
+shell_response="${smoke_root}/shell.html"
+fragments_response="${smoke_root}/fragments.json"
+base_url="http://127.0.0.1:8000"
+
+APP_ENV=dev APP_DEBUG=1 php -S 127.0.0.1:8000 -t public public/index.php \
+    >"${server_log}" 2>&1 &
+server_pid="$!"
+
+if ! curl \
+    --fail \
+    --retry 10 \
+    --retry-connrefused \
+    --retry-delay 1 \
+    --show-error \
+    --silent \
+    "${base_url}/smoke" \
+    --output "${shell_response}"; then
+    cat "${server_log}"
+    exit 1
+fi
+
+if ! curl \
+    --fail \
+    --show-error \
+    --silent \
+    "${base_url}/_zhortein/datatable/smoke-users/fragments" \
+    --output "${fragments_response}"; then
+    cat "${server_log}"
+    exit 1
+fi
+
+php smoke.php "${shell_response}" "${fragments_response}"
