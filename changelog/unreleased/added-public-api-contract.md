@@ -1,0 +1,1 @@
+- Documented the supported PHP, Twig, routing, configuration and frontend compatibility surface for the 1.x series.

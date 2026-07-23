@@ -21,6 +21,7 @@ The installation and first-use path was replayed against the current bundle impl
 - Active local Markdown links are checked by the frontend test suite.
 - Critical installation commands and frontend dependencies are asserted by tests.
 - The route reference is checked for both fragments and export routes.
+- The stable public API and implementation boundary are recorded in an active reference page.
 - The documented array-provider path is covered by a functional test from definition creation through fragments rendering.
 - A fresh Symfony 8 application installs the bundle through a Composer path repository, applies the documented AssetMapper and Stimulus setup, compiles assets and requests real datatable fragments in CI.
 
