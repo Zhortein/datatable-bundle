@@ -90,7 +90,8 @@ Run:
 ```bash
 php bin/console debug:container --tag=zhortein_datatable.datatable
 php bin/console debug:router app_demo_users
-php bin/console debug:router zhortein_datatable
+php bin/console debug:router zhortein_datatable_fragments
+php bin/console debug:router zhortein_datatable_export
 ```
 
 The datatable service and all three routes must be present before opening the page.

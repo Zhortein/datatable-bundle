@@ -37,7 +37,8 @@ return static function (RoutingConfigurator $routes): void {
 Verify the import:
 
 ```bash
-php bin/console debug:router zhortein_datatable
+php bin/console debug:router zhortein_datatable_fragments
+php bin/console debug:router zhortein_datatable_export
 ```
 
 ## Generated URLs
