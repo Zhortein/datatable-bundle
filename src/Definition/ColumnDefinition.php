@@ -15,6 +15,7 @@ final readonly class ColumnDefinition
         private ?string $className = null,
         private ?string $template = null,
         private ?string $type = null,
+        private bool $negate = false,
     ) {
     }
 
@@ -58,6 +59,11 @@ final readonly class ColumnDefinition
         return $this->type;
     }
 
+    public function isNegated(): bool
+    {
+        return $this->negate;
+    }
+
     public function withType(?string $type): self
     {
         return new self(
@@ -69,6 +75,7 @@ final readonly class ColumnDefinition
             className: $this->className,
             template: $this->template,
             type: $type,
+            negate: $this->negate,
         );
     }
 }

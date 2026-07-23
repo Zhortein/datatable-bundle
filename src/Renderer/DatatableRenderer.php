@@ -315,7 +315,7 @@ final readonly class DatatableRenderer
             foreach ($visibleColumns as $column) {
                 $cells[] = [
                     'column' => $column,
-                    'value' => $this->readColumnValue($row, $column),
+                    'value' => $this->resolveCellValue($row, $column),
                     'template' => $this->resolveCellTemplate($column),
                     'className' => $this->resolveCellClassName($column),
                     'booleanDisplayMode' => $booleanDisplayMode->value,
@@ -535,6 +535,24 @@ final readonly class DatatableRenderer
         }
 
         return $classNames;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function resolveCellValue(array $row, ColumnDefinition $column): mixed
+    {
+        $value = $this->readColumnValue($row, $column);
+
+        if (
+            !$column->isNegated()
+            || CellType::Boolean !== CellType::fromNullableString($column->getType())
+            || null === $value
+        ) {
+            return $value;
+        }
+
+        return !(bool) $value;
     }
 
     /**

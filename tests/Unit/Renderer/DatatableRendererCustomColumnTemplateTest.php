@@ -74,6 +74,46 @@ final class DatatableRendererCustomColumnTemplateTest extends TestCase
         self::assertStringContainsString('Value: alice@example.test', $html);
     }
 
+    public function test_it_passes_the_negated_value_to_a_custom_boolean_template(): void
+    {
+        $definition = new DatatableDefinition('users');
+
+        $definition->addColumn(
+            name: 'status',
+            template: '@RendererTest/custom_status_cell.html.twig',
+            type: 'boolean',
+            negate: true,
+        );
+
+        $renderer = new DatatableRenderer($this->createTwigEnvironment());
+        $html = $renderer->renderBody(
+            $definition,
+            new DatatableResult([['status' => true]], 1),
+        );
+
+        self::assertStringContainsString('CUSTOM STATUS: disabled', $html);
+    }
+
+    public function test_it_does_not_negate_a_non_boolean_custom_column(): void
+    {
+        $definition = new DatatableDefinition('users');
+
+        $definition->addColumn(
+            name: 'status',
+            template: '@RendererTest/custom_status_cell.html.twig',
+            type: 'string',
+            negate: true,
+        );
+
+        $renderer = new DatatableRenderer($this->createTwigEnvironment());
+        $html = $renderer->renderBody(
+            $definition,
+            new DatatableResult([['status' => true]], 1),
+        );
+
+        self::assertStringContainsString('CUSTOM STATUS: enabled', $html);
+    }
+
     private function createTwigEnvironment(): Environment
     {
         $loader = new FilesystemLoader();

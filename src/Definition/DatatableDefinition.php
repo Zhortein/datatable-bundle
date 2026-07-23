@@ -124,6 +124,7 @@ final class DatatableDefinition
         ?string $className = null,
         ?string $template = null,
         ?string $type = null,
+        bool $negate = false,
     ): self {
         $this->columns[$name] = new ColumnDefinition(
             name: $name,
@@ -134,6 +135,7 @@ final class DatatableDefinition
             className: $className,
             template: $template,
             type: $type,
+            negate: $negate,
         );
 
         return $this;

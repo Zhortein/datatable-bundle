@@ -11,6 +11,7 @@ Currently implemented:
 -   **Context**: Comprehensive Twig context for all rendering stages.
 -   **Variants**: Runtime Bootstrap table options (striped, hover, bordered, etc.).
 -   **Boolean Display Modes**: Configurable rendering for boolean columns (`badge`, `icon`, `switch`, `text`).
+-   **Boolean Negation**: Per-column inversion of rendered boolean values.
 -   **Icons**: Extensible `IconResolver` for common UI elements (sort, filter, export, actions).
 
 Not implemented yet:
@@ -65,7 +66,7 @@ Available variables: `definition`, `visibleColumns`, `rowActions`, `globalAction
 
 ### Cell Context (`_cell.html.twig` and `cell/*.html.twig`)
 -   `column`: The `ColumnDefinition` object.
--   `value`: The raw value from the provider.
+-   `value`: The provider value, inverted when the boolean column enables `negate`.
 
 ### Action Context (`_action.html.twig`)
 -   `action`: Array containing `name`, `label`, `url`, `httpMethod`, `csrfToken`, `className`, `attributes`.
