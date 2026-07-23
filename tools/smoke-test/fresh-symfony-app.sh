@@ -34,6 +34,12 @@ install -D \
 install -D \
     "${bundle_root}/tools/smoke-test/fixtures/smoke.html.twig" \
     templates/smoke.html.twig
+install -D \
+    "${bundle_root}/tools/smoke-test/fixtures/zhortein_datatable.yaml" \
+    config/routes/zhortein_datatable.yaml
+install -D \
+    "${bundle_root}/tools/smoke-test/fixtures/SmokeUserDatatable.php" \
+    src/Datatable/SmokeUserDatatable.php
 
 repository_config="$(
     php -r '
@@ -71,17 +77,11 @@ php -r '
 '
 
 install -D \
-    "${bundle_root}/tools/smoke-test/fixtures/zhortein_datatable.yaml" \
-    config/routes/zhortein_datatable.yaml
-install -D \
     "${bundle_root}/tools/smoke-test/fixtures/controllers.json" \
     assets/controllers.json
 install -D \
     "${bundle_root}/tools/smoke-test/fixtures/app.js" \
     assets/app.js
-install -D \
-    "${bundle_root}/tools/smoke-test/fixtures/SmokeUserDatatable.php" \
-    src/Datatable/SmokeUserDatatable.php
 install \
     "${bundle_root}/tools/smoke-test/fixtures/smoke.php" \
     smoke.php

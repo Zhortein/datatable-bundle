@@ -102,6 +102,10 @@ describe('Documentation', () => {
 
         expect(ciWorkflow).toContain('tools/smoke-test/fresh-symfony-app.sh');
         expect(smokeTest).toContain('composer create-project');
+        expect(smokeTest.indexOf('fixtures/zhortein_datatable.yaml'))
+            .toBeLessThan(smokeTest.indexOf('composer require'));
+        expect(smokeTest.indexOf('fixtures/SmokeUserDatatable.php'))
+            .toBeLessThan(smokeTest.indexOf('composer require'));
         expect(smokeTest).toContain('php bin/console cache:clear');
         expect(smokeTest).toContain('debug:router app_smoke');
         expect(smokeTest).toContain('debug:router zhortein_datatable_fragments');
