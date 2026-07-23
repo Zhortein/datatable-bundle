@@ -2,28 +2,14 @@
 
 declare(strict_types=1);
 
-use Symfony\Component\Dotenv\Dotenv;
-use Symfony\Component\HttpFoundation\Request;
-
-require __DIR__.'/vendor/autoload.php';
-
-(new Dotenv())->bootEnv(__DIR__.'/.env');
-
-$kernel = new App\Kernel('dev', true);
-$pageRequest = Request::create('/smoke');
-$pageResponse = $kernel->handle($pageRequest);
-
-if (200 !== $pageResponse->getStatusCode()) {
-    throw new RuntimeException(sprintf(
-        'The smoke page returned HTTP %d.',
-        $pageResponse->getStatusCode(),
-    ));
+if (3 !== $argc) {
+    throw new InvalidArgumentException('Expected the shell and fragments response paths.');
 }
 
-$shell = $pageResponse->getContent();
+$shell = file_get_contents($argv[1]);
 
 if (!is_string($shell)) {
-    throw new RuntimeException('The smoke page has no content.');
+    throw new RuntimeException('The smoke page response could not be read.');
 }
 
 if (!str_contains($shell, 'data-controller="zhortein--datatable-bundle--datatable"')) {
@@ -34,22 +20,10 @@ if (!str_contains($shell, '/_zhortein/datatable/smoke-users/fragments')) {
     throw new RuntimeException('The datatable shell does not expose the fragments URL.');
 }
 
-$kernel->terminate($pageRequest, $pageResponse);
-
-$fragmentsRequest = Request::create('/_zhortein/datatable/smoke-users/fragments');
-$response = $kernel->handle($fragmentsRequest);
-
-if (200 !== $response->getStatusCode()) {
-    throw new RuntimeException(sprintf(
-        'The fragments request returned HTTP %d.',
-        $response->getStatusCode(),
-    ));
-}
-
-$content = $response->getContent();
+$content = file_get_contents($argv[2]);
 
 if (!is_string($content)) {
-    throw new RuntimeException('The fragments response has no content.');
+    throw new RuntimeException('The fragments response could not be read.');
 }
 
 $payload = json_decode($content, true, flags: JSON_THROW_ON_ERROR);
@@ -67,7 +41,5 @@ if (
 ) {
     throw new RuntimeException('The fragments response does not contain the expected rows.');
 }
-
-$kernel->terminate($fragmentsRequest, $response);
 
 fwrite(STDOUT, "Fresh Symfony application smoke test passed.\n");
