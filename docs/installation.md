@@ -32,7 +32,7 @@ composer require symfony/asset-mapper symfony/asset symfony/stimulus-bundle
 The Symfony recipes for AssetMapper and StimulusBundle normally create:
 
 - `assets/app.js`;
-- `assets/bootstrap.js`;
+- `assets/stimulus_bootstrap.js`;
 - `assets/controllers.json`;
 - `importmap.php`;
 - the `{{ importmap('app') }}` call in `templates/base.html.twig`.
@@ -96,7 +96,7 @@ php bin/console importmap:require bootstrap-icons/font/bootstrap-icons.min.css
 Import them in `assets/app.js`. Keep any application-specific imports already present:
 
 ```js
-import './bootstrap.js';
+import './stimulus_bootstrap.js';
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.min.css';
@@ -140,7 +140,7 @@ The base layout must render the AssetMapper entrypoint:
 {% endblock %}
 ```
 
-The application entrypoint must import `assets/bootstrap.js`, as shown in step 4. Without these two pieces, the table shell can render while Ajax loading, sorting, filtering and pagination remain inactive.
+The application entrypoint must import `assets/stimulus_bootstrap.js`, as shown in step 4. Without these two pieces, the table shell can render while Ajax loading, sorting, filtering and pagination remain inactive.
 
 ## 7. Optional bundle configuration
 
@@ -192,7 +192,7 @@ php bin/console debug:container --tag=zhortein_datatable.datatable
 
 - Check the browser console for Stimulus errors.
 - Verify `assets/controllers.json`.
-- Verify that `assets/app.js` imports `./bootstrap.js`.
+- Verify that `assets/app.js` imports `./stimulus_bootstrap.js`.
 - Verify that the base layout renders `{{ importmap('app') }}`.
 - Check the fragments request in the browser network panel.
 
