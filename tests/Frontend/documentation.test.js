@@ -84,10 +84,9 @@ describe('Documentation', () => {
 
         expect(installation).toContain('@zhortein/datatable-bundle');
         expect(installation).toContain('"fetch": "lazy"');
-        expect(installation).toContain("import './bootstrap.js';");
+        expect(installation).toContain("import './stimulus_bootstrap.js';");
         expect(installation).toContain('bootstrap-icons/font/bootstrap-icons.min.css');
         expect(installation).toContain('asset-map:compile');
-        expect(installation).not.toContain('stimulus_bootstrap');
         expect(installation).not.toContain('php bin/console asset-mapper:compile');
     });
 

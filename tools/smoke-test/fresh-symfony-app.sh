@@ -80,7 +80,7 @@ install \
     "${bundle_root}/tools/smoke-test/fixtures/smoke.php" \
     smoke.php
 
-test -f assets/bootstrap.js
+test -f assets/stimulus_bootstrap.js
 
 php bin/console importmap:require bootstrap --no-interaction
 php bin/console importmap:require bootstrap-icons/font/bootstrap-icons.min.css --no-interaction
