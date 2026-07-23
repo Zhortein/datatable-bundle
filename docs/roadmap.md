@@ -346,7 +346,6 @@ Delivered:
 - `ExportFormat` enum.
 - `ExportMode` enum.
 - `DatatableExportRequest`.
-- `DatatableExportResult`.
 - `ExportWriterInterface`.
 - `ExportWriterRegistry`.
 - `CsvExportWriter`.
@@ -1166,7 +1165,6 @@ Before a stable 1.0 release, revisit:
 - `CustomJoinDefinition` naming and namespace;
 - aggregate column builder API;
 - custom join parameters API;
-- `DatatableExportResult` usefulness;
 - `ExportWriterInterface` streaming suitability;
 - template context stability;
 - filter layout API;

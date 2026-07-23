@@ -1,0 +1,1 @@
+- Removed the unused `DatatableExportResult` prototype; export writers return Symfony responses directly.
