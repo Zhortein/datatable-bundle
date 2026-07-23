@@ -9,6 +9,13 @@ use Zhortein\DatatableBundle\Enum\ActionIconPosition;
 final readonly class ActionDefinition
 {
     /**
+     * @var array<string, string>
+     */
+    private array $attributes;
+
+    private ?string $permission;
+
+    /**
      * @param array<string, string> $routeParameters
      * @param array<string, string> $attributes
      */
@@ -22,8 +29,14 @@ final readonly class ActionDefinition
         private ?string $confirmationMessage = null,
         private ?string $className = null,
         private array $routeParameters = [],
-        private array $attributes = [],
+        array $attributes = [],
+        ?string $permission = null,
     ) {
+        $legacyPermission = $attributes['permission'] ?? null;
+        unset($attributes['permission']);
+
+        $this->attributes = $attributes;
+        $this->permission = $permission ?? $legacyPermission;
     }
 
     public function getName(): string
@@ -84,6 +97,15 @@ final readonly class ActionDefinition
 
     public function getAttribute(string $name, ?string $default = null): ?string
     {
+        if ('permission' === $name) {
+            return $this->permission ?? $default;
+        }
+
         return $this->attributes[$name] ?? $default;
+    }
+
+    public function getPermission(): ?string
+    {
+        return $this->permission;
     }
 }

@@ -18,7 +18,7 @@ final readonly class AuthorizationActionVisibilityChecker implements ActionVisib
 
     public function isVisible(ActionDefinition|BulkActionDefinition $action, ActionVisibilityContext $context): bool
     {
-        $attribute = $action->getAttribute('permission');
+        $attribute = $action->getPermission();
 
         if (null === $attribute || '' === trim($attribute)) {
             return $this->fallbackChecker->isVisible($action, $context);
