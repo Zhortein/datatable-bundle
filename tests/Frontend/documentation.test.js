@@ -126,4 +126,24 @@ describe('Documentation', () => {
         expect(routes).toContain('debug:router zhortein_datatable_export');
         expect(routes).not.toContain('debug:router zhortein_datatable\n');
     });
+
+    it('defines the stable public API and implementation boundary', () => {
+        const index = readFileSync(
+            resolve(documentationRoot, 'index.md'),
+            'utf8',
+        );
+        const publicApi = readFileSync(
+            resolve(documentationRoot, 'public-api.md'),
+            'utf8',
+        );
+
+        expect(index).toContain('(public-api.md)');
+        expect(publicApi).toContain('Contract\\DatatableInterface');
+        expect(publicApi).toContain('Contract\\DataProviderInterface');
+        expect(publicApi).toContain('Contract\\ExportWriterInterface');
+        expect(publicApi).toContain('Definition\\DatatableDefinition');
+        expect(publicApi).toContain('Implementation boundary');
+        expect(publicApi).toContain('zhortein--datatable-bundle--datatable');
+        expect(publicApi).toContain('semantic-versioning promise starts with the `1.0.0` tag');
+    });
 });

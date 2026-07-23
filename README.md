@@ -98,6 +98,7 @@ final class UserDatatable implements DatatableInterface
 - [UI/UX & Controls](docs/ui-ux.md)
 - [Icon System](docs/icons.md)
 - [Theming & Templates](docs/theming.md)
+- [Public API & Compatibility](docs/public-api.md)
 - [Frontend Test Strategy](docs/frontend-tests.md)
 - [Roadmap](docs/roadmap.md)
 

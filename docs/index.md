@@ -34,6 +34,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 
 ## Development and Reference
 
+- [Public API and compatibility policy](public-api.md)
 - [Roadmap](roadmap.md)
 - [Changelog](changelog.md)
 - [Routes](routes.md)
@@ -47,4 +48,4 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 
 ---
 
-*This bundle is currently in **Alpha** (API may change before 1.0).*
+*The public API selected for 1.0 is documented in the [compatibility policy](public-api.md). The compatibility promise starts with the `1.0.0` tag.*

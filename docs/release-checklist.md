@@ -217,14 +217,15 @@ composer require zhortein/datatable-bundle:*
 
 Before tagging:
 
-- [ ] `docs/public-api-review.md` has been reviewed.
-- [ ] Any critical API concerns are resolved or explicitly postponed.
-- [ ] Known alpha-level instability is documented.
-- [ ] No accidental public API is exposed without awareness.
+- [x] `docs/public-api.md` defines the supported 1.x surface.
+- [x] Critical API concerns are resolved or explicitly reserved for additive contracts.
+- [x] The implementation boundary is documented.
+- [x] Autoloadable implementation classes are not presented as supported extension points.
 
 API review:
 
-- [Public API review](archive/milestones/public-api-review.md)
+- [Public API and compatibility policy](public-api.md)
+- [Historical prerelease review](archive/milestones/public-api-review.md)
 
 ## 10. Known limitations to mention
 
