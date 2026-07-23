@@ -25,6 +25,16 @@ composer create-project \
 
 cd "${app_root}"
 
+install -D \
+    "${bundle_root}/tools/smoke-test/fixtures/SmokeController.php" \
+    src/Controller/SmokeController.php
+install -D \
+    "${bundle_root}/tools/smoke-test/fixtures/smoke.yaml" \
+    config/routes/smoke.yaml
+install -D \
+    "${bundle_root}/tools/smoke-test/fixtures/smoke.html.twig" \
+    templates/smoke.html.twig
+
 repository_config="$(
     php -r '
         echo json_encode([
@@ -72,15 +82,6 @@ install -D \
 install -D \
     "${bundle_root}/tools/smoke-test/fixtures/SmokeUserDatatable.php" \
     src/Datatable/SmokeUserDatatable.php
-install -D \
-    "${bundle_root}/tools/smoke-test/fixtures/SmokeController.php" \
-    src/Controller/SmokeController.php
-install -D \
-    "${bundle_root}/tools/smoke-test/fixtures/smoke.yaml" \
-    config/routes/smoke.yaml
-install -D \
-    "${bundle_root}/tools/smoke-test/fixtures/smoke.html.twig" \
-    templates/smoke.html.twig
 install \
     "${bundle_root}/tools/smoke-test/fixtures/smoke.php" \
     smoke.php
