@@ -13,6 +13,8 @@ Every pull request must pass:
 - PHPStan at maximum level;
 - PHP-CS-Fixer in dry-run mode;
 - twigcs;
+- frontend tests;
+- installation and fragment rendering in a fresh Symfony application;
 - highest dependency set;
 - lowest dependency set.
 
@@ -24,9 +26,11 @@ The bundle targets:
 PHP >= 8.4
 ```
 
-The CI currently tests PHP 8.4.
+The CI currently tests PHP 8.4 and PHP 8.5.
 
 Future PHP versions can be added when they are available and stable in the project environment.
+
+The fresh-application smoke job uses PHP 8.4, the minimum supported version.
 
 ## Symfony target
 
@@ -232,6 +236,27 @@ The Composer script behind it should remain the source of truth where practical:
 composer qa
 ```
 
+## Fresh Symfony application smoke test
+
+CI also creates a standalone Symfony 8 application and installs the current bundle through a Composer path repository:
+
+```bash
+tools/smoke-test/fresh-symfony-app.sh
+```
+
+The test verifies:
+
+- manual bundle registration and route import;
+- the StimulusBundle recipe entrypoint;
+- the documented lazy controller configuration;
+- Bootstrap and Bootstrap Icons import-map entries;
+- bundle asset discovery and production asset compilation;
+- datatable service autoconfiguration;
+- Twig shell rendering;
+- a real fragments request using the array provider.
+
+This job deliberately installs the bundle as a copied Composer path dependency. It therefore exercises the package as a host application receives it instead of relying on the bundle test kernel.
+
 ## Frontend tests
 
 The CI matrix runs frontend tests in addition to PHP quality gates.
@@ -255,21 +280,6 @@ Expected CI steps:
 ```
 
 The committed `package-lock.json` is required for reproducible frontend dependency installation.
-
-## Frontend tests
-
-The CI runs frontend tests in addition to PHP quality gates.
-
-Frontend tests validate the vanilla Stimulus datatable controller.
-
-The workflow runs:
-
-```bash
-npm ci
-npm run test:frontend
-```
-
-`package-lock.json` must be committed because CI uses `npm ci`.
 
 Local equivalent:
 

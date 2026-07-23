@@ -1,0 +1,2 @@
+zhortein_datatable:
+    resource: '@ZhorteinDatatableBundle/config/routes.php'

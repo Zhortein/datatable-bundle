@@ -22,11 +22,12 @@ The installation and first-use path was replayed against the current bundle impl
 - Critical installation commands and frontend dependencies are asserted by tests.
 - The route reference is checked for both fragments and export routes.
 - The documented array-provider path is covered by a functional test from definition creation through fragments rendering.
+- A fresh Symfony 8 application installs the bundle through a Composer path repository, applies the documented AssetMapper and Stimulus setup, compiles assets and requests real datatable fragments in CI.
 
 ### Remaining manual validation
 
-- Run the release smoke test in a fresh Symfony application before tagging `1.0.0`.
-- Capture any host-application-specific assumptions not reproducible in the bundle test kernel.
+- Verify browser-only interactions such as dropdown positioning in a real host application before tagging `1.0.0`.
+- Capture any host-application-specific assumptions that cannot be reproduced by the automated fresh-application smoke test.
 
 ## Initial quality pass (2026-05-16)
 
@@ -86,7 +87,6 @@ None were identified during that pass. The later v1 review above found additiona
 
 - No hosted demo site (planned for future).
 - No search functionality within documentation files.
-- No automated execution of the installation guide in a generated external Symfony application.
 
 ## Recommended Next Documentation Tasks
 
@@ -96,4 +96,4 @@ None were identified during that pass. The later v1 review above found additiona
 
 ## Summary
 
-The documentation provides a tested installation and first-use path while maintaining transparency about the current prerelease status. A fresh-application smoke test remains mandatory before the stable tag.
+The documentation provides an automated installation and first-use path while maintaining transparency about the current prerelease status. Browser-only interactions still require a final manual check before the stable tag.
