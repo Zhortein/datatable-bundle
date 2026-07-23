@@ -212,9 +212,7 @@ final class UserDatatable implements DatatableInterface
                     'id' => 'e.id',
                 ],
                 className: 'btn btn-sm btn-outline-primary',
-                attributes: [
-                    'permission' => 'USER_VIEW',
-                ],
+                permission: 'USER_VIEW',
             )
             ->addRowAction(
                 name: 'edit',
@@ -225,9 +223,7 @@ final class UserDatatable implements DatatableInterface
                     'id' => 'e.id',
                 ],
                 className: 'btn btn-sm btn-outline-secondary',
-                attributes: [
-                    'permission' => 'USER_EDIT',
-                ],
+                permission: 'USER_EDIT',
             )
             ->addRowAction(
                 name: 'delete',
@@ -240,9 +236,7 @@ final class UserDatatable implements DatatableInterface
                     'id' => 'e.id',
                 ],
                 className: 'btn btn-sm btn-outline-danger',
-                attributes: [
-                    'permission' => 'USER_DELETE',
-                ],
+                permission: 'USER_DELETE',
             )
 
             ->addGlobalAction(
@@ -251,9 +245,7 @@ final class UserDatatable implements DatatableInterface
                 label: 'Create user',
                 icon: 'bi bi-plus-lg',
                 className: 'btn btn-sm btn-primary',
-                attributes: [
-                    'permission' => 'USER_CREATE',
-                ],
+                permission: 'USER_CREATE',
             )
         ;
     }
@@ -401,15 +393,13 @@ When a CSRF token manager is available, the form includes a `_token` field.
 
 ### Action visibility
 
-The example uses `permission` attributes:
+The example uses the dedicated `permission` option:
 
 ```php
-attributes: [
-    'permission' => 'USER_DELETE',
-],
+permission: 'USER_DELETE',
 ```
 
-These are used only if the application enables the optional authorization action visibility adapter.
+This metadata is used only if the application enables the optional authorization action visibility adapter. It is not rendered in the HTML.
 
 See [`../actions.md`](../actions.md).
 

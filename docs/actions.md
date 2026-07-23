@@ -76,7 +76,7 @@ If `CsrfTokenManagerInterface` is available, these forms include a hidden `_toke
 Actions are filtered through an `ActionVisibilityCheckerInterface`. The default implementation is `AllowAllActionVisibilityChecker`.
 
 #### Symfony Authorization Adapter
-You can use Symfony's security system by enabling the `AuthorizationActionVisibilityChecker`. It reads a `permission` attribute from the action:
+You can use Symfony's security system by enabling the `AuthorizationActionVisibilityChecker`. Set the action's dedicated `permission` option to the voter attribute:
 
 ```php
 $definition->addRowAction(
@@ -84,9 +84,7 @@ $definition->addRowAction(
     route: 'app_user_delete',
     label: 'Delete',
     httpMethod: 'DELETE',
-    attributes: [
-        'permission' => 'USER_DELETE',
-    ],
+    permission: 'USER_DELETE',
 );
 ```
 
@@ -97,6 +95,8 @@ services:
     Zhortein\DatatableBundle\Action\ActionVisibilityCheckerInterface:
         alias: Zhortein\DatatableBundle\Action\AuthorizationActionVisibilityChecker
 ```
+
+`permission` is authorization metadata and is never rendered as an HTML attribute. For compatibility with beta releases, a legacy `attributes: ['permission' => '...']` value is still recognized and removed from the rendered attributes. New code should use the dedicated option.
 
 ## Confirmation Messages
 
@@ -116,7 +116,7 @@ By default, this uses `window.confirm()`. If Bootstrap JavaScript and a modal ta
 
 -   **Icons**: Provide a CSS class via the `icon` option. If no explicit icon is provided, the bundle attempts to resolve a default icon based on the action name (e.g., `view`, `edit`, `delete`). See [Icon System](icons.md) for details.
 -   **Position**: Use `ActionIconPosition` enum to place icons `Before` or `After` the label.
--   **Attributes**: Pass arbitrary HTML attributes via the `attributes` array.
+-   **Attributes**: Pass arbitrary HTML attributes via the `attributes` array. Do not put authorization metadata in this array.
 
 ## Related documentation
 

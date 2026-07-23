@@ -18,6 +18,13 @@ use Zhortein\DatatableBundle\Enum\ActionIconPosition;
 final readonly class BulkActionDefinition
 {
     /**
+     * @var array<string, string>
+     */
+    private array $attributes;
+
+    private ?string $permission;
+
+    /**
      * @param array<string, string> $routeParameters
      * @param array<string, string> $attributes
      */
@@ -31,9 +38,15 @@ final readonly class BulkActionDefinition
         private ?string $confirmationMessage = null,
         private ?string $className = null,
         private array $routeParameters = [],
-        private array $attributes = [],
+        array $attributes = [],
         private string $selectedRowsParameterName = 'ids',
+        ?string $permission = null,
     ) {
+        $legacyPermission = $attributes['permission'] ?? null;
+        unset($attributes['permission']);
+
+        $this->attributes = $attributes;
+        $this->permission = $permission ?? $legacyPermission;
     }
 
     public function getName(): string
@@ -94,11 +107,20 @@ final readonly class BulkActionDefinition
 
     public function getAttribute(string $name, ?string $default = null): ?string
     {
+        if ('permission' === $name) {
+            return $this->permission ?? $default;
+        }
+
         return $this->attributes[$name] ?? $default;
     }
 
     public function getSelectedRowsParameterName(): string
     {
         return $this->selectedRowsParameterName;
+    }
+
+    public function getPermission(): ?string
+    {
+        return $this->permission;
     }
 }

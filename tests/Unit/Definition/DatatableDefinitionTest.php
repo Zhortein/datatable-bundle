@@ -44,8 +44,19 @@ final class DatatableDefinitionTest extends TestCase
         $definition = new DatatableDefinition('users');
 
         $definition
-            ->addRowAction('view', route: 'app_user_show', label: 'View', routeParameters: ['id' => 'id'])
-            ->addGlobalAction('create', route: 'app_user_create', label: 'Create')
+            ->addRowAction(
+                'view',
+                route: 'app_user_show',
+                label: 'View',
+                routeParameters: ['id' => 'id'],
+                permission: 'USER_VIEW',
+            )
+            ->addGlobalAction(
+                'create',
+                route: 'app_user_create',
+                label: 'Create',
+                permission: 'USER_CREATE',
+            )
         ;
 
         $rowActions = $definition->getRowActions();
@@ -55,7 +66,9 @@ final class DatatableDefinitionTest extends TestCase
         self::assertArrayHasKey('create', $globalActions);
         self::assertSame('app_user_show', $rowActions['view']->getRoute());
         self::assertSame(['id' => 'id'], $rowActions['view']->getRouteParameters());
+        self::assertSame('USER_VIEW', $rowActions['view']->getPermission());
         self::assertSame('app_user_create', $globalActions['create']->getRoute());
+        self::assertSame('USER_CREATE', $globalActions['create']->getPermission());
     }
 
     public function test_it_stores_permanent_filters(): void
