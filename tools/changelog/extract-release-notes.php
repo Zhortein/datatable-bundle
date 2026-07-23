@@ -32,18 +32,17 @@ $patterns = [
 
 foreach ($patterns as $pattern) {
     if (1 === preg_match($pattern, $changelog, $match)) {
-        echo trim($match['notes']).PHP_EOL;
-        exit(0);
-    }
-}
+        $notes = trim($match['notes']);
 
-if (1 === preg_match('/## \[Unreleased\]\R(?<notes>.*?)(?=\R## \[|\z)/s', $changelog, $match)) {
-    $notes = trim($match['notes']);
+        if ('' === $notes) {
+            fwrite(STDERR, sprintf("Changelog section for tag %s is empty.\n", $tag));
+            exit(1);
+        }
 
-    if ('' !== $notes && !str_contains($notes, '_No unreleased changes')) {
         echo $notes.PHP_EOL;
         exit(0);
     }
 }
 
-echo sprintf('Release %s', $tag).PHP_EOL;
+fwrite(STDERR, sprintf("No changelog section found for tag %s.\n", $tag));
+exit(1);

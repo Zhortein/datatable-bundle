@@ -152,8 +152,10 @@ Before tagging a release:
 2. Run `composer changelog`.
 3. Review the generated `CHANGELOG.md`.
 4. Move entries from `## [Unreleased]` to a versioned section.
-5. Commit the changelog update.
-6. Tag the release.
+5. Remove the consumed fragment files.
+6. Commit the changelog update.
+7. Merge the release preparation into `develop`, then promote `develop` to `main`.
+8. Tag the release from `main`.
 
 Example future version section:
 
@@ -161,9 +163,9 @@ Example future version section:
 ## [0.1.0] - 2026-05-09
 ```
 
-## Current limitation
+## Current scope
 
-The current script rebuilds the `Unreleased` section only.
+The fragment builder rebuilds the `Unreleased` section only.
 
 It does not yet:
 
@@ -172,15 +174,15 @@ It does not yet:
 - generate GitHub releases;
 - publish to Packagist.
 
-Those tasks belong to the release workflow milestone.
+Those tasks remain explicit release-preparation steps.
 
 ## GitHub release workflow
 
 GitHub Releases are created from tags by `.github/workflows/release.yaml`.
 
-The workflow extracts release notes from `CHANGELOG.md`.
+The workflow requires a non-empty `CHANGELOG.md` section matching the exact tag. It does not fall back to `Unreleased` or generated placeholder notes.
 
-Before creating a tag, move relevant entries from `Unreleased` to a versioned section.
+Before creating a tag, move relevant entries from `Unreleased` to a versioned section and remove the consumed fragments.
 
 Example:
 
