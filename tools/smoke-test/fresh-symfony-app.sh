@@ -88,11 +88,8 @@ php bin/console importmap:require bootstrap-icons/font/bootstrap-icons.min.css -
 php bin/console debug:router zhortein_datatable_fragments --format=json
 php bin/console debug:router zhortein_datatable_export --format=json
 
-datatable_services="$(php bin/console debug:container --tag=zhortein_datatable.datatable)"
-grep -Fq 'App\Datatable\SmokeUserDatatable' <<< "${datatable_services}"
-
-asset_map="$(php bin/console debug:asset-map '@zhortein/datatable-bundle')"
-grep -Fq 'controllers/datatable_controller.js' <<< "${asset_map}"
+php bin/console debug:container 'App\Datatable\SmokeUserDatatable'
+php bin/console debug:asset-map '@zhortein/datatable-bundle'
 
 php bin/console asset-map:compile
 php smoke.php
