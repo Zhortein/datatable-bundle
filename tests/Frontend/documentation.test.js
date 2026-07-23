@@ -104,6 +104,7 @@ describe('Documentation', () => {
         expect(smokeTest).toContain('composer create-project');
         expect(smokeTest).toContain('debug:router zhortein_datatable_fragments');
         expect(smokeTest).toContain('debug:router zhortein_datatable_export');
+        expect(smokeTest).toContain("debug:container 'App\\Datatable\\SmokeUserDatatable'");
         expect(smokeTest).toContain("debug:asset-map '@zhortein/datatable-bundle'");
         expect(smokeTest).toContain('asset-map:compile');
         expect(smokeTest).toContain('php smoke.php');
