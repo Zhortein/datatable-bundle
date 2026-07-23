@@ -19,6 +19,7 @@ final class DatatableDefinitionTest extends TestCase
             ->setTranslationDomain('user')
             ->addColumn('e.id', visible: false, sortable: false, searchable: false)
             ->addColumn('e.email', label: 'Email', className: 'text-start')
+            ->addColumn('e.enabled', type: 'boolean', negate: true)
         ;
 
         self::assertSame('users', $definition->getName());
@@ -34,6 +35,7 @@ final class DatatableDefinitionTest extends TestCase
         self::assertFalse($columns['e.id']->isSearchable());
         self::assertSame('Email', $columns['e.email']->getLabel());
         self::assertSame('text-start', $columns['e.email']->getClassName());
+        self::assertTrue($columns['e.enabled']->isNegated());
     }
 
     public function test_it_stores_row_and_global_actions(): void

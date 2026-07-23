@@ -20,6 +20,7 @@ final class ColumnDefinitionTest extends TestCase
             className: 'text-start',
             template: 'email.html.twig',
             type: 'string',
+            negate: true,
         );
 
         self::assertSame('e.email', $column->getName());
@@ -30,5 +31,13 @@ final class ColumnDefinitionTest extends TestCase
         self::assertSame('text-start', $column->getClassName());
         self::assertSame('email.html.twig', $column->getTemplate());
         self::assertSame('string', $column->getType());
+        self::assertTrue($column->isNegated());
+    }
+
+    public function test_boolean_negation_is_disabled_by_default(): void
+    {
+        $column = new ColumnDefinition(name: 'enabled', type: 'boolean');
+
+        self::assertFalse($column->isNegated());
     }
 }

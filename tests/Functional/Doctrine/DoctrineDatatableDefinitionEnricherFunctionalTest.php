@@ -50,6 +50,23 @@ final class DoctrineDatatableDefinitionEnricherFunctionalTest extends Functional
         self::assertSame('custom', $definition->getColumns()['e.email']->getType());
     }
 
+    public function test_it_preserves_boolean_negation_when_guessing_the_column_type(): void
+    {
+        $definition = new DatatableDefinition('users');
+
+        $definition
+            ->setEntityClass(DoctrineUser::class)
+            ->addColumn('e.enabled', negate: true)
+        ;
+
+        $this->getEnricher()->enrich($definition);
+
+        $column = $definition->getColumns()['e.enabled'];
+
+        self::assertSame('boolean', $column->getType());
+        self::assertTrue($column->isNegated());
+    }
+
     public function test_it_ignores_definitions_without_entity_class(): void
     {
         $definition = new DatatableDefinition('users');
