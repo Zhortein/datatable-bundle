@@ -80,11 +80,14 @@ install \
     "${bundle_root}/tools/smoke-test/fixtures/smoke.php" \
     smoke.php
 
+php bin/console cache:clear
+
 test -f assets/stimulus_bootstrap.js
 
 php bin/console importmap:require bootstrap --no-interaction
 php bin/console importmap:require bootstrap-icons/font/bootstrap-icons.min.css --no-interaction
 
+php bin/console debug:router app_smoke --format=json
 php bin/console debug:router zhortein_datatable_fragments --format=json
 php bin/console debug:router zhortein_datatable_export --format=json
 
