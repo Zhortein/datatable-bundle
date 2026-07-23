@@ -20,6 +20,10 @@ final class DatatableRendererXlsxExportControlTest extends TestCase
 
         self::assertStringContainsString('CSV current view', $html);
         self::assertStringContainsString('CSV full dataset', $html);
+        self::assertStringContainsString(
+            'class="btn btn-sm btn-outline-secondary dropdown-toggle d-inline-flex align-items-center gap-1"',
+            $html,
+        );
         self::assertStringContainsString('/_zhortein/datatable/users/export/csv?mode=current', $html);
         self::assertStringContainsString('/_zhortein/datatable/users/export/csv?mode=full', $html);
         self::assertStringNotContainsString('XLSX current view', $html);

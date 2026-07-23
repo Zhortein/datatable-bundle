@@ -8,10 +8,18 @@
 {% set filter_layout = options.filterLayout is defined ? options.filterLayout : 'toolbar' %}
 {% set toolbar_filters_enabled = filter_layout == 'toolbar' %}
 {% set is_split_layout = controlsLayout is defined and controlsLayout == 'split' %}
+{% set search_enabled = options.search is defined and options.search %}
+{% set filter_area_visible = definition.filters is not empty %}
+{% set search_builder_enabled = options.searchBuilder is defined and options.searchBuilder %}
+{% set controls_visible = export_enabled or search_builder_enabled %}
+
+{% if not controls_visible and not is_split_layout %}
+    {% set controls_visible = (column_visibility_enabled and definition.columns is not empty) or page_size_selector_enabled %}
+{% endif %}
 
 <div class="zhortein-datatable__toolbar d-flex flex-wrap justify-content-between align-items-end gap-3 mb-3">
-    <div class="zhortein-datatable__search">
-        {% if options.search is defined and options.search %}
+    <div class="zhortein-datatable__search{% if not search_enabled %} d-none{% endif %}">
+        {% if search_enabled %}
             <label class="visually-hidden" for="{{ htmlId }}_search">
                 {{ 'zhortein_datatable.search.label'|trans({}, 'zhortein_datatable') }}
             </label>
@@ -27,7 +35,7 @@
         {% endif %}
     </div>
 
-    <div class="zhortein-datatable__filter-area">
+    <div class="zhortein-datatable__filter-area{% if not filter_area_visible %} d-none{% endif %}">
         {% if toolbar_filters_enabled %}
             {% include '@ZhorteinDatatable/bootstrap/_filters.html.twig' with {
                 definition: definition,
@@ -59,7 +67,7 @@
         {% endif %}
     </div>
 
-    <div class="zhortein-datatable__controls d-flex flex-wrap align-items-center gap-2">
+    <div class="zhortein-datatable__controls d-flex flex-wrap align-items-center gap-2{% if not controls_visible %} d-none{% endif %}">
         {% if not is_split_layout and column_visibility_enabled %}
             {% include '@ZhorteinDatatable/bootstrap/_column_visibility.html.twig' with {
                 definition: definition,
@@ -76,7 +84,7 @@
             } %}
         {% endif %}
 
-        {% if options.searchBuilder is defined and options.searchBuilder %}
+        {% if search_builder_enabled %}
             <button
                 type="button"
                 class="btn btn-sm btn-outline-secondary"

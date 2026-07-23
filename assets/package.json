@@ -7,7 +7,7 @@
     "controllers": {
       "datatable": {
         "main": "controllers/datatable_controller.js",
-        "fetch": "eager",
+        "fetch": "lazy",
         "enabled": true
       }
     }

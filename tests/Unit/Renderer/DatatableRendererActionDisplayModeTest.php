@@ -49,6 +49,10 @@ final class DatatableRendererActionDisplayModeTest extends TestCase
         $html = $this->renderWithMode(ActionDisplayMode::Dropdown);
 
         self::assertStringContainsString('zhortein-datatable__row-actions-dropdown', $html);
+        self::assertStringContainsString(
+            'class="btn btn-sm btn-outline-secondary dropdown-toggle d-inline-flex align-items-center gap-1"',
+            $html,
+        );
         self::assertStringContainsString('dropdown-menu dropdown-menu-end', $html);
         self::assertStringContainsString('dropdown-item', $html);
         self::assertStringContainsString('href="/users/42/view"', $html);
