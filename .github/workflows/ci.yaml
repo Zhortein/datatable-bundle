@@ -52,6 +52,7 @@ jobs:
   fresh-symfony-app:
     name: Fresh Symfony application
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
