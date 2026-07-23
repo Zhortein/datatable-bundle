@@ -12,6 +12,8 @@ use Zhortein\DatatableBundle\Exception\UnsupportedDatatableDefinitionException;
 
 final readonly class DataProviderRegistry
 {
+    public const string OPTION_PROVIDER = 'provider';
+
     /**
      * @var array<string, DataProviderInterface>
      */
@@ -20,8 +22,10 @@ final readonly class DataProviderRegistry
     /**
      * @param iterable<string, DataProviderInterface> $providers
      */
-    public function __construct(iterable $providers = [])
-    {
+    public function __construct(
+        iterable $providers = [],
+        private string $defaultProvider = 'doctrine',
+    ) {
         $normalizedProviders = [];
 
         foreach ($providers as $name => $provider) {
@@ -55,8 +59,24 @@ final readonly class DataProviderRegistry
 
     public function resolve(DatatableDefinition $definition, ?string $name = null): DataProviderInterface
     {
+        if (null === $name) {
+            $configuredProvider = $definition->getOption(self::OPTION_PROVIDER);
+
+            if (is_string($configuredProvider) && '' !== trim($configuredProvider)) {
+                $name = trim($configuredProvider);
+            }
+        }
+
         if (null !== $name) {
             return $this->get($name);
+        }
+
+        if ($this->has($this->defaultProvider)) {
+            $defaultProvider = $this->get($this->defaultProvider);
+
+            if ($defaultProvider->supports($definition)) {
+                return $defaultProvider;
+            }
         }
 
         foreach ($this->providers as $provider) {

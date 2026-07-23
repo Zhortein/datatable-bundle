@@ -4,7 +4,7 @@ The `ArrayDataProvider` is a lightweight provider for in-memory arrays. It is id
 
 ## Usage
 
-To use the array provider, specify `provider: 'array'` in the `#[AsDatatable]` attribute.
+To use the array provider, specify `provider: 'array'` in the `#[AsDatatable]` attribute and provide the rows in the definition.
 
 ### Datatable Class
 
@@ -22,13 +22,13 @@ final class UserArrayDatatable implements DatatableInterface
     public function buildDatatable(DatatableDefinition $definition): void
     {
         $definition
-            ->addColumn('id', visible: false)
-            ->addColumn('email', label: 'Email')
-            ->addColumn('displayName', label: 'Display name')
             ->setOption(ArrayDataProvider::OPTION_ROWS, [
                 ['id' => 1, 'email' => 'alice@example.test', 'displayName' => 'Alice'],
                 ['id' => 2, 'email' => 'bob@example.test', 'displayName' => 'Bob'],
             ])
+            ->addColumn('id', visible: false)
+            ->addColumn('email', label: 'Email')
+            ->addColumn('displayName', label: 'Display name')
         ;
     }
 }
@@ -46,7 +46,7 @@ final class UserArrayDatatable implements DatatableInterface
 ## Options
 
 - `ArrayDataProvider::OPTION_ROWS` (`rows`): An array of associative arrays representing the data.
-- `ArrayDataProvider::OPTION_PROVIDER` (`provider`): Internal identifier (defaults to `array`).
+- `ArrayDataProvider::OPTION_PROVIDER` (`provider`): Explicit provider identifier. The attribute is preferred for normal usage.
 
 ## Limitations
 

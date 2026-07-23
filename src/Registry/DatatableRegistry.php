@@ -13,10 +13,12 @@ final readonly class DatatableRegistry
 {
     /**
      * @param array<string, string> $datatableServiceIds
+     * @param array<string, string> $datatableProviderNames
      */
     public function __construct(
         private ContainerInterface $datatables,
         private array $datatableServiceIds = [],
+        private array $datatableProviderNames = [],
     ) {
     }
 
@@ -54,5 +56,10 @@ final readonly class DatatableRegistry
     public function getServiceIds(): array
     {
         return $this->datatableServiceIds;
+    }
+
+    public function getProviderName(string $name): ?string
+    {
+        return $this->datatableProviderNames[$name] ?? null;
     }
 }

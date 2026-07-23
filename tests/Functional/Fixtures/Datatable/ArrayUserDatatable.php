@@ -9,13 +9,12 @@ use Zhortein\DatatableBundle\Contract\DatatableInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 
-#[AsDatatable(name: 'array-users')]
+#[AsDatatable(name: 'array-users', provider: 'array')]
 final class ArrayUserDatatable implements DatatableInterface
 {
     public function buildDatatable(DatatableDefinition $definition): void
     {
         $definition
-            ->setOption(ArrayDataProvider::OPTION_PROVIDER, ArrayDataProvider::PROVIDER_NAME)
             ->setOption(ArrayDataProvider::OPTION_ROWS, [
                 ['email' => 'alice@example.test', 'enabled' => true],
                 ['email' => 'bob@example.test', 'enabled' => false],

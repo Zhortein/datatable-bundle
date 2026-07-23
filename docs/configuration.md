@@ -55,7 +55,9 @@ Default:
 default_provider: doctrine
 ```
 
-The default provider will be used when no explicit provider is selected.
+The default provider is preferred when no provider is declared explicitly and it supports the datatable definition. If it does not support the definition, the registry falls back to another compatible provider.
+
+An explicit provider declared with `#[AsDatatable(provider: '...')]` always takes precedence.
 
 Current providers:
 

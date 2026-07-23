@@ -23,12 +23,15 @@ final class DatatableRegistryTest extends TestCase
                 'users' => static fn (): RegistryTestDatatable => $datatable,
             ]),
             ['users' => RegistryTestDatatable::class],
+            ['users' => 'array'],
         );
 
         self::assertTrue($registry->has('users'));
         self::assertSame($datatable, $registry->get('users'));
         self::assertSame(['users'], $registry->getNames());
         self::assertSame(['users' => RegistryTestDatatable::class], $registry->getServiceIds());
+        self::assertSame('array', $registry->getProviderName('users'));
+        self::assertNull($registry->getProviderName('missing'));
     }
 
     public function test_it_throws_when_datatable_is_missing(): void
