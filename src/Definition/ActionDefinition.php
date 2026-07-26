@@ -16,8 +16,8 @@ final readonly class ActionDefinition
     private ?string $permission;
 
     /**
-     * @param array<string, string> $routeParameters
-     * @param array<string, string> $attributes
+     * @param array<string, string|RouteParameter> $routeParameters
+     * @param array<string, string>                $attributes
      */
     public function __construct(
         private string $name,
@@ -80,7 +80,7 @@ final readonly class ActionDefinition
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, string|RouteParameter>
      */
     public function getRouteParameters(): array
     {

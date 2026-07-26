@@ -244,7 +244,12 @@ final readonly class DatatableRenderer
 
             $actions[] = $this->normalizeAction(
                 action: $action,
-                url: $this->urlGenerator->generate($action->getRoute(), $this->normalizeStaticRouteParameters($action)),
+                url: $this->urlGenerator->generate(
+                    $action->getRoute(),
+                    null !== $this->routeParameterResolver
+                        ? $this->routeParameterResolver->resolveGlobalAction($action, $definition->getContext())
+                        : $this->normalizeLegacyStaticRouteParameters($action),
+                ),
                 translationDomain: $definition->getTranslationDomain(),
             );
         }
@@ -270,7 +275,12 @@ final readonly class DatatableRenderer
 
             $actions[] = $this->normalizeAction(
                 action: $action,
-                url: $this->urlGenerator->generate($action->getRoute(), $action->getRouteParameters()),
+                url: $this->urlGenerator->generate(
+                    $action->getRoute(),
+                    null !== $this->routeParameterResolver
+                        ? $this->routeParameterResolver->resolveBulkAction($action, $definition->getContext())
+                        : $this->normalizeLegacyStaticRouteParameters($action),
+                ),
                 translationDomain: $definition->getTranslationDomain(),
             );
         }
@@ -292,9 +302,23 @@ final readonly class DatatableRenderer
     /**
      * @return array<string, string>
      */
-    private function normalizeStaticRouteParameters(ActionDefinition|BulkActionDefinition $action): array
+    private function normalizeLegacyStaticRouteParameters(ActionDefinition|BulkActionDefinition $action): array
     {
-        return $action->getRouteParameters();
+        $parameters = [];
+
+        foreach ($action->getRouteParameters() as $name => $parameter) {
+            if (!is_string($parameter)) {
+                throw new \LogicException(sprintf(
+                    'The route parameter "%s" for action "%s" requires the configured route parameter resolver.',
+                    $name,
+                    $action->getName(),
+                ));
+            }
+
+            $parameters[$name] = $parameter;
+        }
+
+        return $parameters;
     }
 
     /**
@@ -389,7 +413,7 @@ final readonly class DatatableRenderer
                 action: $action,
                 url: $this->urlGenerator->generate(
                     $action->getRoute(),
-                    $this->routeParameterResolver->resolve($action, $row),
+                    $this->routeParameterResolver->resolve($action, $row, $definition->getContext()),
                 ),
                 translationDomain: $definition->getTranslationDomain(),
             );

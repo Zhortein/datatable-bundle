@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Tests\Unit\Definition;
 
 use PHPUnit\Framework\TestCase;
+use Zhortein\DatatableBundle\Context\DatatableContext;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 
@@ -37,6 +38,18 @@ final class DatatableDefinitionTest extends TestCase
         self::assertSame('text-start', $columns['e.email']->getClassName());
         self::assertTrue($columns['e.enabled']->isNegated());
         self::assertFalse($columns['e.enabled']->getExportable());
+    }
+
+    public function test_it_stores_an_explicit_context(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $context = new DatatableContext(['locale' => 'fr']);
+
+        self::assertSame([], $definition->getContext()->all());
+
+        $definition->setContext($context);
+
+        self::assertSame($context, $definition->getContext());
     }
 
     public function test_it_stores_row_and_global_actions(): void

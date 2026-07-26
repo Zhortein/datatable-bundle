@@ -10,7 +10,7 @@ Currently implemented:
 -   GET actions (rendered as links).
 -   Non-GET actions (POST, PUT, DELETE - rendered as forms with CSRF protection).
 -   Bulk actions (on multiple selected rows).
--   Route parameter resolution from row data.
+-   Typed route parameter sources for row data, literals and explicit datatable context.
 -   Action visibility checker extension point.
 -   Optional Symfony Authorization adapter (voters).
 -   Confirmation messages (native `window.confirm` or Bootstrap modal).
@@ -63,6 +63,145 @@ $definition->addBulkAction(
     className: 'btn btn-outline-danger',
     confirmationMessage: 'Are you sure you want to delete the selected rows?',
 );
+```
+
+## Route parameters
+
+An action route parameter can use an explicit `RouteParameter` source:
+
+```php
+use Zhortein\DatatableBundle\Context\DatatableContext;
+use Zhortein\DatatableBundle\Definition\RouteParameter;
+
+$definition
+    ->setContext(new DatatableContext([
+        'locale' => $locale,
+    ]))
+    ->addRowAction(
+        name: 'preview',
+        route: 'app_article_preview',
+        label: 'Preview',
+        routeParameters: [
+            'id' => RouteParameter::row('e.id'),
+            '_locale' => RouteParameter::context('locale'),
+            'format' => RouteParameter::literal('html'),
+        ],
+    )
+;
+```
+
+The available sources are:
+
+| Declaration | Resolution |
+|---|---|
+| `RouteParameter::row('e.id')` | Required value from the normalized row |
+| `RouteParameter::literal('html')` | Explicit literal value |
+| `RouteParameter::context('locale')` | Required value from the definition's allowlisted context |
+| `RouteParameter::optionalRow('slug')` | Row value, omitted when absent or `null` |
+| `RouteParameter::optionalContext('tenant')` | Context value, omitted when absent or `null` |
+| `RouteParameter::rowOr('slug', 'preview')` | Row value with a fallback |
+| `RouteParameter::contextOr('locale', 'en')` | Context value with a fallback |
+
+A `null` fallback omits the parameter. Required row and context sources reject
+both missing and `null` values with an exception that identifies the action,
+route parameter and source. Literals are passed deliberately, including
+`null`, so Symfony's URL generator remains authoritative for the target route.
+
+Resolved values may be scalar, `Stringable` or backed enums. Backed enums are
+reduced to their backing value and `Stringable` objects to strings before URL
+generation. Arrays and arbitrary objects are rejected.
+
+### Row lookup rules
+
+Row sources work with both built-in providers. Resolution checks, in order:
+
+1. the exact normalized array key, such as `e.id`;
+2. the Doctrine scalar alias, such as `e_id`;
+3. a nested array or readable object path, such as `translation.locale`;
+4. the final segment fallback, such as `id`.
+
+This allows a selected Doctrine projection and an Array provider row to use the
+same declaration without requiring a visible or hidden technical column for a
+literal or contextual value.
+
+### Context allowlist and request locales
+
+`DatatableContext` is an explicit, server-side allowlist owned by one
+`DatatableDefinition`. It is recreated when the definition is built for an
+Ajax fragment, so a request-aware datatable may select the current locale
+without exposing the full request:
+
+```php
+use Symfony\Component\HttpFoundation\RequestStack;
+use Zhortein\DatatableBundle\Context\DatatableContext;
+
+final class ArticleDatatable implements DatatableInterface
+{
+    public function __construct(
+        private RequestStack $requestStack,
+    ) {
+    }
+
+    public function buildDatatable(DatatableDefinition $definition): void
+    {
+        $locale = $this->requestStack->getCurrentRequest()?->getLocale() ?? 'en';
+
+        $definition->setContext(new DatatableContext([
+            'locale' => $locale,
+        ]));
+
+        // Columns and actions...
+    }
+}
+```
+
+Do not put the request, session, token, user or another broad application
+object in this context. Store only the minimal validated value needed by the
+definition. A context value used as a route parameter is visible in the
+generated URL and must never contain a secret. Authorization and tenant
+validation remain the responsibility of the target route.
+
+The context is not accepted from fragment query parameters and is not
+serialized automatically. Cross-request propagation of explicitly
+browser-safe context is a separate contract; applications must rebuild the
+current server context for now.
+
+### Compatibility and migration
+
+Existing 1.x declarations remain valid:
+
+- a string in a row action still means a normalized row key;
+- a string in a global or bulk action still means a literal value.
+
+Consequently, this declaration does not need to change:
+
+```php
+routeParameters: ['id' => 'e.id']
+```
+
+Use the typed form for new code and when the value does not come from a row.
+The former hidden-column workaround:
+
+```php
+routeParameters: [
+    'locale' => 'frTranslation.locale',
+]
+```
+
+can become either an explicit literal:
+
+```php
+routeParameters: [
+    'locale' => RouteParameter::literal('fr'),
+]
+```
+
+or an allowlisted, request-aware context value:
+
+```php
+routeParameters: [
+    'locale' => RouteParameter::context('locale'),
+]
 ```
 
 ## Security and CSRF
