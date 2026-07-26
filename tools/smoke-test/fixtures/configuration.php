@@ -6,8 +6,8 @@ use App\Kernel;
 
 require __DIR__.'/vendor/autoload.php';
 
-if (3 !== $argc) {
-    throw new InvalidArgumentException('Expected a configuration profile and a debug:config output path.');
+if (4 !== $argc) {
+    throw new InvalidArgumentException('Expected a configuration profile, environment and debug:config output path.');
 }
 
 $profiles = [
@@ -99,7 +99,7 @@ if (!is_array($profile)) {
     throw new InvalidArgumentException(sprintf('Unknown configuration profile "%s".', $argv[1]));
 }
 
-$config = file_get_contents($argv[2]);
+$config = file_get_contents($argv[3]);
 
 if (!is_string($config)) {
     throw new RuntimeException('The debug:config output could not be read.');
@@ -107,7 +107,7 @@ if (!is_string($config)) {
 
 assertConfigValues($config, $profile['patterns']);
 
-$kernel = new Kernel('dev', true);
+$kernel = new Kernel($argv[2], true);
 $kernel->boot();
 $container = $kernel->getContainer();
 
