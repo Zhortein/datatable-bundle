@@ -12,8 +12,8 @@ use Zhortein\DatatableBundle\Enum\ActionIconPosition;
  * NOTE: Visibility checks only control whether the action is rendered in the UI.
  * The backend route MUST also enforce authorization and validate the request.
  *
- * @param array<string, string> $routeParameters
- * @param array<string, string> $attributes
+ * @param array<string, string|RouteParameter> $routeParameters
+ * @param array<string, string>                $attributes
  */
 final readonly class BulkActionDefinition
 {
@@ -25,8 +25,8 @@ final readonly class BulkActionDefinition
     private ?string $permission;
 
     /**
-     * @param array<string, string> $routeParameters
-     * @param array<string, string> $attributes
+     * @param array<string, string|RouteParameter> $routeParameters
+     * @param array<string, string>                $attributes
      */
     public function __construct(
         private string $name,
@@ -90,7 +90,7 @@ final readonly class BulkActionDefinition
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, string|RouteParameter>
      */
     public function getRouteParameters(): array
     {
