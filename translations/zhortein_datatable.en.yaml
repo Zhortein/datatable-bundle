@@ -39,6 +39,8 @@ zhortein_datatable:
         column_filter: 'Filter %column%'
         column_filter_active: 'Filter active'
         clear_column: 'Clear filter'
+        range_from: '%filter% from'
+        range_to: '%filter% to'
     columns:
         visibility: 'Columns'
     export:

@@ -227,7 +227,7 @@ final readonly class DatatableRenderer
     }
 
     /**
-     * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>}>
+     * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null}>
      */
     private function normalizeGlobalActions(DatatableDefinition $definition): array
     {
@@ -245,6 +245,7 @@ final readonly class DatatableRenderer
             $actions[] = $this->normalizeAction(
                 action: $action,
                 url: $this->urlGenerator->generate($action->getRoute(), $this->normalizeStaticRouteParameters($action)),
+                translationDomain: $definition->getTranslationDomain(),
             );
         }
 
@@ -252,7 +253,7 @@ final readonly class DatatableRenderer
     }
 
     /**
-     * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null}>
+     * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null}>
      */
     private function normalizeBulkActions(DatatableDefinition $definition): array
     {
@@ -270,6 +271,7 @@ final readonly class DatatableRenderer
             $actions[] = $this->normalizeAction(
                 action: $action,
                 url: $this->urlGenerator->generate($action->getRoute(), $action->getRouteParameters()),
+                translationDomain: $definition->getTranslationDomain(),
             );
         }
 
@@ -298,7 +300,7 @@ final readonly class DatatableRenderer
     /**
      * @param array<string, mixed> $options
      *
-     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed, template: string, className: string|null, booleanDisplayMode: string}>, actions: list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>}>, identifier: string|null}>
+     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed, template: string, className: string|null, booleanDisplayMode: string, booleanTrueIcon: string|null, booleanFalseIcon: string|null, translationDomain: string|null}>, actions: list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null}>, identifier: string|null}>
      */
     private function normalizeRows(DatatableDefinition $definition, DatatableResult $result, array $options = []): array
     {
@@ -321,6 +323,7 @@ final readonly class DatatableRenderer
                     'booleanDisplayMode' => $booleanDisplayMode->value,
                     'booleanTrueIcon' => $booleanTrueIcon,
                     'booleanFalseIcon' => $booleanFalseIcon,
+                    'translationDomain' => $definition->getTranslationDomain(),
                 ];
             }
 
@@ -367,7 +370,7 @@ final readonly class DatatableRenderer
     /**
      * @param array<string, mixed> $row
      *
-     * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, csrfToken: string|null, className: string|null, attributes: array<string, string>}>
+     * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null}>
      */
     private function normalizeRowActions(DatatableDefinition $definition, array $row): array
     {
@@ -388,6 +391,7 @@ final readonly class DatatableRenderer
                     $action->getRoute(),
                     $this->routeParameterResolver->resolve($action, $row),
                 ),
+                translationDomain: $definition->getTranslationDomain(),
             );
         }
 
@@ -413,10 +417,13 @@ final readonly class DatatableRenderer
     }
 
     /**
-     * @return array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null}
+     * @return array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null}
      */
-    private function normalizeAction(ActionDefinition|BulkActionDefinition $action, string $url): array
-    {
+    private function normalizeAction(
+        ActionDefinition|BulkActionDefinition $action,
+        string $url,
+        ?string $translationDomain,
+    ): array {
         $httpMethod = strtoupper($action->getHttpMethod());
 
         return [
@@ -431,6 +438,7 @@ final readonly class DatatableRenderer
             'className' => $action->getClassName(),
             'attributes' => $action->getAttributes(),
             'selectedRowsParameterName' => $action instanceof BulkActionDefinition ? $action->getSelectedRowsParameterName() : null,
+            'translationDomain' => $translationDomain,
         ];
     }
 

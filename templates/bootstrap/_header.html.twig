@@ -22,6 +22,7 @@
             {% set aria_sort = null %}
             {% set column_filter = null %}
             {% set column_class_name = columnClassNames[column.name]|default(null) %}
+            {% set column_label = zhortein_datatable_translate(column.label, definition.translationDomain, column.name) %}
 
             {% if is_current_sort %}
                 {% set aria_sort = current_sort_direction == 'desc' ? 'descending' : 'ascending' %}
@@ -51,11 +52,11 @@
                             data-zhortein--datatable-bundle--datatable-current-sort-param="{{ is_current_sort ? 'true' : 'false' }}"
                             data-zhortein--datatable-bundle--datatable-sort-direction-param="{{ is_current_sort ? current_sort_direction : '' }}"
                             aria-label="{{ 'zhortein_datatable.sort.label'|trans({
-                                '%column%': column.label ?? column.name
+                                '%column%': column_label
                             }, 'zhortein_datatable') }}"
                         >
                             <span class="zhortein-datatable__sort-label">
-                                {{ column.label ?? column.name }}
+                                {{ column_label }}
                             </span>
 
                             <span class="zhortein-datatable__sort-indicator text-body-secondary" aria-hidden="true">
@@ -75,15 +76,17 @@
                             {% endif %}
                         </button>
                     {% else %}
-                        <span>{{ column.label ?? column.name }}</span>
+                        <span>{{ column_label }}</span>
                     {% endif %}
 
                     {% if column_filter %}
                         {% include '@ZhorteinDatatable/bootstrap/_column_filter.html.twig' with {
                             column: column,
                             filter: column_filter,
+                            columnLabel: column_label,
                             htmlId: htmlId,
-                            filters: filters|default({})
+                            filters: filters|default({}),
+                            translationDomain: definition.translationDomain
                         } %}
                     {% endif %}
                 </div>

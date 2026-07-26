@@ -1,6 +1,7 @@
 {% set filter_id = htmlId ~ '_filter_' ~ filter.name %}
-{% set filter_label = filter.label ?? filter.name %}
-{% set filter_placeholder = filter.placeholder ?? filter_label %}
+{% set translation_domain = translationDomain|default(null) %}
+{% set filter_label = zhortein_datatable_translate(filter.label, translation_domain, filter.name) %}
+{% set filter_placeholder = zhortein_datatable_translate(filter.placeholder, translation_domain, filter_label) %}
 {% set filter_type = filter.type.value %}
 
 <div class="zhortein-datatable__filter">
@@ -21,7 +22,7 @@
         >
             <option value="">{{ filter_placeholder }}</option>
             {% for choice_label, choice_value in filter.choices %}
-                <option value="{{ choice_value }}"{% if value is not null and value == choice_value %} selected{% endif %}>{{ choice_label }}</option>
+                <option value="{{ choice_value }}"{% if value is not null and value == choice_value %} selected{% endif %}>{{ zhortein_datatable_translate(choice_label, translation_domain) }}</option>
             {% endfor %}
         </select>
     {% elseif filter_type == 'boolean' %}
@@ -60,7 +61,7 @@
                 name="filters[{{ filter.name }}][from]"
                 type="date"
                 class="form-control form-control-sm"
-                aria-label="{{ filter_label }} from"
+                aria-label="{{ 'zhortein_datatable.filters.range_from'|trans({'%filter%': filter_label}, 'zhortein_datatable') }}"
                 value="{{ value.from|default('') }}"
                 data-zhortein--datatable-bundle--datatable-filter-control="true"
                 data-action="change->zhortein--datatable-bundle--datatable#changeFilter"
@@ -70,7 +71,7 @@
                 name="filters[{{ filter.name }}][to]"
                 type="date"
                 class="form-control form-control-sm"
-                aria-label="{{ filter_label }} to"
+                aria-label="{{ 'zhortein_datatable.filters.range_to'|trans({'%filter%': filter_label}, 'zhortein_datatable') }}"
                 value="{{ value.to|default('') }}"
                 data-zhortein--datatable-bundle--datatable-filter-control="true"
                 data-action="change->zhortein--datatable-bundle--datatable#changeFilter"
@@ -97,7 +98,7 @@
                 name="filters[{{ filter.name }}][from]"
                 type="number"
                 class="form-control form-control-sm"
-                aria-label="{{ filter_label }} from"
+                aria-label="{{ 'zhortein_datatable.filters.range_from'|trans({'%filter%': filter_label}, 'zhortein_datatable') }}"
                 value="{{ value.from|default('') }}"
                 data-zhortein--datatable-bundle--datatable-filter-control="true"
                 data-action="input->zhortein--datatable-bundle--datatable#changeFilter change->zhortein--datatable-bundle--datatable#changeFilter"
@@ -107,7 +108,7 @@
                 name="filters[{{ filter.name }}][to]"
                 type="number"
                 class="form-control form-control-sm"
-                aria-label="{{ filter_label }} to"
+                aria-label="{{ 'zhortein_datatable.filters.range_to'|trans({'%filter%': filter_label}, 'zhortein_datatable') }}"
                 value="{{ value.to|default('') }}"
                 data-zhortein--datatable-bundle--datatable-filter-control="true"
                 data-action="input->zhortein--datatable-bundle--datatable#changeFilter change->zhortein--datatable-bundle--datatable#changeFilter"

@@ -66,10 +66,29 @@ Available variables: `definition`, `visibleColumns`, `rowActions`, `globalAction
 
 ### Cell Context (`_cell.html.twig` and `cell/*.html.twig`)
 -   `column`: The `ColumnDefinition` object.
+-   `column_label`: Final column label, translated for the current locale when the definition has a translation domain.
+-   `translation_domain`: Definition translation domain, or `null` when declarative strings are literal.
 -   `value`: The provider value, inverted when the boolean column enables `negate`.
+-   `boolean_display_mode`, `boolean_true_icon`, `boolean_false_icon`: Resolved typed-cell rendering options.
 
 ### Action Context (`_action.html.twig`)
--   `action`: Array containing `name`, `label`, `url`, `httpMethod`, `csrfToken`, `className`, `attributes`.
+-   `action`: Array containing `name`, `label`, `confirmationMessage`, `translationDomain`, `url`, `httpMethod`, `csrfToken`, `className`, `attributes` and `selectedRowsParameterName`.
+
+`label` and `confirmationMessage` remain their declared values so an override
+can inspect them. Resolve either value with the same semantics as the built-in
+templates:
+
+```twig
+{% set label = zhortein_datatable_translate(
+    action.label,
+    action.translationDomain,
+    action.name
+) %}
+```
+
+The helper translates only when its domain argument is not `null`. Its optional
+fourth argument accepts translation parameters. Custom cell templates should
+prefer the already resolved `column_label`.
 
 ## Bootstrap Configuration
 
