@@ -100,20 +100,22 @@ install -D \
     "${bundle_root}/tools/smoke-test/fixtures/zhortein_datatable_minimal.yaml" \
     config/packages/zhortein_datatable.yaml
 
-php bin/console cache:clear
+minimal_environment="smoke_minimal"
+APP_ENV="${minimal_environment}" php bin/console cache:clear
 minimal_config_dump="${smoke_root}/minimal-config.txt"
-php bin/console debug:config zhortein_datatable >"${minimal_config_dump}"
-php configuration.php minimal "${minimal_config_dump}"
+APP_ENV="${minimal_environment}" php bin/console debug:config zhortein_datatable >"${minimal_config_dump}"
+php configuration.php minimal "${minimal_environment}" "${minimal_config_dump}"
 
 install \
     "${bundle_root}/tools/smoke-test/fixtures/zhortein_datatable_complete.yaml" \
     config/packages/zhortein_datatable.yaml
 
-php bin/console cache:clear --no-warmup
+export APP_ENV="smoke_complete"
+php bin/console cache:clear
 php bin/console cache:warmup
 complete_config_dump="${smoke_root}/complete-config.txt"
 php bin/console debug:config zhortein_datatable >"${complete_config_dump}"
-php configuration.php complete "${complete_config_dump}"
+php configuration.php complete "${APP_ENV}" "${complete_config_dump}"
 
 test -f assets/stimulus_bootstrap.js
 
@@ -135,7 +137,7 @@ fragments_response="${smoke_root}/fragments.json"
 csv_response="${smoke_root}/export.csv"
 base_url="http://127.0.0.1:8000"
 
-APP_ENV=dev APP_DEBUG=1 php -S 127.0.0.1:8000 -t public public/index.php \
+APP_DEBUG=1 php -S 127.0.0.1:8000 -t public public/index.php \
     >"${server_log}" 2>&1 &
 server_pid="$!"
 
