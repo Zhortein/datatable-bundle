@@ -1,1 +1,0 @@
-- Added explicit row, literal and allowlisted context sources for action route parameters, including optional/default semantics, nested row paths, backed-enum and `Stringable` normalization, localized-route support and backward-compatible 1.x string declarations.
