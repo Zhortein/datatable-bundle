@@ -109,7 +109,7 @@ install \
     "${bundle_root}/tools/smoke-test/fixtures/zhortein_datatable_complete.yaml" \
     config/packages/zhortein_datatable.yaml
 
-php bin/console cache:clear
+php bin/console cache:clear --no-warmup
 php bin/console cache:warmup
 complete_config_dump="${smoke_root}/complete-config.txt"
 php bin/console debug:config zhortein_datatable >"${complete_config_dump}"
