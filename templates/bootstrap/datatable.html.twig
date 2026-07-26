@@ -72,6 +72,9 @@
     data-zhortein--datatable-bundle--datatable-boolean-display-mode-value="{{ boolean_display_mode }}"
     data-zhortein--datatable-bundle--datatable-pagination-size-value="{{ pagination_size }}"
     data-zhortein--datatable-bundle--datatable-table-small-value="{{ table_small ? 'true' : 'false' }}"
+    data-zhortein--datatable-bundle--datatable-action-success-message-value="{{ 'zhortein_datatable.ajax_action.success'|trans({}, 'zhortein_datatable') }}"
+    data-zhortein--datatable-bundle--datatable-action-error-message-value="{{ 'zhortein_datatable.ajax_action.error'|trans({}, 'zhortein_datatable') }}"
+    data-zhortein--datatable-bundle--datatable-invalid-action-response-message-value="{{ 'zhortein_datatable.ajax_action.invalid_response'|trans({}, 'zhortein_datatable') }}"
     aria-busy="false"
 >
     {% include '@ZhorteinDatatable/bootstrap/_toolbar.html.twig' with {
@@ -90,6 +93,14 @@
     {% include '@ZhorteinDatatable/bootstrap/_bulk_actions.html.twig' with {
         bulkActions: bulkActions|default([])
     } %}
+
+    <div
+        class="alert alert-success d-none align-items-center gap-2"
+        role="status"
+        aria-live="polite"
+        aria-hidden="true"
+        data-zhortein--datatable-bundle--datatable-target="feedback"
+    ></div>
 
     <div
         class="alert alert-danger d-none align-items-center gap-2"

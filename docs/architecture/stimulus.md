@@ -17,6 +17,8 @@ The `datatable_controller.js` is responsible for:
     - **Column Visibility**: Toggling and serializing visibility state.
 - **Actions**:
     - **Confirmations**: Handling `window.confirm` or Bootstrap modal confirmations before proceeding with an action.
+    - **Ajax execution**: Executing explicitly enabled row/global/bulk actions, validating the response contract and applying the declared success strategy.
+    - **Lifecycle events**: Dispatching cancellable before, success, error and complete events without requiring a notification library.
 - **Exports**: Building the export URL based on the current table state (filters, search, sorting).
 
 ## Stimulus Targets and Values
@@ -48,6 +50,10 @@ Every interaction (paging, sorting, filtering) triggers a `refresh()` call. This
 3. Builds the request URL using current values and serialized filter/column states.
 4. Performs a `fetch()`.
 5. Updates the targets with the server's JSON response.
+
+Ajax business actions use a separate versioned response contract. They reuse
+the current controller state for post-success fragment refreshes, but they do
+not change or serialize that state. See [Actions and Security](../actions.md).
 
 ## Integration
 

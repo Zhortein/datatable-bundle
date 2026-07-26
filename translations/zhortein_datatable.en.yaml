@@ -61,6 +61,10 @@ zhortein_datatable:
         label: 'Actions'
         row: 'Row actions'
         more: 'Actions'
+    ajax_action:
+        success: 'The action completed successfully.'
+        error: 'The action could not be completed.'
+        invalid_response: 'The action returned an invalid response.'
     sort:
         label: 'Sort by %column%'
         sorted_ascending: 'sorted ascending'

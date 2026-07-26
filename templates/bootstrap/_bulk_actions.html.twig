@@ -22,6 +22,12 @@
                     class="d-inline"
                     data-action="submit->zhortein--datatable-bundle--datatable#submitBulkAction"
                     data-zhortein--datatable-bundle--datatable-selected-rows-parameter-name="{{ action.selectedRowsParameterName|default('ids') }}"
+                    {% if action.ajax|default(false) %}
+                        data-turbo="false"
+                        data-zhortein--datatable-bundle--datatable-ajax-action="true"
+                        data-zhortein--datatable-bundle--datatable-ajax-action-name="{{ action.name }}"
+                        data-zhortein--datatable-bundle--datatable-ajax-success-strategy="{{ action.ajaxSuccessStrategy }}"
+                    {% endif %}
                     {% if action.confirmationMessage is not null %}
                         data-zhortein--datatable-bundle--datatable-confirmation-message="{{ confirmation_message }}"
                     {% endif %}

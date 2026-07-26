@@ -209,6 +209,21 @@ Covered behavior:
 - cancelled form submissions are prevented;
 - non-HTMLElement event targets are ignored.
 
+### Ajax actions
+
+Covered behavior:
+
+- row, global and bulk opt-in execution;
+- GET links and Symfony method-override forms;
+- CSRF and selected-identifier payloads;
+- confirmation before execution;
+- duplicate-submission prevention and loading-state restoration;
+- versioned success, HTTP/business failure and invalid-response handling;
+- built-in accessible success/error feedback;
+- cancellable before, success, error and complete events;
+- `refresh_table`, `refresh_row`, `remove_row`, `none` and `redirect` strategies;
+- preservation of current search, filters, sort, page, page size and column visibility during a table refresh.
+
 ### Stimulus XLSX export URL generation tests
 
 Frontend tests now cover XLSX export URL generation.

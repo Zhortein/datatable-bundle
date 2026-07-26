@@ -1,4 +1,4 @@
-<tr>
+<tr{% if row.identifier is not null %} data-zhortein--datatable-bundle--datatable-row-identifier="{{ row.identifier }}"{% endif %}>
     {% if hasBulkActions and row.identifier is defined %}
         <td class="zhortein-datatable__selector-column">
             <input

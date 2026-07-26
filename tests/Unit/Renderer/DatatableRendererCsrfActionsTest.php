@@ -13,7 +13,9 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Zhortein\DatatableBundle\Action\AllowAllActionVisibilityChecker;
 use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
+use Zhortein\DatatableBundle\Definition\AjaxActionOptions;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\AjaxActionSuccessStrategy;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
@@ -182,6 +184,92 @@ final class DatatableRendererCsrfActionsTest extends TestCase
         $renderer->renderBody($definition, $this->createResult());
 
         self::assertSame('zhortein_datatable_action_archive', $csrfTokenManager->getLastTokenId());
+    }
+
+    public function test_it_renders_ajax_metadata_without_removing_the_classic_form_fallback(): void
+    {
+        $definition = new DatatableDefinition('users');
+
+        $definition
+            ->addColumn('e.email', label: 'Email')
+            ->addRowAction(
+                name: 'archive',
+                route: 'app_user_delete',
+                label: 'Archive',
+                httpMethod: 'POST',
+                routeParameters: ['id' => 'e.id'],
+                ajax: new AjaxActionOptions(AjaxActionSuccessStrategy::RefreshRow),
+            )
+        ;
+
+        $html = $this->createRendererWithCsrf()->renderBody($definition, $this->createResult());
+
+        self::assertStringContainsString('method="post"', $html);
+        self::assertStringContainsString('action="/users/42/delete"', $html);
+        self::assertStringContainsString('name="_token" value="csrf-token-for-zhortein_datatable_action_archive"', $html);
+        self::assertStringContainsString('data-turbo="false"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-ajax-action="true"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-ajax-action-name="archive"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-ajax-success-strategy="refresh_row"', $html);
+        self::assertStringContainsString('data-action="submit->zhortein--datatable-bundle--datatable#executeAjaxAction"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-row-identifier="42"', $html);
+    }
+
+    public function test_classic_actions_do_not_render_ajax_metadata(): void
+    {
+        $definition = new DatatableDefinition('users');
+
+        $definition
+            ->addColumn('e.email', label: 'Email')
+            ->addRowAction(
+                name: 'view',
+                route: 'app_user_show',
+                label: 'View',
+                routeParameters: ['id' => 'e.id'],
+            )
+        ;
+
+        $html = $this->createRendererWithCsrf()->renderBody($definition, $this->createResult());
+
+        self::assertStringContainsString('href="/users/42"', $html);
+        self::assertStringNotContainsString('data-zhortein--datatable-bundle--datatable-ajax-action=', $html);
+        self::assertStringNotContainsString('data-zhortein--datatable-bundle--datatable-row-identifier=', $html);
+        self::assertStringNotContainsString('#executeAjaxAction', $html);
+    }
+
+    public function test_it_renders_ajax_metadata_for_global_and_bulk_actions(): void
+    {
+        $definition = new DatatableDefinition('users');
+
+        $definition
+            ->addColumn('e.email', label: 'Email')
+            ->addGlobalAction(
+                name: 'synchronize',
+                route: 'app_user_create',
+                label: 'Synchronize',
+                ajax: new AjaxActionOptions(AjaxActionSuccessStrategy::None),
+            )
+            ->addBulkAction(
+                name: 'bulk-delete',
+                route: 'app_user_bulk_delete',
+                label: 'Delete selected',
+                httpMethod: 'DELETE',
+                ajax: new AjaxActionOptions(AjaxActionSuccessStrategy::RemoveRow),
+            )
+        ;
+
+        $html = $this->createRendererWithCsrf()->render($definition, [
+            'columnVisibility' => false,
+            'export' => false,
+        ]);
+
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-ajax-action-name="synchronize"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-ajax-success-strategy="none"', $html);
+        self::assertStringContainsString('data-action="click->zhortein--datatable-bundle--datatable#executeAjaxAction"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-ajax-action-name="bulk-delete"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-ajax-success-strategy="remove_row"', $html);
+        self::assertStringContainsString('data-action="submit->zhortein--datatable-bundle--datatable#submitBulkAction"', $html);
+        self::assertStringContainsString('name="_token" value="csrf-token-for-zhortein_datatable_action_bulk-delete"', $html);
     }
 
     private function createRendererWithCsrf(): DatatableRenderer
