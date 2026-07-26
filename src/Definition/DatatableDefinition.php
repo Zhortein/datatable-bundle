@@ -248,6 +248,7 @@ final class DatatableDefinition
         array $routeParameters = [],
         array $attributes = [],
         ?string $permission = null,
+        ?AjaxActionOptions $ajax = null,
     ): self {
         $this->rowActions[$name] = new ActionDefinition(
             name: $name,
@@ -261,6 +262,7 @@ final class DatatableDefinition
             routeParameters: $routeParameters,
             attributes: $attributes,
             permission: $permission,
+            ajax: $ajax,
         );
 
         return $this;
@@ -290,6 +292,7 @@ final class DatatableDefinition
         array $routeParameters = [],
         array $attributes = [],
         ?string $permission = null,
+        ?AjaxActionOptions $ajax = null,
     ): self {
         if (is_string($iconPosition)) {
             $iconPosition = ActionIconPosition::tryFrom($iconPosition) ?? ActionIconPosition::Before;
@@ -306,6 +309,7 @@ final class DatatableDefinition
             routeParameters: $routeParameters,
             attributes: $attributes,
             permission: $permission,
+            ajax: $ajax,
         );
 
         return $this;
@@ -339,6 +343,7 @@ final class DatatableDefinition
         array $attributes = [],
         string $selectedRowsParameterName = 'ids',
         ?string $permission = null,
+        ?AjaxActionOptions $ajax = null,
     ): self {
         if (is_string($iconPosition)) {
             $iconPosition = ActionIconPosition::tryFrom($iconPosition) ?? ActionIconPosition::Before;
@@ -356,6 +361,7 @@ final class DatatableDefinition
             attributes: $attributes,
             selectedRowsParameterName: $selectedRowsParameterName,
             permission: $permission,
+            ajax: $ajax,
         );
 
         return $this;

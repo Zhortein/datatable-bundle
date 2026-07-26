@@ -19,7 +19,7 @@ A Symfony 8+ bundle for Bootstrap-first business datatables driven by PHP defini
 - **Ajax Fragments**: Seamless server-side updates using vanilla Stimulus.
 - **Data Providers**: Native support for **Doctrine ORM** and **Array** providers.
 - **Filtering**: Built-in global search, toolbar/header filters, and advanced **Search Builder**.
-- **Actions**: Declarative row and global actions with CSRF-aware non-GET support.
+- **Actions**: Declarative row, global and bulk actions with CSRF-aware forms and opt-in Ajax execution.
 - **Exports**: Server-side CSV and optional XLSX exports.
 - **Customization**: Flexible UI/UX customization via Twig blocks and themes.
 - **Type Safety**: Automatic Doctrine type detection and typed cell rendering.

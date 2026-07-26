@@ -41,6 +41,7 @@ final readonly class BulkActionDefinition
         array $attributes = [],
         private string $selectedRowsParameterName = 'ids',
         ?string $permission = null,
+        private ?AjaxActionOptions $ajax = null,
     ) {
         $legacyPermission = $attributes['permission'] ?? null;
         unset($attributes['permission']);
@@ -122,5 +123,10 @@ final readonly class BulkActionDefinition
     public function getPermission(): ?string
     {
         return $this->permission;
+    }
+
+    public function getAjaxOptions(): ?AjaxActionOptions
+    {
+        return $this->ajax;
     }
 }

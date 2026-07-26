@@ -227,7 +227,7 @@ final readonly class DatatableRenderer
     }
 
     /**
-     * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null}>
+     * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null}>
      */
     private function normalizeGlobalActions(DatatableDefinition $definition): array
     {
@@ -258,7 +258,7 @@ final readonly class DatatableRenderer
     }
 
     /**
-     * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null}>
+     * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null}>
      */
     private function normalizeBulkActions(DatatableDefinition $definition): array
     {
@@ -320,12 +320,12 @@ final readonly class DatatableRenderer
     /**
      * @param array<string, mixed> $options
      *
-     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed, template: string, className: string|null, booleanDisplayMode: string, booleanTrueIcon: string|null, booleanFalseIcon: string|null, translationDomain: string|null}>, actions: list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null}>, identifier: string|null}>
+     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed, template: string, className: string|null, booleanDisplayMode: string, booleanTrueIcon: string|null, booleanFalseIcon: string|null, translationDomain: string|null}>, actions: list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null}>, identifier: string|null}>
      */
     private function normalizeRows(DatatableDefinition $definition, DatatableResult $result, array $options = []): array
     {
         $visibleColumns = $this->getVisibleColumns($definition, $options);
-        $hasBulkActions = $this->hasBulkActions($definition);
+        $needsRowIdentifier = $this->hasBulkActions($definition) || $this->hasAjaxRowActions($definition);
         $booleanDisplayMode = $this->resolveBooleanDisplayMode($options);
         $booleanTrueIcon = $this->iconResolver?->resolve('boolean_true');
         $booleanFalseIcon = $this->iconResolver?->resolve('boolean_false');
@@ -350,17 +350,24 @@ final readonly class DatatableRenderer
             $normalizedRow = [
                 'cells' => $cells,
                 'actions' => $this->normalizeRowActions($definition, $row),
-                'identifier' => null,
+                'identifier' => $needsRowIdentifier ? $this->resolveRowIdentifier($row, $definition) : null,
             ];
-
-            if ($hasBulkActions) {
-                $normalizedRow['identifier'] = $this->resolveRowIdentifier($row, $definition);
-            }
 
             $normalizedRows[] = $normalizedRow;
         }
 
         return $normalizedRows;
+    }
+
+    private function hasAjaxRowActions(DatatableDefinition $definition): bool
+    {
+        foreach ($definition->getRowActions() as $action) {
+            if (null !== $action->getAjaxOptions()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -390,7 +397,7 @@ final readonly class DatatableRenderer
     /**
      * @param array<string, mixed> $row
      *
-     * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null}>
+     * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null}>
      */
     private function normalizeRowActions(DatatableDefinition $definition, array $row): array
     {
@@ -437,7 +444,7 @@ final readonly class DatatableRenderer
     }
 
     /**
-     * @return array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null}
+     * @return array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null}
      */
     private function normalizeAction(
         ActionDefinition|BulkActionDefinition $action,
@@ -445,6 +452,7 @@ final readonly class DatatableRenderer
         ?string $translationDomain,
     ): array {
         $httpMethod = strtoupper($action->getHttpMethod());
+        $ajax = $action->getAjaxOptions();
 
         return [
             'name' => $action->getName(),
@@ -459,6 +467,8 @@ final readonly class DatatableRenderer
             'attributes' => $action->getAttributes(),
             'selectedRowsParameterName' => $action instanceof BulkActionDefinition ? $action->getSelectedRowsParameterName() : null,
             'translationDomain' => $translationDomain,
+            'ajax' => null !== $ajax,
+            'ajaxSuccessStrategy' => $ajax?->getSuccessStrategy()->value,
         ];
     }
 

@@ -6,7 +6,9 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Definition;
 
 use PHPUnit\Framework\TestCase;
 use Zhortein\DatatableBundle\Context\DatatableContext;
+use Zhortein\DatatableBundle\Definition\AjaxActionOptions;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\AjaxActionSuccessStrategy;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 
 final class DatatableDefinitionTest extends TestCase
@@ -63,12 +65,14 @@ final class DatatableDefinitionTest extends TestCase
                 label: 'View',
                 routeParameters: ['id' => 'id'],
                 permission: 'USER_VIEW',
+                ajax: new AjaxActionOptions(AjaxActionSuccessStrategy::RefreshRow),
             )
             ->addGlobalAction(
                 'create',
                 route: 'app_user_create',
                 label: 'Create',
                 permission: 'USER_CREATE',
+                ajax: new AjaxActionOptions(AjaxActionSuccessStrategy::Redirect),
             )
         ;
 
@@ -80,8 +84,10 @@ final class DatatableDefinitionTest extends TestCase
         self::assertSame('app_user_show', $rowActions['view']->getRoute());
         self::assertSame(['id' => 'id'], $rowActions['view']->getRouteParameters());
         self::assertSame('USER_VIEW', $rowActions['view']->getPermission());
+        self::assertSame(AjaxActionSuccessStrategy::RefreshRow, $rowActions['view']->getAjaxOptions()?->getSuccessStrategy());
         self::assertSame('app_user_create', $globalActions['create']->getRoute());
         self::assertSame('USER_CREATE', $globalActions['create']->getPermission());
+        self::assertSame(AjaxActionSuccessStrategy::Redirect, $globalActions['create']->getAjaxOptions()?->getSuccessStrategy());
     }
 
     public function test_it_stores_permanent_filters(): void

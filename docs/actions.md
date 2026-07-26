@@ -14,6 +14,7 @@ Currently implemented:
 -   Action visibility checker extension point.
 -   Optional Symfony Authorization adapter (voters).
 -   Confirmation messages (native `window.confirm` or Bootstrap modal).
+-   Opt-in Ajax execution with a versioned response contract and progressive enhancement.
 
 Not implemented yet:
 -   Action visibility callbacks in the public API.
@@ -271,6 +272,181 @@ $definition
 
 Without a definition domain, both values are treated as final literal text.
 See [declarative translations](configuration.md#translating-declarative-labels).
+
+## Opt-in Ajax execution
+
+Classic links and forms remain the default. Add `AjaxActionOptions` only when
+an action should be intercepted by the bundled Stimulus controller:
+
+```php
+use Zhortein\DatatableBundle\Definition\AjaxActionOptions;
+use Zhortein\DatatableBundle\Enum\AjaxActionSuccessStrategy;
+
+$definition->addRowAction(
+    name: 'archive',
+    route: 'app_user_archive',
+    label: 'Archive',
+    httpMethod: 'PATCH',
+    routeParameters: [
+        'id' => RouteParameter::row('e.id'),
+    ],
+    confirmationMessage: 'Archive this user?',
+    ajax: new AjaxActionOptions(
+        AjaxActionSuccessStrategy::RefreshRow,
+    ),
+);
+```
+
+The option is available on row, global and bulk actions. Omitting it preserves
+the complete 1.x behavior.
+
+### Success strategies
+
+| Strategy | Behavior |
+|---|---|
+| `RefreshTable` | Reload all fragments with the controller's current search, filters, advanced filters, sort, page, page size and column visibility |
+| `RefreshRow` | Fetch the current body fragment and replace only the affected row or selected rows; falls back to a table refresh when an identifier cannot be matched |
+| `RemoveRow` | Remove the affected row or selected rows from the current DOM |
+| `None` | Keep the current table DOM unchanged |
+| `Redirect` | Navigate to the `redirect` URL returned by the action response |
+
+`RefreshRow` relies on the definition's `identifier` option, or the existing
+`id`/`e_id` normalized-row fallback. It does not require the business
+controller to render a custom row fragment.
+
+`RemoveRow` intentionally changes only the current DOM. If deleting the last
+row should recalculate pagination or totals, prefer `RefreshTable`.
+
+### Versioned JSON response
+
+Ajax action routes return JSON using contract version `1`:
+
+```json
+{
+  "version": 1,
+  "ok": true,
+  "message": "User archived.",
+  "errors": [],
+  "redirect": null
+}
+```
+
+The bundle provides `AjaxActionResponse` so host applications do not need to
+assemble that payload manually:
+
+```php
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Zhortein\DatatableBundle\Response\AjaxActionResponse;
+
+#[Route('/users/{id}/archive', name: 'app_user_archive', methods: ['PATCH'])]
+public function archive(Request $request, User $user): Response
+{
+    if (!$this->isCsrfTokenValid(
+        'zhortein_datatable_action_archive',
+        $request->request->getString('_token'),
+    )) {
+        return AjaxActionResponse::failure(
+            message: 'The security token is invalid.',
+            status: 403,
+        );
+    }
+
+    if ($user->isProtected()) {
+        return AjaxActionResponse::failure(
+            errors: [[
+                'message' => 'The protected account cannot be archived.',
+                'code' => 'protected_account',
+            ]],
+            status: 409,
+        );
+    }
+
+    // Authorize and perform the business operation.
+
+    if (!$request->isXmlHttpRequest()) {
+        return $this->redirectToRoute('app_user_index');
+    }
+
+    return AjaxActionResponse::success('User archived.');
+}
+```
+
+For the redirect strategy:
+
+```php
+return AjaxActionResponse::redirect(
+    $this->generateUrl('app_user_show', ['id' => $user->getId()]),
+    'User created.',
+);
+```
+
+The response fields are:
+
+| Field | Type | Contract |
+|---|---|---|
+| `version` | integer | Must be `1` |
+| `ok` | boolean | `true` for success, `false` for validation/business failure |
+| `message` | string or `null` | Optional neutral user feedback |
+| `errors` | list | Optional errors with `message` and optional `code`/`field` |
+| `redirect` | string or `null` | Required by the `Redirect` strategy |
+
+Use a 2xx status for success and a 4xx/5xx status for failure. Invalid,
+unversioned or non-JSON responses are rejected and shown through the
+datatable's accessible error area.
+
+The rendered fallback remains a real link or form. For non-GET forms, the
+browser request is `POST` with the configured method in `_method`, matching
+Symfony's standard method override, and the CSRF token remains in `_token`.
+Without JavaScript, the same route can detect the absence of
+`X-Requested-With: XMLHttpRequest` and return its normal redirect/HTML
+response, as in the example above. Apply the same split to validation and
+business failures when progressive enhancement is required.
+
+### Loading, confirmation and duplicate prevention
+
+During execution, the action receives `aria-busy` and `is-loading`; submit
+controls are disabled and restored afterward. A second activation of the same
+action is ignored while its request is pending.
+
+The existing native or Bootstrap-modal confirmation is applied before the
+Ajax request. Ajax actions render `data-turbo="false"` so Turbo does not race
+the controller, while remaining valid progressive-enhancement links/forms.
+
+### Lifecycle events
+
+The datatable root dispatches bubbling custom events:
+
+| Event | Detail |
+|---|---|
+| `zhortein-datatable:action:before` | Action metadata; cancellable with `preventDefault()` |
+| `zhortein-datatable:action:success` | Metadata, parsed `payload` and `response` |
+| `zhortein-datatable:action:error` | Metadata, `error`, and the available `payload`/`response` |
+| `zhortein-datatable:action:complete` | Action metadata after either outcome |
+
+Common metadata contains `action`, `strategy`, `target`, `selectedIds` and
+`rowIdentifiers`. Applications may use these events for toasts, telemetry or
+additional UI behavior without replacing the controller:
+
+```js
+document.addEventListener('zhortein-datatable:action:success', (event) => {
+    showToast(event.detail.payload.message);
+});
+```
+
+The built-in success/error areas remain the dependency-free fallback when no
+application notification system listens to the events.
+
+### Security boundary
+
+Ajax changes transport and presentation only. The target controller must
+still:
+
+- authorize the action and every selected row;
+- validate identifiers and business invariants;
+- validate the generated CSRF token for state-changing methods;
+- avoid putting secrets or sensitive exception details in the response.
 
 ## Customization
 
