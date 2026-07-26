@@ -1,1 +1,0 @@
-- Applied each definition translation domain consistently to declarative column, filter, choice, Search Builder, action, confirmation, column visibility and derived accessibility labels on initial and Ajax rendering.

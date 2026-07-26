@@ -6,6 +6,10 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+_No unreleased changes have been collected yet._
+
+## [1.0.1] - 2026-07-26
+
 ### Fixed
 
 - Applied each definition translation domain consistently to declarative column, filter, choice, Search Builder, action, confirmation, column visibility and derived accessibility labels on initial and Ajax rendering.
