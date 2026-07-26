@@ -154,6 +154,7 @@ zhortein_datatable:
     default_page_size: 25
     max_page_size: 500
     search_enabled: false
+    search_builder_enabled: false
 ```
 
 See the [configuration reference](configuration.md) before changing other values.
@@ -233,6 +234,24 @@ php bin/console debug:router zhortein_datatable_export
 ```
 
 If the routes are absent, recheck `config/routes/zhortein_datatable.yaml`.
+
+### Symfony reports an unrecognized `zhortein_datatable` option
+
+- Put bundle options in `config/packages/zhortein_datatable.yaml`. The file in `config/routes/` must contain only the route import from step 3.
+- Compare the installed package with the documentation version:
+
+```bash
+composer show zhortein/datatable-bundle
+php bin/console debug:config zhortein_datatable
+```
+
+- Check `composer.lock` when the reported package version differs from the expected version. An obsolete configuration example can contain options that the locked bundle does not support.
+- Clear and rebuild the application cache after changing package configuration:
+
+```bash
+php bin/console cache:clear
+php bin/console cache:warmup
+```
 
 ### CSV works but XLSX is unavailable
 

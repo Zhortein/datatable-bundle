@@ -17,17 +17,22 @@ zhortein_datatable:
     default_page_size: 25
     max_page_size: 500
     search_enabled: false
-    icons:
-        view: "bi bi-eye"
-        edit: "bi bi-pencil"
-        delete: "bi bi-trash"
-        bulk_actions: "bi bi-collection"
+    search_builder_enabled: false
+    icons: { }
+    bootstrap:
+        table:
+            striped: true
+            hover: true
+            bordered: false
+            borderless: false
+            small: false
+            responsive: true
     export:
-      csv:
-        delimiter: ';'
-        enclosure: '"'
-        escape: '\\'
-        bom: false
+        csv:
+            delimiter: ','
+            enclosure: '"'
+            escape: "\\"
+            bom: false
 ```
 
 This configuration is intentionally small.
@@ -207,6 +212,28 @@ A runtime option can still override it:
 }) }}
 ```
 
+## `search_builder_enabled`
+
+Type:
+
+```text
+boolean
+```
+
+Default:
+
+```yaml
+search_builder_enabled: false
+```
+
+When enabled, datatables render the Search Builder controls by default. A runtime option can still override it:
+
+```twig
+{{ zhortein_datatable('users', {
+    searchBuilder: false
+}) }}
+```
+
 ## `icons`
 
 Type: `array<string, string>`
@@ -224,16 +251,38 @@ zhortein_datatable:
         action_edit: "fas fa-edit"
 ```
 
-## Default export values
+## `bootstrap.table`
+
+These booleans configure the default Bootstrap table variants:
+
 ```yaml
 zhortein_datatable:
-  export:
-    csv:
-      delimiter: ','
-      enclosure: '"'
-      escape: '\\'
-      bom: false
+    bootstrap:
+        table:
+            striped: true
+            hover: true
+            bordered: false
+            borderless: false
+            small: false
+            responsive: true
 ```
+
+Each value can still be overridden through the corresponding runtime rendering option.
+
+## `export.csv`
+
+The CSV writer uses the following defaults:
+
+```yaml
+zhortein_datatable:
+    export:
+        csv:
+            delimiter: ','
+            enclosure: '"'
+            escape: "\\"
+            bom: false
+```
+
 For French/European spreadsheet workflows, a semicolon delimiter is often convenient.
 
 ## Runtime options
