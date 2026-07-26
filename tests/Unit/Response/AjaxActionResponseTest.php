@@ -15,26 +15,26 @@ final class AjaxActionResponseTest extends TestCase
         $response = AjaxActionResponse::success('User archived.');
 
         self::assertSame(200, $response->getStatusCode());
-        self::assertSame([
+        self::assertResponsePayloadSame([
             'version' => 1,
             'ok' => true,
             'message' => 'User archived.',
             'errors' => [],
             'redirect' => null,
-        ], $response->getPayload());
+        ], $response);
     }
 
     public function test_it_creates_a_versioned_redirect_response(): void
     {
         $response = AjaxActionResponse::redirect('/users/42', 'User created.');
 
-        self::assertSame([
+        self::assertResponsePayloadSame([
             'version' => 1,
             'ok' => true,
             'message' => 'User created.',
             'errors' => [],
             'redirect' => '/users/42',
-        ], $response->getPayload());
+        ], $response);
     }
 
     public function test_it_creates_a_versioned_failure_response(): void
@@ -52,7 +52,7 @@ final class AjaxActionResponseTest extends TestCase
         );
 
         self::assertSame(409, $response->getStatusCode());
-        self::assertSame([
+        self::assertResponsePayloadSame([
             'version' => 1,
             'ok' => false,
             'message' => 'The user cannot be archived.',
@@ -64,7 +64,7 @@ final class AjaxActionResponseTest extends TestCase
                 ],
             ],
             'redirect' => null,
-        ], $response->getPayload());
+        ], $response);
     }
 
     /**
@@ -98,5 +98,16 @@ final class AjaxActionResponseTest extends TestCase
             static fn (): AjaxActionResponse => AjaxActionResponse::redirect(' '),
             'An Ajax action redirect URL cannot be empty.',
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $expected
+     */
+    private static function assertResponsePayloadSame(array $expected, AjaxActionResponse $response): void
+    {
+        $content = $response->getContent();
+
+        self::assertIsString($content);
+        self::assertSame($expected, json_decode($content, true, flags: JSON_THROW_ON_ERROR));
     }
 }
