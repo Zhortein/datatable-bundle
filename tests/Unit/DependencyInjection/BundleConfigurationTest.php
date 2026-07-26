@@ -20,7 +20,12 @@ final class BundleConfigurationTest extends TestCase
         self::assertSame(25, $container->getParameter('zhortein_datatable.default_page_size'));
         self::assertSame(500, $container->getParameter('zhortein_datatable.max_page_size'));
         self::assertFalse($container->getParameter('zhortein_datatable.search_enabled'));
+        self::assertFalse($container->getParameter('zhortein_datatable.search_builder_enabled'));
         self::assertSame([], $container->getParameter('zhortein_datatable.icons'));
+        self::assertSame(',', $container->getParameter('zhortein_datatable.export.csv.delimiter'));
+        self::assertSame('"', $container->getParameter('zhortein_datatable.export.csv.enclosure'));
+        self::assertSame('\\', $container->getParameter('zhortein_datatable.export.csv.escape'));
+        self::assertFalse($container->getParameter('zhortein_datatable.export.csv.bom'));
     }
 
     public function test_it_accepts_custom_icons(): void
@@ -46,6 +51,18 @@ final class BundleConfigurationTest extends TestCase
             'default_page_size' => 50,
             'max_page_size' => 250,
             'search_enabled' => true,
+            'search_builder_enabled' => true,
+            'icons' => [
+                'action_view' => 'smoke-icon-view',
+            ],
+            'export' => [
+                'csv' => [
+                    'delimiter' => ';',
+                    'enclosure' => '|',
+                    'escape' => '!',
+                    'bom' => true,
+                ],
+            ],
         ]);
 
         self::assertSame('array', $container->getParameter('zhortein_datatable.default_provider'));
@@ -53,6 +70,15 @@ final class BundleConfigurationTest extends TestCase
         self::assertSame(50, $container->getParameter('zhortein_datatable.default_page_size'));
         self::assertSame(250, $container->getParameter('zhortein_datatable.max_page_size'));
         self::assertTrue($container->getParameter('zhortein_datatable.search_enabled'));
+        self::assertTrue($container->getParameter('zhortein_datatable.search_builder_enabled'));
+        self::assertSame(
+            ['action_view' => 'smoke-icon-view'],
+            $container->getParameter('zhortein_datatable.icons'),
+        );
+        self::assertSame(';', $container->getParameter('zhortein_datatable.export.csv.delimiter'));
+        self::assertSame('|', $container->getParameter('zhortein_datatable.export.csv.enclosure'));
+        self::assertSame('!', $container->getParameter('zhortein_datatable.export.csv.escape'));
+        self::assertTrue($container->getParameter('zhortein_datatable.export.csv.bom'));
     }
 
     public function test_it_rejects_invalid_default_provider(): void

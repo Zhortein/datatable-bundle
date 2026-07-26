@@ -16,11 +16,17 @@ final class SmokeUserDatatable implements DatatableInterface
     {
         $definition
             ->setOption(ArrayDataProvider::OPTION_ROWS, [
-                ['email' => 'alice@example.test', 'enabled' => true],
-                ['email' => 'bob@example.test', 'enabled' => false],
+                ['id' => 1, 'email' => 'alice@example.test', 'enabled' => true],
+                ['id' => 2, 'email' => 'bob@example.test', 'enabled' => false],
             ])
+            ->addColumn('id', visible: false, sortable: false, searchable: false, exportable: false)
             ->addColumn('email', label: 'Email')
             ->addColumn('enabled', label: 'Enabled')
+            ->addRowAction(
+                name: 'view',
+                route: 'app_smoke_user',
+                routeParameters: ['id' => 'id'],
+            )
         ;
     }
 }
