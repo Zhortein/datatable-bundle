@@ -326,7 +326,7 @@ final readonly class RowActionRouteParameterResolver
                 continue;
             }
 
-            return [true, $value->{$method}()];
+            return [true, $reflection->invoke($value)];
         }
 
         return [false, null];

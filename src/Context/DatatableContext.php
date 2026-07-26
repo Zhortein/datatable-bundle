@@ -24,7 +24,7 @@ final readonly class DatatableContext
         $normalizedValues = [];
 
         foreach ($values as $name => $value) {
-            if (!is_string($name) || '' === trim($name)) {
+            if ('' === trim($name)) {
                 throw new \InvalidArgumentException('A datatable context key must be a non-empty string.');
             }
 
