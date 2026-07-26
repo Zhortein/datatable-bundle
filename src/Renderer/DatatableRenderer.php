@@ -308,11 +308,7 @@ final readonly class DatatableRenderer
 
         foreach ($action->getRouteParameters() as $name => $parameter) {
             if (!is_string($parameter)) {
-                throw new \LogicException(sprintf(
-                    'The route parameter "%s" for action "%s" requires the configured route parameter resolver.',
-                    $name,
-                    $action->getName(),
-                ));
+                throw new \LogicException(sprintf('The route parameter "%s" for action "%s" requires the configured route parameter resolver.', $name, $action->getName()));
             }
 
             $parameters[$name] = $parameter;

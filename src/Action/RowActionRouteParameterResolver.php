@@ -99,14 +99,7 @@ final readonly class RowActionRouteParameterResolver
                 } elseif (!$parameter->isRequired()) {
                     continue;
                 } else {
-                    throw new MissingRouteParameterValueException(sprintf(
-                        'Unable to resolve required route parameter "%s" for %s "%s" from %s: %s.',
-                        $routeParameterName,
-                        $actionType,
-                        $action->getName(),
-                        $this->describeSource($parameter),
-                        $missingReason,
-                    ));
+                    throw new MissingRouteParameterValueException(sprintf('Unable to resolve required route parameter "%s" for %s "%s" from %s: %s.', $routeParameterName, $actionType, $action->getName(), $this->describeSource($parameter), $missingReason));
                 }
             }
 
@@ -186,14 +179,7 @@ final readonly class RowActionRouteParameterResolver
             return $value;
         }
 
-        throw new InvalidRouteParameterValueException(sprintf(
-            'Unable to resolve route parameter "%s" for %s "%s" from %s: values of type "%s" are not supported by the action route contract.',
-            $routeParameterName,
-            $actionType,
-            $action->getName(),
-            $sourceDescription,
-            get_debug_type($value),
-        ));
+        throw new InvalidRouteParameterValueException(sprintf('Unable to resolve route parameter "%s" for %s "%s" from %s: values of type "%s" are not supported by the action route contract.', $routeParameterName, $actionType, $action->getName(), $sourceDescription, get_debug_type($value)));
     }
 
     /**
