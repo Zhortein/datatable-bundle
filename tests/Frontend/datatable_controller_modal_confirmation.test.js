@@ -190,6 +190,39 @@ describe('datatable_controller Bootstrap modal confirmation behavior', () => {
         expect(submitSpy).toHaveBeenCalledTimes(1);
     });
 
+    it('executes a pending Ajax form after modal confirmation', async () => {
+        const fetchMock = vi.fn(() => Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({
+                version: 1,
+                ok: true,
+                message: 'User deleted.',
+                errors: [],
+                redirect: null,
+            }),
+        }));
+        vi.stubGlobal('fetch', fetchMock);
+        vi.stubGlobal('bootstrap', { Modal: FakeBootstrapModal });
+
+        document.body.innerHTML = createDatatableHtml();
+        const form = document.querySelector('#confirmed-form');
+        form.setAttribute(`data-${CONTROLLER_IDENTIFIER}-ajax-action`, 'true');
+        form.setAttribute(`data-${CONTROLLER_IDENTIFIER}-ajax-action-name`, 'delete');
+        form.setAttribute(`data-${CONTROLLER_IDENTIFIER}-ajax-success-strategy`, 'none');
+        application = startApplication();
+
+        const controller = await getController(application);
+        controller.executeAjaxAction(createPreventableEvent(form));
+        controller.confirmPendingAction({ preventDefault: vi.fn() });
+        await flushPromises();
+
+        const modal = FakeBootstrapModal.getOrCreateInstance(document.querySelector('#confirmation-modal'));
+
+        expect(modal.hide).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(new URL(fetchMock.mock.calls[0][0]).pathname).toBe('/users/42/delete');
+    });
+
     it('falls back to native confirm when Bootstrap modal is unavailable', async () => {
         const confirmMock = vi.fn(() => false);
         vi.stubGlobal('confirm', confirmMock);

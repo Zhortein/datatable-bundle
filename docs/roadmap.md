@@ -1008,7 +1008,7 @@ Users can build richer, nested filters safely using a Search Builder UI while th
 Goal:
 
 ```text
-Prepare the first beta release after bulk actions, icon system and advanced filter expressions. 
+Prepare the first beta release after bulk actions, icon system and advanced filter expressions.
 Target release: v0.3.0-beta.1.
 ```
 
@@ -1118,6 +1118,39 @@ Main outcome:
 
 ```text
 The bundle has a documented stable API, a verified fresh-Symfony installation path and release gates suitable for the 1.0.0 tag.
+```
+
+---
+
+## 1.1 - Typed action parameters and host configuration ✅
+
+Delivered:
+
+- typed row, literal and allowlisted-context route parameters;
+- optional/default route parameter semantics;
+- Array and Doctrine coverage;
+- localized route support;
+- verified minimal and complete configuration in fresh Symfony 8 hosts.
+
+---
+
+## 1.2 - Opt-in Ajax business actions 🚧
+
+Current scope:
+
+- explicit per-action Ajax metadata for row, global and bulk actions;
+- versioned JSON response helper and contract;
+- CSRF-aware Symfony form submission;
+- confirmation, loading state and duplicate prevention;
+- neutral success/error feedback and generic lifecycle events;
+- refresh table, refresh row, remove row, no-op and redirect strategies;
+- progressive HTML fallback and Turbo-safe interception;
+- PHP, Twig and frontend coverage.
+
+Main expected outcome:
+
+```text
+Applications can perform business actions without a full page reload while keeping authorization and business logic in their own controllers.
 ```
 
 ---

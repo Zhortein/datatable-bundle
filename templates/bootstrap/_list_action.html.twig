@@ -5,15 +5,25 @@
 {% set confirmation_message = zhortein_datatable_translate(action.confirmationMessage, translation_domain) %}
 {% set base_class = action.className ?? (action.httpMethod == 'GET' ? 'btn btn-outline-secondary' : 'btn btn-outline-danger') %}
 {% set list_class = base_class ~ ' w-100 text-start' %}
+{% set ajax = action.ajax|default(false) %}
+{% set controller_action = ajax ? 'executeAjaxAction' : 'confirmAction' %}
 
 {% if action.httpMethod == 'GET' %}
     <a
         href="{{ action.url }}"
         class="{{ list_class }}"
         data-turbo-prefetch="false"
+        {% if ajax %}
+            data-turbo="false"
+            data-zhortein--datatable-bundle--datatable-ajax-action="true"
+            data-zhortein--datatable-bundle--datatable-ajax-action-name="{{ action.name }}"
+            data-zhortein--datatable-bundle--datatable-ajax-success-strategy="{{ action.ajaxSuccessStrategy }}"
+        {% endif %}
+        {% if ajax or action.confirmationMessage is not null %}
+            data-action="click->zhortein--datatable-bundle--datatable#{{ controller_action }}"
+        {% endif %}
         {% if action.confirmationMessage is not null %}
             data-zhortein--datatable-bundle--datatable-confirmation-message="{{ confirmation_message }}"
-            data-action="click->zhortein--datatable-bundle--datatable#confirmAction"
         {% endif %}
         {% for attribute_name, attribute_value in action.attributes %}
             {{ attribute_name }}="{{ attribute_value }}"
@@ -34,9 +44,17 @@
         method="post"
         action="{{ action.url }}"
         class="w-100"
+        {% if ajax %}
+            data-turbo="false"
+            data-zhortein--datatable-bundle--datatable-ajax-action="true"
+            data-zhortein--datatable-bundle--datatable-ajax-action-name="{{ action.name }}"
+            data-zhortein--datatable-bundle--datatable-ajax-success-strategy="{{ action.ajaxSuccessStrategy }}"
+        {% endif %}
+        {% if ajax or action.confirmationMessage is not null %}
+            data-action="submit->zhortein--datatable-bundle--datatable#{{ controller_action }}"
+        {% endif %}
         {% if action.confirmationMessage is not null %}
             data-zhortein--datatable-bundle--datatable-confirmation-message="{{ confirmation_message }}"
-            data-action="submit->zhortein--datatable-bundle--datatable#confirmAction"
         {% endif %}
     >
         <input type="hidden" name="_method" value="{{ action.httpMethod }}">

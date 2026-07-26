@@ -31,6 +31,7 @@ final readonly class ActionDefinition
         private array $routeParameters = [],
         array $attributes = [],
         ?string $permission = null,
+        private ?AjaxActionOptions $ajax = null,
     ) {
         $legacyPermission = $attributes['permission'] ?? null;
         unset($attributes['permission']);
@@ -107,5 +108,10 @@ final readonly class ActionDefinition
     public function getPermission(): ?string
     {
         return $this->permission;
+    }
+
+    public function getAjaxOptions(): ?AjaxActionOptions
+    {
+        return $this->ajax;
     }
 }

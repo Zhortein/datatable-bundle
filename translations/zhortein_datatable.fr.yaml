@@ -61,6 +61,10 @@ zhortein_datatable:
         label: 'Actions'
         row: 'Actions de ligne'
         more: 'Actions'
+    ajax_action:
+        success: 'L’action a été réalisée.'
+        error: 'L’action n’a pas pu être réalisée.'
+        invalid_response: 'L’action a renvoyé une réponse invalide.'
     sort:
         label: 'Trier par %column%'
         sorted_ascending: 'tri croissant'

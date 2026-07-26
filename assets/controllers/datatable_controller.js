@@ -17,6 +17,7 @@ export default class extends Controller {
         'activeFilters',
         'clearFiltersButton',
         'error',
+        'feedback',
         'loading',
         'globalActions',
         'confirmationModal',
@@ -48,6 +49,9 @@ export default class extends Controller {
         booleanDisplayMode: String,
         paginationSize: { type: String, default: 'default' },
         tableSmall: { type: Boolean, default: false },
+        actionSuccessMessage: { type: String, default: 'The action completed successfully.' },
+        actionErrorMessage: { type: String, default: 'The action could not be completed.' },
+        invalidActionResponseMessage: { type: String, default: 'The action returned an invalid response.' },
     };
 
     connect() {
@@ -59,6 +63,7 @@ export default class extends Controller {
         this.pendingConfirmationType = null;
         this.confirmationModalInstance = null;
         this.selectedIds = new Set();
+        this.ajaxActionAbortControllers = new Map();
 
         this.updateActiveFilterState();
 
@@ -69,6 +74,8 @@ export default class extends Controller {
 
     disconnect() {
         this.abortPendingRequest();
+        this.ajaxActionAbortControllers.forEach((controller) => controller.abort());
+        this.ajaxActionAbortControllers.clear();
 
         if (this.searchDebounceTimeout !== null) {
             window.clearTimeout(this.searchDebounceTimeout);
@@ -91,7 +98,7 @@ export default class extends Controller {
         if (!this.hasFragmentsUrlValue || this.fragmentsUrlValue === '') {
             this.showError('The datatable fragments URL is missing.');
 
-            return;
+            return Promise.resolve(null);
         }
 
         this.abortPendingRequest();
@@ -99,7 +106,7 @@ export default class extends Controller {
         this.setLoading(true);
         this.clearError();
 
-        fetch(this.buildFragmentsUrl(), {
+        return fetch(this.buildFragmentsUrl(), {
             method: 'GET',
             headers: {
                 Accept: 'application/json',
@@ -119,13 +126,17 @@ export default class extends Controller {
                 this.applyState(payload);
                 this.updateActiveFilterState();
                 this.clearError();
+
+                return payload;
             })
             .catch((error) => {
                 if (error.name === 'AbortError') {
-                    return;
+                    return null;
                 }
 
                 this.showError(error.message);
+
+                return null;
             })
             .finally(() => {
                 this.setLoading(false);
@@ -193,6 +204,16 @@ export default class extends Controller {
     }
 
     executeConfirmedTarget(target) {
+        if (this.isAjaxActionTarget(target)) {
+            if (target instanceof HTMLFormElement && target.hasAttribute('data-zhortein--datatable-bundle--datatable-selected-rows-parameter-name')) {
+                this.injectSelectedIds(target);
+            }
+
+            this.executeAjaxTarget(target);
+
+            return;
+        }
+
         if (target instanceof HTMLFormElement) {
             if (target.hasAttribute('data-zhortein--datatable-bundle--datatable-selected-rows-parameter-name')) {
                 this.injectSelectedIds(target);
@@ -215,6 +236,14 @@ export default class extends Controller {
             return;
         }
 
+        this.injectSelectedIds(event.currentTarget);
+
+        if (this.isAjaxActionTarget(event.currentTarget)) {
+            this.executeAjaxAction(event);
+
+            return;
+        }
+
         const message = this.resolveConfirmationMessage(event.currentTarget);
 
         if (message !== null) {
@@ -223,7 +252,331 @@ export default class extends Controller {
             return;
         }
 
-        this.injectSelectedIds(event.currentTarget);
+    }
+
+    executeAjaxAction(event) {
+        const target = event.currentTarget;
+
+        if (!this.isAjaxActionTarget(target)) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (typeof event.stopImmediatePropagation === 'function') {
+            event.stopImmediatePropagation();
+        }
+
+        if (this.ajaxActionAbortControllers.has(target)) {
+            return;
+        }
+
+        const message = this.resolveConfirmationMessage(target);
+
+        if (message !== null) {
+            if (!this.openConfirmationModal(target, message) && window.confirm(message)) {
+                this.executeAjaxTarget(target);
+            }
+
+            return;
+        }
+
+        this.executeAjaxTarget(target);
+    }
+
+    async executeAjaxTarget(target) {
+        if (!this.isAjaxActionTarget(target) || this.ajaxActionAbortControllers.has(target)) {
+            return;
+        }
+
+        const abortController = new AbortController();
+        const detail = this.createAjaxActionEventDetail(target);
+        const beforeEvent = this.dispatch('action:before', {
+            detail,
+            prefix: 'zhortein-datatable',
+            cancelable: true,
+        });
+
+        if (beforeEvent.defaultPrevented) {
+            return;
+        }
+
+        this.ajaxActionAbortControllers.set(target, abortController);
+        this.setAjaxActionLoading(target, true);
+        this.clearError();
+        this.clearActionFeedback();
+        let response = null;
+        let payload = null;
+
+        try {
+            response = await fetch(this.resolveAjaxActionUrl(target), this.createAjaxActionRequestOptions(target, abortController.signal));
+            payload = await this.parseAjaxActionResponse(response);
+
+            if (!response.ok || payload.ok !== true) {
+                throw this.createAjaxActionError(payload);
+            }
+
+            await this.applyAjaxActionSuccessStrategy(detail.strategy, target, payload, detail.rowIdentifiers);
+
+            const message = this.resolveAjaxActionMessage(payload, this.actionSuccessMessageValue);
+            this.showActionFeedback(message);
+            this.dispatch('action:success', {
+                detail: { ...detail, payload, response },
+                prefix: 'zhortein-datatable',
+            });
+        } catch (error) {
+            if (error instanceof DOMException && error.name === 'AbortError') {
+                return;
+            }
+
+            const message = error instanceof Error && error.message !== ''
+                ? error.message
+                : this.actionErrorMessageValue;
+
+            this.showError(message);
+            this.dispatch('action:error', {
+                detail: { ...detail, error, payload, response },
+                prefix: 'zhortein-datatable',
+            });
+        } finally {
+            this.setAjaxActionLoading(target, false);
+            this.ajaxActionAbortControllers.delete(target);
+            this.dispatch('action:complete', {
+                detail,
+                prefix: 'zhortein-datatable',
+            });
+        }
+    }
+
+    isAjaxActionTarget(target) {
+        return (target instanceof HTMLAnchorElement || target instanceof HTMLFormElement)
+            && target.getAttribute('data-zhortein--datatable-bundle--datatable-ajax-action') === 'true';
+    }
+
+    resolveAjaxActionUrl(target) {
+        if (target instanceof HTMLAnchorElement) {
+            return target.href;
+        }
+
+        return target.action;
+    }
+
+    createAjaxActionRequestOptions(target, signal) {
+        const headers = {
+            Accept: 'application/vnd.zhortein.datatable-action+json; version=1, application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        };
+
+        if (target instanceof HTMLAnchorElement) {
+            return {
+                method: 'GET',
+                headers,
+                signal,
+            };
+        }
+
+        return {
+            method: target.method.toUpperCase(),
+            headers,
+            body: new FormData(target),
+            signal,
+        };
+    }
+
+    async parseAjaxActionResponse(response) {
+        let payload;
+
+        try {
+            payload = await response.json();
+        } catch (error) {
+            throw new Error(this.invalidActionResponseMessageValue, { cause: error });
+        }
+
+        if (
+            payload === null
+            || typeof payload !== 'object'
+            || Array.isArray(payload)
+            || payload.version !== 1
+            || typeof payload.ok !== 'boolean'
+        ) {
+            throw new Error(this.invalidActionResponseMessageValue);
+        }
+
+        return payload;
+    }
+
+    createAjaxActionError(payload) {
+        return new Error(this.resolveAjaxActionMessage(payload, this.actionErrorMessageValue));
+    }
+
+    resolveAjaxActionMessage(payload, fallback) {
+        if (typeof payload.message === 'string' && payload.message.trim() !== '') {
+            return payload.message;
+        }
+
+        if (Array.isArray(payload.errors)) {
+            const firstError = payload.errors.find((error) => (
+                error !== null
+                && typeof error === 'object'
+                && typeof error.message === 'string'
+                && error.message.trim() !== ''
+            ));
+
+            if (firstError) {
+                return firstError.message;
+            }
+        }
+
+        return fallback;
+    }
+
+    createAjaxActionEventDetail(target) {
+        return {
+            action: target.getAttribute('data-zhortein--datatable-bundle--datatable-ajax-action-name') || '',
+            strategy: target.getAttribute('data-zhortein--datatable-bundle--datatable-ajax-success-strategy') || 'refresh_table',
+            target,
+            selectedIds: Array.from(this.selectedIds),
+            rowIdentifiers: this.resolveAffectedRowIdentifiers(target),
+        };
+    }
+
+    resolveAffectedRowIdentifiers(target) {
+        const row = target.closest('tr[data-zhortein--datatable-bundle--datatable-row-identifier]');
+
+        if (row instanceof HTMLTableRowElement) {
+            const identifier = row.getAttribute('data-zhortein--datatable-bundle--datatable-row-identifier');
+
+            return identifier === null ? [] : [identifier];
+        }
+
+        return Array.from(this.selectedIds);
+    }
+
+    async applyAjaxActionSuccessStrategy(strategy, target, payload, rowIdentifiers) {
+        switch (strategy) {
+            case 'refresh_table':
+                await this.refreshTableAfterAction();
+                break;
+            case 'refresh_row':
+                await this.refreshRows(rowIdentifiers);
+                break;
+            case 'remove_row':
+                this.removeAffectedRows(target, rowIdentifiers);
+                break;
+            case 'none':
+                break;
+            case 'redirect':
+                if (typeof payload.redirect !== 'string' || payload.redirect.trim() === '') {
+                    throw new Error(this.invalidActionResponseMessageValue);
+                }
+
+                window.location.assign(new URL(payload.redirect, window.location.origin).toString());
+                break;
+            default:
+                throw new Error(this.invalidActionResponseMessageValue);
+        }
+    }
+
+    async refreshRows(rowIdentifiers) {
+        if (rowIdentifiers.length === 0 || !this.hasFragmentsUrlValue || this.fragmentsUrlValue === '') {
+            await this.refreshTableAfterAction();
+
+            return;
+        }
+
+        const response = await fetch(this.buildFragmentsUrl(), {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Unable to refresh datatable "${this.nameValue}".`);
+        }
+
+        const payload = await response.json();
+
+        if (typeof payload.body !== 'string') {
+            throw new Error(this.invalidActionResponseMessageValue);
+        }
+
+        const replacementBody = document.createElement('tbody');
+        replacementBody.innerHTML = payload.body;
+        const currentRows = Array.from(this.bodyTarget.querySelectorAll('tr[data-zhortein--datatable-bundle--datatable-row-identifier]'));
+        const replacementRows = Array.from(replacementBody.querySelectorAll('tr[data-zhortein--datatable-bundle--datatable-row-identifier]'));
+
+        for (const identifier of rowIdentifiers) {
+            const currentRow = currentRows.find((row) => row.getAttribute('data-zhortein--datatable-bundle--datatable-row-identifier') === identifier);
+            const replacementRow = replacementRows.find((row) => row.getAttribute('data-zhortein--datatable-bundle--datatable-row-identifier') === identifier);
+
+            if (!(currentRow instanceof HTMLTableRowElement) || !(replacementRow instanceof HTMLTableRowElement)) {
+                await this.refreshTableAfterAction();
+
+                return;
+            }
+
+            currentRow.replaceWith(replacementRow);
+            this.selectedIds.delete(identifier);
+        }
+
+        this.updateSelectionUI();
+    }
+
+    async refreshTableAfterAction() {
+        const payload = await this.refresh();
+
+        if (payload === null) {
+            throw new Error(`Unable to refresh datatable "${this.nameValue}".`);
+        }
+    }
+
+    removeAffectedRows(target, rowIdentifiers) {
+        const targetRow = target.closest('tr');
+
+        if (targetRow instanceof HTMLTableRowElement) {
+            targetRow.remove();
+        } else {
+            Array.from(this.bodyTarget.querySelectorAll('tr[data-zhortein--datatable-bundle--datatable-row-identifier]'))
+                .filter((row) => rowIdentifiers.includes(row.getAttribute('data-zhortein--datatable-bundle--datatable-row-identifier')))
+                .forEach((row) => row.remove());
+        }
+
+        rowIdentifiers.forEach((identifier) => this.selectedIds.delete(identifier));
+        this.updateSelectionUI();
+    }
+
+    setAjaxActionLoading(target, isLoading) {
+        target.toggleAttribute('aria-busy', isLoading);
+        target.classList.toggle('is-loading', isLoading);
+
+        if (target instanceof HTMLAnchorElement) {
+            target.classList.toggle('disabled', isLoading);
+            target.setAttribute('aria-disabled', String(isLoading));
+
+            return;
+        }
+
+        target.querySelectorAll('button, input[type="submit"]').forEach((control) => {
+            if (!(control instanceof HTMLButtonElement || control instanceof HTMLInputElement)) {
+                return;
+            }
+
+            if (isLoading) {
+                control.setAttribute(
+                    'data-zhortein--datatable-bundle--datatable-was-disabled',
+                    String(control.disabled),
+                );
+                control.disabled = true;
+
+                return;
+            }
+
+            control.disabled = control.getAttribute('data-zhortein--datatable-bundle--datatable-was-disabled') === 'true';
+            control.removeAttribute('data-zhortein--datatable-bundle--datatable-was-disabled');
+        });
     }
 
     injectSelectedIds(form) {
@@ -940,6 +1293,28 @@ export default class extends Controller {
         this.errorTarget.classList.add('d-none');
         this.errorTarget.classList.remove('d-flex');
         this.errorTarget.setAttribute('aria-hidden', 'true');
+    }
+
+    showActionFeedback(message) {
+        if (!this.hasFeedbackTarget) {
+            return;
+        }
+
+        this.feedbackTarget.textContent = message;
+        this.feedbackTarget.classList.remove('d-none');
+        this.feedbackTarget.classList.add('d-flex');
+        this.feedbackTarget.removeAttribute('aria-hidden');
+    }
+
+    clearActionFeedback() {
+        if (!this.hasFeedbackTarget) {
+            return;
+        }
+
+        this.feedbackTarget.textContent = '';
+        this.feedbackTarget.classList.add('d-none');
+        this.feedbackTarget.classList.remove('d-flex');
+        this.feedbackTarget.setAttribute('aria-hidden', 'true');
     }
 
     abortPendingRequest() {

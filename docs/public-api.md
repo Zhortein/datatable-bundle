@@ -27,6 +27,7 @@ The builder methods documented in the feature guides are part of the contract, i
 The definition value objects returned by `DatatableDefinition` are also public:
 
 - `ActionDefinition`;
+- `AjaxActionOptions`;
 - `AdvancedFilterFieldDefinition`;
 - `AggregateColumnDefinition`;
 - `BulkActionDefinition`;
@@ -39,6 +40,10 @@ The definition value objects returned by `DatatableDefinition` are also public:
 
 Explicit server-side action context is represented by
 `Context\DatatableContext`.
+
+The Ajax action response helper `Response\AjaxActionResponse` and its version
+constant are public. Host controllers may return an equivalent JSON response,
+but the documented v1 fields and semantics must be preserved.
 
 See [configuration](configuration.md), [providers](providers.md), [filters](filters.md), [advanced filters](advanced-filters.md), [actions](actions.md), [bulk actions](bulk-actions.md) and [exports](exports.md).
 
@@ -79,6 +84,7 @@ Enums accepted by documented definition methods and runtime objects are public:
 
 - `ActionDisplayMode`;
 - `ActionIconPosition`;
+- `AjaxActionSuccessStrategy`;
 - `AggregateFunction`;
 - `BooleanDisplayMode`;
 - `CellType`;
@@ -106,6 +112,8 @@ The following names are stable in 1.x:
 | Routes | `zhortein_datatable_fragments`, `zhortein_datatable_export` |
 | Twig | `zhortein_datatable()`, `zhortein_datatable_translate()` |
 | Stimulus | `zhortein--datatable-bundle--datatable` |
+| Ajax action events | `zhortein-datatable:action:before`, `zhortein-datatable:action:success`, `zhortein-datatable:action:error`, `zhortein-datatable:action:complete` |
+| Ajax action response | version `1` |
 | AssetMapper | `@zhortein/datatable-bundle` |
 | Configuration root | `zhortein_datatable` |
 

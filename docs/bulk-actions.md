@@ -7,8 +7,10 @@ Bulk actions allow users to perform operations on multiple rows at once. This in
 Bulk actions are declared in your datatable class using the `addBulkAction` method on the `DatatableDefinition`.
 
 ```php
+use Zhortein\DatatableBundle\Definition\AjaxActionOptions;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ActionIconPosition;
+use Zhortein\DatatableBundle\Enum\AjaxActionSuccessStrategy;
 
 public function buildDatatable(DatatableDefinition $definition): void
 {
@@ -20,13 +22,14 @@ public function buildDatatable(DatatableDefinition $definition): void
         className: 'btn btn-outline-danger',
         confirmationMessage: 'Are you sure you want to delete the selected users?',
         selectedRowsParameterName: 'ids', // Default is 'ids'
+        ajax: new AjaxActionOptions(AjaxActionSuccessStrategy::RefreshTable),
     );
 }
 ```
 
 ## Selector Column
 
-When at least one bulk action is defined, a **selector column** is automatically prepended to the datatable. 
+When at least one bulk action is defined, a **selector column** is automatically prepended to the datatable.
 - The header contains a "Select All" checkbox that toggles all rows on the current page.
 - Each row contains a checkbox to select that specific row.
 
@@ -34,7 +37,7 @@ When at least one bulk action is defined, a **selector column** is automatically
 
 1. **Selection**: Users select rows using checkboxes. The `datatable` Stimulus controller tracks selected IDs in a `Set`.
 2. **Bulk Toolbar**: As soon as one or more rows are selected, a bulk action toolbar appears above the table, showing the count of selected rows and available bulk actions.
-3. **Submission**: When a bulk action is triggered, the controller injects the selected IDs as hidden inputs into a form and submits it via POST.
+3. **Submission**: When a bulk action is triggered, the controller injects the selected IDs as hidden inputs into a form. It follows the normal form submission by default or the versioned Ajax action contract when explicitly enabled.
 
 ### Selected Row Payload
 
@@ -46,12 +49,32 @@ The backend route receives the selected IDs in the request. By default, they are
 public function bulkDelete(Request $request): Response
 {
     $ids = $request->request->all('ids');
-    
+
     // Perform bulk operation...
-    
+
     return $this->redirectToRoute('app_user_index');
 }
 ```
+
+For an Ajax-enabled bulk action, return `AjaxActionResponse` instead of the
+classic redirect:
+
+```php
+use Zhortein\DatatableBundle\Response\AjaxActionResponse;
+
+public function bulkDelete(Request $request): AjaxActionResponse
+{
+    $ids = $request->request->all('ids');
+
+    // Validate CSRF, authorize every identifier and perform the operation.
+
+    return AjaxActionResponse::success(sprintf('%d users deleted.', count($ids)));
+}
+```
+
+`RemoveRow` removes the selected rows immediately. `RefreshRow` reloads only
+their rendered row markup. Prefer `RefreshTable` when the operation changes
+the result count, pagination, sorting or filtering membership.
 
 You can customize the parameter name using the `selectedRowsParameterName` option:
 
@@ -75,14 +98,14 @@ Bulk actions are always submitted via `POST` (or the configured `httpMethod`). I
 public function bulkDelete(Request $request): Response
 {
     $ids = $request->request->all('ids');
-    
+
     foreach ($ids as $id) {
         $user = $this->userRepository->find($id);
         if ($user && !$this->isGranted('DELETE', $user)) {
             throw $this->createAccessDeniedException();
         }
     }
-    
+
     // ...
 }
 ```
@@ -103,7 +126,7 @@ $definition->addBulkAction(
 
 - **No "Select All Filtered"**: Currently, you can only select rows that are visible on the current page. There is no "Select all 5000 matching rows" feature yet.
 - **No Persistence across pages**: Selection is lost when navigating to another page, changing page size, or refreshing the table.
-- **No Async Bulk Jobs**: The bundle submits the IDs to a standard controller route. For long-running tasks, you should implement your own background job processing (e.g., using Symfony Messenger).
+- **No Background Job Protocol**: Ajax execution still calls a standard controller route. For long-running tasks, implement the business job through Symfony Messenger and return an appropriate immediate action response.
 
 ## Examples
 
