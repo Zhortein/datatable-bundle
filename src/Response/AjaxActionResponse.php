@@ -81,13 +81,7 @@ final class AjaxActionResponse extends JsonResponse
     private static function assertStatusRange(int $status, int $minimum, int $maximum, string $responseType): void
     {
         if ($status < $minimum || $status > $maximum) {
-            throw new \InvalidArgumentException(sprintf(
-                'A %s Ajax action response requires an HTTP status between %d and %d, %d given.',
-                $responseType,
-                $minimum,
-                $maximum,
-                $status,
-            ));
+            throw new \InvalidArgumentException(sprintf('A %s Ajax action response requires an HTTP status between %d and %d, %d given.', $responseType, $minimum, $maximum, $status));
         }
     }
 }
