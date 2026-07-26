@@ -371,6 +371,80 @@ zhortein_datatable.boolean.no
 
 Host applications can override these translations through Symfony translation mechanisms.
 
+### Translating declarative labels
+
+Call `setTranslationDomain()` when column, filter, Search Builder and action
+texts are translation keys:
+
+```php
+$definition
+    ->setTranslationDomain('admin')
+    ->addColumn('e.email', label: 'users.columns.email')
+    ->addFilter(
+        name: 'status',
+        field: 'e.status',
+        label: 'users.filters.status',
+        type: FilterType::Choice,
+        choices: [
+            'users.status.enabled' => 'enabled',
+            'users.status.disabled' => 'disabled',
+        ],
+        placeholder: 'users.filters.all_statuses',
+    )
+    ->addAdvancedFilterField(
+        name: 'status',
+        field: 'e.status',
+        label: 'users.filters.status',
+        type: FilterType::Choice,
+        choices: [
+            'users.status.enabled' => 'enabled',
+            'users.status.disabled' => 'disabled',
+        ],
+    )
+    ->addRowAction(
+        name: 'view',
+        route: 'app_user_show',
+        label: 'users.actions.view',
+        confirmationMessage: 'users.confirmations.open',
+        routeParameters: ['id' => 'e.id'],
+    )
+;
+```
+
+The definition domain is applied at render time to:
+
+- column labels and the sort/filter accessibility labels derived from them;
+- simple-filter labels, placeholders and choice labels;
+- Search Builder field and choice labels;
+- row, global and bulk action labels;
+- action confirmation messages;
+- column visibility labels.
+
+The current Symfony translator locale is used for both the initial table shell
+and Ajax fragments. Built-in controls remain in the separate
+`zhortein_datatable` domain.
+
+When `translationDomain` is `null` (the default), all application-provided
+strings are treated as final literal text. Fallback names used when a label is
+omitted are also literal and are never looked up as translation keys. This
+allows an application to opt out cleanly and avoids translating final text a
+second time.
+
+Applications that translated labels inside their datatable service can migrate
+by:
+
+1. keeping or adding `setTranslationDomain('your_domain')`;
+2. replacing injected-translator calls with their original translation keys;
+3. removing `TranslatorInterface` from the datatable service;
+4. checking both the initial page and an Ajax refresh in each supported locale.
+
+Do not mix pre-translated strings and translation keys in a definition that has
+a domain. Keep the domain `null` until that definition has been migrated.
+
+Template overrides can resolve the same contract with
+`zhortein_datatable_translate(message, translation_domain, fallback,
+parameters)`. See the [template context reference](theming.md#template-context-reference).
+
 ## Datetime cell formatting
 
 Datetime cells are formatted through `DateTimeFormatterInterface`.

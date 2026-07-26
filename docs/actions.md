@@ -112,6 +112,27 @@ $definition->addRowAction(
 
 By default, this uses `window.confirm()`. If Bootstrap JavaScript and a modal target are present, it will use a Bootstrap modal instead.
 
+Action labels and confirmation messages are resolved in the definition's
+translation domain at render time. This applies consistently to row, global
+and bulk actions, including row-action fragments loaded through Ajax:
+
+```php
+$definition
+    ->setTranslationDomain('admin')
+    ->addRowAction(
+        name: 'delete',
+        route: 'app_user_delete',
+        label: 'users.actions.delete',
+        confirmationMessage: 'users.confirmations.delete',
+        httpMethod: 'DELETE',
+        routeParameters: ['id' => 'e.id'],
+    )
+;
+```
+
+Without a definition domain, both values are treated as final literal text.
+See [declarative translations](configuration.md#translating-declarative-labels).
+
 ## Customization
 
 -   **Icons**: Provide a CSS class via the `icon` option. If no explicit icon is provided, the bundle attempts to resolve a default icon based on the action name (e.g., `view`, `edit`, `delete`). See [Icon System](icons.md) for details.

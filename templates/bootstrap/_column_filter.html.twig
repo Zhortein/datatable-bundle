@@ -1,5 +1,6 @@
 {% set filter_button_id = htmlId ~ '_column_filter_' ~ filter.name %}
-{% set filter_label = filter.label ?? column.label ?? column.name %}
+{% set translation_domain = translationDomain|default(null) %}
+{% set filter_label = zhortein_datatable_translate(filter.label, translation_domain, columnLabel|default(column.label ?? column.name)) %}
 {% set is_active = filters[filter.name] is defined and filters[filter.name] is not empty %}
 
 <div
@@ -35,7 +36,8 @@
         {% include '@ZhorteinDatatable/bootstrap/_filter.html.twig' with {
             filter: filter,
             htmlId: htmlId,
-            value: filters[filter.name]|default(null)
+            value: filters[filter.name]|default(null),
+            translationDomain: translation_domain
         } only %}
 
         {% if is_active %}

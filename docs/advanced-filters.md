@@ -131,6 +131,12 @@ the equality and set operators: `eq`, `neq`, `in`, `not_in` (and `is_null` /
 `is_not_null` when the field is nullable). Operator restrictions declared via
 `allowedOperators` apply on top.
 
+Search Builder field labels and choice labels are resolved in the definition's
+translation domain when `setTranslationDomain()` is configured. Without a
+domain, the declared labels remain literal. This is the same contract used by
+columns, simple filters and actions; see
+[declarative translations](configuration.md#translating-declarative-labels).
+
 ### Operators
 
 The following operators are supported (see `ComparisonOperator` enum for internal values):

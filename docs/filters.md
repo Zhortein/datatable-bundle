@@ -40,11 +40,16 @@ $definition->addFilter(
 |---|---|
 | `name` | Public filter name used in request parameters (`filters[email]`). |
 | `field` | Provider field targeted (e.g., `e.email` or `organization.name`). |
-| `label` | Human-readable label rendered in the UI. |
+| `label` | Label or translation key rendered in the UI. |
 | `type` | `FilterType` enum value. |
-| `choices` | Array of choices for `Choice` filters. |
-| `placeholder` | Placeholder text for input or empty option. |
+| `choices` | Label-to-value map for `Choice` filters. Labels are translated when the definition has a translation domain. |
+| `placeholder` | Placeholder text or translation key for the input or empty option. |
 | `required` | Adds HTML `required` attribute. |
+
+When the definition calls `setTranslationDomain()`, filter labels,
+placeholders and choice labels are resolved in that domain during every render.
+Without a domain, they remain literal. See
+[declarative translations](configuration.md#translating-declarative-labels).
 
 ## Filter Types
 

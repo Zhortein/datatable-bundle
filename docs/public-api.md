@@ -99,7 +99,7 @@ The following names are stable in 1.x:
 | Writers | `csv`, `xlsx` |
 | Service tags | `zhortein_datatable.datatable`, `zhortein_datatable.data_provider`, `zhortein_datatable.export_writer` |
 | Routes | `zhortein_datatable_fragments`, `zhortein_datatable_export` |
-| Twig | `zhortein_datatable()` |
+| Twig | `zhortein_datatable()`, `zhortein_datatable_translate()` |
 | Stimulus | `zhortein--datatable-bundle--datatable` |
 | AssetMapper | `@zhortein/datatable-bundle` |
 | Configuration root | `zhortein_datatable` |
