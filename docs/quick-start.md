@@ -96,6 +96,12 @@ php bin/console debug:router zhortein_datatable_export
 
 The datatable service and all three routes must be present before opening the page.
 
+If labels are translation keys, set the application catalog once on the
+definition with `setTranslationDomain('your_domain')`. Columns, filters,
+actions, confirmations and Search Builder labels will then use the current
+request locale for both the initial page and Ajax fragments. See
+[declarative translations](configuration.md#translating-declarative-labels).
+
 ## 5. Open the page
 
 Start the application with your usual local server and open:

@@ -37,6 +37,7 @@ use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Provider\DoctrineOrmDataProvider;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
+use Zhortein\DatatableBundle\Twig\DeclarativeTranslationExtension;
 use Zhortein\DatatableBundle\Twig\DatatableTwigExtension;
 use Zhortein\DatatableBundle\Twig\DateTimeTwigExtension;
 
@@ -158,6 +159,8 @@ return static function (ContainerConfigurator $container): void {
     $services->set(DatatableSummaryRenderer::class);
 
     $services->set(DatatableTwigExtension::class);
+
+    $services->set(DeclarativeTranslationExtension::class);
 
     $services->set(DateTimeTwigExtension::class);
 

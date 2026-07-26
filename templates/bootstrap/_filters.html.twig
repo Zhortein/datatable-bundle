@@ -4,7 +4,8 @@
             {% include '@ZhorteinDatatable/bootstrap/_filter.html.twig' with {
                 filter: filter,
                 htmlId: htmlId,
-                value: filters[filter.name]|default(null)
+                value: filters[filter.name]|default(null),
+                translationDomain: definition.translationDomain
             } only %}
         {% endfor %}
     </div>

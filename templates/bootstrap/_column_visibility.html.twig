@@ -34,7 +34,7 @@
                             {% endif %}
                     >
                     <label class="form-check-label" for="{{ input_id }}">
-                        {{ column.label ?? column.name }}
+                        {{ zhortein_datatable_translate(column.label, definition.translationDomain, column.name) }}
                     </label>
                 </div>
             {% endfor %}

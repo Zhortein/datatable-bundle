@@ -1,6 +1,8 @@
 {% set has_icon = action.icon is not null and action.icon is not empty %}
 {% set icon_position = action.iconPosition ?? 'before' %}
-{% set label = action.label ?? action.name %}
+{% set translation_domain = action.translationDomain|default(null) %}
+{% set label = zhortein_datatable_translate(action.label, translation_domain, action.name) %}
+{% set confirmation_message = zhortein_datatable_translate(action.confirmationMessage, translation_domain) %}
 {% set base_class = action.className ?? (action.httpMethod == 'GET' ? 'btn btn-outline-secondary' : 'btn btn-outline-danger') %}
 {% set list_class = base_class ~ ' w-100 text-start' %}
 
@@ -10,7 +12,7 @@
         class="{{ list_class }}"
         data-turbo-prefetch="false"
         {% if action.confirmationMessage is not null %}
-            data-zhortein--datatable-bundle--datatable-confirmation-message="{{ action.confirmationMessage }}"
+            data-zhortein--datatable-bundle--datatable-confirmation-message="{{ confirmation_message }}"
             data-action="click->zhortein--datatable-bundle--datatable#confirmAction"
         {% endif %}
         {% for attribute_name, attribute_value in action.attributes %}
@@ -33,7 +35,7 @@
         action="{{ action.url }}"
         class="w-100"
         {% if action.confirmationMessage is not null %}
-            data-zhortein--datatable-bundle--datatable-confirmation-message="{{ action.confirmationMessage }}"
+            data-zhortein--datatable-bundle--datatable-confirmation-message="{{ confirmation_message }}"
             data-action="submit->zhortein--datatable-bundle--datatable#confirmAction"
         {% endif %}
     >
