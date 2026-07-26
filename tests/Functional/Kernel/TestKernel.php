@@ -20,6 +20,7 @@ use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Icon\IconResolver;
 use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
+use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
 use Zhortein\DatatableBundle\ZhorteinDatatableBundle;
 
@@ -143,11 +144,20 @@ final class TestKernel extends Kernel
             ->alias('test.'.IconResolverInterface::class, IconResolverInterface::class)
             ->public()
         ;
+
+        $services
+            ->alias('test.'.DatatableRenderer::class, DatatableRenderer::class)
+            ->public()
+        ;
     }
 
     protected function configureRoutes(RoutingConfigurator $routes): void
     {
         $routes->import(__DIR__.'/../../../config/routes.php');
+        $routes
+            ->add('test_article_preview', '/{_locale}/articles/{id}/{slug}/preview')
+            ->methods(['GET'])
+        ;
     }
 
     public function getCacheDir(): string

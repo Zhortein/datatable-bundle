@@ -2,3 +2,8 @@ app_smoke:
     path: /smoke
     controller: App\Controller\SmokeController
     methods: [GET]
+
+app_smoke_user:
+    path: /smoke/users/{id}
+    controller: App\Controller\SmokeController
+    methods: [GET]

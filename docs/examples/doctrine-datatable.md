@@ -159,6 +159,7 @@ use App\Entity\User;
 use Zhortein\DatatableBundle\Attribute\AsDatatable;
 use Zhortein\DatatableBundle\Contract\DatatableInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Definition\RouteParameter;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Enum\JoinType;
@@ -209,7 +210,7 @@ final class UserDatatable implements DatatableInterface
                 label: 'View',
                 icon: 'bi bi-eye',
                 routeParameters: [
-                    'id' => 'e.id',
+                    'id' => RouteParameter::row('e.id'),
                 ],
                 className: 'btn btn-sm btn-outline-primary',
                 permission: 'USER_VIEW',
@@ -220,7 +221,7 @@ final class UserDatatable implements DatatableInterface
                 label: 'Edit',
                 icon: 'bi bi-pencil',
                 routeParameters: [
-                    'id' => 'e.id',
+                    'id' => RouteParameter::row('e.id'),
                 ],
                 className: 'btn btn-sm btn-outline-secondary',
                 permission: 'USER_EDIT',
@@ -233,7 +234,7 @@ final class UserDatatable implements DatatableInterface
                 httpMethod: 'DELETE',
                 confirmationMessage: 'Delete this user?',
                 routeParameters: [
-                    'id' => 'e.id',
+                    'id' => RouteParameter::row('e.id'),
                 ],
                 className: 'btn btn-sm btn-outline-danger',
                 permission: 'USER_DELETE',

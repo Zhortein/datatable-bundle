@@ -34,7 +34,11 @@ The definition value objects returned by `DatatableDefinition` are also public:
 - `CustomJoinDefinition`;
 - `FilterDefinition`;
 - `JoinDefinition`;
+- `RouteParameter`;
 - `UserFilterDefinition`.
+
+Explicit server-side action context is represented by
+`Context\DatatableContext`.
 
 See [configuration](configuration.md), [providers](providers.md), [filters](filters.md), [advanced filters](advanced-filters.md), [actions](actions.md), [bulk actions](bulk-actions.md) and [exports](exports.md).
 
@@ -85,6 +89,7 @@ Enums accepted by documented definition methods and runtime objects are public:
 - `FilterType`;
 - `JoinType`;
 - `PaginationSize`;
+- `RouteParameterSource`;
 - `SortDirection`.
 
 Exceptions under `Zhortein\DatatableBundle\Exception` may be caught by applications. The base exceptions `DatatableException`, `DataProviderException` and `ExportException`, together with their current specialized subclasses, are covered by the 1.x compatibility policy.

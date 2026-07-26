@@ -8,6 +8,16 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.1.0] - 2026-07-26
+
+### Added
+
+- Added explicit row, literal and allowlisted context sources for action route parameters, including optional/default semantics, nested row paths, backed-enum and `Stringable` normalization, localized-route support and backward-compatible 1.x string declarations.
+
+### Fixed
+
+- Validated the documented minimal and complete bundle configuration in fresh Symfony 8 hosts against both `v1.0.0` and the current development version, including effective configuration, container parameters, rendered HTML and CSV output.
+
 ## [1.0.1] - 2026-07-26
 
 ### Fixed

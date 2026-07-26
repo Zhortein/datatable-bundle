@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Definition;
 
+use Zhortein\DatatableBundle\Context\DatatableContext;
 use Zhortein\DatatableBundle\Enum\ActionIconPosition;
 use Zhortein\DatatableBundle\Enum\AggregateFunction;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
@@ -19,6 +20,8 @@ final class DatatableDefinition
     private ?string $entityClass = null;
 
     private ?string $translationDomain = null;
+
+    private DatatableContext $context;
 
     /**
      * @var array<string, ColumnDefinition>
@@ -78,6 +81,7 @@ final class DatatableDefinition
     public function __construct(
         private readonly string $name,
     ) {
+        $this->context = new DatatableContext();
     }
 
     public function getName(): string
@@ -113,6 +117,18 @@ final class DatatableDefinition
     public function getTranslationDomain(): ?string
     {
         return $this->translationDomain;
+    }
+
+    public function setContext(DatatableContext $context): self
+    {
+        $this->context = $context;
+
+        return $this;
+    }
+
+    public function getContext(): DatatableContext
+    {
+        return $this->context;
     }
 
     public function addColumn(
@@ -217,8 +233,8 @@ final class DatatableDefinition
     }
 
     /**
-     * @param array<string, string> $routeParameters
-     * @param array<string, string> $attributes
+     * @param array<string, string|RouteParameter> $routeParameters
+     * @param array<string, string>                $attributes
      */
     public function addRowAction(
         string $name,
@@ -259,8 +275,8 @@ final class DatatableDefinition
     }
 
     /**
-     * @param array<string, string> $routeParameters
-     * @param array<string, string> $attributes
+     * @param array<string, string|RouteParameter> $routeParameters
+     * @param array<string, string>                $attributes
      */
     public function addGlobalAction(
         string $name,
@@ -304,8 +320,8 @@ final class DatatableDefinition
     }
 
     /**
-     * @param array<string, string> $routeParameters
-     * @param array<string, string> $attributes
+     * @param array<string, string|RouteParameter> $routeParameters
+     * @param array<string, string>                $attributes
      *
      * NOTE: Visibility checks only control whether the action is rendered in the UI.
      * The backend route MUST also enforce authorization and validate the request.
