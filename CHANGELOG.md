@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.2.0] - 2026-07-26
+
+### Added
+
+- Added opt-in Ajax execution for row, global and bulk actions with a versioned response helper, CSRF-aware progressive fallback, confirmations, duplicate prevention, accessible feedback, lifecycle events and refresh-table, refresh-row, remove-row, no-op or redirect success strategies.
+
 ## [1.1.0] - 2026-07-26
 
 ### Added
