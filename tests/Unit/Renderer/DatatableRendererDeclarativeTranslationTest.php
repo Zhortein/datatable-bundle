@@ -239,7 +239,9 @@ final class DeclarativeTranslationUrlGenerator implements UrlGeneratorInterface
         int $referenceType = self::ABSOLUTE_PATH,
     ): string {
         if ('app_user_show' === $name) {
-            return '/users/'.($parameters['id'] ?? '');
+            $id = $parameters['id'] ?? null;
+
+            return '/users/'.(is_string($id) || is_int($id) ? $id : '');
         }
 
         return '/'.$name;
