@@ -67,6 +67,13 @@ final class AjaxActionResponseTest extends TestCase
         ], $response);
     }
 
+    public function test_it_uses_an_unprocessable_entity_status_for_failures_by_default(): void
+    {
+        $response = AjaxActionResponse::failure();
+
+        self::assertSame(422, $response->getStatusCode());
+    }
+
     /**
      * @param callable(): AjaxActionResponse $factory
      */

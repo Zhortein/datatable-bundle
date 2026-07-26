@@ -65,7 +65,7 @@ final class AjaxActionResponse extends JsonResponse
     public static function failure(
         ?string $message = null,
         array $errors = [],
-        int $status = self::HTTP_UNPROCESSABLE_CONTENT,
+        int $status = self::HTTP_UNPROCESSABLE_ENTITY,
     ): self {
         self::assertStatusRange($status, self::HTTP_BAD_REQUEST, 599, 'failed');
 
