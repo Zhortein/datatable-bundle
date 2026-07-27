@@ -49,6 +49,7 @@ final readonly class ArrayDataProvider implements DataProviderInterface
             pageSize: $request->getPageSize(),
             totalItems: $totalItems,
             filteredItems: $filteredItems,
+            sources: $rows,
         );
     }
 

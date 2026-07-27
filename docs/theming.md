@@ -8,7 +8,8 @@ Currently implemented:
 -   **Theme**: Bootstrap 5.
 -   **Overrides**: Standard Symfony bundle template overrides.
 -   **Cells**: Typed cell templates (string, numeric, boolean, datetime, array, enum).
--   **Context**: Comprehensive Twig context for all rendering stages.
+-   **Context**: Stable `CellContext` with normalized rows, optional provider sources, identifiers, definitions and explicit application context.
+-   **Computed values**: Named PHP resolvers shared by custom cells and exports.
 -   **Variants**: Runtime Bootstrap table options (striped, hover, bordered, etc.).
 -   **Boolean Display Modes**: Configurable rendering for boolean columns (`badge`, `icon`, `switch`, `text`).
 -   **Boolean Negation**: Per-column inversion of rendered boolean values.
@@ -65,11 +66,21 @@ In your Twig template:
 Available variables: `definition`, `visibleColumns`, `rowActions`, `globalActions`, `htmlId`, `options`.
 
 ### Cell Context (`_cell.html.twig` and `cell/*.html.twig`)
+-   `cell`: Canonical server-side `CellContext` DTO.
 -   `column`: The `ColumnDefinition` object.
 -   `column_label`: Final column label, translated for the current locale when the definition has a translation domain.
 -   `translation_domain`: Definition translation domain, or `null` when declarative strings are literal.
--   `value`: The provider value, inverted when the boolean column enables `negate`.
+-   `value`: The provider or computed value, inverted when the boolean column enables `negate`.
+-   `row`: Normalized provider row.
+-   `source`: Optional provider source array/object, or `null`.
+-   `row_identifier`: Normalized row identifier, or `null`.
+-   `datatable`: Current `DatatableDefinition`.
+-   `datatable_context`: Explicit server-side `DatatableContext`.
 -   `boolean_display_mode`, `boolean_true_icon`, `boolean_false_icon`: Resolved typed-cell rendering options.
+
+The bundle never serializes these objects into browser attributes or JSON.
+See [Cell Context and Computed Values](cell-context.md) for provider
+capabilities, computed columns, export behavior and security guidance.
 
 ### Action Context (`_action.html.twig`)
 -   `action`: Array containing `name`, `label`, `confirmationMessage`, `translationDomain`, `url`, `httpMethod`, `csrfToken`, `className`, `attributes` and `selectedRowsParameterName`.
@@ -117,4 +128,5 @@ Or override them at runtime:
 - [Icon System](icons.md)
 - [UI/UX Rendering](ui-ux.md)
 - [Actions and Security](actions.md)
+- [Cell Context and Computed Values](cell-context.md)
 - [Architecture](architecture/overview.md)

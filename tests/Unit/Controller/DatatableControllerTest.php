@@ -91,6 +91,7 @@ final class DatatableControllerTest extends TestCase
         self::assertStringContainsString('alice@example.test', $payload['body']);
         self::assertStringContainsString('bob@example.test', $payload['body']);
         self::assertStringNotContainsString('charlie@example.test', $payload['body']);
+        self::assertStringNotContainsString('server-only-secret', (string) $response->getContent());
         self::assertIsString($payload['pagination']);
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-page-param="2"', $payload['pagination']);
     }
@@ -237,6 +238,7 @@ final class ControllerTestDatatable implements DatatableInterface
                 [
                     'id' => 1,
                     'email' => 'alice@example.test',
+                    'sourceSecret' => 'server-only-secret',
                 ],
                 [
                     'id' => 2,

@@ -8,6 +8,7 @@ final readonly class DatatableResult
 {
     /**
      * @param list<array<string, mixed>> $rows
+     * @param list<mixed>                $sources Server-side source values aligned with rows.
      */
     public function __construct(
         private array $rows = [],
@@ -15,6 +16,7 @@ final readonly class DatatableResult
         private int $pageSize = 25,
         private int $totalItems = 0,
         private ?int $filteredItems = null,
+        private array $sources = [],
     ) {
         if ($this->page < 1) {
             throw new \InvalidArgumentException('The datatable result page must be greater than or equal to 1.');
@@ -31,10 +33,15 @@ final readonly class DatatableResult
         if (null !== $this->filteredItems && $this->filteredItems < 0) {
             throw new \InvalidArgumentException('The datatable result filtered items count must be greater than or equal to 0.');
         }
+
+        if ([] !== $this->sources && count($this->sources) !== count($this->rows)) {
+            throw new \InvalidArgumentException('Datatable result sources must be empty or contain exactly one value for each row.');
+        }
     }
 
     /**
      * @param list<array<string, mixed>> $rows
+     * @param list<mixed>                $sources
      */
     public static function create(
         array $rows = [],
@@ -42,6 +49,7 @@ final readonly class DatatableResult
         int $pageSize = 25,
         int $totalItems = 0,
         ?int $filteredItems = null,
+        array $sources = [],
     ): self {
         return new self(
             rows: $rows,
@@ -49,6 +57,7 @@ final readonly class DatatableResult
             pageSize: $pageSize,
             totalItems: $totalItems,
             filteredItems: $filteredItems,
+            sources: $sources,
         );
     }
 
@@ -58,6 +67,24 @@ final readonly class DatatableResult
     public function getRows(): array
     {
         return $this->rows;
+    }
+
+    /**
+     * @return list<mixed>
+     */
+    public function getSources(): array
+    {
+        return $this->sources;
+    }
+
+    public function getSource(int $rowIndex): mixed
+    {
+        return $this->sources[$rowIndex] ?? null;
+    }
+
+    public function hasSources(): bool
+    {
+        return [] !== $this->sources;
     }
 
     public function getPage(): int

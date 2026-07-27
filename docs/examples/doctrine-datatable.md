@@ -12,6 +12,7 @@ It demonstrates:
 - row actions;
 - global actions;
 - typed cell rendering;
+- complete server-side custom cell context;
 - Twig rendering;
 - CSV export controls.
 
@@ -290,6 +291,7 @@ With the current bundle implementation, this datatable supports:
 - page size selector;
 - CSV exports;
 - typed cell templates.
+- normalized rows, identifiers and explicit context in custom cell templates.
 
 ## Main alias
 
@@ -459,6 +461,9 @@ Example template:
 {% endif %}
 ```
 
+For a computed column backed by a reusable PHP resolver and shared with
+CSV/XLSX, use the [complete computed-cell example](computed-cell.md).
+
 ## Current limitations
 
 This example avoids features not yet implemented.
@@ -484,6 +489,7 @@ Current limitations:
 - [`../preferences.md`](../preferences.md)
 - [`../ui-ux.md`](../ui-ux.md)
 - [`../theming.md`](../theming.md)
+- [`../cell-context.md`](../cell-context.md)
 
 ## Smoke-test validation
 

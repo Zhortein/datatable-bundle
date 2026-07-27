@@ -10,6 +10,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 use Zhortein\DatatableBundle\Attribute\AsDatatable;
+use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
+use Zhortein\DatatableBundle\Contract\CellValueResolverInterface;
 use Zhortein\DatatableBundle\DependencyInjection\Compiler\DatatableCompilerPass;
 
 final class ZhorteinDatatableBundle extends AbstractBundle
@@ -179,6 +181,11 @@ final class ZhorteinDatatableBundle extends AbstractBundle
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
+
+        $container
+            ->registerForAutoconfiguration(CellValueResolverInterface::class)
+            ->addTag(CellValueResolverRegistry::SERVICE_TAG)
+        ;
 
         $container->registerAttributeForAutoconfiguration(
             AsDatatable::class,

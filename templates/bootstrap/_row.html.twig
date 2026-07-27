@@ -15,6 +15,7 @@
 
     {% for cell in row.cells %}
         {% include '@ZhorteinDatatable/bootstrap/_cell.html.twig' with {
+            cell: cell.context,
             column: cell.column,
             value: cell.value,
             template: cell.template,

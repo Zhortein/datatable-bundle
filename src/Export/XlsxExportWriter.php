@@ -8,6 +8,7 @@ use OpenSpout\Common\Entity\Cell;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Writer\XLSX\Writer;
 use Symfony\Component\HttpFoundation\Response;
+use Zhortein\DatatableBundle\Cell\CellContextFactory;
 use Zhortein\DatatableBundle\Contract\ExportWriterInterface;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
@@ -18,9 +19,13 @@ final readonly class XlsxExportWriter implements ExportWriterInterface
 {
     public const string WRITER_NAME = 'xlsx';
 
+    private CellContextFactory $cellContextFactory;
+
     public function __construct(
         private ExportableColumnResolver $columnResolver = new ExportableColumnResolver(),
+        ?CellContextFactory $cellContextFactory = null,
     ) {
+        $this->cellContextFactory = $cellContextFactory ?? new CellContextFactory();
     }
 
     public function supports(ExportFormat $format): bool
@@ -54,10 +59,15 @@ final readonly class XlsxExportWriter implements ExportWriterInterface
                 $columns,
             )));
 
-            foreach ($result->getRows() as $row) {
+            foreach ($result->getRows() as $rowIndex => $row) {
                 $writer->addRow(new Row(array_map(
                     static fn (mixed $value): Cell => Cell::fromValue($value),
-                    $this->normalizeRow($columns, $row),
+                    $this->normalizeRow(
+                        definition: $definition,
+                        columns: $columns,
+                        row: $row,
+                        source: $result->getSource($rowIndex),
+                    ),
                 )));
             }
 
@@ -91,50 +101,24 @@ final readonly class XlsxExportWriter implements ExportWriterInterface
      *
      * @return list<\DateInterval|\DateTimeInterface|bool|float|int|string|null>
      */
-    private function normalizeRow(array $columns, array $row): array
+    private function normalizeRow(
+        DatatableDefinition $definition,
+        array $columns,
+        array $row,
+        mixed $source,
+    ): array
     {
         $values = [];
 
         foreach ($columns as $column) {
-            $values[] = $this->normalizeValue($this->readColumnValue($row, $column));
+            $values[] = $this->normalizeValue(
+                $this->cellContextFactory
+                    ->create($definition, $column, $row, $source)
+                    ->getValue(),
+            );
         }
 
         return $values;
-    }
-
-    /**
-     * @param array<string, mixed> $row
-     */
-    private function readColumnValue(array $row, ColumnDefinition $column): mixed
-    {
-        foreach ($this->getColumnValueCandidateKeys($column->getName()) as $candidateKey) {
-            if (array_key_exists($candidateKey, $row)) {
-                return $row[$candidateKey];
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getColumnValueCandidateKeys(string $columnName): array
-    {
-        $candidateKeys = [$columnName];
-
-        if (str_contains($columnName, '.')) {
-            $candidateKeys[] = str_replace('.', '_', $columnName);
-
-            $parts = explode('.', $columnName);
-            $lastPart = $parts[array_key_last($parts)];
-
-            if ('' !== $lastPart) {
-                $candidateKeys[] = $lastPart;
-            }
-        }
-
-        return array_values(array_unique($candidateKeys));
     }
 
     private function normalizeValue(mixed $value): \DateInterval|\DateTimeInterface|bool|float|int|string|null

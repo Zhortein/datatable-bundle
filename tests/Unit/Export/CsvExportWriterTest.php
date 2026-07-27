@@ -6,6 +6,10 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Export;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Zhortein\DatatableBundle\Cell\CellContext;
+use Zhortein\DatatableBundle\Cell\CellContextFactory;
+use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
+use Zhortein\DatatableBundle\Contract\CellValueResolverInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
 use Zhortein\DatatableBundle\Export\CsvExportWriter;
@@ -210,6 +214,51 @@ final class CsvExportWriterTest extends TestCase
 
         self::assertStringContainsString('Email,Organization', $content);
         self::assertStringContainsString('alice@example.test,"Acme Corp"', $content);
+    }
+
+    public function test_it_exports_computed_values_with_the_server_side_source(): void
+    {
+        $resolver = new class implements CellValueResolverInterface {
+            public function getName(): string
+            {
+                return 'summary';
+            }
+
+            public function resolve(CellContext $context): mixed
+            {
+                $source = $context->getSource();
+                $sourceLabel = is_array($source) && is_string($source['label'] ?? null)
+                    ? $source['label']
+                    : 'no-source';
+
+                return sprintf(
+                    '%s / %s',
+                    (string) ($context->getRow()['e_email'] ?? ''),
+                    $sourceLabel,
+                );
+            }
+        };
+        $definition = new DatatableDefinition('users');
+        $definition
+            ->addColumn('e.email', visible: false)
+            ->addComputedColumn('summary', valueResolver: 'summary', label: 'Summary')
+        ;
+        $source = ['label' => 'server-source'];
+        $writer = new CsvExportWriter(
+            cellContextFactory: new CellContextFactory(new CellValueResolverRegistry([$resolver])),
+        );
+
+        $response = $writer->write(
+            request: new DatatableExportRequest('users'),
+            definition: $definition,
+            result: new DatatableResult(
+                rows: [['e_email' => 'alice@example.test']],
+                totalItems: 1,
+                sources: [$source],
+            ),
+        );
+
+        self::assertSame("Summary\nalice@example.test / server-source\n", $response->getContent());
     }
 
     private function createDefinition(): DatatableDefinition

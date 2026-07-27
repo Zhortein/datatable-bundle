@@ -22,7 +22,7 @@ The primary application-facing API is stable:
 - `Definition\DatatableDefinition`;
 - the `zhortein_datatable()` Twig function.
 
-The builder methods documented in the feature guides are part of the contract, including columns, simple and advanced filters, joins, aggregate columns, row/global/bulk actions, permanent filters and options.
+The builder methods documented in the feature guides are part of the contract, including regular and computed columns, simple and advanced filters, joins, aggregate columns, row/global/bulk actions, permanent filters and options.
 
 The definition value objects returned by `DatatableDefinition` are also public:
 
@@ -47,12 +47,13 @@ The Ajax action response helper `Response\AjaxActionResponse` and its version
 constant are public. Host controllers may return an equivalent JSON response,
 but the documented v1 fields and semantics must be preserved.
 
-See [configuration](configuration.md), [providers](providers.md), [filters](filters.md), [advanced filters](advanced-filters.md), [actions](actions.md), [explicit context](context.md), [bulk actions](bulk-actions.md) and [exports](exports.md).
+See [configuration](configuration.md), [providers](providers.md), [filters](filters.md), [advanced filters](advanced-filters.md), [actions](actions.md), [explicit context](context.md), [cell context and computed values](cell-context.md), [bulk actions](bulk-actions.md) and [exports](exports.md).
 
 ## Extension contracts
 
 Applications may implement or decorate these contracts:
 
+- `Contract\CellValueResolverInterface`;
 - `Contract\DataProviderInterface`;
 - `Contract\ExportWriterInterface`;
 - `Contract\IconResolverInterface`;
@@ -65,6 +66,7 @@ Applications may implement or decorate these contracts:
 
 Objects appearing in those signatures are part of the supported API:
 
+- `Cell\CellContext`;
 - `Action\ActionVisibilityContext`;
 - `Export\DatatableExportRequest`;
 - `Preference\DatatablePreference`;
@@ -85,6 +87,11 @@ The canonical URL and future saved-view state model is public:
 Named views reuse this state model. Their provider, opaque ownership,
 authorization, scope, revision and JSON behavior are documented in
 [named saved views](saved-views.md).
+
+`DatatableResult` source alignment, `CellContext` accessors and
+`DatatableDefinition::addComputedColumn()` are documented in [cell context and
+computed values](cell-context.md). Resolver services are shared by Twig and
+export writers.
 
 The advanced-filter expression model is public for custom providers:
 
@@ -119,7 +126,7 @@ Enums accepted by documented definition methods and runtime objects are public:
 - `SortDirection`;
 - `DatatableViewOperation`.
 
-Exceptions under `Zhortein\DatatableBundle\Exception` may be caught by applications. The base exceptions `DatatableException`, `DataProviderException` and `ExportException`, together with their current specialized subclasses, are covered by the 1.x compatibility policy.
+Exceptions under `Zhortein\DatatableBundle\Exception` may be caught by applications. The base exceptions `DatatableException`, `DataProviderException`, `ExportException` and `CellValueResolverException`, together with their current specialized subclasses, are covered by the 1.x compatibility policy.
 
 ## Named integration contracts
 
@@ -129,7 +136,7 @@ The following names are stable in 1.x:
 |---|---|
 | Providers | `array`, `doctrine` |
 | Writers | `csv`, `xlsx` |
-| Service tags | `zhortein_datatable.datatable`, `zhortein_datatable.data_provider`, `zhortein_datatable.export_writer` |
+| Service tags | `zhortein_datatable.datatable`, `zhortein_datatable.data_provider`, `zhortein_datatable.export_writer`, `zhortein_datatable.cell_value_resolver` |
 | Routes | `zhortein_datatable_fragments`, `zhortein_datatable_export` |
 | Named-view routes | `zhortein_datatable_views_list`, `zhortein_datatable_views_create`, `zhortein_datatable_views_load`, `zhortein_datatable_views_mutate`, `zhortein_datatable_views_delete` |
 | Twig | `zhortein_datatable()`, `zhortein_datatable_translate()` |

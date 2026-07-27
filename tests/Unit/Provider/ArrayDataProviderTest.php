@@ -52,6 +52,8 @@ final class ArrayDataProviderTest extends TestCase
                 'displayName' => 'Zoe',
             ],
         ], $result->getRows());
+        self::assertTrue($result->hasSources());
+        self::assertSame($result->getRows(), $result->getSources());
     }
 
     public function test_it_applies_simple_search_on_searchable_columns(): void

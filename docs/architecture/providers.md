@@ -32,8 +32,22 @@ Providers are regular Symfony services tagged with `zhortein_datatable.data_prov
 
 It allows the data pipeline to be tested without a database.
 
+The final associative rows are also attached as server-side sources. This
+gives cell resolvers one consistent source contract without additional
+lookups.
+
 ## Doctrine Provider
 
 The Doctrine provider is the primary production-oriented provider. Due to its complexity, it is documented in its own architecture page.
 
+It keeps scalar projections and does not attach hydrated entities to
+`DatatableResult`. Computed columns are excluded from the SQL/DQL selection;
+their named resolver runs later from already selected fields. This prevents
+implicit lazy association traversal and N+1 queries in Twig.
+
+Custom providers may attach one source array/object per normalized row. The
+provider owns batching and eager-loading responsibilities.
+
 See [Doctrine Architecture](doctrine.md).
+
+See [Cell Context and Computed Values](../cell-context.md).

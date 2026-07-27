@@ -26,6 +26,8 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use Zhortein\DatatableBundle\Action\ActionVisibilityCheckerInterface;
 use Zhortein\DatatableBundle\Action\AllowAllActionVisibilityChecker;
 use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
+use Zhortein\DatatableBundle\Cell\CellContextFactory;
+use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
 use Zhortein\DatatableBundle\Controller\DatatableController;
 use Zhortein\DatatableBundle\Controller\DatatableViewController;
 use Zhortein\DatatableBundle\DateTime\DateTimeFormatterInterface;
@@ -62,6 +64,13 @@ return static function (ContainerConfigurator $container): void {
     ;
 
     $services->set(RowActionRouteParameterResolver::class);
+
+    $services
+        ->set(CellValueResolverRegistry::class)
+        ->arg('$resolvers', tagged_iterator(CellValueResolverRegistry::SERVICE_TAG))
+    ;
+
+    $services->set(CellContextFactory::class);
 
     $services
         ->set(DatatableContextTransport::class)
