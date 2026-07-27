@@ -17,6 +17,7 @@ use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Contract\DatatableViewAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Contract\DatatableViewOwnerResolverInterface;
 use Zhortein\DatatableBundle\Contract\DatatableViewProviderInterface;
+use Zhortein\DatatableBundle\Contract\EnumPresentationResolverInterface;
 use Zhortein\DatatableBundle\Context\DatatableContextRequestResolver;
 use Zhortein\DatatableBundle\Context\DatatableContextTransport;
 use Zhortein\DatatableBundle\Renderer\DatatableSummaryRenderer;
@@ -39,6 +40,7 @@ use Zhortein\DatatableBundle\Export\CsvExportWriter;
 use Zhortein\DatatableBundle\Export\ExportColumnLabelResolver;
 use Zhortein\DatatableBundle\Export\ExportableColumnResolver;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
+use Zhortein\DatatableBundle\EnumPresentation\DefaultEnumPresentationResolver;
 use Zhortein\DatatableBundle\Factory\AdvancedFilterExpressionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
@@ -91,6 +93,9 @@ return static function (ContainerConfigurator $container): void {
     ;
 
     $services->set(CellContextFactory::class);
+
+    $services->set(DefaultEnumPresentationResolver::class);
+    $services->alias(EnumPresentationResolverInterface::class, DefaultEnumPresentationResolver::class);
 
     $services
         ->set(DatatableContextTransport::class)

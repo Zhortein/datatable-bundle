@@ -7,6 +7,7 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Twig;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\Translator;
+use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 use Zhortein\DatatableBundle\Twig\DeclarativeTranslationExtension;
 
 final class DeclarativeTranslationExtensionTest extends TestCase
@@ -72,4 +73,30 @@ final class DeclarativeTranslationExtensionTest extends TestCase
             'status.disabled' => 'disabled',
         ], 'datatable'));
     }
+
+    public function test_it_resolves_enum_choices_with_rich_presentations(): void
+    {
+        $translator = new Translator('fr');
+        $translator->addLoader('array', new ArrayLoader());
+        $translator->addResource('array', ['status.enabled' => 'Activé'], 'fr', 'datatable');
+        $extension = new DeclarativeTranslationExtension($translator);
+
+        self::assertSame(
+            ['Activé' => 'enabled', 'Disabled' => 'disabled'],
+            $extension->resolveEnumChoices(
+                choices: [],
+                enumClass: TwigStatus::class,
+                presentations: [
+                    TwigStatus::Enabled->value => new EnumPresentation('status.enabled'),
+                ],
+                translationDomain: 'datatable',
+            ),
+        );
+    }
+}
+
+enum TwigStatus: string
+{
+    case Enabled = 'enabled';
+    case Disabled = 'disabled';
 }

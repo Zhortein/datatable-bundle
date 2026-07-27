@@ -32,7 +32,10 @@ final readonly class DoctrineDatatableDefinitionEnricher
                 continue;
             }
 
-            $definition->replaceColumn($column->withType($fieldType->getCellType()));
+            $definition->replaceColumn($column->withType(
+                $fieldType->getCellType(),
+                $fieldType->getEnumClass(),
+            ));
         }
 
         return $definition;

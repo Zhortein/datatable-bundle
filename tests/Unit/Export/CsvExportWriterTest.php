@@ -14,6 +14,8 @@ use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
 use Zhortein\DatatableBundle\Contract\CellValueResolverInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
+use Zhortein\DatatableBundle\EnumPresentation\DefaultEnumPresentationResolver;
+use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 use Zhortein\DatatableBundle\Export\CsvExportWriter;
 use Zhortein\DatatableBundle\Export\DatatableExportRequest;
 use Zhortein\DatatableBundle\Export\ExportColumnLabelResolver;
@@ -300,6 +302,46 @@ final class CsvExportWriterTest extends TestCase
         self::assertSame("Summary\n\"alice@example.test / server-source\"\n", $response->getContent());
     }
 
+    public function test_it_exports_the_translated_enum_label_without_presentation_markup(): void
+    {
+        $translator = new Translator('fr');
+        $translator->addLoader('array', new ArrayLoader());
+        $translator->addResource('array', ['status.active' => 'Actif'], 'fr', 'users');
+        $definition = new DatatableDefinition('users');
+        $definition
+            ->setTranslationDomain('users')
+            ->addColumn(
+                name: 'status',
+                label: 'Status',
+                type: 'enum',
+                enumClass: ExportStatus::class,
+                enumPresentations: [
+                    ExportStatus::Active->value => new EnumPresentation(
+                        label: 'status.active',
+                        badgeVariant: 'success',
+                        icon: 'bi bi-check-circle',
+                    ),
+                ],
+            )
+        ;
+        $writer = new CsvExportWriter(
+            enumPresentationResolver: new DefaultEnumPresentationResolver($translator),
+        );
+
+        $response = $writer->write(
+            request: new DatatableExportRequest('users'),
+            definition: $definition,
+            result: new DatatableResult(
+                rows: [['status' => ExportStatus::Active]],
+                totalItems: 1,
+            ),
+        );
+
+        self::assertSame("Status\nActif\n", $response->getContent());
+        self::assertStringNotContainsString('badge', $response->getContent());
+        self::assertStringNotContainsString('bi-check-circle', $response->getContent());
+    }
+
     private function createDefinition(): DatatableDefinition
     {
         $definition = new DatatableDefinition('users');
@@ -337,4 +379,9 @@ final class CsvExportWriterTest extends TestCase
             totalItems: 2,
         );
     }
+}
+
+enum ExportStatus: string
+{
+    case Active = 'active';
 }

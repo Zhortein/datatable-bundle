@@ -1323,6 +1323,32 @@ Doctrine datatables consistently receive their declared field types at runtime, 
 
 ---
 
+## 1.10 - Rich enum presentation ✅
+
+Delivered:
+
+- immutable enum presentation metadata with labels, Bootstrap badge variants,
+  custom colors and icons;
+- replaceable resolver contract with deterministic translation and fallback
+  behavior;
+- backed string, backed integer and pure enum support without application
+  interfaces;
+- Doctrine enum-class propagation across root, mapped, chained and custom
+  joined fields;
+- shared labels for initial/Ajax/child rendering, simple and advanced filters,
+  CSV and XLSX;
+- Array-provider enum filtering and custom-resolver coverage;
+- presentation metadata in documented custom Twig cell context;
+- complete public API and usage documentation.
+
+Main outcome:
+
+```text
+Applications can define enum semantics once and keep localized tables, filters and exports consistent without coupling domain enums to the bundle.
+```
+
+---
+
 ## Later ideas 🔭
 
 Potential future work:
@@ -1334,7 +1360,6 @@ Potential future work:
 - API/data-source providers;
 - Elasticsearch provider;
 - UX Icons integration;
-- richer enum badge/icon rendering;
 - Symfony Flex recipe if external demand justifies it;
 - Tailwind or custom theme support;
 - icon provider abstraction;

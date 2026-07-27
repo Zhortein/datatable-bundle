@@ -58,6 +58,7 @@ $definition->addAdvancedFilterField(
 | `allowedOperators` | (Optional) List of operators allowed for this field. Accepts both advanced `ComparisonOperator` values and legacy/simple `FilterOperator` values. Operators are normalized internally to the advanced `ComparisonOperator` model. If empty, all operators compatible with the type are allowed. |
 | `choices` | (Optional) Array of choices for `Choice` fields. |
 | `enumClass` | (Optional) Backed enum class. When provided, the field type is upgraded to `FilterType::Enum` and choices are derived from the enum. |
+| `enumPresentations` | (Optional) Presentation map used to derive the same translated choice labels as cells and exports. |
 | `nullable` | (Optional) When `true`, `is_null` / `is_not_null` operators are exposed for this field. |
 
 ### Mixing `ComparisonOperator` and `FilterOperator`
@@ -125,6 +126,10 @@ The Search Builder supports the following types from the `FilterType` enum:
 `Enum` fields accept a backed enum class via the `enumClass` option. The bundle
 automatically derives the choice map from the enum cases (case name → backed
 value). Enum values are submitted as their backed (scalar) values.
+
+When `enumPresentations` is declared, derived choices use the shared enum
+presentation resolver. Explicit `choices` still take precedence. See [enum
+presentation](enum-presentation.md).
 
 For both `Choice` and `Enum`, the operators effectively available are limited to
 the equality and set operators: `eq`, `neq`, `in`, `not_in` (and `is_null` /

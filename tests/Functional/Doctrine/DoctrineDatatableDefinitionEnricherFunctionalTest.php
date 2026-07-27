@@ -12,6 +12,7 @@ use Zhortein\DatatableBundle\Enum\JoinType;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineAuditLog;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
+use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUserStatus;
 use Zhortein\DatatableBundle\Tests\Functional\FunctionalTestCase;
 use Zhortein\DatatableBundle\Tests\Functional\Kernel\TestKernel;
 
@@ -39,6 +40,7 @@ final class DoctrineDatatableDefinitionEnricherFunctionalTest extends Functional
         self::assertSame('boolean', $columns['e.enabled']->getType());
         self::assertSame('datetime', $columns['e.createdAt']->getType());
         self::assertSame('enum', $columns['e.status']->getType());
+        self::assertSame(DoctrineUserStatus::class, $columns['e.status']->getEnumClass());
     }
 
     public function test_it_enriches_declared_mapped_chained_and_custom_join_columns(): void
@@ -56,8 +58,11 @@ final class DoctrineDatatableDefinitionEnricherFunctionalTest extends Functional
                 type: JoinType::Left,
             )
             ->addColumn('organization.enabled')
+            ->addColumn('organization.status')
             ->addColumn('group.name')
+            ->addColumn('group.status')
             ->addColumn('audit.objectId')
+            ->addColumn('audit.status')
         ;
 
         $this->getEnricher()->enrich($definition);
@@ -65,8 +70,14 @@ final class DoctrineDatatableDefinitionEnricherFunctionalTest extends Functional
         $columns = $definition->getColumns();
 
         self::assertSame('boolean', $columns['organization.enabled']->getType());
+        self::assertSame('enum', $columns['organization.status']->getType());
+        self::assertSame(DoctrineUserStatus::class, $columns['organization.status']->getEnumClass());
         self::assertSame('string', $columns['group.name']->getType());
+        self::assertSame('enum', $columns['group.status']->getType());
+        self::assertSame(DoctrineUserStatus::class, $columns['group.status']->getEnumClass());
         self::assertSame('numeric', $columns['audit.objectId']->getType());
+        self::assertSame('enum', $columns['audit.status']->getType());
+        self::assertSame(DoctrineUserStatus::class, $columns['audit.status']->getEnumClass());
     }
 
     public function test_it_preserves_explicit_column_type(): void

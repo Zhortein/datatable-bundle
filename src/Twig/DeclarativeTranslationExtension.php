@@ -7,12 +7,19 @@ namespace Zhortein\DatatableBundle\Twig;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
+use Zhortein\DatatableBundle\Contract\EnumPresentationResolverInterface;
+use Zhortein\DatatableBundle\EnumPresentation\DefaultEnumPresentationResolver;
+use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 
 final class DeclarativeTranslationExtension extends AbstractExtension
 {
+    private EnumPresentationResolverInterface $enumPresentationResolver;
+
     public function __construct(
         private readonly TranslatorInterface $translator,
+        ?EnumPresentationResolverInterface $enumPresentationResolver = null,
     ) {
+        $this->enumPresentationResolver = $enumPresentationResolver ?? new DefaultEnumPresentationResolver($translator);
     }
 
     /**
@@ -23,6 +30,7 @@ final class DeclarativeTranslationExtension extends AbstractExtension
         return [
             new TwigFunction('zhortein_datatable_translate', $this->translate(...)),
             new TwigFunction('zhortein_datatable_translate_choices', $this->translateChoices(...)),
+            new TwigFunction('zhortein_datatable_enum_choices', $this->resolveEnumChoices(...)),
         ];
     }
 
@@ -64,5 +72,29 @@ final class DeclarativeTranslationExtension extends AbstractExtension
         }
 
         return $translatedChoices;
+    }
+
+    /**
+     * @param array<string, string>               $choices
+     * @param class-string<\UnitEnum>|null        $enumClass
+     * @param array<int|string, EnumPresentation> $presentations
+     *
+     * @return array<string, string>
+     */
+    public function resolveEnumChoices(
+        array $choices,
+        ?string $enumClass,
+        array $presentations,
+        ?string $translationDomain,
+    ): array {
+        if ([] !== $choices || null === $enumClass) {
+            return $this->translateChoices($choices, $translationDomain);
+        }
+
+        return $this->enumPresentationResolver->resolveChoices(
+            enumClass: $enumClass,
+            presentations: $presentations,
+            translationDomain: $translationDomain,
+        );
     }
 }

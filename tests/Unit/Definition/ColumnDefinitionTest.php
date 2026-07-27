@@ -6,6 +6,7 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Definition;
 
 use PHPUnit\Framework\TestCase;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
+use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 
 final class ColumnDefinitionTest extends TestCase
 {
@@ -76,4 +77,26 @@ final class ColumnDefinitionTest extends TestCase
 
         new ColumnDefinition(name: 'status', valueResolver: ' ');
     }
+
+    public function test_it_preserves_enum_metadata_when_changing_type(): void
+    {
+        $presentations = [
+            ColumnStatus::Active->value => new EnumPresentation('Active', badgeVariant: 'success'),
+        ];
+        $column = new ColumnDefinition(
+            name: 'status',
+            enumClass: ColumnStatus::class,
+            enumPresentations: $presentations,
+        );
+
+        $typedColumn = $column->withType('enum');
+
+        self::assertSame(ColumnStatus::class, $typedColumn->getEnumClass());
+        self::assertSame($presentations, $typedColumn->getEnumPresentations());
+    }
+}
+
+enum ColumnStatus: string
+{
+    case Active = 'active';
 }
