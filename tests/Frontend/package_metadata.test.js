@@ -24,6 +24,17 @@ describe('Stimulus package metadata', () => {
         });
     });
 
+    it('declares its Stimulus and Bootstrap module dependencies', () => {
+        expect(packageMetadata.peerDependencies).toMatchObject({
+            '@hotwired/stimulus': '^3.0',
+            bootstrap: '^5.3',
+        });
+        expect(packageMetadata.importmap).toMatchObject({
+            '@hotwired/stimulus': '^3.0',
+            bootstrap: '^5.3',
+        });
+    });
+
     it('matches the documented stable release', () => {
         expect(packageMetadata.version).toMatch(/^\d+\.\d+\.\d+$/);
         expect(changelog).toContain(`## [${packageMetadata.version}]`);

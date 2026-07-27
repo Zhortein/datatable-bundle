@@ -95,6 +95,9 @@ install \
 install \
     "${bundle_root}/tools/smoke-test/fixtures/configuration.php" \
     configuration.php
+install \
+    "${bundle_root}/tools/smoke-test/fixtures/router.php" \
+    public/router.php
 
 install -D \
     "${bundle_root}/tools/smoke-test/fixtures/zhortein_datatable_minimal.yaml" \
@@ -137,7 +140,7 @@ fragments_response="${smoke_root}/fragments.json"
 csv_response="${smoke_root}/export.csv"
 base_url="http://127.0.0.1:8000"
 
-APP_DEBUG=1 php -S 127.0.0.1:8000 -t public public/index.php \
+APP_DEBUG=1 php -S 127.0.0.1:8000 -t public public/router.php \
     >"${server_log}" 2>&1 &
 server_pid="$!"
 
@@ -175,3 +178,7 @@ if ! curl \
 fi
 
 php smoke.php "${shell_response}" "${fragments_response}" "${csv_response}"
+
+if [[ "${SMOKE_E2E:-0}" == "1" ]]; then
+    PLAYWRIGHT_BASE_URL="${base_url}" npm --prefix "${bundle_root}" run test:e2e
+fi
