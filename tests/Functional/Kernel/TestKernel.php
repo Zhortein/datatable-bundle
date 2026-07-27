@@ -26,7 +26,7 @@ use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
 use Zhortein\DatatableBundle\ZhorteinDatatableBundle;
 
-final class TestKernel extends Kernel
+class TestKernel extends Kernel
 {
     use MicroKernelTrait;
 

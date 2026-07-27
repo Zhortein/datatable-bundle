@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.8.1] - 2026-07-27
+
+### Fixed
+
+- Fixed default fragments, export and saved-view URLs when bundle routes use localized or custom import prefixes.
+
 ## [1.8.0] - 2026-07-27
 
 ### Added
