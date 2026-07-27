@@ -30,4 +30,14 @@ final class LocalizedRoutesTestKernel extends TestKernel
             ])
         ;
     }
+
+    public function getCacheDir(): string
+    {
+        return sprintf(
+            '%s/zhortein-datatable-bundle/cache/localized_%s_%s',
+            sys_get_temp_dir(),
+            $this->environment,
+            $this->debug ? 'debug' : 'nodebug',
+        );
+    }
 }
