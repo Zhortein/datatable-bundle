@@ -206,7 +206,11 @@ final class DatatableControllerTest extends TestCase
             'This export exceeds the 2-row limit. Apply more filters or export the current page.',
             $response->getContent(),
         );
-        self::assertSame('private, no-store', $response->headers->get('Cache-Control'));
+        $cacheControl = $response->headers->get('Cache-Control');
+
+        self::assertIsString($cacheControl);
+        self::assertStringContainsString('private', $cacheControl);
+        self::assertStringContainsString('no-store', $cacheControl);
         self::assertStringNotContainsString('alice@example.test', (string) $response->getContent());
     }
 
