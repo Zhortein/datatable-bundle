@@ -13,9 +13,11 @@
     }
   },
   "peerDependencies": {
-    "@hotwired/stimulus": "^3.0"
+    "@hotwired/stimulus": "^3.0",
+    "bootstrap": "^5.3"
   },
   "importmap": {
-    "@hotwired/stimulus": "^3.0"
+    "@hotwired/stimulus": "^3.0",
+    "bootstrap": "^5.3"
   }
 }

@@ -83,7 +83,7 @@ test('filters rows through real Bootstrap header controls', async ({ page }) => 
     await expect(datatable.getByText('alice@example.test')).toBeVisible();
 
     await datatable.getByRole('button', { name: 'Filter Enabled' }).click();
-    await refreshAfter(page, () => datatable.getByLabel('Enabled').selectOption('0'));
+    await refreshAfter(page, () => datatable.getByRole('combobox', { name: 'Enabled' }).selectOption('0'));
 
     await expect(datatable.getByText('bob@example.test')).toBeVisible();
     await expect(datatable.getByText('alice@example.test')).toHaveCount(0);

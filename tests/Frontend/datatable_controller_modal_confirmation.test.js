@@ -1,32 +1,37 @@
 import { Application } from '@hotwired/stimulus';
+import { Modal as FakeBootstrapModal } from 'bootstrap';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import DatatableController from '../../assets/controllers/datatable_controller.js';
 
 const CONTROLLER_IDENTIFIER = 'zhortein--datatable-bundle--datatable';
 
-class FakeBootstrapModal {
-    static instances = new Map();
+vi.mock('bootstrap', () => {
+    class Modal {
+        static instances = new Map();
 
-    constructor(element) {
-        this.element = element;
-        this.show = vi.fn();
-        this.hide = vi.fn();
+        constructor(element) {
+            this.element = element;
+            this.show = vi.fn();
+            this.hide = vi.fn();
 
-        FakeBootstrapModal.instances.set(element, this);
-    }
-
-    static getOrCreateInstance(element) {
-        if (!FakeBootstrapModal.instances.has(element)) {
-            return new FakeBootstrapModal(element);
+            Modal.instances.set(element, this);
         }
 
-        return FakeBootstrapModal.instances.get(element);
+        static getOrCreateInstance(element) {
+            if (!Modal.instances.has(element)) {
+                return new Modal(element);
+            }
+
+            return Modal.instances.get(element);
+        }
+
+        static reset() {
+            Modal.instances.clear();
+        }
     }
 
-    static reset() {
-        FakeBootstrapModal.instances.clear();
-    }
-}
+    return { Modal };
+});
 
 function createDatatableHtml() {
     return `
@@ -124,8 +129,6 @@ describe('datatable_controller Bootstrap modal confirmation behavior', () => {
     });
 
     it('opens modal and stores pending GET link action', async () => {
-        vi.stubGlobal('bootstrap', { Modal: FakeBootstrapModal });
-
         document.body.innerHTML = createDatatableHtml();
         application = startApplication();
 
@@ -154,8 +157,6 @@ describe('datatable_controller Bootstrap modal confirmation behavior', () => {
             writable: true,
         });
 
-        vi.stubGlobal('bootstrap', { Modal: FakeBootstrapModal });
-
         document.body.innerHTML = createDatatableHtml();
         application = startApplication();
 
@@ -172,8 +173,6 @@ describe('datatable_controller Bootstrap modal confirmation behavior', () => {
     });
 
     it('submits pending form when modal confirmation is accepted', async () => {
-        vi.stubGlobal('bootstrap', { Modal: FakeBootstrapModal });
-
         document.body.innerHTML = createDatatableHtml();
         application = startApplication();
 
@@ -202,7 +201,6 @@ describe('datatable_controller Bootstrap modal confirmation behavior', () => {
             }),
         }));
         vi.stubGlobal('fetch', fetchMock);
-        vi.stubGlobal('bootstrap', { Modal: FakeBootstrapModal });
 
         document.body.innerHTML = createDatatableHtml();
         const form = document.querySelector('#confirmed-form');
@@ -223,12 +221,12 @@ describe('datatable_controller Bootstrap modal confirmation behavior', () => {
         expect(new URL(fetchMock.mock.calls[0][0]).pathname).toBe('/users/42/delete');
     });
 
-    it('falls back to native confirm when Bootstrap modal is unavailable', async () => {
+    it('falls back to native confirm when modal markup is unavailable', async () => {
         const confirmMock = vi.fn(() => false);
         vi.stubGlobal('confirm', confirmMock);
-        vi.stubGlobal('bootstrap', undefined);
 
         document.body.innerHTML = createDatatableHtml();
+        document.querySelector('#confirmation-modal').remove();
         application = startApplication();
 
         const controller = await getController(application);
@@ -242,8 +240,6 @@ describe('datatable_controller Bootstrap modal confirmation behavior', () => {
     });
 
     it('does nothing when there is no pending action to confirm', async () => {
-        vi.stubGlobal('bootstrap', { Modal: FakeBootstrapModal });
-
         document.body.innerHTML = createDatatableHtml();
         application = startApplication();
 

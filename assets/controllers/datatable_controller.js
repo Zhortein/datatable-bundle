@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { Modal } from 'bootstrap';
 
 const DATATABLE_STATE_VERSION = 1;
 const MAX_STATE_PAYLOAD_LENGTH = 32768;
@@ -220,14 +221,10 @@ export default class extends Controller {
             return false;
         }
 
-        if (typeof window.bootstrap === 'undefined' || typeof window.bootstrap.Modal === 'undefined') {
-            return false;
-        }
-
         this.pendingConfirmationTarget = target;
         this.pendingConfirmationType = target instanceof HTMLFormElement ? 'form' : 'link';
         this.confirmationMessageTarget.textContent = message;
-        this.confirmationModalInstance = window.bootstrap.Modal.getOrCreateInstance(this.confirmationModalTarget);
+        this.confirmationModalInstance = Modal.getOrCreateInstance(this.confirmationModalTarget);
         this.confirmationModalInstance.show();
 
         return true;
