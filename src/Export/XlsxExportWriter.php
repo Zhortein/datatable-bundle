@@ -118,7 +118,7 @@ final readonly class XlsxExportWriter implements ExportWriterInterface, Streamin
         }
 
         return new StreamedResponse(
-            callback: function () use ($request, $definition, $rows, $context): void {
+            function () use ($request, $definition, $rows, $context): void {
                 if ($context->isCancelled()) {
                     return;
                 }
@@ -198,8 +198,8 @@ final readonly class XlsxExportWriter implements ExportWriterInterface, Streamin
                     }
                 }
             },
-            status: Response::HTTP_OK,
-            headers: [
+            Response::HTTP_OK,
+            [
                 'Content-Type' => ExportFormat::Xlsx->getContentType(),
                 'Content-Disposition' => sprintf('attachment; filename="%s"', $request->getFilename()),
             ],

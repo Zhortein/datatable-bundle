@@ -82,7 +82,7 @@ final readonly class CsvExportWriter implements ExportWriterInterface, Streaming
         ExportStreamContext $context,
     ): Response {
         return new StreamedResponse(
-            callback: function () use ($request, $definition, $rows, $context): void {
+            function () use ($request, $definition, $rows, $context): void {
                 $handle = fopen('php://output', 'wb');
 
                 if (false === $handle) {
@@ -121,8 +121,8 @@ final readonly class CsvExportWriter implements ExportWriterInterface, Streaming
                     fclose($handle);
                 }
             },
-            status: Response::HTTP_OK,
-            headers: [
+            Response::HTTP_OK,
+            [
                 'Content-Type' => ExportFormat::Csv->getContentType(),
                 'Content-Disposition' => sprintf('attachment; filename="%s"', $request->getFilename()),
             ],
