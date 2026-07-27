@@ -36,7 +36,7 @@ final readonly class DatatableStateUrlSerializer
     public function serialize(DatatableState $state): string
     {
         $payload = json_encode(
-            $state->toArray(),
+            $this->normalizeForTransport($state),
             JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
         );
 
@@ -45,6 +45,42 @@ final readonly class DatatableStateUrlSerializer
         }
 
         return $payload;
+    }
+
+    /**
+     * Keeps map-like fields as JSON objects even when PHP represents them with
+     * empty arrays.
+     *
+     * @return array{
+     *     version: int,
+     *     page: int,
+     *     pageSize: int,
+     *     search: string|null,
+     *     sortField: string|null,
+     *     sortDirection: string,
+     *     filters: array<string, mixed>|\stdClass,
+     *     advancedFilters: array<string, mixed>|\stdClass,
+     *     visibleColumns: list<string>,
+     *     hiddenColumns: list<string>
+     * }
+     */
+    public function normalizeForTransport(DatatableState $state): array
+    {
+        $filters = $state->getFilters();
+        $advancedFilters = $state->getAdvancedFilters();
+
+        return [
+            'version' => DatatableState::VERSION,
+            'page' => $state->getPage(),
+            'pageSize' => $state->getPageSize(),
+            'search' => $state->getSearchQuery(),
+            'sortField' => $state->getSortField(),
+            'sortDirection' => $state->getSortDirection()->value,
+            'filters' => [] === $filters ? new \stdClass() : $filters,
+            'advancedFilters' => [] === $advancedFilters ? new \stdClass() : $advancedFilters,
+            'visibleColumns' => $state->getVisibleColumns(),
+            'hiddenColumns' => $state->getHiddenColumns(),
+        ];
     }
 
     public function deserialize(string $payload): DatatableState

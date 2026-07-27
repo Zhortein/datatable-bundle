@@ -88,10 +88,15 @@ Named views reuse this state model. Their provider, opaque ownership,
 authorization, scope, revision and JSON behavior are documented in
 [named saved views](saved-views.md).
 
+Version 1 state transport keeps `filters` and `advancedFilters` as JSON objects
+when empty. Legacy empty arrays remain accepted and normalized by the bundled
+frontend; non-empty arrays are invalid for these map-like fields.
+
 `DatatableResult` source alignment, `CellContext` accessors and
 `DatatableDefinition::addComputedColumn()` are documented in [cell context and
 computed values](cell-context.md). Resolver services are shared by Twig and
-export writers.
+export writers. Export headers follow the definition translation domain and
+current Symfony locale, matching rendered column labels.
 
 The advanced-filter expression model is public for custom providers:
 

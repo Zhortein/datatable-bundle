@@ -37,6 +37,33 @@ To enable XLSX in the UI, update your `zhortein_datatable` call:
 }) }}
 ```
 
+### Header translations
+
+CSV and XLSX use the same declarative translation contract as the rendered
+table. When a definition declares a domain, explicit column labels are treated
+as translation keys and resolved with Symfony's current request locale:
+
+```php
+$definition
+    ->setTranslationDomain('admin')
+    ->addColumn('e.email', label: 'users.columns.email')
+;
+```
+
+The application catalog may then contain:
+
+```yaml
+# translations/admin.fr.yaml
+users:
+    columns:
+        email: Adresse e-mail
+```
+
+The table header, column-visibility control and exported header will all use
+`Adresse e-mail` for a French request. With no translation domain, declared
+labels remain literal. A missing label falls back to the column name and that
+fallback is never looked up as a translation key.
+
 ## Export Modes
 
 Exports respect the current state of the datatable:

@@ -1419,13 +1419,14 @@ export default class extends Controller {
             || (state.search !== null && typeof state.search !== 'string')
             || (state.sortField !== null && typeof state.sortField !== 'string')
             || !['asc', 'desc'].includes(state.sortDirection)
-            || !this.isStateMap(state.filters)
-            || !this.isStateMap(state.advancedFilters)
             || !this.isStringList(state.visibleColumns)
             || !this.isStringList(state.hiddenColumns)
         ) {
             throw new TypeError('Invalid datatable URL state.');
         }
+
+        const filters = this.normalizeStateMap(state.filters);
+        const advancedFilters = this.normalizeStateMap(state.advancedFilters);
 
         return {
             version: DATATABLE_STATE_VERSION,
@@ -1434,8 +1435,8 @@ export default class extends Controller {
             search: state.search,
             sortField: state.sortField,
             sortDirection: state.sortDirection,
-            filters: state.filters,
-            advancedFilters: state.advancedFilters,
+            filters,
+            advancedFilters,
             visibleColumns: Array.from(new Set(state.visibleColumns)),
             hiddenColumns: Array.from(new Set(state.hiddenColumns)),
         };
@@ -1443,6 +1444,18 @@ export default class extends Controller {
 
     isStateMap(value) {
         return value !== null && typeof value === 'object' && !Array.isArray(value);
+    }
+
+    normalizeStateMap(value) {
+        if (this.isStateMap(value)) {
+            return value;
+        }
+
+        if (Array.isArray(value) && value.length === 0) {
+            return {};
+        }
+
+        throw new TypeError('Invalid datatable URL state.');
     }
 
     isStringList(value) {

@@ -1,117 +1,89 @@
-# Stable 1.0.0 release checklist
+# Release checklist
 
-This checklist is the go/no-go reference for promoting `zhortein/datatable-bundle` from `develop` to `main` and publishing `v1.0.0`.
+This is the go/no-go checklist for every stable or prerelease version of
+`zhortein/datatable-bundle`. Replace `<version>` with the version without the
+`v` prefix and `<date>` with the release date.
 
-## 1. Release content
+## 1. Scope and compatibility
 
-- [x] Real-project feedback items selected for 1.0 are resolved.
-- [x] Boolean headers/cells and dropdown carets are aligned.
-- [x] Empty toolbar slots keep their DOM targets and remain visually hidden.
-- [x] Boolean columns support `negate`.
-- [x] Hidden-column export behavior is controlled by `exportable`.
-- [x] Provider selection honors both `#[AsDatatable(provider: ...)]` and `default_provider`.
-- [x] Action permissions use dedicated metadata.
-- [x] The bundled Stimulus controller is lazy by default.
-- [x] Unused prerelease API has been removed.
+- [ ] Every issue and pull request selected for the release is resolved.
+- [ ] The release follows Semantic Versioning.
+- [ ] Public 1.x contracts remain backward compatible, or an approved
+  deprecation path is documented.
+- [ ] Security, authorization, CSRF and tenant-scope implications were reviewed.
+- [ ] Doctrine ORM 3 and 4 compatibility is preserved.
+- [ ] JavaScript remains vanilla, with Stimulus used only as the Symfony UX
+  integration layer.
 
-## 2. Documentation and public API
+## 2. Tests and quality
 
-- [x] `README.md` presents the stable 1.x status.
-- [x] The [documentation index](index.md) is current.
-- [x] The [installation guide](installation.md) is replayable.
-- [x] The [quick start](quick-start.md) is complete.
-- [x] Provider, filter, action, bulk-action and export guides match the implementation.
-- [x] Bootstrap Icons and lazy Stimulus loading are documented.
-- [x] Exact route diagnostic commands are documented.
-- [x] The [public API policy](public-api.md) defines the 1.x compatibility surface.
-- [x] Internal implementation services are excluded from the compatibility promise.
-- [x] Active local documentation links are tested.
+- [ ] PHPUnit covers each non-trivial behavior and regression.
+- [ ] Frontend Vitest covers changed controller behavior.
+- [ ] `composer validate --strict` passes.
+- [ ] PHPStan passes at the configured maximum level.
+- [ ] PHP-CS-Fixer passes with the Symfony-oriented rules.
+- [ ] twigcs passes when Twig templates are affected.
+- [ ] The PHP 8.4/8.5 lowest/highest dependency matrix passes.
+- [ ] Fresh Symfony 8 host smoke tests pass.
 
-## 3. Package and release metadata
+## 3. Documentation
 
-- [x] `composer.json` identifies a Symfony bundle requiring PHP 8.4+ and Symfony 8.
-- [x] Optional Doctrine, XLSX, AssetMapper and Stimulus dependencies are documented through `suggest`.
-- [x] `assets/package.json` contains version `1.0.0`.
-- [x] `CHANGELOG.md` contains a dated, non-empty `1.0.0` section.
-- [x] `CHANGELOG.md` keeps an `Unreleased` section.
-- [x] All release fragments have been consumed.
-- [x] The roadmap records the stable milestone.
+- [ ] `README.md` still presents the current stable feature set.
+- [ ] The [installation guide](installation.md) and
+  [quick start](quick-start.md) remain replayable.
+- [ ] Every changed feature is covered by its reference guide and a practical
+  example when configuration or extension code is involved.
+- [ ] The [documentation index](index.md), [public API policy](public-api.md)
+  and [roadmap](roadmap.md) remain current.
+- [ ] Active local documentation links pass the frontend documentation test.
 
-## 4. Automated quality gates
+## 4. Release metadata
 
-The CI workflow must pass on the release branch and again on the promotion pull request:
+- [ ] All intended files under `changelog/unreleased/` contain concise,
+  user-facing entries with a supported prefix.
+- [ ] `composer changelog` builds the expected `Unreleased` section.
+- [ ] The release preparation moves those entries to
+  `## [<version>] - <date>`.
+- [ ] Every consumed fragment is removed.
+- [ ] `assets/package.json` contains `<version>`.
+- [ ] The release preparation commit is
+  `chore(release): prepare v<version>`.
 
-- [x] Composer strict validation.
-- [x] PHPUnit.
-- [x] Frontend Vitest suite.
-- [x] PHPStan.
-- [x] PHP-CS-Fixer dry run.
-- [x] twigcs.
-- [x] PHP 8.4 with lowest dependencies.
-- [x] PHP 8.4 with highest dependencies.
-- [x] PHP 8.5 with lowest dependencies.
-- [x] PHP 8.5 with highest dependencies.
-- [x] Fresh Symfony 8 application smoke test.
+## 5. Pull-request flow
 
-The promotion pull request to `main` additionally verifies:
+- [ ] The feature or fix pull request targets `develop` and is fully green.
+- [ ] The release preparation pull request
+  `release/<version> -> develop` is fully green.
+- [ ] The promotion pull request `develop -> main` contains only the intended
+  release history.
+- [ ] `Validate release candidate` passes on the promotion pull request.
+- [ ] The complete QA matrix and fresh-host smokes pass again.
+- [ ] The exact validated head commit is merged without accepting a moved branch.
 
-- [ ] no changelog fragments remain;
-- [ ] `assets/package.json` contains a valid semantic version;
-- [ ] release notes can be extracted for `v1.0.0`.
+## 6. Tag and publication
 
-## 5. Fresh application contract
-
-The automated smoke application verifies:
-
-- [x] Composer installation through a clean path repository.
-- [x] Bundle registration.
-- [x] Fragments and export routes.
-- [x] Datatable service autoconfiguration and provider selection.
-- [x] Current StimulusBundle bootstrap file.
-- [x] Lazy bundle controller metadata.
-- [x] Bootstrap and Bootstrap Icons import-map installation.
-- [x] AssetMapper discovery and production compilation.
-- [x] Rendering through Symfony's HTTP runtime.
-- [x] A real fragments response from the array provider.
-
-Browser-level interaction automation is planned after 1.0. The current frontend unit tests and feedback from a real host application cover the release fixes without claiming a full browser E2E suite.
-
-## 6. Known 1.0 limitations
-
-- [x] Bootstrap 5 is the maintained theme.
-- [x] Bundle routes and Stimulus controller activation remain manual because there is no dedicated Flex recipe.
-- [x] Doctrine collection-valued association aggregation is out of scope.
-- [x] Exports are synchronous; async and streaming export contracts are future work.
-- [x] XLSX requires the optional OpenSpout dependency.
-- [x] Preference persistence is supplied by host applications through an interface.
-- [x] Applications remain responsible for action controllers and backend authorization.
-- [x] Browser-level E2E and accessibility automation remain roadmap items.
-
-## 7. Promotion to main
-
-Before merging `develop` into `main`:
-
-- [ ] The release preparation pull request is merged into `develop`.
-- [ ] The latest `develop` commit is green.
-- [ ] The `develop` to `main` pull request contains only the intended release history.
-- [ ] `Validate release candidate` passes.
-- [ ] The complete QA matrix and fresh-application smoke test pass.
-- [ ] Branch protection and required checks allow only a reviewed green merge.
-
-## 8. Tag and publication
-
-After `main` is green:
-
-- [ ] Create annotated tag `v1.0.0` on the promoted `main` commit.
-- [ ] Push the tag without moving or recreating an existing published tag.
+- [ ] `main` is green after promotion.
+- [ ] Annotated tag `v<version>` points to the promoted `main` commit.
+- [ ] The tag has never been moved or recreated after publication.
 - [ ] `Validate release integrity` passes.
 - [ ] The tag QA matrix passes.
-- [ ] The GitHub Release is created from the `1.0.0` changelog section.
-- [ ] Packagist exposes `1.0.0`.
-- [ ] `composer require zhortein/datatable-bundle:^1.0` succeeds in a clean Symfony application.
+- [ ] GitHub creates the Release from the matching changelog section.
+- [ ] Packagist exposes `v<version>` on the exact tag commit.
+- [ ] `composer require zhortein/datatable-bundle:^<major>.<minor>` succeeds in
+  a clean compatible Symfony application.
 
-Use the [release workflow](release.md) for commands and failure policy.
+## 7. Repository housekeeping
 
-## Go/no-go
+- [ ] Merged feature, fix and release branches are deleted.
+- [ ] Closed automation branches with superseding changes are deleted.
+- [ ] Only deliberate long-lived branches remain.
+- [ ] Open issues and superseded pull requests have a closing explanation.
 
-`v1.0.0` is a go only when sections 1 through 6 remain satisfied and every pending item in sections 7 and 8 is completed in order. A failure before tagging returns to a release/fix branch. A failure observed after publication is handled by a corrective patch release; a published stable tag is never moved.
+## Failure policy
+
+A failure before tagging returns to a dedicated feature, fix or release branch.
+After publication, never move a stable tag that Packagist may have observed.
+Publish a new corrective patch version instead.
+
+Use the [release workflow](release.md) for the exact branch, promotion, tag and
+failure-handling sequence.

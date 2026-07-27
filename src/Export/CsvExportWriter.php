@@ -25,6 +25,7 @@ final readonly class CsvExportWriter implements ExportWriterInterface
         private bool $withBom = false,
         private ExportableColumnResolver $columnResolver = new ExportableColumnResolver(),
         ?CellContextFactory $cellContextFactory = null,
+        private ExportColumnLabelResolver $columnLabelResolver = new ExportColumnLabelResolver(),
     ) {
         if (1 !== strlen($this->delimiter)) {
             throw new \InvalidArgumentException('The CSV delimiter must be exactly one character.');
@@ -81,7 +82,7 @@ final readonly class CsvExportWriter implements ExportWriterInterface
         $columns = $this->columnResolver->resolve($request, $definition);
 
         $this->writeRow($handle, array_map(
-            static fn (ColumnDefinition $column): string => $column->getLabel() ?? $column->getName(),
+            fn (ColumnDefinition $column): string => $this->columnLabelResolver->resolve($definition, $column),
             $columns,
         ));
 

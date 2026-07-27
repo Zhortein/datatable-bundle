@@ -1,0 +1,1 @@
+- Fixed named views with no regular or advanced filters by emitting stable JSON objects for empty map fields while accepting legacy empty arrays.
