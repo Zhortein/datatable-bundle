@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Doctrine\Persistence\ManagerRegistry;
 use OpenSpout\Writer\XLSX\Writer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Zhortein\DatatableBundle\Contract\ChildDatatableAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Doctrine\DoctrineCountExpressionFactory;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldMetadataResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
@@ -41,6 +42,12 @@ use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
 use Zhortein\DatatableBundle\Factory\AdvancedFilterExpressionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
+use Zhortein\DatatableBundle\Hierarchy\AllowAllChildDatatableAuthorizationChecker;
+use Zhortein\DatatableBundle\Hierarchy\ChildDatatableContextResolver;
+use Zhortein\DatatableBundle\Hierarchy\ChildDatatableInstanceFactory;
+use Zhortein\DatatableBundle\Hierarchy\ChildDatatableResolver;
+use Zhortein\DatatableBundle\Hierarchy\DenyAllChildDatatableAuthorizationChecker;
+use Zhortein\DatatableBundle\Hierarchy\RowValueAccessor;
 use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
 use Zhortein\DatatableBundle\Preference\NullDatatablePreferenceProvider;
 use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
@@ -65,6 +72,16 @@ return static function (ContainerConfigurator $container): void {
     ;
 
     $services->set(RowActionRouteParameterResolver::class);
+    $services->set(RowValueAccessor::class);
+    $services->set(ChildDatatableContextResolver::class);
+    $services->set(ChildDatatableInstanceFactory::class);
+    $services->set(ChildDatatableResolver::class);
+    $services->set(AllowAllChildDatatableAuthorizationChecker::class);
+    $services->set(DenyAllChildDatatableAuthorizationChecker::class);
+    $services->alias(
+        ChildDatatableAuthorizationCheckerInterface::class,
+        AllowAllChildDatatableAuthorizationChecker::class,
+    );
 
     $services
         ->set(CellValueResolverRegistry::class)
