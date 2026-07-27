@@ -93,6 +93,9 @@ if [[ "${bundle_version}" == "current" ]]; then
     install -D \
         "${bundle_root}/tools/smoke-test/fixtures/SmokeOrderLine.php" \
         src/Entity/SmokeOrderLine.php
+    install -D \
+        "${bundle_root}/tools/smoke-test/fixtures/doctrine_smoke_complete.yaml" \
+        config/packages/smoke_complete/doctrine.yaml
     install \
         "${bundle_root}/tools/smoke-test/fixtures/seed.php" \
         seed.php
