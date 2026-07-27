@@ -82,6 +82,10 @@ token and the instance key to:
 - fragment URLs;
 - CSV and XLSX export URLs, including custom URLs;
 - opt-in Ajax action URLs;
+
+The shareable [datatable URL state](url-state.md) uses the context token only
+as an opaque namespace input. It never copies context values into its JSON
+payload.
 - fragment refreshes performed after an Ajax action.
 
 The fragment and export controllers verify the signature, datatable name,

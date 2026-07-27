@@ -7,7 +7,7 @@ The frontend interaction model is powered by a vanilla Stimulus controller. It d
 The `datatable_controller.js` is responsible for:
 
 - **Ajax Refresh**: Fetching server-rendered HTML fragments and updating the DOM targets (`body`, `pagination`, `summary`).
-- **State Management**: Managing loading states (`aria-busy`, spinners) and error displays.
+- **State Management**: Managing loading/error displays and versioned per-instance URL state.
 - **Interactions**:
     - **Search**: Debounced (300ms) global search input.
     - **Filters**: Serializing and applying user-facing filters.
@@ -20,6 +20,7 @@ The `datatable_controller.js` is responsible for:
     - **Ajax execution**: Executing explicitly enabled row/global/bulk actions, validating the response contract and applying the declared success strategy.
     - **Lifecycle events**: Dispatching cancellable before, success, error and complete events without requiring a notification library.
 - **Exports**: Building the export URL based on the current table state (filters, search, sorting).
+- **History**: Restoring namespaced state on connect and `popstate`, while remaining coherent with Turbo page caching.
 
 ## Stimulus Targets and Values
 
@@ -35,7 +36,9 @@ The controller interacts with the server-rendered shell using targets:
 And values for synchronization:
 
 - `nameValue`: The unique datatable name.
-- `urlValue`: The base Ajax fragments URL.
+- `instanceValue`: The unique occurrence on the current page.
+- `stateParameterValue`: The server-generated namespaced page URL parameter.
+- `fragmentsUrlValue`: The base Ajax fragments URL.
 - `pageValue`: Current page number.
 - `pageSizeValue`: Current items per page.
 - `sortFieldValue`: Current sort column.
@@ -50,6 +53,7 @@ Every interaction (paging, sorting, filtering) triggers a `refresh()` call. This
 3. Builds the request URL using current values and serialized filter/column states.
 4. Performs a `fetch()`.
 5. Updates the targets with the server's JSON response.
+6. Commits the successful state to browser history.
 
 Ajax business actions use a separate versioned response contract. They reuse
 the current controller state for post-success fragment refreshes, but they do
@@ -58,3 +62,6 @@ not change or serialize that state. See [Actions and Security](../actions.md).
 ## Integration
 
 Designed for **AssetMapper** and **Symfony UX Stimulus**. The bundle ships a vanilla JS controller, avoiding the need for a complex Node build pipeline in the host application.
+
+See [URL state and browser history](../url-state.md) for precedence, events,
+payload versioning and privacy boundaries.

@@ -1155,9 +1155,9 @@ Applications can perform business actions without a full page reload while keepi
 
 ---
 
-## 1.3 - Explicit cross-request datatable context 🚧
+## 1.3 - Explicit cross-request datatable context ✅
 
-Current scope:
+Delivered:
 
 - explicit browser-safe keys on `DatatableContext`;
 - signed scalar context bound to a datatable name and instance;
@@ -1171,6 +1171,26 @@ Main expected outcome:
 
 ```text
 Localized and scoped datatables keep their explicit context across Ajax and export requests without exposing implicit request, session or security state.
+```
+
+---
+
+## 1.4 - Namespaced URL state and browser history 🚧
+
+Current scope:
+
+- immutable, versioned `DatatableState` shared by HTTP request normalization and future saved views;
+- namespaced JSON state per datatable instance;
+- search, simple and advanced filters, sorting, pagination, page size and column visibility;
+- Back/Forward restoration and Turbo cache coherence;
+- URL precedence over Twig options, preferences and bundle defaults;
+- restored state propagated to fragments and exports through the compatible 1.x query protocol;
+- no implicit user, session or browser storage.
+
+Main expected outcome:
+
+```text
+Shareable URLs and browser navigation restore each datatable instance without leaking server-only context or coupling preferences to an application user model.
 ```
 
 ---

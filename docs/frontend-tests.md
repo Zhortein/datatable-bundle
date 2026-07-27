@@ -178,6 +178,18 @@ Covered behavior:
 - checked column controls are serialized as `visibleColumns[]`;
 - unchecked column controls are serialized as `hiddenColumns[]`;
 - definition-hidden columns are ignored;
+
+### Namespaced URL state and history
+
+Covered behavior:
+
+- complete state is restored before the initial fragments request;
+- state parameters are isolated across several tables on one page;
+- successful interactions preserve existing Turbo history metadata;
+- `popstate` restores controls without creating a new history entry;
+- invalid and unsupported payloads are ignored;
+- nested advanced filters are rebuilt for fragments and exports;
+- restored state remains compatible with signed context query parameters.
 - missing column names are ignored;
 - column visibility changes reset the current page to 1;
 - column visibility refresh is debounced;

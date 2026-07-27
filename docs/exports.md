@@ -46,6 +46,11 @@ Exports respect the current state of the datatable:
 - Sorting
 - Runtime column visibility
 
+State restored from a namespaced page URL is translated back into the existing
+export query parameters before navigation. Custom export URLs therefore receive
+the same state as built-in routes. See [URL state and browser
+history](url-state.md).
+
 | Mode | Behavior |
 |---|---|
 | `current` | Exports the rows of the current page. |
@@ -127,5 +132,6 @@ context](context.md).
 
 - [Doctrine provider](doctrine-provider.md)
 - [Explicit datatable context](context.md)
+- [URL state and browser history](url-state.md)
 - [UI/UX customization](ui-ux.md)
 - [Architecture](architecture/overview.md)

@@ -15,7 +15,8 @@ Implemented:
 - `DatatablePreference` value object;
 - `DatatablePreferenceProviderInterface`;
 - default `NullDatatablePreferenceProvider`;
-- applying preferences to initial rendering defaults.
+- applying preferences to initial rendering defaults;
+- shareable URL state for search, filters, sorting, pagination, page size and column visibility.
 
 Not implemented yet:
 
@@ -240,7 +241,7 @@ The bundle does not assume:
 When rendering a datatable, options are merged with this precedence:
 
 ```text
-runtime Twig options > datatable preferences > bundle defaults
+URL state > runtime Twig options > datatable preferences > bundle defaults
 ```
 
 Example:
@@ -267,6 +268,9 @@ the effective page size is:
 
 because runtime options are explicit and take precedence.
 
+A valid namespaced URL state takes precedence over all initial values. See
+[URL state and browser history](url-state.md).
+
 ## Current limitations
 
 ### No built-in persistence
@@ -277,7 +281,8 @@ Applications must provide their own preference provider if they want persistence
 
 ### No save/reset UI
 
-The column visibility UI affects the current datatable refresh but does not save preferences yet.
+The column visibility UI updates the shareable URL state but does not write to
+the application preference provider.
 
 ### No user identity integration
 
@@ -293,9 +298,10 @@ Column order customization is not implemented.
 
 Column reordering through drag-and-drop is not implemented.
 
-### No preference synchronization
+### No implicit preference synchronization
 
-The bundle does not synchronize preferences across browser tabs or devices.
+The bundle does not synchronize application preferences across browser tabs or
+devices. A copied URL does carry its explicit shareable table state.
 
 ## Recommended integration strategy
 

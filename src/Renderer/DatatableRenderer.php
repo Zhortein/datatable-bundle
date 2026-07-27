@@ -22,6 +22,7 @@ use Zhortein\DatatableBundle\Enum\CellType;
 use Zhortein\DatatableBundle\Enum\FilterLayout;
 use Zhortein\DatatableBundle\Enum\PaginationSize;
 use Zhortein\DatatableBundle\Result\DatatableResult;
+use Zhortein\DatatableBundle\State\DatatableStateUrlSerializer;
 
 final readonly class DatatableRenderer
 {
@@ -41,6 +42,7 @@ final readonly class DatatableRenderer
         private bool $searchEnabled = false,
         private bool $searchBuilderEnabled = false,
         private array $defaultTableOptions = [],
+        private ?DatatableStateUrlSerializer $stateUrlSerializer = null,
     ) {
     }
 
@@ -216,7 +218,7 @@ final readonly class DatatableRenderer
         $options['instance'] = $instance;
 
         if (null === $this->contextTransport) {
-            return $options;
+            return $this->prepareStateOptions($definition, $options);
         }
 
         $token = $this->contextTransport->createToken(
@@ -226,7 +228,7 @@ final readonly class DatatableRenderer
         );
 
         if (null === $token) {
-            return $options;
+            return $this->prepareStateOptions($definition, $options);
         }
 
         $options['contextToken'] = $token;
@@ -282,6 +284,31 @@ final readonly class DatatableRenderer
         }
 
         $options['exportUrls'] = $exportUrls;
+
+        return $this->prepareStateOptions($definition, $options, $token);
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return array<string, mixed>
+     */
+    private function prepareStateOptions(
+        DatatableDefinition $definition,
+        array $options,
+        ?string $contextToken = null,
+    ): array {
+        if (null === $this->stateUrlSerializer) {
+            return $options;
+        }
+
+        /** @var string $instance */
+        $instance = $options['instance'];
+        $options['stateParameter'] = $this->stateUrlSerializer->createParameterName(
+            $definition->getName(),
+            $instance,
+            $contextToken,
+        );
 
         return $options;
     }

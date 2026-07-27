@@ -61,6 +61,9 @@
     data-controller="zhortein--datatable-bundle--datatable"
     data-zhortein--datatable-bundle--datatable-name-value="{{ definition.name }}"
     data-zhortein--datatable-bundle--datatable-instance-value="{{ options.instance }}"
+    {% if options.stateParameter is defined %}
+        data-zhortein--datatable-bundle--datatable-state-parameter-value="{{ options.stateParameter }}"
+    {% endif %}
     data-zhortein--datatable-bundle--datatable-fragments-url-value="{{ fragments_url }}"
     data-zhortein--datatable-bundle--datatable-export-url-value="{{ export_url }}"
     data-zhortein--datatable-bundle--datatable-page-value="1"
