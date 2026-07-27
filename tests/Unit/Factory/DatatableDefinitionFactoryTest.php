@@ -8,10 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Zhortein\DatatableBundle\Contract\DatatableInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
-use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
-use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
-use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Registry\DatatableRegistry;
 
@@ -34,26 +31,6 @@ final class DatatableDefinitionFactoryTest extends TestCase
         self::assertArrayHasKey('e.email', $columns);
         self::assertFalse($columns['e.id']->isVisible());
         self::assertSame('Email', $columns['e.email']->getLabel());
-    }
-
-    public function test_it_does_not_apply_doctrine_enrichment_to_an_explicit_array_provider(): void
-    {
-        $managerRegistry = $this->createMock(\Doctrine\Persistence\ManagerRegistry::class);
-        $managerRegistry->expects(self::never())->method('getManagerForClass');
-
-        $factory = new DatatableDefinitionFactory(
-            registry: $this->createRegistry(),
-            doctrineDefinitionEnricher: new DoctrineDatatableDefinitionEnricher(
-                new DoctrineFieldTypeGuesser($managerRegistry),
-            ),
-            dataProviderRegistry: new DataProviderRegistry([
-                ArrayDataProvider::PROVIDER_NAME => new ArrayDataProvider(),
-            ]),
-        );
-
-        $definition = $factory->create('users');
-
-        self::assertNull($definition->getColumns()['e.email']->getType());
     }
 
     private function createRegistry(): DatatableRegistry

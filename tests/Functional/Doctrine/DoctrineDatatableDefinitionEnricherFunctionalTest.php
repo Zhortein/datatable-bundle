@@ -146,6 +146,19 @@ final class DoctrineDatatableDefinitionEnricherFunctionalTest extends Functional
         self::assertSame('string', $columns['organization.name']->getType());
     }
 
+    public function test_definition_factory_does_not_enrich_an_explicit_array_provider(): void
+    {
+        self::bootKernel();
+
+        $factory = self::getContainer()->get('test.'.DatatableDefinitionFactory::class);
+
+        self::assertInstanceOf(DatatableDefinitionFactory::class, $factory);
+
+        $definition = $factory->create('array-doctrine-users');
+
+        self::assertNull($definition->getColumns()['e.enabled']->getType());
+    }
+
     protected static function getKernelClass(): string
     {
         return TestKernel::class;
