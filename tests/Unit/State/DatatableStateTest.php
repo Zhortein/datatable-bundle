@@ -47,7 +47,11 @@ final class DatatableStateTest extends TestCase
         ], $state->getFilters());
         self::assertSame(['email', 'createdAt'], $state->getVisibleColumns());
         self::assertSame(['internal'], $state->getHiddenColumns());
-        self::assertSame(' ', $state->getAdvancedFilters()['conditions'][0]['value']);
+
+        $advancedFilters = $state->getAdvancedFilters();
+        self::assertIsArray($advancedFilters['conditions']);
+        self::assertIsArray($advancedFilters['conditions'][0]);
+        self::assertSame(' ', $advancedFilters['conditions'][0]['value']);
         self::assertSame(DatatableState::VERSION, $state->toArray()['version']);
     }
 

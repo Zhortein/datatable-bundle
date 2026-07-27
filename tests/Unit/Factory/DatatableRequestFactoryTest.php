@@ -201,7 +201,11 @@ final class DatatableRequestFactoryTest extends TestCase
         self::assertSame(['status' => 'active'], $state->getFilters());
         self::assertSame(['email'], $state->getVisibleColumns());
         self::assertSame(['internal'], $state->getHiddenColumns());
-        self::assertSame('email', $state->getAdvancedFilters()['conditions'][0]['field']);
+
+        $advancedFilters = $state->getAdvancedFilters();
+        self::assertIsArray($advancedFilters['conditions']);
+        self::assertIsArray($advancedFilters['conditions'][0]);
+        self::assertSame('email', $advancedFilters['conditions'][0]['field']);
     }
 
     public function test_it_creates_an_execution_request_from_canonical_state(): void
