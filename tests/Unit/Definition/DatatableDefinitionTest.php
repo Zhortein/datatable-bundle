@@ -185,6 +185,6 @@ final class DatatableDefinitionTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        (new DatatableDefinition('users'))->setExportLimit(0);
+        new DatatableDefinition('users')->setExportLimit(0);
     }
 }
