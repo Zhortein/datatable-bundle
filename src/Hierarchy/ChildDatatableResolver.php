@@ -41,12 +41,7 @@ final readonly class ChildDatatableResolver
         $depth = $parentDepth + 1;
 
         if ($depth > $childDefinition->getMaxDepth()) {
-            throw new \InvalidArgumentException(sprintf(
-                'Child datatable "%s" cannot be resolved at depth %d; its maximum depth is %d.',
-                $childDefinition->getName(),
-                $depth,
-                $childDefinition->getMaxDepth(),
-            ));
+            throw new \InvalidArgumentException(sprintf('Child datatable "%s" cannot be resolved at depth %d; its maximum depth is %d.', $childDefinition->getName(), $depth, $childDefinition->getMaxDepth()));
         }
 
         $context = $this->contextResolver->resolve(
@@ -80,11 +75,7 @@ final readonly class ChildDatatableResolver
             depth: $resolved->getDepth(),
             context: $resolved->getContext(),
         ))) {
-            throw new ChildDatatableAccessDeniedException(sprintf(
-                'Access to child datatable "%s" at depth %d was denied.',
-                $childDefinition->getName(),
-                $depth,
-            ));
+            throw new ChildDatatableAccessDeniedException(sprintf('Access to child datatable "%s" at depth %d was denied.', $childDefinition->getName(), $depth));
         }
 
         return $resolved;

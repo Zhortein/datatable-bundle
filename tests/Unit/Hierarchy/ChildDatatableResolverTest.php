@@ -28,7 +28,7 @@ final class ChildDatatableResolverTest extends TestCase
             $transport,
             new AllowAllChildDatatableAuthorizationChecker(),
         );
-        $parent = (new DatatableDefinition('orders'))
+        $parent = new DatatableDefinition('orders')
             ->setContext(new DatatableContext(['locale' => 'fr']))
             ->setChildDatatable('order-lines', [
                 'orderId' => ChildContextValue::row('o.id'),
@@ -63,7 +63,7 @@ final class ChildDatatableResolverTest extends TestCase
     public function test_it_always_signs_an_empty_child_context(): void
     {
         $transport = new DatatableContextTransport('unit-test-secret');
-        $parent = (new DatatableDefinition('orders'))
+        $parent = new DatatableDefinition('orders')
             ->setChildDatatable('order-lines')
         ;
         $child = $this->createResolver(
@@ -85,7 +85,7 @@ final class ChildDatatableResolverTest extends TestCase
 
     public function test_it_denies_a_child_rejected_by_the_authorization_checker(): void
     {
-        $parent = (new DatatableDefinition('orders'))
+        $parent = new DatatableDefinition('orders')
             ->setChildDatatable('order-lines')
         ;
 
@@ -101,7 +101,7 @@ final class ChildDatatableResolverTest extends TestCase
     public function test_it_passes_the_resolved_child_coordinates_to_the_authorization_checker(): void
     {
         $checker = new CapturingChildDatatableAuthorizationChecker();
-        $parent = (new DatatableDefinition('orders'))
+        $parent = new DatatableDefinition('orders')
             ->setContext(new DatatableContext(['tenant' => 'acme']))
             ->setChildDatatable('order-lines', [
                 'tenant' => ChildContextValue::context('tenant'),
@@ -123,7 +123,7 @@ final class ChildDatatableResolverTest extends TestCase
 
     public function test_it_enforces_the_child_maximum_depth(): void
     {
-        $parent = (new DatatableDefinition('orders'))
+        $parent = new DatatableDefinition('orders')
             ->setChildDatatable('order-lines', maxDepth: 2)
         ;
 
