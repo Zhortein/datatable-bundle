@@ -53,11 +53,20 @@ For a datatable named `users`, the default URLs are:
 
 The Stimulus controller generates fragments and export requests from the URLs rendered into the datatable HTML.
 
+When a definition enables explicit browser-safe context, the renderer adds a
+signed context token and an instance key to these URLs. The bundle validates
+them before calling the provider. The parameter names and token format are
+implementation details; applications should use the documented
+[`DatatableContext`](context.md) API instead of constructing them manually.
+
 ## Security
 
 The generic routes do not add application-specific authorization rules. Protect them through the host application's firewall and `access_control` configuration.
 
 If access depends on the datatable name, enforce that rule in an application security layer before exposing the endpoint.
+
+Signed context prevents modification but not replay. Tenant and business-scope
+authorization must still be checked by the host application.
 
 ## Current limitations
 

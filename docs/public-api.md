@@ -38,14 +38,16 @@ The definition value objects returned by `DatatableDefinition` are also public:
 - `RouteParameter`;
 - `UserFilterDefinition`.
 
-Explicit server-side action context is represented by
-`Context\DatatableContext`.
+Explicit server-side and browser-safe action context is represented by
+`Context\DatatableContext`. Its constructor allowlist and immutable context
+methods are public. The signing and request-restoration services remain bundle
+implementation details; use the documented definition and render options.
 
 The Ajax action response helper `Response\AjaxActionResponse` and its version
 constant are public. Host controllers may return an equivalent JSON response,
 but the documented v1 fields and semantics must be preserved.
 
-See [configuration](configuration.md), [providers](providers.md), [filters](filters.md), [advanced filters](advanced-filters.md), [actions](actions.md), [bulk actions](bulk-actions.md) and [exports](exports.md).
+See [configuration](configuration.md), [providers](providers.md), [filters](filters.md), [advanced filters](advanced-filters.md), [actions](actions.md), [explicit context](context.md), [bulk actions](bulk-actions.md) and [exports](exports.md).
 
 ## Extension contracts
 

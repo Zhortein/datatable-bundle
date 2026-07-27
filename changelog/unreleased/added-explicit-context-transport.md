@@ -1,0 +1,1 @@
+- Added signed, per-instance propagation of explicitly browser-safe datatable context across fragments, exports and opt-in Ajax actions.

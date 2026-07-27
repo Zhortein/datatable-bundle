@@ -13,6 +13,8 @@ use Zhortein\DatatableBundle\Doctrine\DoctrinePaginationApplier;
 use Zhortein\DatatableBundle\Export\XlsxExportWriter;
 use Zhortein\DatatableBundle\Icon\IconResolver;
 use Zhortein\DatatableBundle\Contract\IconResolverInterface;
+use Zhortein\DatatableBundle\Context\DatatableContextRequestResolver;
+use Zhortein\DatatableBundle\Context\DatatableContextTransport;
 use Zhortein\DatatableBundle\Renderer\DatatableSummaryRenderer;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
@@ -49,6 +51,13 @@ return static function (ContainerConfigurator $container): void {
     ;
 
     $services->set(RowActionRouteParameterResolver::class);
+
+    $services
+        ->set(DatatableContextTransport::class)
+        ->arg('$secret', param('kernel.secret'))
+    ;
+
+    $services->set(DatatableContextRequestResolver::class);
 
     $services->set(AllowAllActionVisibilityChecker::class);
 
@@ -146,6 +155,7 @@ return static function (ContainerConfigurator $container): void {
         ->arg('$searchEnabled', param('zhortein_datatable.search_enabled'))
         ->arg('$searchBuilderEnabled', param('zhortein_datatable.search_builder_enabled'))
         ->arg('$actionVisibilityChecker', service(ActionVisibilityCheckerInterface::class))
+        ->arg('$contextTransport', service(DatatableContextTransport::class))
         ->arg('$defaultTableOptions', [
             'tableStriped' => param('zhortein_datatable.bootstrap.table_striped'),
             'tableHover' => param('zhortein_datatable.bootstrap.table_hover'),

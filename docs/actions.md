@@ -127,9 +127,8 @@ literal or contextual value.
 
 ### Context allowlist and request locales
 
-`DatatableContext` is an explicit, server-side allowlist owned by one
-`DatatableDefinition`. It is recreated when the definition is built for an
-Ajax fragment, so a request-aware datatable may select the current locale
+`DatatableContext` is an explicit allowlist owned by one
+`DatatableDefinition`. A request-aware datatable may select the current locale
 without exposing the full request:
 
 ```php
@@ -162,10 +161,11 @@ definition. A context value used as a route parameter is visible in the
 generated URL and must never contain a secret. Authorization and tenant
 validation remain the responsibility of the target route.
 
-The context is not accepted from fragment query parameters and is not
-serialized automatically. Cross-request propagation of explicitly
-browser-safe context is a separate contract; applications must rebuild the
-current server context for now.
+By default every context value remains server-side. Values explicitly
+allowlisted through `browserSafeKeys` can be signed and propagated across
+fragments, exports and Ajax actions. See [explicit datatable
+context](context.md) for the declaration, per-instance render options and
+trust boundary.
 
 ### Compatibility and migration
 
