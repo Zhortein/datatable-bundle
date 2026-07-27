@@ -28,6 +28,10 @@ zhortein_datatable:
             small: false
             responsive: true
     export:
+        max_rows: 10000
+        format_limits:
+            csv: null
+            xlsx: null
         csv:
             delimiter: ','
             enclosure: '"'
@@ -268,6 +272,51 @@ zhortein_datatable:
 ```
 
 Each value can still be overridden through the corresponding runtime rendering option.
+
+## `export.max_rows` and `export.format_limits`
+
+Synchronous exports are guarded before the provider loads their rows:
+
+```yaml
+zhortein_datatable:
+    export:
+        max_rows: 10000
+        format_limits:
+            csv: 10000
+            xlsx: 5000
+```
+
+`max_rows` is the global fallback. Each non-null format limit overrides it for
+that writer. All configured limits must be greater than or equal to `1`.
+
+A trusted PHP datatable definition can override the configured limit for every
+format or one format:
+
+```php
+use Zhortein\DatatableBundle\Enum\ExportFormat;
+
+$definition
+    ->setExportLimit(2500)
+    ->setExportLimit(1000, ExportFormat::Xlsx)
+;
+```
+
+Resolution order:
+
+1. per-format datatable limit;
+2. default datatable limit;
+3. global per-format limit;
+4. global `max_rows`.
+
+These values are server-side configuration. Query parameters named `limit`,
+`maxRows` or similar never influence the safeguard.
+
+The display-oriented `max_page_size` remains independent. It caps request page
+sizes, while export limits cap the number of rows a synchronous writer may
+receive.
+
+See [server-side exports](exports.md) for provider capability and authorization
+details.
 
 ## `export.csv`
 

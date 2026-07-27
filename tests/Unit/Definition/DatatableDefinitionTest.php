@@ -11,6 +11,7 @@ use Zhortein\DatatableBundle\Definition\ChildContextValue;
 use Zhortein\DatatableBundle\Definition\ChildDatatableDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\AjaxActionSuccessStrategy;
+use Zhortein\DatatableBundle\Enum\ExportFormat;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 
 final class DatatableDefinitionTest extends TestCase
@@ -165,5 +166,25 @@ final class DatatableDefinitionTest extends TestCase
         self::assertSame('e.status', $filters[1]->getField());
         self::assertSame(FilterOperator::Equals, $filters[1]->getOperator());
         self::assertSame('enabled', $filters[1]->getValue());
+    }
+
+    public function test_it_stores_default_and_per_format_export_limits(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition
+            ->setExportLimit(500)
+            ->setExportLimit(100, ExportFormat::Xlsx)
+        ;
+
+        self::assertSame(500, $definition->getExportLimit());
+        self::assertSame(500, $definition->getExportLimit(ExportFormat::Csv));
+        self::assertSame(100, $definition->getExportLimit('xlsx'));
+    }
+
+    public function test_it_rejects_invalid_export_limit(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        (new DatatableDefinition('users'))->setExportLimit(0);
     }
 }

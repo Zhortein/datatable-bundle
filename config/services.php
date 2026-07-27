@@ -6,12 +6,14 @@ use Doctrine\Persistence\ManagerRegistry;
 use OpenSpout\Writer\XLSX\Writer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Zhortein\DatatableBundle\Contract\ChildDatatableAuthorizationCheckerInterface;
+use Zhortein\DatatableBundle\Contract\DatatableExportAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Doctrine\DoctrineCountExpressionFactory;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldMetadataResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineJoinApplier;
 use Zhortein\DatatableBundle\Doctrine\DoctrinePaginationApplier;
 use Zhortein\DatatableBundle\Export\XlsxExportWriter;
+use Zhortein\DatatableBundle\Export\AllowAllDatatableExportAuthorizationChecker;
 use Zhortein\DatatableBundle\Icon\IconResolver;
 use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Contract\DatatableViewAuthorizationCheckerInterface;
@@ -39,6 +41,7 @@ use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Export\CsvExportWriter;
 use Zhortein\DatatableBundle\Export\ExportColumnLabelResolver;
 use Zhortein\DatatableBundle\Export\ExportableColumnResolver;
+use Zhortein\DatatableBundle\Export\ExportLimitResolver;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
 use Zhortein\DatatableBundle\EnumPresentation\DefaultEnumPresentationResolver;
 use Zhortein\DatatableBundle\Factory\AdvancedFilterExpressionFactory;
@@ -96,6 +99,12 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(DefaultEnumPresentationResolver::class);
     $services->alias(EnumPresentationResolverInterface::class, DefaultEnumPresentationResolver::class);
+
+    $services->set(AllowAllDatatableExportAuthorizationChecker::class);
+    $services->alias(
+        DatatableExportAuthorizationCheckerInterface::class,
+        AllowAllDatatableExportAuthorizationChecker::class,
+    );
 
     $services
         ->set(DatatableContextTransport::class)
@@ -224,6 +233,12 @@ return static function (ContainerConfigurator $container): void {
     ;
 
     $services
+        ->set(ExportLimitResolver::class)
+        ->arg('$maxRows', param('zhortein_datatable.export.max_rows'))
+        ->arg('$formatLimits', param('zhortein_datatable.export.format_limits'))
+    ;
+
+    $services
         ->set(DatatableRenderer::class)
         ->arg('$theme', param('zhortein_datatable.default_theme'))
         ->arg('$defaultPageSize', param('zhortein_datatable.default_page_size'))
@@ -252,6 +267,9 @@ return static function (ContainerConfigurator $container): void {
 
     $services
         ->set(DatatableController::class)
+        ->arg('$exportAuthorizationChecker', service(DatatableExportAuthorizationCheckerInterface::class))
+        ->arg('$exportLimitResolver', service(ExportLimitResolver::class))
+        ->arg('$translator', service('translator'))
         ->tag('controller.service_arguments')
     ;
 

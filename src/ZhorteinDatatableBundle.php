@@ -46,6 +46,17 @@ final class ZhorteinDatatableBundle extends AbstractBundle
         }
 
         /** @var array{
+         *     max_rows: int,
+         *     format_limits: array{csv: int|null, xlsx: int|null},
+         *     csv: array{
+         *         delimiter: string,
+         *         enclosure: string,
+         *         escape: string,
+         *         bom: bool
+         *     }
+         * } $exportConfig */
+
+        /** @var array{
          *     delimiter: string,
          *     enclosure: string,
          *     escape: string,
@@ -75,6 +86,8 @@ final class ZhorteinDatatableBundle extends AbstractBundle
             ->set('zhortein_datatable.bootstrap.table_borderless', $tableConfig['borderless'])
             ->set('zhortein_datatable.bootstrap.table_small', $tableConfig['small'])
             ->set('zhortein_datatable.bootstrap.table_responsive', $tableConfig['responsive'])
+            ->set('zhortein_datatable.export.max_rows', $exportConfig['max_rows'])
+            ->set('zhortein_datatable.export.format_limits', $exportConfig['format_limits'])
             ->set('zhortein_datatable.export.csv.delimiter', $csvConfig['delimiter'])
             ->set('zhortein_datatable.export.csv.enclosure', $csvConfig['enclosure'])
             ->set('zhortein_datatable.export.csv.escape', $csvConfig['escape'])
@@ -100,6 +113,23 @@ final class ZhorteinDatatableBundle extends AbstractBundle
                     ->arrayNode('export')
                         ->addDefaultsIfNotSet()
                         ->children()
+                            ->integerNode('max_rows')
+                                ->min(1)
+                                ->defaultValue(10000)
+                            ->end()
+                            ->arrayNode('format_limits')
+                                ->addDefaultsIfNotSet()
+                                ->children()
+                                    ->integerNode('csv')
+                                        ->min(1)
+                                        ->defaultNull()
+                                    ->end()
+                                    ->integerNode('xlsx')
+                                        ->min(1)
+                                        ->defaultNull()
+                                    ->end()
+                                ->end()
+                            ->end()
                             ->arrayNode('csv')
                                 ->addDefaultsIfNotSet()
                                 ->children()

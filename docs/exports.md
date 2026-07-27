@@ -10,11 +10,11 @@ Currently implemented:
     -   `current`: Exports only the currently visible page.
     -   `full`: Exports the entire filtered dataset (pagination disabled).
 -   **Features**: Toolbar export dropdown, custom export URLs, and per-column export policies.
+-   **Safeguards**: Server-side row limits, provider preflight counting and a replaceable authorization checker.
 
 Not implemented yet:
 -   Asynchronous/Background exports.
 -   Export progress UI.
--   Export size limits configuration.
 -   Streamed Doctrine iterators (currently loads full result set into memory).
 
 ## Export Formats
@@ -92,6 +92,63 @@ for custom-route compatibility. See [multi-column sorting](sorting.md).
 ## Performance and Memory Constraints
 
 The current implementation is **synchronous**. The data is loaded into memory before being written to the response.
+
+### Export row limits
+
+The bundle defaults to a maximum of 10,000 rows per synchronous export:
+
+```yaml
+zhortein_datatable:
+    export:
+        max_rows: 10000
+        format_limits:
+            csv: 10000
+            xlsx: 5000
+```
+
+Before invoking CSV or XLSX writers, the controller asks the provider for the
+filtered row count. Full exports compare the complete filtered count with the
+effective limit. Current-page exports compare only the rows remaining on that
+page. A request exactly at the limit is accepted; a request above it returns
+HTTP `413` with a translated message that discloses the configured limit but
+not the filtered data count.
+
+Trusted definitions may override the limit:
+
+```php
+use Zhortein\DatatableBundle\Enum\ExportFormat;
+
+$definition
+    ->setExportLimit(2500)
+    ->setExportLimit(1000, ExportFormat::Xlsx)
+;
+```
+
+Definition overrides take precedence over global per-format and default
+limits. Client parameters cannot change any limit.
+
+Built-in Array and Doctrine providers implement
+`ExportRowCountProviderInterface`. A custom provider used for synchronous
+exports must implement the same additive capability:
+
+```php
+use Zhortein\DatatableBundle\Contract\ExportRowCountProviderInterface;
+
+final class ApiDataProvider implements DataProviderInterface, ExportRowCountProviderInterface
+{
+    public function countExportRows(
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+    ): int {
+        // Return the exact filtered count or a conservative upper bound.
+    }
+}
+```
+
+The count must ignore pagination and sorting while applying permanent context,
+search, simple filters and advanced filters. Providers without this capability
+receive HTTP `422` before `getData()` is called; the bundle will not load a
+full dataset merely to discover its size.
 
 ### Recommendations for Large Datasets
 -   Encourage users to apply filters before performing a "full" export.
@@ -182,7 +239,49 @@ contract and [the complete example](examples/computed-cell.md).
 
 ## Security
 
-The export endpoint does not include a built-in authorization layer beyond the route protection. Host applications should protect the `zhortein_datatable_export` route according to their security requirements.
+The default checker remains allow-all for backward compatibility. Host
+applications should both protect the route and replace
+`DatatableExportAuthorizationCheckerInterface` when access depends on the
+datatable, user, format, mode, tenant or restored request state:
+
+```php
+use Symfony\Bundle\SecurityBundle\Security;
+use Zhortein\DatatableBundle\Contract\DatatableExportAuthorizationCheckerInterface;
+use Zhortein\DatatableBundle\Export\DatatableExportAuthorizationContext;
+
+final readonly class DatatableExportAuthorizationChecker implements DatatableExportAuthorizationCheckerInterface
+{
+    public function __construct(private Security $security)
+    {
+    }
+
+    public function isGranted(DatatableExportAuthorizationContext $context): bool
+    {
+        return $this->security->isGranted('DATATABLE_EXPORT', [
+            'definition' => $context->getDefinition(),
+            'format' => $context->getFormat(),
+            'mode' => $context->getMode(),
+            'state' => $context->getDatatableRequest(),
+            'businessContext' => $context->getDatatableContext(),
+            'instance' => $context->getInstance(),
+            'child' => $context->isChildDatatable(),
+        ]);
+    }
+}
+```
+
+Replace the default alias:
+
+```yaml
+services:
+    Zhortein\DatatableBundle\Contract\DatatableExportAuthorizationCheckerInterface:
+        alias: App\Security\DatatableExportAuthorizationChecker
+```
+
+Denied exports return HTTP `403` before provider counting. This ordering avoids
+revealing row-count information to unauthorized callers. The context also
+exposes the current Symfony `Request` for application attributes, but
+authorization should never trust client-provided limits or counts.
 
 Explicit browser-safe datatable context is signed and restored before the
 provider builds an export. A valid token prevents tampering but does not
@@ -196,4 +295,5 @@ context](context.md).
 - [URL state and browser history](url-state.md)
 - [UI/UX customization](ui-ux.md)
 - [Cell context and computed values](cell-context.md)
+- [Configuration](configuration.md)
 - [Architecture](architecture/overview.md)

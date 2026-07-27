@@ -11,10 +11,17 @@ use Symfony\Component\Translation\Loader\YamlFileLoader;
 use Symfony\Component\Translation\Translator;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
+use Zhortein\DatatableBundle\Contract\DataProviderInterface;
+use Zhortein\DatatableBundle\Contract\DatatableExportAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Contract\DatatableInterface;
+use Zhortein\DatatableBundle\Contract\ExportRowCountProviderInterface;
 use Zhortein\DatatableBundle\Controller\DatatableController;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\ExportFormat;
+use Zhortein\DatatableBundle\Enum\ExportMode;
 use Zhortein\DatatableBundle\Export\CsvExportWriter;
+use Zhortein\DatatableBundle\Export\DatatableExportAuthorizationContext;
+use Zhortein\DatatableBundle\Export\ExportLimitResolver;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
 use Zhortein\DatatableBundle\Factory\AdvancedFilterExpressionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
@@ -24,20 +31,28 @@ use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Registry\DatatableRegistry;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 use Zhortein\DatatableBundle\Renderer\DatatableSummaryRenderer;
+use Zhortein\DatatableBundle\Request\DatatableRequest;
+use Zhortein\DatatableBundle\Result\DatatableResult;
 use Zhortein\DatatableBundle\Tests\Unit\Renderer\TranslatableRendererTestTrait;
 
 final class DatatableControllerTest extends TestCase
 {
     use TranslatableRendererTestTrait;
 
-    private function createTranslator(): Translator
+    private function createTranslator(string $locale = 'en'): Translator
     {
-        $translator = new Translator('en');
+        $translator = new Translator($locale);
         $translator->addLoader('yaml', new YamlFileLoader());
         $translator->addResource(
             'yaml',
             __DIR__.'/../../../translations/zhortein_datatable.en.yaml',
             'en',
+            'zhortein_datatable',
+        );
+        $translator->addResource(
+            'yaml',
+            __DIR__.'/../../../translations/zhortein_datatable.fr.yaml',
+            'fr',
             'zhortein_datatable',
         );
 
@@ -170,6 +185,108 @@ final class DatatableControllerTest extends TestCase
         self::assertStringNotContainsString('charlie@example.test', $content);
     }
 
+    public function test_full_export_is_allowed_at_the_row_limit(): void
+    {
+        $response = $this->createController(
+            exportLimitResolver: new ExportLimitResolver(3),
+        )->export(new Request(['mode' => 'full']), 'users', 'csv');
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringContainsString('charlie@example.test', (string) $response->getContent());
+    }
+
+    public function test_full_export_is_rejected_before_writing_above_the_row_limit(): void
+    {
+        $response = $this->createController(
+            exportLimitResolver: new ExportLimitResolver(2),
+        )->export(new Request(['mode' => 'full']), 'users', 'csv');
+
+        self::assertSame(413, $response->getStatusCode());
+        self::assertSame(
+            'This export exceeds the 2-row limit. Apply more filters or export the current page.',
+            $response->getContent(),
+        );
+        self::assertSame('private, no-store', $response->headers->get('Cache-Control'));
+        self::assertStringNotContainsString('alice@example.test', (string) $response->getContent());
+    }
+
+    public function test_current_export_uses_the_actual_remaining_page_size_for_the_limit(): void
+    {
+        $response = $this->createController(
+            exportLimitResolver: new ExportLimitResolver(1),
+        )->export(new Request([
+            'page' => '2',
+            'pageSize' => '2',
+            'mode' => 'current',
+        ]), 'users', 'csv');
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringContainsString('charlie@example.test', (string) $response->getContent());
+    }
+
+    public function test_authorization_is_checked_with_isolated_export_context_before_data_loading(): void
+    {
+        $checker = new RecordingExportAuthorizationChecker(false);
+        $request = new Request(
+            query: ['mode' => 'full', 'search' => 'alice'],
+            attributes: ['_route' => 'zhortein_datatable_export'],
+        );
+        $response = $this->createController(
+            exportAuthorizationChecker: $checker,
+        )->export($request, 'users', 'xlsx');
+
+        self::assertSame(403, $response->getStatusCode());
+        self::assertSame('You are not allowed to export this datatable.', $response->getContent());
+        self::assertNotNull($checker->context);
+        self::assertSame('users', $checker->context->getDefinition()->getName());
+        self::assertSame(ExportFormat::Xlsx, $checker->context->getFormat());
+        self::assertSame(ExportMode::Full, $checker->context->getMode());
+        self::assertSame('alice', $checker->context->getDatatableRequest()?->getSearchQuery());
+        self::assertSame($request, $checker->context->getRequest());
+        self::assertSame('users', $checker->context->getInstance());
+        self::assertFalse($checker->context->isChildDatatable());
+    }
+
+    public function test_export_error_is_translated_in_french(): void
+    {
+        $response = $this->createController(
+            exportLimitResolver: new ExportLimitResolver(2),
+            translator: $this->createTranslator('fr'),
+        )->export(new Request(['mode' => 'full']), 'users', 'csv');
+
+        self::assertSame(413, $response->getStatusCode());
+        self::assertSame(
+            'Cet export dépasse la limite de 2 lignes. Affinez les filtres ou exportez la page courante.',
+            $response->getContent(),
+        );
+    }
+
+    public function test_provider_without_count_capability_is_rejected_before_loading_rows(): void
+    {
+        $provider = new NonCountableControllerTestProvider();
+        $response = $this->createController(
+            provider: $provider,
+        )->export(new Request(['mode' => 'full']), 'users', 'csv');
+
+        self::assertSame(422, $response->getStatusCode());
+        self::assertFalse($provider->getDataCalled);
+        self::assertStringContainsString(
+            'cannot safely determine the export size',
+            (string) $response->getContent(),
+        );
+    }
+
+    public function test_invalid_provider_count_is_rejected_before_loading_rows(): void
+    {
+        $provider = new InvalidCountControllerTestProvider();
+        $response = $this->createController(
+            provider: $provider,
+        )->export(new Request(['mode' => 'full']), 'users', 'csv');
+
+        self::assertSame(422, $response->getStatusCode());
+        self::assertFalse($provider->getDataCalled);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -183,19 +300,29 @@ final class DatatableControllerTest extends TestCase
         return $payload;
     }
 
-    private function createController(): DatatableController
-    {
+    private function createController(
+        ?DatatableExportAuthorizationCheckerInterface $exportAuthorizationChecker = null,
+        ?ExportLimitResolver $exportLimitResolver = null,
+        ?Translator $translator = null,
+        ?DataProviderInterface $provider = null,
+    ): DatatableController {
+        $translator ??= $this->createTranslator();
+        $provider ??= new ArrayDataProvider();
+
         return new DatatableController(
             definitionFactory: new DatatableDefinitionFactory($this->createDatatableRegistry()),
             requestFactory: new DatatableRequestFactory(new AdvancedFilterExpressionFactory()),
             providerRegistry: new DataProviderRegistry([
-                ArrayDataProvider::PROVIDER_NAME => new ArrayDataProvider(),
+                ArrayDataProvider::PROVIDER_NAME => $provider,
             ]),
             renderer: new DatatableRenderer($this->createTwigEnvironment()),
             exportWriterRegistry: new ExportWriterRegistry([
                 CsvExportWriter::WRITER_NAME => new CsvExportWriter(),
             ]),
-            summaryRenderer: new DatatableSummaryRenderer($this->createTranslator()),
+            summaryRenderer: new DatatableSummaryRenderer($translator),
+            exportAuthorizationChecker: $exportAuthorizationChecker,
+            exportLimitResolver: $exportLimitResolver,
+            translator: $translator,
         );
     }
 
@@ -224,6 +351,68 @@ final class DatatableControllerTest extends TestCase
         $this->addTranslationExtension($twig);
 
         return $twig;
+    }
+}
+
+final class RecordingExportAuthorizationChecker implements DatatableExportAuthorizationCheckerInterface
+{
+    public ?DatatableExportAuthorizationContext $context = null;
+
+    public function __construct(
+        private readonly bool $granted,
+    ) {
+    }
+
+    public function isGranted(DatatableExportAuthorizationContext $context): bool
+    {
+        $this->context = $context;
+
+        return $this->granted;
+    }
+}
+
+final class NonCountableControllerTestProvider implements DataProviderInterface
+{
+    public bool $getDataCalled = false;
+
+    public function supports(DatatableDefinition $definition): bool
+    {
+        return true;
+    }
+
+    public function getData(
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+    ): DatatableResult {
+        $this->getDataCalled = true;
+
+        return new DatatableResult();
+    }
+}
+
+final class InvalidCountControllerTestProvider implements DataProviderInterface, ExportRowCountProviderInterface
+{
+    public bool $getDataCalled = false;
+
+    public function supports(DatatableDefinition $definition): bool
+    {
+        return true;
+    }
+
+    public function getData(
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+    ): DatatableResult {
+        $this->getDataCalled = true;
+
+        return new DatatableResult();
+    }
+
+    public function countExportRows(
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+    ): int {
+        return -1;
     }
 }
 

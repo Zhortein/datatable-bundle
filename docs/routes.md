@@ -92,9 +92,15 @@ declaration API instead of creating or modifying them.
 
 ## Security
 
-The generic routes do not add application-specific authorization rules. Protect them through the host application's firewall and `access_control` configuration.
+The generic routes do not infer application-specific authorization rules.
+Protect them through the host application's firewall and `access_control`
+configuration. Export requests additionally pass through the replaceable
+`DatatableExportAuthorizationCheckerInterface`; its backward-compatible default
+allows access.
 
-If access depends on the datatable name, enforce that rule in an application security layer before exposing the endpoint.
+If export access depends on the datatable name, format, mode, restored state or
+business context, replace the export checker as documented in
+[server-side exports](exports.md).
 
 Signed context prevents modification but not replay. Tenant and business-scope
 authorization must still be checked by the host application.
