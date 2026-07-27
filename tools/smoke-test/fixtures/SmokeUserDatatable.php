@@ -30,7 +30,6 @@ final class SmokeUserDatatable implements DatatableInterface
 
         $definition
             ->setOption(ArrayDataProvider::OPTION_ROWS, $rows)
-            ->setOption('filterLayout', 'header')
             ->setOption('rowActionDisplayMode', 'dropdown')
             ->addColumn('id', visible: false, sortable: false, searchable: false, exportable: false)
             ->addColumn('email', label: 'Email')

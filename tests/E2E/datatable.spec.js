@@ -55,6 +55,7 @@ test('supports keyboard sorting, pagination and Bootstrap dropdowns', async ({ p
     await refreshAfter(page, () => page.keyboard.press('Enter'));
     await expect(datatable.locator('tbody tr').first()).toContainText('alice@example.test');
 
+    await sortButton.focus();
     await refreshAfter(page, () => page.keyboard.press('Enter'));
     await expect(datatable.locator('tbody tr').first()).toContainText('user20@example.test');
 
@@ -90,7 +91,7 @@ test('filters rows through real Bootstrap header controls', async ({ page }) => 
 
 test('supports keyboard row selection and modal confirmation', async ({ page }) => {
     const datatable = await openDatatable(page);
-    const rowCheckbox = datatable.getByRole('checkbox', { name: 'Select row 1' });
+    const rowCheckbox = datatable.getByRole('checkbox', { name: 'Select row 1', exact: true });
 
     await rowCheckbox.focus();
     await page.keyboard.press('Space');
