@@ -38,7 +38,7 @@ final readonly class DatatableViewController
         private DatatableViewOwnerResolverInterface $ownerResolver,
         private DatatableViewManager $manager,
         private DatatableStateUrlSerializer $stateSerializer,
-        private CsrfTokenManagerInterface $csrfTokenManager,
+        private ?CsrfTokenManagerInterface $csrfTokenManager = null,
     ) {
     }
 
@@ -296,7 +296,8 @@ final readonly class DatatableViewController
         $token = $request->headers->get('X-CSRF-Token');
 
         if (
-            !is_string($token)
+            null === $this->csrfTokenManager
+            || !is_string($token)
             || '' === $token
             || !$this->csrfTokenManager->isTokenValid(new CsrfToken(
                 DatatableViewCsrfTokenIdGenerator::generate(

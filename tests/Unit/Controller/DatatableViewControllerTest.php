@@ -155,6 +155,20 @@ final class DatatableViewControllerTest extends TestCase
         self::assertSame('forbidden', $error['code']);
     }
 
+    public function test_mutations_are_denied_when_csrf_protection_is_unavailable(): void
+    {
+        $controller = $this->createController(csrfEnabled: false);
+        $response = $controller->create(
+            $this->createRequest('POST', [
+                'name' => 'My view',
+                'state' => $this->createState(),
+            ]),
+            'users',
+        );
+
+        self::assertSame(403, $response->getStatusCode());
+    }
+
     public function test_authorization_is_denied_by_default(): void
     {
         $controller = $this->createController(authorized: false);
@@ -231,7 +245,10 @@ final class DatatableViewControllerTest extends TestCase
         return $payload;
     }
 
-    private function createController(bool $authorized = true): DatatableViewController
+    private function createController(
+        bool $authorized = true,
+        bool $csrfEnabled = true,
+    ): DatatableViewController
     {
         $registry = new DatatableRegistry(
             new ServiceLocator([
@@ -254,7 +271,7 @@ final class DatatableViewControllerTest extends TestCase
                     : new DenyDatatableViewAuthorizationChecker(),
             ),
             stateSerializer: new DatatableStateUrlSerializer(),
-            csrfTokenManager: new SavedViewControllerCsrfTokenManagerFixture(),
+            csrfTokenManager: $csrfEnabled ? new SavedViewControllerCsrfTokenManagerFixture() : null,
         );
     }
 }
