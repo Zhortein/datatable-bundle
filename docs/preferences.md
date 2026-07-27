@@ -241,7 +241,7 @@ The bundle does not assume:
 When rendering a datatable, options are merged with this precedence:
 
 ```text
-URL state > runtime Twig options > datatable preferences > bundle defaults
+URL state > named default view > runtime Twig options > datatable preferences > bundle defaults
 ```
 
 Example:
@@ -271,13 +271,17 @@ because runtime options are explicit and take precedence.
 A valid namespaced URL state takes precedence over all initial values. See
 [URL state and browser history](url-state.md).
 
+When [named saved views](saved-views.md) are enabled, their default is applied
+only in the absence of valid URL state.
+
 ## Current limitations
 
-### No built-in persistence
+### No built-in preference persistence
 
-The bundle does not store preferences itself.
+The bundle does not store `DatatablePreference` objects itself.
 
 Applications must provide their own preference provider if they want persistence.
+Named views use a separate opt-in provider and JSON contract.
 
 ### No save/reset UI
 

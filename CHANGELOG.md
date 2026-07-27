@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.5.0] - 2026-07-27
+
+### Added
+
+- Added opt-in named datatable views with canonical state reuse, collision-free scopes, replaceable ownership/authorization/storage contracts, optimistic concurrency, CSRF-protected JSON routes and Bootstrap/Stimulus controls.
+
 ## [1.4.0] - 2026-07-27
 
 ### Added

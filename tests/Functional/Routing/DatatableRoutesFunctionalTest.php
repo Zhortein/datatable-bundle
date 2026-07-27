@@ -78,6 +78,42 @@ final class DatatableRoutesFunctionalTest extends FunctionalTestCase
         );
     }
 
+    public function test_named_view_routes_are_registered(): void
+    {
+        self::bootKernel();
+
+        $router = self::getContainer()->get(RouterInterface::class);
+
+        self::assertInstanceOf(RouterInterface::class, $router);
+
+        $routes = $router->getRouteCollection();
+
+        self::assertSame(
+            ['GET'],
+            $routes->get('zhortein_datatable_views_list')?->getMethods(),
+        );
+        self::assertSame(
+            ['POST'],
+            $routes->get('zhortein_datatable_views_create')?->getMethods(),
+        );
+        self::assertSame(
+            ['GET'],
+            $routes->get('zhortein_datatable_views_load')?->getMethods(),
+        );
+        self::assertSame(
+            ['PATCH'],
+            $routes->get('zhortein_datatable_views_mutate')?->getMethods(),
+        );
+        self::assertSame(
+            ['DELETE'],
+            $routes->get('zhortein_datatable_views_delete')?->getMethods(),
+        );
+        self::assertSame(
+            '/_zhortein/datatable/{name}/views/{viewIdentifier}',
+            $routes->get('zhortein_datatable_views_load')->getPath(),
+        );
+    }
+
     protected static function getKernelClass(): string
     {
         return TestKernel::class;

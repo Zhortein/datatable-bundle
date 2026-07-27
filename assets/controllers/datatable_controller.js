@@ -35,6 +35,10 @@ export default class extends Controller {
         'searchBuilderConditions',
         'searchBuilderConditionTemplate',
         'searchBuilderGroupTemplate',
+        'savedViewSelect',
+        'savedViewName',
+        'savedViewAction',
+        'savedViewStatus',
     ];
 
     static values = {
@@ -57,6 +61,14 @@ export default class extends Controller {
         actionSuccessMessage: { type: String, default: 'The action completed successfully.' },
         actionErrorMessage: { type: String, default: 'The action could not be completed.' },
         invalidActionResponseMessage: { type: String, default: 'The action returned an invalid response.' },
+        savedViewsUrl: String,
+        savedViewsCsrfToken: String,
+        savedViewsIncludePage: { type: Boolean, default: false },
+        savedViewDefaultSuffix: { type: String, default: '(default)' },
+        savedViewDeleteConfirmation: { type: String, default: 'Delete this saved view?' },
+        savedViewSuccessMessage: { type: String, default: 'The saved view was updated.' },
+        savedViewErrorMessage: { type: String, default: 'The saved view operation failed.' },
+        savedViewConflictMessage: { type: String, default: 'The saved view changed in another request. Reload it and try again.' },
     };
 
     connect() {
@@ -69,6 +81,8 @@ export default class extends Controller {
         this.confirmationModalInstance = null;
         this.selectedIds = new Set();
         this.ajaxActionAbortControllers = new Map();
+        this.savedViewsAbortController = null;
+        this.savedViews = [];
         this.defaultState = this.collectState();
         this.handlePopState = this.restoreStateFromHistory.bind(this);
         this.handleTurboBeforeCache = this.persistStateBeforeTurboCache.bind(this);
@@ -88,7 +102,15 @@ export default class extends Controller {
 
         this.updateActiveFilterState();
 
-        if (this.autoLoadValue) {
+        const hasSavedViews = this.hasSavedViewsUrlValue && this.savedViewsUrlValue !== '';
+        const shouldRestoreDefaultView = hasSavedViews && urlState === null;
+        const savedViewsPromise = hasSavedViews
+            ? this.refreshSavedViewList(shouldRestoreDefaultView)
+            : Promise.resolve(null);
+
+        if (this.autoLoadValue && shouldRestoreDefaultView) {
+            savedViewsPromise.then(() => this.refresh(null, 'replace'));
+        } else if (this.autoLoadValue) {
             this.refresh(null, 'replace');
         }
     }
@@ -101,6 +123,8 @@ export default class extends Controller {
         this.abortPendingRequest();
         this.ajaxActionAbortControllers.forEach((controller) => controller.abort());
         this.ajaxActionAbortControllers.clear();
+        this.savedViewsAbortController?.abort();
+        this.savedViewsAbortController = null;
 
         if (this.searchDebounceTimeout !== null) {
             window.clearTimeout(this.searchDebounceTimeout);
@@ -830,6 +854,383 @@ export default class extends Controller {
             visibleColumns: columns.visibleColumns,
             hiddenColumns: columns.hiddenColumns,
         };
+    }
+
+    refreshSavedViewList(restoreDefault = false, preferredIdentifier = null) {
+        return this.requestSavedView('GET')
+            .then((payload) => {
+                if (
+                    !this.isStateMap(payload)
+                    || payload.version !== 1
+                    || !Array.isArray(payload.views)
+                ) {
+                    throw new TypeError('Invalid named datatable view list.');
+                }
+
+                this.savedViews = payload.views.map((view) => this.normalizeSavedViewMetadata(view));
+                this.renderSavedViewOptions(preferredIdentifier);
+
+                if (!restoreDefault) {
+                    return null;
+                }
+
+                const defaultView = this.savedViews.find((view) => view.default);
+
+                if (typeof defaultView === 'undefined') {
+                    return null;
+                }
+
+                return this.fetchSavedView(defaultView.id).then((view) => {
+                    this.applySavedView(view, 'default');
+                    this.defaultState = view.state;
+
+                    return view;
+                });
+            })
+            .catch((error) => {
+                this.handleSavedViewError(error);
+
+                return null;
+            });
+    }
+
+    loadSavedView(event) {
+        event.preventDefault();
+        const identifier = this.savedViewSelectTarget.value;
+
+        this.updateSavedViewActions();
+
+        if (identifier === '') {
+            return;
+        }
+
+        this.fetchSavedView(identifier)
+            .then((view) => {
+                this.applySavedView(view, 'selection');
+
+                return this.refresh(null, 'push');
+            })
+            .catch((error) => this.handleSavedViewError(error));
+    }
+
+    createSavedView(event) {
+        event.preventDefault();
+        const name = this.readSavedViewName();
+
+        if (name === null) {
+            return;
+        }
+
+        this.requestSavedView('POST', null, {
+            name,
+            state: this.collectState(),
+            includePage: this.savedViewsIncludePageValue,
+        })
+            .then((payload) => {
+                const view = this.normalizeSavedView(payload);
+                this.showSavedViewStatus(this.savedViewSuccessMessageValue);
+                this.dispatchSavedViewEvent('view:create', view);
+
+                return this.refreshSavedViewList(false, view.id);
+            })
+            .catch((error) => this.handleSavedViewError(error));
+    }
+
+    updateSavedView(event) {
+        event.preventDefault();
+        const view = this.getSelectedSavedView();
+
+        if (view === null) {
+            return;
+        }
+
+        this.requestSavedView('PATCH', view.id, {
+            operation: 'update',
+            revision: view.revision,
+            state: this.collectState(),
+            includePage: this.savedViewsIncludePageValue,
+        })
+            .then((payload) => {
+                const updatedView = this.normalizeSavedView(payload);
+                this.showSavedViewStatus(this.savedViewSuccessMessageValue);
+                this.dispatchSavedViewEvent('view:update', updatedView);
+
+                return this.refreshSavedViewList(false, updatedView.id);
+            })
+            .catch((error) => this.handleSavedViewError(error));
+    }
+
+    renameSavedView(event) {
+        event.preventDefault();
+        const view = this.getSelectedSavedView();
+        const name = this.readSavedViewName();
+
+        if (view === null || name === null) {
+            return;
+        }
+
+        this.requestSavedView('PATCH', view.id, {
+            operation: 'rename',
+            revision: view.revision,
+            name,
+        })
+            .then((payload) => {
+                const renamedView = this.normalizeSavedView(payload);
+                this.showSavedViewStatus(this.savedViewSuccessMessageValue);
+                this.dispatchSavedViewEvent('view:rename', renamedView);
+
+                return this.refreshSavedViewList(false, renamedView.id);
+            })
+            .catch((error) => this.handleSavedViewError(error));
+    }
+
+    setDefaultSavedView(event) {
+        event.preventDefault();
+        const view = this.getSelectedSavedView();
+
+        if (view === null) {
+            return;
+        }
+
+        this.requestSavedView('PATCH', view.id, {
+            operation: 'set_default',
+            revision: view.revision,
+        })
+            .then((payload) => {
+                const defaultView = this.normalizeSavedView(payload);
+                this.showSavedViewStatus(this.savedViewSuccessMessageValue);
+                this.dispatchSavedViewEvent('view:default', defaultView);
+
+                return this.refreshSavedViewList(false, defaultView.id);
+            })
+            .catch((error) => this.handleSavedViewError(error));
+    }
+
+    deleteSavedView(event) {
+        event.preventDefault();
+        const view = this.getSelectedSavedView();
+
+        if (view === null || !window.confirm(this.savedViewDeleteConfirmationValue)) {
+            return;
+        }
+
+        this.requestSavedView('DELETE', view.id, {
+            revision: view.revision,
+        })
+            .then(() => {
+                this.showSavedViewStatus(this.savedViewSuccessMessageValue);
+                this.dispatchSavedViewEvent('view:delete', view);
+
+                return this.refreshSavedViewList();
+            })
+            .catch((error) => this.handleSavedViewError(error));
+    }
+
+    fetchSavedView(identifier) {
+        return this.requestSavedView('GET', identifier)
+            .then((payload) => this.normalizeSavedView(payload));
+    }
+
+    applySavedView(view, source) {
+        this.applyStateSnapshot(view.state);
+        this.selectSavedView(view.id);
+        this.dispatchSavedViewEvent('view:load', view, { source });
+    }
+
+    normalizeSavedView(payload) {
+        if (
+            !this.isStateMap(payload)
+            || payload.version !== 1
+            || !this.isStateMap(payload.view)
+            || !this.isStateMap(payload.view.state)
+            || typeof payload.view.includePage !== 'boolean'
+        ) {
+            throw new TypeError('Invalid named datatable view response.');
+        }
+
+        return {
+            ...this.normalizeSavedViewMetadata(payload.view),
+            includePage: payload.view.includePage,
+            state: this.normalizeState(payload.view.state),
+        };
+    }
+
+    normalizeSavedViewMetadata(view) {
+        if (
+            !this.isStateMap(view)
+            || typeof view.id !== 'string'
+            || view.id === ''
+            || typeof view.name !== 'string'
+            || view.name === ''
+            || typeof view.revision !== 'string'
+            || view.revision === ''
+            || typeof view.default !== 'boolean'
+        ) {
+            throw new TypeError('Invalid named datatable view metadata.');
+        }
+
+        return {
+            id: view.id,
+            name: view.name,
+            revision: view.revision,
+            default: view.default,
+        };
+    }
+
+    renderSavedViewOptions(preferredIdentifier = null) {
+        if (!this.hasSavedViewSelectTarget) {
+            return;
+        }
+
+        const placeholder = this.savedViewSelectTarget.options[0]?.textContent ?? '';
+        this.savedViewSelectTarget.replaceChildren();
+        this.savedViewSelectTarget.append(new Option(placeholder, ''));
+
+        this.savedViews.forEach((view) => {
+            const suffix = view.default ? ` ${this.savedViewDefaultSuffixValue}` : '';
+            this.savedViewSelectTarget.append(new Option(`${view.name}${suffix}`, view.id));
+        });
+
+        this.selectSavedView(preferredIdentifier);
+    }
+
+    selectSavedView(identifier = null) {
+        if (!this.hasSavedViewSelectTarget) {
+            return;
+        }
+
+        this.savedViewSelectTarget.value = identifier ?? '';
+        const view = this.getSelectedSavedView();
+
+        if (this.hasSavedViewNameTarget) {
+            this.savedViewNameTarget.value = view?.name ?? '';
+        }
+
+        this.updateSavedViewActions();
+    }
+
+    updateSavedViewActions() {
+        const enabled = this.getSelectedSavedView() !== null;
+
+        this.savedViewActionTargets.forEach((target) => {
+            target.disabled = !enabled;
+        });
+    }
+
+    getSelectedSavedView() {
+        if (!this.hasSavedViewSelectTarget || this.savedViewSelectTarget.value === '') {
+            return null;
+        }
+
+        return this.savedViews.find((view) => view.id === this.savedViewSelectTarget.value) ?? null;
+    }
+
+    readSavedViewName() {
+        if (!this.hasSavedViewNameTarget) {
+            return null;
+        }
+
+        const name = this.savedViewNameTarget.value.trim();
+
+        if (name === '' || name.length > 120) {
+            this.handleSavedViewError(new TypeError(this.savedViewErrorMessageValue));
+
+            return null;
+        }
+
+        return name;
+    }
+
+    requestSavedView(method, identifier = null, payload = null) {
+        if (!this.hasSavedViewsUrlValue || this.savedViewsUrlValue === '') {
+            return Promise.reject(new Error(this.savedViewErrorMessageValue));
+        }
+
+        this.savedViewsAbortController?.abort();
+        const abortController = new AbortController();
+        this.savedViewsAbortController = abortController;
+        const url = this.buildSavedViewUrl(identifier);
+        const headers = {
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        };
+        const options = {
+            method,
+            headers,
+            signal: abortController.signal,
+        };
+
+        if (payload !== null) {
+            headers['Content-Type'] = 'application/json';
+            headers['X-CSRF-Token'] = this.savedViewsCsrfTokenValue;
+            options.body = JSON.stringify(payload);
+        }
+
+        return fetch(url, options)
+            .then(async (response) => {
+                if (response.status === 204) {
+                    return null;
+                }
+
+                const responsePayload = await response.json();
+
+                if (!response.ok) {
+                    const error = new Error(responsePayload?.error?.message ?? this.savedViewErrorMessageValue);
+                    error.code = responsePayload?.error?.code ?? 'unknown';
+                    throw error;
+                }
+
+                return responsePayload;
+            })
+            .finally(() => {
+                if (this.savedViewsAbortController === abortController) {
+                    this.savedViewsAbortController = null;
+                }
+            });
+    }
+
+    buildSavedViewUrl(identifier = null) {
+        const url = new URL(this.savedViewsUrlValue, window.location.origin);
+
+        if (identifier !== null) {
+            url.pathname = `${url.pathname.replace(/\/+$/, '')}/${encodeURIComponent(identifier)}`;
+        }
+
+        return url.toString();
+    }
+
+    handleSavedViewError(error) {
+        if (error?.name === 'AbortError') {
+            return;
+        }
+
+        const message = error?.code === 'conflict'
+            ? this.savedViewConflictMessageValue
+            : this.savedViewErrorMessageValue;
+
+        this.showSavedViewStatus(message, true);
+        this.dispatchSavedViewEvent('view:error', null, {
+            code: error?.code ?? 'unknown',
+            message: error?.message ?? message,
+        });
+    }
+
+    showSavedViewStatus(message, error = false) {
+        if (!this.hasSavedViewStatusTarget) {
+            return;
+        }
+
+        this.savedViewStatusTarget.textContent = message;
+        this.savedViewStatusTarget.classList.toggle('text-danger', error);
+        this.savedViewStatusTarget.classList.toggle('text-success', !error);
+        this.savedViewStatusTarget.classList.toggle('text-body-secondary', message === '');
+    }
+
+    dispatchSavedViewEvent(name, view = null, extra = {}) {
+        this.dispatch(name, {
+            detail: { view, ...extra },
+            prefix: 'zhortein-datatable',
+        });
     }
 
     collectFilterState() {

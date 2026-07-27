@@ -64,6 +64,16 @@
     {% if options.stateParameter is defined %}
         data-zhortein--datatable-bundle--datatable-state-parameter-value="{{ options.stateParameter }}"
     {% endif %}
+    {% if options.savedViewsUrl is defined %}
+        data-zhortein--datatable-bundle--datatable-saved-views-url-value="{{ options.savedViewsUrl }}"
+        data-zhortein--datatable-bundle--datatable-saved-views-csrf-token-value="{{ options.savedViewsCsrfToken }}"
+        data-zhortein--datatable-bundle--datatable-saved-views-include-page-value="{{ options.savedViewsIncludePage ? 'true' : 'false' }}"
+        data-zhortein--datatable-bundle--datatable-saved-view-default-suffix-value="{{ 'zhortein_datatable.saved_views.default_suffix'|trans({}, 'zhortein_datatable') }}"
+        data-zhortein--datatable-bundle--datatable-saved-view-delete-confirmation-value="{{ 'zhortein_datatable.saved_views.delete_confirmation'|trans({}, 'zhortein_datatable') }}"
+        data-zhortein--datatable-bundle--datatable-saved-view-success-message-value="{{ 'zhortein_datatable.saved_views.success'|trans({}, 'zhortein_datatable') }}"
+        data-zhortein--datatable-bundle--datatable-saved-view-error-message-value="{{ 'zhortein_datatable.saved_views.error'|trans({}, 'zhortein_datatable') }}"
+        data-zhortein--datatable-bundle--datatable-saved-view-conflict-message-value="{{ 'zhortein_datatable.saved_views.conflict'|trans({}, 'zhortein_datatable') }}"
+    {% endif %}
     data-zhortein--datatable-bundle--datatable-fragments-url-value="{{ fragments_url }}"
     data-zhortein--datatable-bundle--datatable-export-url-value="{{ export_url }}"
     data-zhortein--datatable-bundle--datatable-page-value="1"
