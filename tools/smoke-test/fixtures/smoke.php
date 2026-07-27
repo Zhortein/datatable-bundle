@@ -47,7 +47,7 @@ if (!is_string($content)) {
 
 $payload = json_decode($content, true, flags: JSON_THROW_ON_ERROR);
 
-if (2 !== ($payload['totalItems'] ?? null)) {
+if (20 !== ($payload['totalItems'] ?? null)) {
     throw new RuntimeException('The fragments response has an invalid total item count.');
 }
 
@@ -59,6 +59,8 @@ if (
     || !str_contains($body, 'bob@example.test')
     || !str_contains($body, 'smoke-icon-view')
     || !str_contains($body, '/smoke/users/1')
+    || !str_contains($body, 'data-bs-toggle="dropdown"')
+    || !str_contains($body, 'name="selected_rows[]"')
 ) {
     throw new RuntimeException('The fragments response does not contain the expected rows and row action.');
 }

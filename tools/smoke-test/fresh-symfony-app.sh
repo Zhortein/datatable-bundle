@@ -175,3 +175,7 @@ if ! curl \
 fi
 
 php smoke.php "${shell_response}" "${fragments_response}" "${csv_response}"
+
+if [[ "${SMOKE_E2E:-0}" == "1" ]]; then
+    PLAYWRIGHT_BASE_URL="${base_url}" npm --prefix "${bundle_root}" run test:e2e
+fi
