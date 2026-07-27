@@ -17,6 +17,7 @@ use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Definition\RouteParameter;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 use Zhortein\DatatableBundle\Result\DatatableResult;
+use Zhortein\DatatableBundle\State\DatatableStateUrlSerializer;
 
 final class DatatableRendererContextTransportTest extends TestCase
 {
@@ -49,6 +50,10 @@ final class DatatableRendererContextTransportTest extends TestCase
 
         self::assertStringContainsString('id="zhortein-datatable-articles-french-table"', $shell);
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-instance-value="french-table"', $shell);
+        self::assertMatchesRegularExpression(
+            '/data-zhortein--datatable-bundle--datatable-state-parameter-value="_zd_state\\[[A-Za-z0-9_-]{16}]"/',
+            $shell,
+        );
 
         $fragmentsUrl = $this->extractAttribute($shell, 'data-zhortein--datatable-bundle--datatable-fragments-url-value');
         $exportUrl = $this->extractAttribute($shell, 'data-zhortein--datatable-bundle--datatable-export-url-value');
@@ -99,6 +104,14 @@ final class DatatableRendererContextTransportTest extends TestCase
             $englishHtml,
             'data-zhortein--datatable-bundle--datatable-fragments-url-value',
         ));
+        $frenchStateParameter = $this->extractAttribute(
+            $frenchHtml,
+            'data-zhortein--datatable-bundle--datatable-state-parameter-value',
+        );
+        $englishStateParameter = $this->extractAttribute(
+            $englishHtml,
+            'data-zhortein--datatable-bundle--datatable-state-parameter-value',
+        );
 
         self::assertStringContainsString('id="zhortein-datatable-articles-french-table"', $frenchHtml);
         self::assertStringContainsString('id="zhortein-datatable-articles-english-table"', $englishHtml);
@@ -106,6 +119,7 @@ final class DatatableRendererContextTransportTest extends TestCase
             $frenchQuery[DatatableContextTransport::CONTEXT_QUERY_PARAMETER],
             $englishQuery[DatatableContextTransport::CONTEXT_QUERY_PARAMETER],
         );
+        self::assertNotSame($frenchStateParameter, $englishStateParameter);
     }
 
     public function test_a_render_cannot_override_a_server_only_context_key(): void
@@ -151,6 +165,7 @@ final class DatatableRendererContextTransportTest extends TestCase
             urlGenerator: new ContextTransportUrlGeneratorFixture(),
             routeParameterResolver: new RowActionRouteParameterResolver(),
             contextTransport: $transport,
+            stateUrlSerializer: new DatatableStateUrlSerializer(),
         );
     }
 

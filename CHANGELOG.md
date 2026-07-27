@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.4.0] - 2026-07-27
+
+### Added
+
+- Added versioned, per-instance URL state with browser history and Turbo restoration for search, filters, advanced expressions, sorting, pagination, page size and column visibility.
+
 ## [1.3.0] - 2026-07-27
 
 ### Added

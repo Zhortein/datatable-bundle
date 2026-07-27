@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
+use Zhortein\DatatableBundle\State\DatatableState;
 
 final readonly class DatatableRequestFactory
 {
@@ -41,22 +42,66 @@ final readonly class DatatableRequestFactory
             $request->request->all(),
         );
 
+        return $this->createFromState(
+            state: $this->createStateFromParameters($parameters),
+            definition: $definition,
+            options: $this->readArrayParameter($parameters, 'options'),
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    public function createFromState(
+        DatatableState $state,
+        ?DatatableDefinition $definition = null,
+        array $options = [],
+    ): DatatableRequest {
+        return DatatableRequest::create(
+            page: $state->getPage(),
+            pageSize: min($state->getPageSize(), $this->maxPageSize),
+            searchQuery: $state->getSearchQuery(),
+            sortField: $state->getSortField(),
+            sortDirection: $state->getSortDirection(),
+            filters: $state->getFilters(),
+            visibleColumns: $state->getVisibleColumns(),
+            hiddenColumns: $state->getHiddenColumns(),
+            options: $options,
+            advancedFilterExpression: $this->advancedFilterExpressionFactory->createFromArray(
+                $state->getAdvancedFilters(),
+                $definition,
+            ),
+        );
+    }
+
+    public function createStateFromRequest(Request $request): DatatableState
+    {
+        return $this->createStateFromParameters(array_replace(
+            $request->query->all(),
+            $request->request->all(),
+        ));
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    private function createStateFromParameters(array $parameters): DatatableState
+    {
         $advancedFilters = $this->readArrayParameter($parameters, 'advancedFilters');
         if ([] === $advancedFilters) {
             $advancedFilters = $this->readArrayParameter($parameters, 'filterExpression');
         }
 
-        return DatatableRequest::create(
+        return DatatableState::create(
             page: $this->readPositiveInteger($parameters, 'page', $this->defaultPage),
             pageSize: $this->readPageSize($parameters),
             searchQuery: $this->readNullableString($parameters, 'search'),
             sortField: $this->readNullableString($parameters, 'sortField'),
             sortDirection: $this->readSortDirection($parameters),
             filters: $this->readArrayParameter($parameters, 'filters'),
+            advancedFilters: $advancedFilters,
             visibleColumns: $this->readStringListParameter($parameters, 'visibleColumns'),
             hiddenColumns: $this->readStringListParameter($parameters, 'hiddenColumns'),
-            options: $this->readArrayParameter($parameters, 'options'),
-            advancedFilterExpression: $this->advancedFilterExpressionFactory->createFromArray($advancedFilters, $definition),
         );
     }
 
