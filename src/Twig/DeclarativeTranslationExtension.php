@@ -75,9 +75,9 @@ final class DeclarativeTranslationExtension extends AbstractExtension
     }
 
     /**
-     * @param array<string, string>                 $choices
-     * @param class-string<\UnitEnum>|null          $enumClass
-     * @param array<int|string, EnumPresentation>   $presentations
+     * @param array<string, string>               $choices
+     * @param class-string<\UnitEnum>|null        $enumClass
+     * @param array<int|string, EnumPresentation> $presentations
      *
      * @return array<string, string>
      */

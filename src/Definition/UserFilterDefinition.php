@@ -10,9 +10,9 @@ use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 final readonly class UserFilterDefinition
 {
     /**
-     * @param array<string, string> $choices
-     * @param array<string, mixed>  $options
-     * @param class-string<\UnitEnum>|null $enumClass
+     * @param array<string, string>               $choices
+     * @param array<string, mixed>                $options
+     * @param class-string<\UnitEnum>|null        $enumClass
      * @param array<int|string, EnumPresentation> $enumPresentations
      */
     public function __construct(
@@ -38,7 +38,6 @@ final readonly class UserFilterDefinition
         if (null !== $this->enumClass && !enum_exists($this->enumClass)) {
             throw new \InvalidArgumentException(sprintf('Class "%s" must be an enum.', $this->enumClass));
         }
-
     }
 
     public function getName(): string

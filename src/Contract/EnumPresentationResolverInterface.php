@@ -9,8 +9,8 @@ use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 interface EnumPresentationResolverInterface
 {
     /**
-     * @param class-string<\UnitEnum>|null                   $enumClass
-     * @param array<int|string, EnumPresentation>           $presentations
+     * @param class-string<\UnitEnum>|null        $enumClass
+     * @param array<int|string, EnumPresentation> $presentations
      */
     public function resolve(
         mixed $value,
@@ -20,8 +20,8 @@ interface EnumPresentationResolverInterface
     ): ?EnumPresentation;
 
     /**
-     * @param class-string<\UnitEnum>                        $enumClass
-     * @param array<int|string, EnumPresentation>           $presentations
+     * @param class-string<\UnitEnum>             $enumClass
+     * @param array<int|string, EnumPresentation> $presentations
      *
      * @return array<string, string>
      */

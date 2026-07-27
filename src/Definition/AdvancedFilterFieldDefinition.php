@@ -6,9 +6,9 @@ namespace Zhortein\DatatableBundle\Definition;
 
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Enum\FilterType;
+use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 use Zhortein\DatatableBundle\Filter\Expression\ComparisonOperator;
 use Zhortein\DatatableBundle\Filter\Expression\OperatorCompatibility;
-use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 
 final readonly class AdvancedFilterFieldDefinition
 {
@@ -65,7 +65,6 @@ final readonly class AdvancedFilterFieldDefinition
         }
 
         $this->resolvedChoices = $choices;
-
     }
 
     public function getName(): string

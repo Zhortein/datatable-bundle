@@ -6,8 +6,8 @@ namespace Zhortein\DatatableBundle\Export;
 
 use Symfony\Component\HttpFoundation\Response;
 use Zhortein\DatatableBundle\Cell\CellContextFactory;
-use Zhortein\DatatableBundle\Contract\ExportWriterInterface;
 use Zhortein\DatatableBundle\Contract\EnumPresentationResolverInterface;
+use Zhortein\DatatableBundle\Contract\ExportWriterInterface;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;

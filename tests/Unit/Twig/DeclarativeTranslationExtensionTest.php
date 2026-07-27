@@ -7,8 +7,8 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Twig;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\Translator;
-use Zhortein\DatatableBundle\Twig\DeclarativeTranslationExtension;
 use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
+use Zhortein\DatatableBundle\Twig\DeclarativeTranslationExtension;
 
 final class DeclarativeTranslationExtensionTest extends TestCase
 {

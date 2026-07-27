@@ -10,8 +10,8 @@ use Zhortein\DatatableBundle\Enum\AggregateFunction;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Enum\JoinType;
-use Zhortein\DatatableBundle\Filter\Expression\ComparisonOperator;
 use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
+use Zhortein\DatatableBundle\Filter\Expression\ComparisonOperator;
 
 final class DatatableDefinition
 {
@@ -166,7 +166,7 @@ final class DatatableDefinition
     }
 
     /**
-     * @param class-string<\UnitEnum>|null         $enumClass
+     * @param class-string<\UnitEnum>|null        $enumClass
      * @param array<int|string, EnumPresentation> $enumPresentations
      */
     public function addColumn(
@@ -211,7 +211,7 @@ final class DatatableDefinition
     }
 
     /**
-     * @param class-string<\UnitEnum>|null         $enumClass
+     * @param class-string<\UnitEnum>|null        $enumClass
      * @param array<int|string, EnumPresentation> $enumPresentations
      */
     public function addComputedColumn(
@@ -257,9 +257,9 @@ final class DatatableDefinition
     }
 
     /**
-     * @param array<string, string> $choices
-     * @param array<string, mixed>  $options
-     * @param class-string<\UnitEnum>|null $enumClass
+     * @param array<string, string>               $choices
+     * @param array<string, mixed>                $options
+     * @param class-string<\UnitEnum>|null        $enumClass
      * @param array<int|string, EnumPresentation> $enumPresentations
      */
     public function addFilter(

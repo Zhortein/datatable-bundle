@@ -9,7 +9,7 @@ use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 final readonly class ColumnDefinition
 {
     /**
-     * @param class-string<\UnitEnum>|null         $enumClass
+     * @param class-string<\UnitEnum>|null        $enumClass
      * @param array<int|string, EnumPresentation> $enumPresentations
      */
     public function __construct(
@@ -34,7 +34,6 @@ final readonly class ColumnDefinition
         if (null !== $this->enumClass && !enum_exists($this->enumClass)) {
             throw new \InvalidArgumentException(sprintf('Class "%s" must be an enum.', $this->enumClass));
         }
-
     }
 
     public function getName(): string
