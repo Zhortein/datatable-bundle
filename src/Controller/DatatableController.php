@@ -7,6 +7,7 @@ namespace Zhortein\DatatableBundle\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Zhortein\DatatableBundle\Context\DatatableContextRequestResolver;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
 use Zhortein\DatatableBundle\Export\DatatableExportRequest;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
@@ -25,12 +26,14 @@ final readonly class DatatableController
         private DatatableRenderer $renderer,
         private ExportWriterRegistry $exportWriterRegistry,
         private DatatableSummaryRenderer $summaryRenderer,
+        private ?DatatableContextRequestResolver $contextRequestResolver = null,
     ) {
     }
 
     public function fragments(Request $request, string $name): JsonResponse
     {
         $definition = $this->definitionFactory->create($name);
+        $instance = $this->contextRequestResolver?->resolve($request, $definition) ?? $definition->getName();
         $datatableRequest = $this->requestFactory->createFromRequest($request, $definition);
         $provider = $this->providerRegistry->resolve($definition);
         $result = $provider->getData($definition, $datatableRequest);
@@ -41,6 +44,7 @@ final readonly class DatatableController
         $renderOptions['booleanDisplayMode'] = $request->query->get('booleanDisplayMode');
         $renderOptions['paginationSize'] = $request->query->get('paginationSize');
         $renderOptions['tableSmall'] = $request->query->getBoolean('tableSmall');
+        $renderOptions['instance'] = $instance;
 
         return new JsonResponse([
             'header' => $this->renderer->renderHeader($definition, $renderOptions),
@@ -58,6 +62,7 @@ final readonly class DatatableController
     public function export(Request $request, string $name, string $format = 'csv'): Response
     {
         $definition = $this->definitionFactory->create($name);
+        $this->contextRequestResolver?->resolve($request, $definition);
         $datatableRequest = $this->requestFactory->createFromRequest($request, $definition);
         $exportFormat = ExportFormat::fromString($format);
         $mode = $request->query->get('mode', 'current');

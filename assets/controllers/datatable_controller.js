@@ -36,6 +36,7 @@ export default class extends Controller {
 
     static values = {
         name: String,
+        instance: String,
         fragmentsUrl: String,
         exportUrl: String,
         page: { type: Number, default: 1 },

@@ -266,6 +266,27 @@ describe('datatable_controller export URL generation', () => {
         expect(url.searchParams.get('mode')).toBe('current');
     });
 
+    it('preserves signed context parameters in export URLs', async () => {
+        const assignSpy = mockWindowLocationAssign();
+
+        document.body.innerHTML = createDatatableHtml(
+            '',
+            '/_zhortein/datatable/users/export/csv?_zd_instance=french-table&_zd_context=signed-token',
+        );
+        application = startApplication();
+
+        const { controller } = await getController(application);
+        const link = document.querySelector('[data-zhortein--datatable-bundle--datatable-export-mode-param="current"]');
+
+        controller.export(createExportEvent(link, { exportMode: 'current', exportFormat: 'csv' }));
+
+        const url = getAssignedLocationUrl(assignSpy);
+
+        expect(url.searchParams.get('_zd_instance')).toBe('french-table');
+        expect(url.searchParams.get('_zd_context')).toBe('signed-token');
+        expect(url.searchParams.get('mode')).toBe('current');
+    });
+
     it('falls back to link href when export URL value is missing', async () => {
         const assignSpy = mockWindowLocationAssign();
 

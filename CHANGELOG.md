@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.3.0] - 2026-07-27
+
+### Added
+
+- Added signed, per-instance propagation of explicitly browser-safe datatable context across fragments, exports and opt-in Ajax actions.
+
 ## [1.2.0] - 2026-07-26
 
 ### Added

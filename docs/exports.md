@@ -118,8 +118,14 @@ The default is intentionally visibility-aware for backward compatibility and to 
 
 The export endpoint does not include a built-in authorization layer beyond the route protection. Host applications should protect the `zhortein_datatable_export` route according to their security requirements.
 
+Explicit browser-safe datatable context is signed and restored before the
+provider builds an export. A valid token prevents tampering but does not
+replace authorization or tenant-scope validation. See [explicit datatable
+context](context.md).
+
 ## Related documentation
 
 - [Doctrine provider](doctrine-provider.md)
+- [Explicit datatable context](context.md)
 - [UI/UX customization](ui-ux.md)
 - [Architecture](architecture/overview.md)

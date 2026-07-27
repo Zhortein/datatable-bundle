@@ -10,6 +10,7 @@ use Twig\Environment;
 use Zhortein\DatatableBundle\Action\ActionVisibilityCheckerInterface;
 use Zhortein\DatatableBundle\Action\ActionVisibilityContext;
 use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
+use Zhortein\DatatableBundle\Context\DatatableContextTransport;
 use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Definition\ActionDefinition;
 use Zhortein\DatatableBundle\Definition\BulkActionDefinition;
@@ -34,6 +35,7 @@ final readonly class DatatableRenderer
         private ?RowActionRouteParameterResolver $routeParameterResolver = null,
         private ?ActionVisibilityCheckerInterface $actionVisibilityChecker = null,
         private ?CsrfTokenManagerInterface $csrfTokenManager = null,
+        private ?DatatableContextTransport $contextTransport = null,
         private string $theme = 'bootstrap',
         private int $defaultPageSize = 25,
         private bool $searchEnabled = false,
@@ -47,25 +49,25 @@ final readonly class DatatableRenderer
      */
     public function render(DatatableDefinition $definition, array $options = []): string
     {
-        $options = $this->resolveOptions($options);
+        $options = $this->prepareContextOptions($definition, $this->resolveOptions($options));
 
         $options['filterLayout'] = $this->resolveFilterLayout($options)->value;
         $options['paginationSize'] = $this->resolvePaginationSize($options)->value;
         $filters = $options['filters'] ?? [];
         $visibleColumns = $this->getVisibleColumns($definition, $options);
 
-        $bulkActions = $this->normalizeBulkActions($definition);
+        $bulkActions = $this->normalizeBulkActions($definition, $options);
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/datatable.html.twig', $this->theme), array_merge([
             'definition' => $definition,
             'visibleColumns' => $visibleColumns,
             'columnClassNames' => $this->resolveColumnClassNames($visibleColumns),
             'rowActions' => $definition->getRowActions(),
-            'globalActions' => $this->normalizeGlobalActions($definition),
+            'globalActions' => $this->normalizeGlobalActions($definition, $options),
             'bulkActions' => $bulkActions,
             'hasRowActions' => [] !== $definition->getRowActions(),
             'hasBulkActions' => [] !== $bulkActions,
-            'htmlId' => $this->createHtmlId($definition),
+            'htmlId' => $this->createHtmlId($definition, $options),
             'options' => $options,
             'filters' => $filters,
             'rowActionDisplayMode' => $this->resolveRowActionDisplayMode($definition, $options)->value,
@@ -77,7 +79,7 @@ final readonly class DatatableRenderer
      */
     public function renderHeader(DatatableDefinition $definition, array $options = []): string
     {
-        $options = $this->resolveOptions($options);
+        $options = $this->prepareContextOptions($definition, $this->resolveOptions($options));
         $visibleColumns = $this->getVisibleColumns($definition, $options);
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_header.html.twig', $this->theme), array_merge([
@@ -86,7 +88,7 @@ final readonly class DatatableRenderer
             'columnClassNames' => $this->resolveColumnClassNames($visibleColumns),
             'hasRowActions' => [] !== $definition->getRowActions(),
             'hasBulkActions' => $this->hasBulkActions($definition),
-            'htmlId' => $this->createHtmlId($definition),
+            'htmlId' => $this->createHtmlId($definition, $options),
             'options' => $options,
             'filters' => $options['filters'] ?? [],
         ], $this->resolveCommonIcons()));
@@ -101,12 +103,12 @@ final readonly class DatatableRenderer
             return $this->renderEmptyBody($definition, $options);
         }
 
-        $options = $this->resolveOptions($options);
+        $options = $this->prepareContextOptions($definition, $this->resolveOptions($options));
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_body.html.twig', $this->theme), [
             'rows' => $this->normalizeRows($definition, $result, $options),
             'hasBulkActions' => $this->hasBulkActions($definition),
-            'htmlId' => $this->createHtmlId($definition),
+            'htmlId' => $this->createHtmlId($definition, $options),
             'rowActionDisplayMode' => $this->resolveRowActionDisplayMode($definition, $options)->value,
         ]);
     }
@@ -116,7 +118,7 @@ final readonly class DatatableRenderer
      */
     public function renderEmptyBody(DatatableDefinition $definition, array $options = []): string
     {
-        $options = $this->resolveOptions($options);
+        $options = $this->prepareContextOptions($definition, $this->resolveOptions($options));
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_empty.html.twig', $this->theme), [
             'visibleColumns' => $this->getVisibleColumns($definition, $options),
@@ -130,11 +132,11 @@ final readonly class DatatableRenderer
      */
     public function renderPagination(DatatableDefinition $definition, DatatableResult $result, array $options = []): string
     {
-        $options = $this->resolveOptions($options);
+        $options = $this->prepareContextOptions($definition, $this->resolveOptions($options));
         $options['paginationSize'] = $this->resolvePaginationSize($options)->value;
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_pagination.html.twig', $this->theme), [
-            'htmlId' => $this->createHtmlId($definition),
+            'htmlId' => $this->createHtmlId($definition, $options),
             'result' => $result,
             'options' => $options,
         ]);
@@ -145,11 +147,11 @@ final readonly class DatatableRenderer
      */
     public function renderPaginationPlaceholder(DatatableDefinition $definition, array $options = []): string
     {
-        $options = $this->resolveOptions($options);
+        $options = $this->prepareContextOptions($definition, $this->resolveOptions($options));
         $options['paginationSize'] = $this->resolvePaginationSize($options)->value;
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_pagination.html.twig', $this->theme), [
-            'htmlId' => $this->createHtmlId($definition),
+            'htmlId' => $this->createHtmlId($definition, $options),
             'options' => $options,
         ]);
     }
@@ -170,6 +172,132 @@ final readonly class DatatableRenderer
             ],
             $options,
         );
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return array<string, mixed>
+     */
+    private function prepareContextOptions(DatatableDefinition $definition, array $options): array
+    {
+        if (array_key_exists('context', $options)) {
+            $renderContext = $options['context'];
+
+            if (!is_array($renderContext)) {
+                throw new \InvalidArgumentException('The datatable render option "context" must be an array of browser-safe values.');
+            }
+
+            foreach (array_keys($renderContext) as $key) {
+                if (!is_string($key)) {
+                    throw new \InvalidArgumentException('The datatable render option "context" must use string keys.');
+                }
+            }
+
+            /** @var array<string, mixed> $renderContext */
+            $definition->setContext($definition->getContext()->withBrowserValues($renderContext));
+            unset($options['context']);
+        }
+
+        $instance = $options['instance'] ?? $definition->getName();
+
+        if (!is_string($instance)) {
+            throw new \InvalidArgumentException('The datatable render option "instance" must be a string.');
+        }
+
+        $instance = null !== $this->contextTransport
+            ? $this->contextTransport->normalizeInstance($instance)
+            : trim($instance);
+
+        if ('' === $instance) {
+            throw new \InvalidArgumentException('The datatable render option "instance" must not be empty.');
+        }
+
+        $options['instance'] = $instance;
+
+        if (null === $this->contextTransport) {
+            return $options;
+        }
+
+        $token = $this->contextTransport->createToken(
+            $definition->getName(),
+            $instance,
+            $definition->getContext(),
+        );
+
+        if (null === $token) {
+            return $options;
+        }
+
+        $options['contextToken'] = $token;
+        $options['fragmentsUrl'] = $this->contextTransport->appendToUrl(
+            $this->resolveStringOption(
+                $options,
+                'fragmentsUrl',
+                sprintf('/_zhortein/datatable/%s/fragments', $definition->getName()),
+            ),
+            $token,
+            $instance,
+        );
+        $options['exportUrl'] = $this->contextTransport->appendToUrl(
+            $this->resolveStringOption(
+                $options,
+                'exportUrl',
+                sprintf('/_zhortein/datatable/%s/export/csv', $definition->getName()),
+            ),
+            $token,
+            $instance,
+        );
+
+        $exportUrls = $options['exportUrls'] ?? [];
+
+        if (!is_array($exportUrls)) {
+            throw new \InvalidArgumentException('The datatable render option "exportUrls" must be an array.');
+        }
+
+        $exportFormats = $options['exportFormats'] ?? ['csv'];
+
+        if (!is_array($exportFormats)) {
+            throw new \InvalidArgumentException('The datatable render option "exportFormats" must be an array.');
+        }
+
+        foreach ($exportFormats as $format) {
+            if (!is_string($format) || !in_array($format, ['csv', 'xlsx'], true)) {
+                continue;
+            }
+
+            $formatUrl = $exportUrls[$format] ?? ('csv' === $format
+                ? $options['exportUrl']
+                : sprintf('/_zhortein/datatable/%s/export/%s', $definition->getName(), $format));
+
+            if (!is_string($formatUrl)) {
+                throw new \InvalidArgumentException(sprintf('The datatable export URL for format "%s" must be a string.', $format));
+            }
+
+            $exportUrls[$format] = $this->contextTransport->appendToUrl(
+                $formatUrl,
+                $token,
+                $instance,
+            );
+        }
+
+        $options['exportUrls'] = $exportUrls;
+
+        return $options;
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function resolveStringOption(array $options, string $name, string $default): string
+    {
+        $value = $options[$name] ?? $default;
+
+        if (!is_string($value)) {
+            throw new \InvalidArgumentException(sprintf('The datatable render option "%s" must be a string.', $name));
+        }
+
+        return $value;
     }
 
     /**
@@ -227,9 +355,11 @@ final readonly class DatatableRenderer
     }
 
     /**
+     * @param array<string, mixed> $options
+     *
      * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null}>
      */
-    private function normalizeGlobalActions(DatatableDefinition $definition): array
+    private function normalizeGlobalActions(DatatableDefinition $definition, array $options): array
     {
         if (null === $this->urlGenerator) {
             return [];
@@ -251,6 +381,7 @@ final readonly class DatatableRenderer
                         : $this->normalizeLegacyStaticRouteParameters($action),
                 ),
                 translationDomain: $definition->getTranslationDomain(),
+                options: $options,
             );
         }
 
@@ -258,9 +389,11 @@ final readonly class DatatableRenderer
     }
 
     /**
+     * @param array<string, mixed> $options
+     *
      * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null}>
      */
-    private function normalizeBulkActions(DatatableDefinition $definition): array
+    private function normalizeBulkActions(DatatableDefinition $definition, array $options): array
     {
         if (null === $this->urlGenerator) {
             return [];
@@ -282,6 +415,7 @@ final readonly class DatatableRenderer
                         : $this->normalizeLegacyStaticRouteParameters($action),
                 ),
                 translationDomain: $definition->getTranslationDomain(),
+                options: $options,
             );
         }
 
@@ -349,7 +483,7 @@ final readonly class DatatableRenderer
 
             $normalizedRow = [
                 'cells' => $cells,
-                'actions' => $this->normalizeRowActions($definition, $row),
+                'actions' => $this->normalizeRowActions($definition, $row, $options),
                 'identifier' => $needsRowIdentifier ? $this->resolveRowIdentifier($row, $definition) : null,
             ];
 
@@ -396,10 +530,11 @@ final readonly class DatatableRenderer
 
     /**
      * @param array<string, mixed> $row
+     * @param array<string, mixed> $options
      *
      * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null}>
      */
-    private function normalizeRowActions(DatatableDefinition $definition, array $row): array
+    private function normalizeRowActions(DatatableDefinition $definition, array $row, array $options): array
     {
         if (null === $this->urlGenerator || null === $this->routeParameterResolver) {
             return [];
@@ -419,6 +554,7 @@ final readonly class DatatableRenderer
                     $this->routeParameterResolver->resolve($action, $row, $definition->getContext()),
                 ),
                 translationDomain: $definition->getTranslationDomain(),
+                options: $options,
             );
         }
 
@@ -444,15 +580,31 @@ final readonly class DatatableRenderer
     }
 
     /**
+     * @param array<string, mixed> $options
+     *
      * @return array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null}
      */
     private function normalizeAction(
         ActionDefinition|BulkActionDefinition $action,
         string $url,
         ?string $translationDomain,
+        array $options,
     ): array {
         $httpMethod = strtoupper($action->getHttpMethod());
         $ajax = $action->getAjaxOptions();
+
+        if (
+            null !== $ajax
+            && null !== $this->contextTransport
+            && is_string($options['contextToken'] ?? null)
+            && is_string($options['instance'] ?? null)
+        ) {
+            $url = $this->contextTransport->appendToUrl(
+                $url,
+                $options['contextToken'],
+                $options['instance'],
+            );
+        }
 
         return [
             'name' => $action->getName(),
@@ -628,9 +780,18 @@ final readonly class DatatableRenderer
         return array_values(array_unique($candidateKeys));
     }
 
-    private function createHtmlId(DatatableDefinition $definition): string
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function createHtmlId(DatatableDefinition $definition, array $options): string
     {
-        $name = preg_replace('/[^a-zA-Z0-9_-]+/', '-', $definition->getName()) ?? $definition->getName();
+        $instance = is_string($options['instance'] ?? null)
+            ? $options['instance']
+            : $definition->getName();
+        $identifier = $definition->getName() === $instance
+            ? $definition->getName()
+            : $definition->getName().'-'.$instance;
+        $name = preg_replace('/[^a-zA-Z0-9_-]+/', '-', $identifier) ?? $identifier;
 
         return 'zhortein-datatable-'.strtolower(trim($name, '-'));
     }

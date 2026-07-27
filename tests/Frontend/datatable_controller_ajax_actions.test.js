@@ -294,6 +294,10 @@ describe('datatable_controller Ajax actions', () => {
             }));
         vi.stubGlobal('fetch', fetchMock);
         document.body.innerHTML = createDatatableHtml();
+        document.querySelector('#zhortein-datatable-users').setAttribute(
+            `data-${CONTROLLER_IDENTIFIER}-fragments-url-value`,
+            '/_zhortein/datatable/users/fragments?_zd_instance=french-table&_zd_context=signed-token',
+        );
         document.querySelector('#row-ajax-action')
             .setAttribute(`data-${CONTROLLER_IDENTIFIER}-ajax-success-strategy`, 'refresh_table');
         application = startApplication();
@@ -314,6 +318,8 @@ describe('datatable_controller Ajax actions', () => {
         expect(fragmentsUrl.searchParams.get('sortDirection')).toBe('desc');
         expect(fragmentsUrl.searchParams.get('filters[status]')).toBe('active');
         expect(fragmentsUrl.searchParams.getAll('visibleColumns[]')).toEqual(['email']);
+        expect(fragmentsUrl.searchParams.get('_zd_instance')).toBe('french-table');
+        expect(fragmentsUrl.searchParams.get('_zd_context')).toBe('signed-token');
         expect(document.querySelector(`[data-${CONTROLLER_IDENTIFIER}-target="body"]`).textContent)
             .toContain('carol@example.test');
     });

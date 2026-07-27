@@ -7,7 +7,8 @@ namespace Zhortein\DatatableBundle\Context;
 /**
  * Explicit server-side values that a datatable definition may use.
  *
- * Context values are never serialized to the browser automatically.
+ * Only explicitly allowlisted scalar values may be transported through the
+ * browser. Every other value remains server-side.
  */
 final readonly class DatatableContext
 {
@@ -17,21 +18,30 @@ final readonly class DatatableContext
     private array $values;
 
     /**
-     * @param array<string, mixed> $values
+     * @var list<string>
      */
-    public function __construct(array $values = [])
+    private array $browserSafeKeys;
+
+    /**
+     * @param array<string, mixed> $values
+     * @param list<string>         $browserSafeKeys
+     */
+    public function __construct(array $values = [], array $browserSafeKeys = [])
     {
         $normalizedValues = [];
 
         foreach ($values as $name => $value) {
-            if ('' === trim($name)) {
-                throw new \InvalidArgumentException('A datatable context key must be a non-empty string.');
-            }
+            $normalizedValues[$this->normalizeKey($name)] = $value;
+        }
 
-            $normalizedValues[trim($name)] = $value;
+        $normalizedBrowserSafeKeys = [];
+
+        foreach ($browserSafeKeys as $name) {
+            $normalizedBrowserSafeKeys[] = $this->normalizeKey($name);
         }
 
         $this->values = $normalizedValues;
+        $this->browserSafeKeys = array_values(array_unique($normalizedBrowserSafeKeys));
     }
 
     public function has(string $name): bool
@@ -54,8 +64,69 @@ final readonly class DatatableContext
         return $this->values;
     }
 
+    /**
+     * @return list<string>
+     */
+    public function getBrowserSafeKeys(): array
+    {
+        return $this->browserSafeKeys;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getBrowserSafeValues(): array
+    {
+        $values = [];
+
+        foreach ($this->browserSafeKeys as $name) {
+            if (array_key_exists($name, $this->values)) {
+                $values[$name] = $this->values[$name];
+            }
+        }
+
+        return $values;
+    }
+
     public function with(string $name, mixed $value): self
     {
-        return new self(array_replace($this->values, [$name => $value]));
+        return new self(
+            array_replace($this->values, [$this->normalizeKey($name) => $value]),
+            $this->browserSafeKeys,
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    public function withBrowserValues(array $values): self
+    {
+        $normalizedValues = [];
+
+        foreach ($values as $name => $value) {
+            $name = $this->normalizeKey($name);
+
+            if (!in_array($name, $this->browserSafeKeys, true)) {
+                throw new \InvalidArgumentException(sprintf('The datatable context key "%s" is not allowlisted for browser propagation.', $name));
+            }
+
+            $normalizedValues[$name] = $value;
+        }
+
+        return new self(
+            array_replace($this->values, $normalizedValues),
+            $this->browserSafeKeys,
+        );
+    }
+
+    private function normalizeKey(string $name): string
+    {
+        $name = trim($name);
+
+        if ('' === $name) {
+            throw new \InvalidArgumentException('A datatable context key must be a non-empty string.');
+        }
+
+        return $name;
     }
 }
