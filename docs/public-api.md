@@ -109,6 +109,13 @@ computed values](cell-context.md). Resolver services are shared by Twig and
 export writers. Export headers follow the definition translation domain and
 current Symfony locale, matching rendered column labels.
 
+Doctrine-backed definitions are enriched from ORM metadata before they reach
+rendering, requests or exports. Inference covers the main entity and explicitly
+declared mapped, chained and custom join aliases. Explicit column types remain
+authoritative; computed, unknown and undeclared fields remain untouched. This
+runtime behavior is part of the built-in `doctrine` provider contract, while
+the concrete metadata and factory services remain internal.
+
 The advanced-filter expression model is public for custom providers:
 
 - `AdvancedFilterExpression`;

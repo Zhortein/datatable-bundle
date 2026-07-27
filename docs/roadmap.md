@@ -1293,6 +1293,36 @@ Applications can expose deterministic multi-column business ordering without los
 
 ---
 
+## 1.8.1 - Corrective maintenance ✅
+
+Delivered:
+
+- route-generated default endpoints for fragments, exports and named views;
+- localized and ordinary route import compatibility;
+- complete localized parent-to-child datatable request coverage.
+
+---
+
+## 1.9 - Runtime Doctrine metadata enrichment ✅
+
+Delivered:
+
+- Doctrine type enrichment in the normal definition-factory flow;
+- provider-aware activation without making Doctrine mandatory;
+- root-entity field inference before rendering, requests and exports;
+- mapped, chained and custom joined-field inference;
+- backed-enum metadata support across Doctrine ORM 3 and 4;
+- explicit type precedence and safe handling of computed or unknown fields;
+- functional coverage through the real Symfony service flow.
+
+Main outcome:
+
+```text
+Doctrine datatables consistently receive their declared field types at runtime, including across explicit joins, without reviving implicit association traversal.
+```
+
+---
+
 ## Later ideas 🔭
 
 Potential future work:

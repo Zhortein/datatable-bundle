@@ -5,14 +5,23 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Doctrine;
 
 use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Persistence\ManagerRegistry;
+use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 
 final readonly class DoctrineFieldTypeGuesser
 {
+    private DoctrineFieldReferenceResolver $fieldReferenceResolver;
+    private DoctrineFieldMetadataResolver $fieldMetadataResolver;
+
     public function __construct(
         private ManagerRegistry $managerRegistry,
+        ?DoctrineFieldReferenceResolver $fieldReferenceResolver = null,
+        ?DoctrineFieldMetadataResolver $fieldMetadataResolver = null,
     ) {
+        $this->fieldReferenceResolver = $fieldReferenceResolver ?? new DoctrineFieldReferenceResolver();
+        $this->fieldMetadataResolver = $fieldMetadataResolver ?? new DoctrineFieldMetadataResolver();
     }
 
     /**
@@ -32,14 +41,47 @@ final readonly class DoctrineFieldTypeGuesser
             throw new \InvalidArgumentException(sprintf('Doctrine metadata for class "%s" must be an ORM class metadata instance.', $entityClass));
         }
 
+        return $this->guessFromMetadata($metadata, $fieldName);
+    }
+
+    public function guessForDefinition(DatatableDefinition $definition, string $fieldName): DoctrineFieldType
+    {
+        $entityClass = $definition->getEntityClass();
+
+        if (null === $entityClass) {
+            throw new \InvalidArgumentException(sprintf('Datatable "%s" must declare an entity class before Doctrine field types can be guessed.', $definition->getName()));
+        }
+
+        $manager = $this->managerRegistry->getManagerForClass($entityClass);
+
+        if (!$manager instanceof EntityManagerInterface) {
+            throw new \InvalidArgumentException(sprintf('No Doctrine ORM entity manager found for class "%s".', $entityClass));
+        }
+
+        $reference = $this->fieldReferenceResolver->normalize($fieldName, $definition);
+        $metadata = $this->fieldMetadataResolver->resolveMetadataForAlias(
+            entityManager: $manager,
+            mainEntityClass: $entityClass,
+            definition: $definition,
+            alias: $reference->getAlias(),
+        );
+
+        return $this->guessFromMetadata($metadata, $reference->getField());
+    }
+
+    /**
+     * @param ClassMetadata<object> $metadata
+     */
+    private function guessFromMetadata(ClassMetadata $metadata, string $fieldName): DoctrineFieldType
+    {
         if (!$metadata->hasField($fieldName)) {
-            throw new \InvalidArgumentException(sprintf('Field "%s" does not exist on Doctrine entity "%s".', $fieldName, $entityClass));
+            throw new \InvalidArgumentException(sprintf('Field "%s" does not exist on Doctrine entity "%s".', $fieldName, $metadata->getName()));
         }
 
         $doctrineType = $metadata->getTypeOfField($fieldName);
 
         if (null === $doctrineType) {
-            throw new \InvalidArgumentException(sprintf('Unable to guess Doctrine type for field "%s" on entity "%s".', $fieldName, $entityClass));
+            throw new \InvalidArgumentException(sprintf('Unable to guess Doctrine type for field "%s" on entity "%s".', $fieldName, $metadata->getName()));
         }
 
         $enumClass = $this->guessEnumClass($metadata->getFieldMapping($fieldName));
