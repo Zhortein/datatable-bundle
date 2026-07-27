@@ -22,7 +22,7 @@ The primary application-facing API is stable:
 - `Definition\DatatableDefinition`;
 - the `zhortein_datatable()` Twig function.
 
-The builder methods documented in the feature guides are part of the contract, including regular and computed columns, simple and advanced filters, joins, aggregate columns, row/global/bulk actions, permanent filters and options.
+The builder methods documented in the feature guides are part of the contract, including regular and computed columns, simple and advanced filters, joins, aggregate columns, row/global/bulk actions, child datatable declarations, permanent filters and options.
 
 The definition value objects returned by `DatatableDefinition` are also public:
 
@@ -31,6 +31,8 @@ The definition value objects returned by `DatatableDefinition` are also public:
 - `AdvancedFilterFieldDefinition`;
 - `AggregateColumnDefinition`;
 - `BulkActionDefinition`;
+- `ChildContextValue`;
+- `ChildDatatableDefinition`;
 - `ColumnDefinition`;
 - `CustomJoinDefinition`;
 - `FilterDefinition`;
@@ -120,6 +122,7 @@ Enums accepted by documented definition methods and runtime objects are public:
 - `AggregateFunction`;
 - `BooleanDisplayMode`;
 - `CellType`;
+- `ChildContextSource`;
 - `ExportFormat`;
 - `ExportMode`;
 - `FilterLayout`;

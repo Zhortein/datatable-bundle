@@ -7,6 +7,7 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Definition;
 use PHPUnit\Framework\TestCase;
 use Zhortein\DatatableBundle\Context\DatatableContext;
 use Zhortein\DatatableBundle\Definition\AjaxActionOptions;
+use Zhortein\DatatableBundle\Definition\ChildContextValue;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\AjaxActionSuccessStrategy;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
@@ -52,6 +53,35 @@ final class DatatableDefinitionTest extends TestCase
         $definition->setContext($context);
 
         self::assertSame($context, $definition->getContext());
+    }
+
+    public function test_it_stores_an_explicit_child_datatable_definition(): void
+    {
+        $definition = new DatatableDefinition('orders');
+
+        self::assertFalse($definition->hasChildDatatable());
+        self::assertNull($definition->getChildDatatable());
+
+        $definition->setChildDatatable(
+            name: 'order-lines',
+            context: [
+                'orderId' => ChildContextValue::row('id'),
+                'tenant' => ChildContextValue::context('tenant'),
+            ],
+            expandLabel: 'Show order lines',
+            collapseLabel: 'Hide order lines',
+            maxDepth: 2,
+        );
+
+        $child = $definition->getChildDatatable();
+
+        self::assertTrue($definition->hasChildDatatable());
+        self::assertNotNull($child);
+        self::assertSame('order-lines', $child->getName());
+        self::assertSame(['orderId', 'tenant'], array_keys($child->getContext()));
+        self::assertSame('Show order lines', $child->getExpandLabel());
+        self::assertSame('Hide order lines', $child->getCollapseLabel());
+        self::assertSame(2, $child->getMaxDepth());
     }
 
     public function test_it_adds_a_non_queryable_computed_column(): void
