@@ -110,7 +110,7 @@ final class DatatableRoutesFunctionalTest extends FunctionalTestCase
         );
         self::assertSame(
             '/_zhortein/datatable/{name}/views/{viewIdentifier}',
-            $routes->get('zhortein_datatable_views_load')?->getPath(),
+            $routes->get('zhortein_datatable_views_load')->getPath(),
         );
     }
 

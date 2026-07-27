@@ -286,7 +286,7 @@ final class SavedViewControllerTestDatatable implements DatatableInterface
 
 final readonly class SavedViewOwnerResolverFixture implements DatatableViewOwnerResolverInterface
 {
-    public function resolveOwnerIdentifier(Request $request): ?string
+    public function resolveOwnerIdentifier(Request $request): string
     {
         return 'opaque-owner-identifier';
     }

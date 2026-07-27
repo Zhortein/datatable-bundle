@@ -234,8 +234,7 @@ final readonly class DatatableViewController
         $content = $request->getContent();
 
         if (
-            !is_string($content)
-            || '' === $content
+            '' === $content
             || self::MAX_REQUEST_PAYLOAD_LENGTH < strlen($content)
         ) {
             throw new \InvalidArgumentException('The datatable view request body has an invalid length.');

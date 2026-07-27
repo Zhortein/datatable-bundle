@@ -75,9 +75,10 @@ final class DatatableViewManagerTest extends TestCase
             self::fail('A denied operation must throw.');
         } catch (DatatableViewAccessDeniedException) {
             self::assertSame(DatatableViewOperation::Load, $checker->operation);
-            self::assertSame($scope, $checker->context?->getScope());
-            self::assertSame('opaque-owner', $checker->context?->getOwnerIdentifier());
-            self::assertSame($view, $checker->context?->getView());
+            self::assertNotNull($checker->context);
+            self::assertSame($scope, $checker->context->getScope());
+            self::assertSame('opaque-owner', $checker->context->getOwnerIdentifier());
+            self::assertSame($view, $checker->context->getView());
         }
     }
 }
