@@ -53,10 +53,10 @@ See [explicit context](context.md) for tenant and business-scope propagation.
 
 ## Precedence
 
-State is resolved in this order:
+When named saved views are enabled, state is resolved in this order:
 
 ```text
-URL state > runtime Twig options > datatable preferences > bundle defaults
+URL state > named default view > runtime Twig options > datatable preferences > bundle defaults
 ```
 
 Twig options and `DatatablePreferenceProviderInterface` provide initial values.
@@ -84,6 +84,8 @@ standard browser History API is the fallback when Turbo is absent.
 Returning to a URL without the table parameter restores the initial Twig and
 preference defaults. Invalid JSON, unsupported versions and invalid typed
 values are ignored safely.
+
+See [named saved views](saved-views.md) for the opt-in default-view behavior.
 
 ## Fragments and exports
 

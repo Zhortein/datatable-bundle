@@ -195,6 +195,17 @@ Covered behavior:
 - column visibility refresh is debounced;
 - header, body and summary fragments update after refresh.
 
+### Named saved views
+
+Covered behavior:
+
+- a named default is restored before the initial fragments request;
+- a valid namespaced URL remains authoritative over that default;
+- selected views restore search, filters, sorting, pagination and columns;
+- create/update/rename/default/delete requests carry CSRF and opaque revisions;
+- stale revisions surface a conflict without replacing current state;
+- two table instances keep separate named-view endpoints and scopes.
+
 ### Export URL generation
 
 Covered behavior:

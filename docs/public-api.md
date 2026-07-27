@@ -58,7 +58,10 @@ Applications may implement or decorate these contracts:
 - `Contract\IconResolverInterface`;
 - `DateTime\DateTimeFormatterInterface`;
 - `Action\ActionVisibilityCheckerInterface`;
-- `Preference\DatatablePreferenceProviderInterface`.
+- `Preference\DatatablePreferenceProviderInterface`;
+- `Contract\DatatableViewProviderInterface`;
+- `Contract\DatatableViewOwnerResolverInterface`;
+- `Contract\DatatableViewAuthorizationCheckerInterface`.
 
 Objects appearing in those signatures are part of the supported API:
 
@@ -66,13 +69,22 @@ Objects appearing in those signatures are part of the supported API:
 - `Export\DatatableExportRequest`;
 - `Preference\DatatablePreference`;
 - `Request\DatatableRequest`;
-- `Result\DatatableResult`.
+- `Result\DatatableResult`;
+- `View\DatatableView`;
+- `View\DatatableViewMetadata`;
+- `View\DatatableViewState`;
+- `View\DatatableViewScope`;
+- `View\DatatableViewAuthorizationContext`.
 
 The canonical URL and future saved-view state model is public:
 
 - `State\DatatableState`;
 - `State\DatatableStateUrlSerializer`;
 - URL state payload version `1`.
+
+Named views reuse this state model. Their provider, opaque ownership,
+authorization, scope, revision and JSON behavior are documented in
+[named saved views](saved-views.md).
 
 The advanced-filter expression model is public for custom providers:
 
@@ -104,7 +116,8 @@ Enums accepted by documented definition methods and runtime objects are public:
 - `JoinType`;
 - `PaginationSize`;
 - `RouteParameterSource`;
-- `SortDirection`.
+- `SortDirection`;
+- `DatatableViewOperation`.
 
 Exceptions under `Zhortein\DatatableBundle\Exception` may be caught by applications. The base exceptions `DatatableException`, `DataProviderException` and `ExportException`, together with their current specialized subclasses, are covered by the 1.x compatibility policy.
 
@@ -118,12 +131,14 @@ The following names are stable in 1.x:
 | Writers | `csv`, `xlsx` |
 | Service tags | `zhortein_datatable.datatable`, `zhortein_datatable.data_provider`, `zhortein_datatable.export_writer` |
 | Routes | `zhortein_datatable_fragments`, `zhortein_datatable_export` |
+| Named-view routes | `zhortein_datatable_views_list`, `zhortein_datatable_views_create`, `zhortein_datatable_views_load`, `zhortein_datatable_views_mutate`, `zhortein_datatable_views_delete` |
 | Twig | `zhortein_datatable()`, `zhortein_datatable_translate()` |
 | Stimulus | `zhortein--datatable-bundle--datatable` |
 | Ajax action events | `zhortein-datatable:action:before`, `zhortein-datatable:action:success`, `zhortein-datatable:action:error`, `zhortein-datatable:action:complete` |
 | State events | `zhortein-datatable:state:change`, `zhortein-datatable:state:restore` |
 | Ajax action response | version `1` |
 | URL state | version `1`, `_zd_state[...]` namespace |
+| Named views | JSON version `1`, `zhortein-datatable:view:*` events |
 | AssetMapper | `@zhortein/datatable-bundle` |
 | Configuration root | `zhortein_datatable` |
 

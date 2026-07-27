@@ -469,7 +469,7 @@ Current limitations:
 - no deep joins;
 - no collection joins;
 - no multi-column sorting;
-- no saved filter presets;
+- named saved views require a host storage, owner resolver and authorization checker;
 - no persisted column preferences;
 - no built-in action controllers;
 - no built-in voters;

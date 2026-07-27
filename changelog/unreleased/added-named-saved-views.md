@@ -1,0 +1,1 @@
+- Added opt-in named datatable views with canonical state reuse, collision-free scopes, replaceable ownership/authorization/storage contracts, optimistic concurrency, CSRF-protected JSON routes and Bootstrap/Stimulus controls.

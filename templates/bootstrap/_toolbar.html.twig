@@ -11,7 +11,8 @@
 {% set search_enabled = options.search is defined and options.search %}
 {% set filter_area_visible = definition.filters is not empty %}
 {% set search_builder_enabled = options.searchBuilder is defined and options.searchBuilder %}
-{% set controls_visible = export_enabled or search_builder_enabled %}
+{% set saved_views_enabled = options.savedViews is defined and options.savedViews %}
+{% set controls_visible = export_enabled or search_builder_enabled or saved_views_enabled %}
 
 {% if not controls_visible and not is_split_layout %}
     {% set controls_visible = (column_visibility_enabled and definition.columns is not empty) or page_size_selector_enabled %}
@@ -68,6 +69,12 @@
     </div>
 
     <div class="zhortein-datatable__controls d-flex flex-wrap align-items-center gap-2{% if not controls_visible %} d-none{% endif %}">
+        {% if saved_views_enabled %}
+            {% include '@ZhorteinDatatable/bootstrap/_saved_views.html.twig' with {
+                htmlId: htmlId
+            } only %}
+        {% endif %}
+
         {% if not is_split_layout and column_visibility_enabled %}
             {% include '@ZhorteinDatatable/bootstrap/_column_visibility.html.twig' with {
                 definition: definition,

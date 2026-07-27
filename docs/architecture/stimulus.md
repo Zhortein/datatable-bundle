@@ -21,6 +21,7 @@ The `datatable_controller.js` is responsible for:
     - **Lifecycle events**: Dispatching cancellable before, success, error and complete events without requiring a notification library.
 - **Exports**: Building the export URL based on the current table state (filters, search, sorting).
 - **History**: Restoring namespaced state on connect and `popstate`, while remaining coherent with Turbo page caching.
+- **Named views**: Loading and mutating opt-in named views through the versioned JSON contract without owning persistence or authorization.
 
 ## Stimulus Targets and Values
 
@@ -43,6 +44,7 @@ And values for synchronization:
 - `pageSizeValue`: Current items per page.
 - `sortFieldValue`: Current sort column.
 - `sortDirectionValue`: Current sort direction.
+- `savedViewsUrlValue`: Optional named-view endpoint with its server-generated scope.
 
 ## Interaction Model
 
@@ -65,3 +67,6 @@ Designed for **AssetMapper** and **Symfony UX Stimulus**. The bundle ships a van
 
 See [URL state and browser history](../url-state.md) for precedence, events,
 payload versioning and privacy boundaries.
+
+See [named saved views](../saved-views.md) for the opt-in endpoint, ownership,
+authorization and optimistic-concurrency contracts.

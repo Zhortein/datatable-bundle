@@ -306,6 +306,11 @@ Current options:
 | `instance` | string | Identifies one occurrence for HTML IDs, signed context and namespaced URL state |
 | `fragmentsUrl` | string | Overrides the default Ajax fragments URL |
 | `booleanDisplayMode` | string | Defines how boolean values are rendered (`badge`, `icon`, `switch`, `text`) |
+| `savedViews` | boolean | Enables the opt-in named-view controls |
+| `savedViewsUrl` | string | Overrides the named-view JSON endpoint |
+| `savedViewsScope` | string | Defines an application namespace such as a route name |
+| `savedViewsLocale` | string | Defines the named-view locale scope |
+| `savedViewsIncludePage` | boolean | Explicitly persists the current page instead of resetting it to 1 |
 
 ## `booleanDisplayMode`
 
@@ -328,8 +333,9 @@ Example:
 ```
 
 Runtime options take precedence over global configuration and application
-preferences. Valid [URL state](url-state.md) takes precedence over runtime
-options for shareable state fields.
+preferences. An enabled [named default view](saved-views.md) takes precedence
+over those initial values. Valid [URL state](url-state.md) takes precedence over
+all other sources for shareable state fields.
 
 ## Boolean column negation
 

@@ -1,0 +1,80 @@
+<div class="zhortein-datatable__saved-views d-flex flex-wrap align-items-center gap-2">
+    <label class="visually-hidden" for="{{ htmlId }}_saved_view">
+        {{ 'zhortein_datatable.saved_views.label'|trans({}, 'zhortein_datatable') }}
+    </label>
+    <select
+        id="{{ htmlId }}_saved_view"
+        class="form-select form-select-sm w-auto"
+        aria-label="{{ 'zhortein_datatable.saved_views.label'|trans({}, 'zhortein_datatable') }}"
+        data-zhortein--datatable-bundle--datatable-target="savedViewSelect"
+        data-action="change->zhortein--datatable-bundle--datatable#loadSavedView"
+    >
+        <option value="">{{ 'zhortein_datatable.saved_views.select'|trans({}, 'zhortein_datatable') }}</option>
+    </select>
+
+    <label class="visually-hidden" for="{{ htmlId }}_saved_view_name">
+        {{ 'zhortein_datatable.saved_views.name'|trans({}, 'zhortein_datatable') }}
+    </label>
+    <input
+        id="{{ htmlId }}_saved_view_name"
+        type="text"
+        maxlength="120"
+        class="form-control form-control-sm w-auto"
+        placeholder="{{ 'zhortein_datatable.saved_views.name_placeholder'|trans({}, 'zhortein_datatable') }}"
+        data-zhortein--datatable-bundle--datatable-target="savedViewName"
+    >
+
+    <button
+        type="button"
+        class="btn btn-sm btn-outline-primary"
+        data-action="zhortein--datatable-bundle--datatable#createSavedView"
+    >
+        {{ 'zhortein_datatable.saved_views.create'|trans({}, 'zhortein_datatable') }}
+    </button>
+
+    <div class="btn-group btn-group-sm" role="group">
+        <button
+            type="button"
+            class="btn btn-outline-secondary"
+            disabled
+            data-zhortein--datatable-bundle--datatable-target="savedViewAction"
+            data-action="zhortein--datatable-bundle--datatable#updateSavedView"
+        >
+            {{ 'zhortein_datatable.saved_views.update'|trans({}, 'zhortein_datatable') }}
+        </button>
+        <button
+            type="button"
+            class="btn btn-outline-secondary"
+            disabled
+            data-zhortein--datatable-bundle--datatable-target="savedViewAction"
+            data-action="zhortein--datatable-bundle--datatable#renameSavedView"
+        >
+            {{ 'zhortein_datatable.saved_views.rename'|trans({}, 'zhortein_datatable') }}
+        </button>
+        <button
+            type="button"
+            class="btn btn-outline-secondary"
+            disabled
+            data-zhortein--datatable-bundle--datatable-target="savedViewAction"
+            data-action="zhortein--datatable-bundle--datatable#setDefaultSavedView"
+        >
+            {{ 'zhortein_datatable.saved_views.make_default'|trans({}, 'zhortein_datatable') }}
+        </button>
+        <button
+            type="button"
+            class="btn btn-outline-danger"
+            disabled
+            data-zhortein--datatable-bundle--datatable-target="savedViewAction"
+            data-action="zhortein--datatable-bundle--datatable#deleteSavedView"
+        >
+            {{ 'zhortein_datatable.saved_views.delete'|trans({}, 'zhortein_datatable') }}
+        </button>
+    </div>
+
+    <span
+        class="small text-body-secondary"
+        role="status"
+        aria-live="polite"
+        data-zhortein--datatable-bundle--datatable-target="savedViewStatus"
+    ></span>
+</div>
