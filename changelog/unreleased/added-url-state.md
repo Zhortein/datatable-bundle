@@ -1,1 +1,0 @@
-- Added versioned, per-instance URL state with browser history and Turbo restoration for search, filters, advanced expressions, sorting, pagination, page size and column visibility.
