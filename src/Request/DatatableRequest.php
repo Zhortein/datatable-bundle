@@ -6,6 +6,7 @@ namespace Zhortein\DatatableBundle\Request;
 
 use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Filter\Expression\AdvancedFilterExpression;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 
 final readonly class DatatableRequest
 {
@@ -14,6 +15,7 @@ final readonly class DatatableRequest
      * @param list<string>         $visibleColumns
      * @param list<string>         $hiddenColumns
      * @param array<string, mixed> $options
+     * @param list<SortCriterion>  $sorts
      */
     public function __construct(
         private int $page = 1,
@@ -26,6 +28,7 @@ final readonly class DatatableRequest
         private array $hiddenColumns = [],
         private array $options = [],
         private ?AdvancedFilterExpression $advancedFilterExpression = null,
+        private array $sorts = [],
     ) {
         if ($this->page < 1) {
             throw new \InvalidArgumentException('The datatable page must be greater than or equal to 1.');
@@ -34,6 +37,8 @@ final readonly class DatatableRequest
         if ($this->pageSize < 1) {
             throw new \InvalidArgumentException('The datatable page size must be greater than or equal to 1.');
         }
+
+        SortCriterion::normalizeList($this->sorts);
     }
 
     /**
@@ -41,6 +46,7 @@ final readonly class DatatableRequest
      * @param list<string>         $visibleColumns
      * @param list<string>         $hiddenColumns
      * @param array<string, mixed> $options
+     * @param list<SortCriterion>  $sorts
      */
     public static function create(
         int $page = 1,
@@ -53,7 +59,15 @@ final readonly class DatatableRequest
         array $hiddenColumns = [],
         array $options = [],
         ?AdvancedFilterExpression $advancedFilterExpression = null,
+        array $sorts = [],
     ): self {
+        $sorts = SortCriterion::normalizeList($sorts);
+
+        if ([] !== $sorts) {
+            $sortField = $sorts[0]->getField();
+            $sortDirection = $sorts[0]->getDirection();
+        }
+
         return new self(
             page: $page,
             pageSize: $pageSize,
@@ -65,6 +79,7 @@ final readonly class DatatableRequest
             hiddenColumns: self::normalizeColumnList($hiddenColumns),
             options: $options,
             advancedFilterExpression: $advancedFilterExpression,
+            sorts: $sorts,
         );
     }
 
@@ -83,6 +98,7 @@ final readonly class DatatableRequest
                 'disablePagination' => true,
             ]),
             advancedFilterExpression: $this->advancedFilterExpression,
+            sorts: $this->sorts,
         );
     }
 
@@ -118,17 +134,35 @@ final readonly class DatatableRequest
 
     public function getSortField(): ?string
     {
-        return $this->sortField;
+        return ($this->getSorts()[0] ?? null)?->getField() ?? $this->sortField;
     }
 
     public function hasSort(): bool
     {
-        return null !== $this->sortField;
+        return [] !== $this->getSorts();
     }
 
     public function getSortDirection(): SortDirection
     {
-        return $this->sortDirection;
+        return ($this->getSorts()[0] ?? null)?->getDirection() ?? $this->sortDirection;
+    }
+
+    /**
+     * @return list<SortCriterion>
+     */
+    public function getSorts(): array
+    {
+        $sorts = SortCriterion::normalizeList($this->sorts);
+
+        if ([] !== $sorts) {
+            return $sorts;
+        }
+
+        if (null === $this->sortField || '' === trim($this->sortField)) {
+            return [];
+        }
+
+        return [new SortCriterion($this->sortField, $this->sortDirection)];
     }
 
     /**
@@ -190,7 +224,8 @@ final readonly class DatatableRequest
      *      visibleColumns: list<string>,
      *      hiddenColumns: list<string>,
      *      sortField: string|null,
-     *      sortDirection: string
+     *      sortDirection: string,
+     *      sorts: list<array{field: string, direction: string}>
      *  }
      */
     public function getColumnVisibilityOptions(): array
@@ -198,8 +233,12 @@ final readonly class DatatableRequest
         return [
             'visibleColumns' => $this->visibleColumns,
             'hiddenColumns' => $this->hiddenColumns,
-            'sortField' => $this->sortField,
-            'sortDirection' => $this->sortDirection->value,
+            'sortField' => $this->getSortField(),
+            'sortDirection' => $this->getSortDirection()->value,
+            'sorts' => array_map(
+                static fn (SortCriterion $criterion): array => $criterion->toArray(),
+                $this->getSorts(),
+            ),
         ];
     }
 

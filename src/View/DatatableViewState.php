@@ -59,6 +59,7 @@ final readonly class DatatableViewState
             advancedFilters: $state->getAdvancedFilters(),
             visibleColumns: $state->getVisibleColumns(),
             hiddenColumns: $state->getHiddenColumns(),
+            sorts: $state->getSorts(),
         );
     }
 }

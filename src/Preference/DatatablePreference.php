@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Preference;
 
 use Zhortein\DatatableBundle\Enum\SortDirection;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 
 final readonly class DatatablePreference
 {
     /**
-     * @param list<string> $visibleColumns
-     * @param list<string> $hiddenColumns
+     * @param list<string>        $visibleColumns
+     * @param list<string>        $hiddenColumns
+     * @param list<SortCriterion> $sorts
      */
     public function __construct(
         private ?int $pageSize = null,
@@ -19,10 +21,13 @@ final readonly class DatatablePreference
         private array $visibleColumns = [],
         private array $hiddenColumns = [],
         private string $filterLayout = 'toolbar',
+        private array $sorts = [],
     ) {
         if (null !== $this->pageSize && $this->pageSize < 1) {
             throw new \InvalidArgumentException('The datatable preference page size must be greater than or equal to 1.');
         }
+
+        SortCriterion::normalizeList($this->sorts);
     }
 
     public static function empty(): self
@@ -31,8 +36,9 @@ final readonly class DatatablePreference
     }
 
     /**
-     * @param list<string> $visibleColumns
-     * @param list<string> $hiddenColumns
+     * @param list<string>        $visibleColumns
+     * @param list<string>        $hiddenColumns
+     * @param list<SortCriterion> $sorts
      */
     public static function create(
         ?int $pageSize = null,
@@ -41,7 +47,15 @@ final readonly class DatatablePreference
         array $visibleColumns = [],
         array $hiddenColumns = [],
         string $filterLayout = 'toolbar',
+        array $sorts = [],
     ): self {
+        $sorts = SortCriterion::normalizeList($sorts);
+
+        if ([] !== $sorts) {
+            $sortField = $sorts[0]->getField();
+            $sortDirection = $sorts[0]->getDirection();
+        }
+
         return new self(
             pageSize: $pageSize,
             sortField: self::normalizeNullableString($sortField),
@@ -49,6 +63,7 @@ final readonly class DatatablePreference
             visibleColumns: self::normalizeColumnList($visibleColumns),
             hiddenColumns: self::normalizeColumnList($hiddenColumns),
             filterLayout: $filterLayout,
+            sorts: $sorts,
         );
     }
 
@@ -64,12 +79,33 @@ final readonly class DatatablePreference
 
     public function getSortField(): ?string
     {
-        return $this->sortField;
+        return ($this->getSorts()[0] ?? null)?->getField() ?? $this->sortField;
     }
 
     public function getSortDirection(): ?SortDirection
     {
-        return $this->sortDirection;
+        return ($this->getSorts()[0] ?? null)?->getDirection() ?? $this->sortDirection;
+    }
+
+    /**
+     * @return list<SortCriterion>
+     */
+    public function getSorts(): array
+    {
+        $sorts = SortCriterion::normalizeList($this->sorts);
+
+        if ([] !== $sorts) {
+            return $sorts;
+        }
+
+        if (null === $this->sortField || '' === trim($this->sortField)) {
+            return [];
+        }
+
+        return [new SortCriterion(
+            $this->sortField,
+            $this->sortDirection ?? SortDirection::Asc,
+        )];
     }
 
     /**
@@ -93,6 +129,7 @@ final readonly class DatatablePreference
         return null === $this->pageSize
             && null === $this->sortField
             && null === $this->sortDirection
+            && [] === $this->sorts
             && [] === $this->visibleColumns
             && [] === $this->hiddenColumns;
     }
@@ -108,12 +145,19 @@ final readonly class DatatablePreference
             $options['pageSize'] = $this->pageSize;
         }
 
-        if (null !== $this->sortField) {
-            $options['sortField'] = $this->sortField;
+        if (null !== $this->getSortField()) {
+            $options['sortField'] = $this->getSortField();
         }
 
-        if (null !== $this->sortDirection) {
-            $options['sortDirection'] = $this->sortDirection->value;
+        if (null !== $this->getSortDirection()) {
+            $options['sortDirection'] = $this->getSortDirection()->value;
+        }
+
+        if ([] !== $this->getSorts()) {
+            $options['sorts'] = array_map(
+                static fn (SortCriterion $criterion): array => $criterion->toArray(),
+                $this->getSorts(),
+            );
         }
 
         if ([] !== $this->visibleColumns) {

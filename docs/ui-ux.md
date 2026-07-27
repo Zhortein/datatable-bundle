@@ -7,7 +7,7 @@ The bundle is **Bootstrap-first** and uses a **Stimulus-powered** interaction mo
 ## Status
 
 Currently implemented:
--   **Interactions**: Global search, pagination, sortable headers, page size selector.
+-   **Interactions**: Global search, pagination, multi-column sortable headers, page size selector.
 -   **Row Selection**: Checkbox-based selection and bulk action toolbar.
 -   **UI Features**: Loading and error states, summary updates, Bootstrap table variants.
 -   **Column Visibility**: User-controlled column visibility with persistent state.
@@ -41,7 +41,15 @@ Pagination is rendered server-side. The page size selector is enabled by default
 ```
 
 ### Sortable Headers
-Clicking a header toggles sorting between `asc`, `desc`, and back to `asc`. Neutral and active sort indicators (↕, ↑, ↓) are rendered without requiring an icon library.
+
+Clicking a header keeps the existing single-column behavior and toggles between
+ascending and descending. Hold `Shift` while clicking or using the keyboard to
+append, toggle, then remove secondary criteria. Numbered badges expose the
+effective priority. Neutral and active indicators (↕, ↑, ↓) do not require an
+icon library.
+
+See [multi-column sorting](sorting.md) for the complete interaction, request,
+provider and compatibility contract.
 
 ## Rendering Customization
 
@@ -92,7 +100,8 @@ Append CSS classes to the main elements without overriding templates:
 ## Accessibility
 
 The bundle follows a strong accessibility baseline:
--   `aria-sort` on active headers.
+-   `aria-sort` on the primary sorted header.
+-   Accessible direction and priority text for secondary sort criteria.
 -   `aria-busy` and live regions for loading/error states.
 -   Visually hidden labels for decorative icons and sort state.
 -   Explicit accessible labels for all form controls.

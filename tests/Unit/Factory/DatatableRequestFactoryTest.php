@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Factory\AdvancedFilterExpressionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 use Zhortein\DatatableBundle\State\DatatableState;
 
 final class DatatableRequestFactoryTest extends TestCase
@@ -87,6 +88,45 @@ final class DatatableRequestFactoryTest extends TestCase
         self::assertSame(SortDirection::Asc, $datatableRequest->getSortDirection());
         self::assertSame([], $datatableRequest->getFilters());
         self::assertSame([], $datatableRequest->getOptions());
+    }
+
+    public function test_it_reads_bounded_deduplicated_sort_criteria(): void
+    {
+        $sorts = [
+            ['field' => ' e.displayName ', 'direction' => 'asc'],
+            ['field' => 'e.email', 'direction' => 'DESC'],
+            ['field' => 'e.displayName', 'direction' => 'desc'],
+            ['field' => '', 'direction' => 'asc'],
+            ['field' => 'invalid-direction', 'direction' => 'sideways'],
+            'invalid',
+        ];
+
+        for ($index = 0; $index < 10; ++$index) {
+            $sorts[] = ['field' => sprintf('field_%d', $index), 'direction' => 'asc'];
+        }
+
+        $request = $this->factory->createFromRequest(new Request([
+            'sortField' => 'legacy',
+            'sortDirection' => 'desc',
+            'sorts' => $sorts,
+        ]));
+
+        self::assertCount(SortCriterion::MAX_CRITERIA, $request->getSorts());
+        self::assertSame([
+            ['field' => 'e.displayName', 'direction' => 'asc'],
+            ['field' => 'e.email', 'direction' => 'desc'],
+            ['field' => 'field_0', 'direction' => 'asc'],
+            ['field' => 'field_1', 'direction' => 'asc'],
+            ['field' => 'field_2', 'direction' => 'asc'],
+            ['field' => 'field_3', 'direction' => 'asc'],
+            ['field' => 'field_4', 'direction' => 'asc'],
+            ['field' => 'field_5', 'direction' => 'asc'],
+        ], array_map(
+            static fn (SortCriterion $criterion): array => $criterion->toArray(),
+            $request->getSorts(),
+        ));
+        self::assertSame('e.displayName', $request->getSortField());
+        self::assertSame(SortDirection::Asc, $request->getSortDirection());
     }
 
     public function test_it_falls_back_to_defaults_for_invalid_values(): void
@@ -223,6 +263,10 @@ final class DatatableRequestFactoryTest extends TestCase
                     ['field' => 'email', 'operator' => 'contains', 'value' => '@example.test'],
                 ],
             ],
+            sorts: [
+                SortCriterion::create('email', SortDirection::Desc),
+                SortCriterion::create('createdAt'),
+            ],
         );
 
         $request = $this->factory->createFromState($state, options: ['source' => 'url']);
@@ -231,6 +275,7 @@ final class DatatableRequestFactoryTest extends TestCase
         self::assertSame(DatatableRequestFactory::MAX_PAGE_SIZE, $request->getPageSize());
         self::assertSame('alice', $request->getSearchQuery());
         self::assertSame(SortDirection::Desc, $request->getSortDirection());
+        self::assertSame($state->getSorts(), $request->getSorts());
         self::assertSame(['status' => 'active'], $request->getFilters());
         self::assertTrue($request->hasAdvancedFilters());
         self::assertSame('url', $request->getOption('source'));

@@ -7,6 +7,7 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Preference;
 use PHPUnit\Framework\TestCase;
 use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Preference\DatatablePreference;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 
 final class DatatablePreferenceTest extends TestCase
 {
@@ -43,6 +44,9 @@ final class DatatablePreferenceTest extends TestCase
             'pageSize' => 50,
             'sortField' => 'e.email',
             'sortDirection' => 'desc',
+            'sorts' => [
+                ['field' => 'e.email', 'direction' => 'desc'],
+            ],
             'visibleColumns' => ['e.email', 'e.displayName'],
             'hiddenColumns' => ['e.createdAt'],
             'filterLayout' => 'toolbar',
@@ -68,5 +72,20 @@ final class DatatablePreferenceTest extends TestCase
         $this->expectExceptionMessage('The datatable preference page size must be greater than or equal to 1.');
 
         DatatablePreference::create(pageSize: 0);
+    }
+
+    public function test_it_exposes_multi_column_sorting_as_render_options(): void
+    {
+        $preference = DatatablePreference::create(sorts: [
+            SortCriterion::create('e.displayName'),
+            SortCriterion::create('e.email', SortDirection::Desc),
+        ]);
+
+        self::assertSame([
+            ['field' => 'e.displayName', 'direction' => 'asc'],
+            ['field' => 'e.email', 'direction' => 'desc'],
+        ], $preference->toRenderOptions()['sorts']);
+        self::assertSame('e.displayName', $preference->getSortField());
+        self::assertSame(SortDirection::Asc, $preference->getSortDirection());
     }
 }

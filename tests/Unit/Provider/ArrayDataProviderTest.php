@@ -9,6 +9,7 @@ use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 
 final class ArrayDataProviderTest extends TestCase
 {
@@ -126,6 +127,49 @@ final class ArrayDataProviderTest extends TestCase
         );
 
         self::assertSame([1, 2, 3, 4, 5], array_column($result->getRows(), 'id'));
+    }
+
+    public function test_it_sorts_by_multiple_columns_in_declared_priority_order(): void
+    {
+        $definition = $this->createDefinition();
+        $definition->setOption(ArrayDataProvider::OPTION_ROWS, [
+            ['id' => 1, 'email' => 'charlie@example.test', 'displayName' => 'Team'],
+            ['id' => 2, 'email' => 'alice@example.test', 'displayName' => 'Team'],
+            ['id' => 3, 'email' => 'bob@example.test', 'displayName' => 'Admin'],
+        ]);
+
+        $result = new ArrayDataProvider()->getData(
+            $definition,
+            DatatableRequest::create(sorts: [
+                SortCriterion::create('e.displayName'),
+                SortCriterion::create('e.email', SortDirection::Desc),
+            ]),
+        );
+
+        self::assertSame([
+            'bob@example.test',
+            'charlie@example.test',
+            'alice@example.test',
+        ], array_column($result->getRows(), 'email'));
+    }
+
+    public function test_it_skips_invalid_criteria_and_applies_later_valid_ones(): void
+    {
+        $result = new ArrayDataProvider()->getData(
+            $this->createDefinition(),
+            DatatableRequest::create(sorts: [
+                SortCriterion::create('e.id', SortDirection::Desc),
+                SortCriterion::create('e.email', SortDirection::Desc),
+            ]),
+        );
+
+        self::assertSame([
+            'zoe@example.test',
+            'zoe.alt@example.test',
+            'john@example.test',
+            'bob@example.test',
+            'alice@example.test',
+        ], array_column($result->getRows(), 'email'));
     }
 
     private function createDefinition(): DatatableDefinition

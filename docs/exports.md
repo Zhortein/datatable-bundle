@@ -70,7 +70,7 @@ Exports respect the current state of the datatable:
 - Search queries
 - Simple filters
 - **Advanced filter expressions**
-- Sorting
+- Ordered multi-column sorting
 - Runtime column visibility
 
 State restored from a namespaced page URL is translated back into the existing
@@ -84,6 +84,10 @@ history](url-state.md).
 | `full` | Exports all rows matching the current filters, ignoring pagination. |
 
 **Note**: "Full" export means the *filtered* dataset, not the raw database table.
+
+The complete sort order is sent to both current and full exports. The primary
+criterion is also emitted as the historical `sortField`/`sortDirection` pair
+for custom-route compatibility. See [multi-column sorting](sorting.md).
 
 ## Performance and Memory Constraints
 

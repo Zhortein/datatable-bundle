@@ -25,6 +25,7 @@ final class DatatableRendererSortingStateTest extends TestCase
 
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-field-value="e.email"', $html);
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-direction-value="desc"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sorts-value="&#x5B;&#x7B;&quot;field&quot;&#x3A;&quot;e.email&quot;,&quot;direction&quot;&#x3A;&quot;desc&quot;&#x7D;&#x5D;"', $html);
     }
 
     public function test_it_renders_ascending_sort_state_on_active_header(): void
@@ -69,12 +70,31 @@ final class DatatableRendererSortingStateTest extends TestCase
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-current-sort-param="false"', $html);
     }
 
+    public function test_it_renders_priorities_and_keeps_aria_sort_on_the_primary_column_only(): void
+    {
+        $renderer = new DatatableRenderer($this->createTwigEnvironment());
+
+        $html = $renderer->render($this->createDefinition(), [
+            'sorts' => [
+                ['field' => 'e.displayName', 'direction' => 'asc'],
+                ['field' => 'e.email', 'direction' => 'desc'],
+            ],
+        ]);
+
+        self::assertSame(1, substr_count($html, 'aria-sort='));
+        self::assertStringContainsString('aria-sort="ascending"', $html);
+        self::assertStringContainsString('sorted descending, priority 2 of 2', $html);
+        self::assertStringContainsString('zhortein-datatable__sort-priority', $html);
+        self::assertStringContainsString('>2</span>', preg_replace('/\s+/', '', $html) ?? $html);
+    }
+
     private function createDefinition(): DatatableDefinition
     {
         $definition = new DatatableDefinition('users');
 
         $definition
             ->addColumn('e.email', label: 'Email')
+            ->addColumn('e.displayName', label: 'Display name')
             ->addColumn('e.createdAt', label: 'Created at', sortable: false)
         ;
 

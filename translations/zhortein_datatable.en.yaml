@@ -89,8 +89,12 @@ zhortein_datatable:
         conflict: 'The saved view changed in another request. Reload it and try again.'
     sort:
         label: 'Sort by %column%'
+        multiple_hint: 'Hold Shift while activating columns to build a multi-column sort.'
+        priority: 'Sort priority %priority%'
         sorted_ascending: 'sorted ascending'
         sorted_descending: 'sorted descending'
+        sorted_ascending_priority: 'sorted ascending, priority %priority% of %count%'
+        sorted_descending_priority: 'sorted descending, priority %priority% of %count%'
     pagination:
         label: 'Datatable pagination'
         previous: 'Previous'

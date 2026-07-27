@@ -473,7 +473,6 @@ Current limitations:
 - no automatic association traversal;
 - no deep joins;
 - no collection joins;
-- no multi-column sorting;
 - named saved views require a host storage, owner resolver and authorization checker;
 - no persisted column preferences;
 - no built-in action controllers;
@@ -488,6 +487,7 @@ Current limitations:
 - [`../exports.md`](../exports.md)
 - [`../preferences.md`](../preferences.md)
 - [`../ui-ux.md`](../ui-ux.md)
+- [`../sorting.md`](../sorting.md)
 - [`../theming.md`](../theming.md)
 - [`../cell-context.md`](../cell-context.md)
 

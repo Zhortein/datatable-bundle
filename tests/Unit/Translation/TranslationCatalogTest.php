@@ -34,6 +34,8 @@ final class TranslationCatalogTest extends TestCase
         self::assertSame('The saved view changed in another request. Reload it and try again.', $translator->trans('zhortein_datatable.saved_views.conflict', [], 'zhortein_datatable'));
         self::assertSame('Sort by Email', $translator->trans('zhortein_datatable.sort.label', ['%column%' => 'Email'], 'zhortein_datatable'));
         self::assertSame('sorted ascending', $translator->trans('zhortein_datatable.sort.sorted_ascending', [], 'zhortein_datatable'));
+        self::assertSame('Sort priority 2', $translator->trans('zhortein_datatable.sort.priority', ['%priority%' => 2], 'zhortein_datatable'));
+        self::assertSame('sorted descending, priority 2 of 3', $translator->trans('zhortein_datatable.sort.sorted_descending_priority', ['%priority%' => 2, '%count%' => 3], 'zhortein_datatable'));
         self::assertSame('Previous', $translator->trans('zhortein_datatable.pagination.previous', [], 'zhortein_datatable'));
         self::assertSame('Next', $translator->trans('zhortein_datatable.pagination.next', [], 'zhortein_datatable'));
         self::assertSame('Go to page 2', $translator->trans('zhortein_datatable.pagination.page', ['%page%' => 2], 'zhortein_datatable'));
@@ -64,6 +66,8 @@ final class TranslationCatalogTest extends TestCase
         self::assertSame('Impossible de charger les données du tableau.', $translator->trans('zhortein_datatable.error.generic', [], 'zhortein_datatable'));
         self::assertSame('Trier par Email', $translator->trans('zhortein_datatable.sort.label', ['%column%' => 'Email'], 'zhortein_datatable'));
         self::assertSame('tri croissant', $translator->trans('zhortein_datatable.sort.sorted_ascending', [], 'zhortein_datatable'));
+        self::assertSame('Priorité de tri 2', $translator->trans('zhortein_datatable.sort.priority', ['%priority%' => 2], 'zhortein_datatable'));
+        self::assertSame('tri décroissant, priorité 2 sur 3', $translator->trans('zhortein_datatable.sort.sorted_descending_priority', ['%priority%' => 2, '%count%' => 3], 'zhortein_datatable'));
         self::assertSame('Aller à la page 2', $translator->trans('zhortein_datatable.pagination.page', ['%page%' => 2], 'zhortein_datatable'));
         self::assertSame('Aucune donnée disponible.', $translator->trans('zhortein_datatable.empty', [], 'zhortein_datatable'));
         self::assertSame('Précédent', $translator->trans('zhortein_datatable.pagination.previous', [], 'zhortein_datatable'));

@@ -15,6 +15,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 - [Providers](providers.md): Array and Doctrine data sources.
 - [Filters](filters.md): Toolbar and header-based data filtering.
 - [Advanced Filters](advanced-filters.md): Complex nested filtering with Search Builder.
+- [Multi-column Sorting](sorting.md): Ordered sorting across providers, state, views, and exports.
 - [Actions and Security](actions.md): Row-level and global table actions with CSRF and authorization.
 - [Explicit Context](context.md): Signed locale, tenant and business-scope propagation.
 - [Hierarchical Datatables](hierarchical-datatables.md): Lazy, signed and provider-independent parent/child tables.

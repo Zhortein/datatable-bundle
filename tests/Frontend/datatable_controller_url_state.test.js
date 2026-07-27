@@ -131,6 +131,7 @@ function createState(overrides = {}) {
         search: null,
         sortField: null,
         sortDirection: 'asc',
+        sorts: [],
         filters: {},
         advancedFilters: {},
         visibleColumns: ['email', 'createdAt'],
@@ -213,6 +214,10 @@ describe('datatable_controller namespaced URL state', () => {
             search: 'alice',
             sortField: 'email',
             sortDirection: 'desc',
+            sorts: [
+                { field: 'email', direction: 'desc' },
+                { field: 'createdAt', direction: 'asc' },
+            ],
             filters: {
                 email: '@example.test',
                 createdAt: { from: '2026-01-01', to: '2026-06-30' },
@@ -235,12 +240,17 @@ describe('datatable_controller namespaced URL state', () => {
         expect(controller.searchValue).toBe('alice');
         expect(controller.sortFieldValue).toBe('email');
         expect(controller.sortDirectionValue).toBe('desc');
+        expect(controller.sortsValue).toEqual([
+            { field: 'email', direction: 'desc' },
+            { field: 'createdAt', direction: 'asc' },
+        ]);
         expect(element.querySelector('[name="filters[email]"]').value).toBe('@example.test');
         expect(element.querySelector('[name="filters[createdAt][from]"]').value).toBe('2026-01-01');
         expect(element.querySelector('[data-zhortein--datatable-bundle--datatable-column-name="createdAt"]').checked).toBe(false);
         expect(fragmentsUrl.searchParams.get('page')).toBe('3');
         expect(fragmentsUrl.searchParams.get('pageSize')).toBe('50');
         expect(fragmentsUrl.searchParams.get('filters[email]')).toBe('@example.test');
+        expect(fragmentsUrl.searchParams.get('sorts[1][field]')).toBe('createdAt');
         expect(fragmentsUrl.searchParams.get('_zd_context')).toBe('signed');
 
         const exportParameters = new URLSearchParams();
@@ -250,6 +260,7 @@ describe('datatable_controller namespaced URL state', () => {
         expect(exportParameters.get('search')).toBe('alice');
         expect(exportParameters.get('filters[createdAt][to]')).toBe('2026-06-30');
         expect(exportParameters.getAll('hiddenColumns[]')).toContain('createdAt');
+        expect(exportParameters.get('sorts[1][direction]')).toBe('asc');
     });
 
     it('pushes a successful user change while preserving the existing Turbo history state', async () => {
@@ -277,6 +288,9 @@ describe('datatable_controller namespaced URL state', () => {
 
         expect(state.sortField).toBe('email');
         expect(state.sortDirection).toBe('asc');
+        expect(state.sorts).toEqual([
+            { field: 'email', direction: 'asc' },
+        ]);
         expect(new URL(window.location.href).searchParams.get('campaign')).toBe('summer');
         expect(stateEvent).toHaveBeenCalledTimes(1);
         expect(stateEvent.mock.calls[0][0].detail.source).toBe('push');
@@ -377,6 +391,44 @@ describe('datatable_controller namespaced URL state', () => {
         expect(controller.pageValue).toBe(1);
         expect(controller.pageSizeValue).toBe(25);
         expect(controller.searchValue).toBe('');
+    });
+
+    it('accepts legacy version one state without a sorts list', async () => {
+        const stateParameter = '_zd_state[users-key]';
+        const legacyState = createState({
+            sortField: 'email',
+            sortDirection: 'desc',
+        });
+        delete legacyState.sorts;
+        setUrlStates({ [stateParameter]: legacyState });
+        document.body.innerHTML = createDatatableHtml({ stateParameter, autoLoad: false });
+        application = startApplication();
+
+        const { controller } = await getController(application);
+
+        expect(controller.sortsValue).toEqual([
+            { field: 'email', direction: 'desc' },
+        ]);
+    });
+
+    it('ignores version one state with more than eight sort criteria', async () => {
+        const stateParameter = '_zd_state[users-key]';
+        setUrlStates({
+            [stateParameter]: createState({
+                page: 8,
+                sorts: Array.from({ length: 9 }, (_, index) => ({
+                    field: `field_${index}`,
+                    direction: 'asc',
+                })),
+            }),
+        });
+        document.body.innerHTML = createDatatableHtml({ stateParameter, autoLoad: false });
+        application = startApplication();
+
+        const { controller } = await getController(application);
+
+        expect(controller.pageValue).toBe(1);
+        expect(controller.sortsValue).toEqual([]);
     });
 
     it('rebuilds nested advanced filters from URL state for fragments and exports', async () => {

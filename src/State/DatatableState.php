@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\State;
 
 use Zhortein\DatatableBundle\Enum\SortDirection;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 
 /**
  * Canonical, shareable state of one datatable instance.
@@ -20,6 +21,7 @@ final readonly class DatatableState
      * @param array<string, mixed> $advancedFilters
      * @param list<string>         $visibleColumns
      * @param list<string>         $hiddenColumns
+     * @param list<SortCriterion>  $sorts
      */
     public function __construct(
         private int $page = 1,
@@ -31,6 +33,7 @@ final readonly class DatatableState
         private array $advancedFilters = [],
         private array $visibleColumns = [],
         private array $hiddenColumns = [],
+        private array $sorts = [],
     ) {
         if ($this->page < 1) {
             throw new \InvalidArgumentException('The datatable state page must be greater than or equal to 1.');
@@ -39,6 +42,8 @@ final readonly class DatatableState
         if ($this->pageSize < 1) {
             throw new \InvalidArgumentException('The datatable state page size must be greater than or equal to 1.');
         }
+
+        SortCriterion::normalizeList($this->sorts);
     }
 
     /**
@@ -46,6 +51,7 @@ final readonly class DatatableState
      * @param array<string, mixed> $advancedFilters
      * @param list<string>         $visibleColumns
      * @param list<string>         $hiddenColumns
+     * @param list<SortCriterion>  $sorts
      */
     public static function create(
         int $page = 1,
@@ -57,7 +63,15 @@ final readonly class DatatableState
         array $advancedFilters = [],
         array $visibleColumns = [],
         array $hiddenColumns = [],
+        array $sorts = [],
     ): self {
+        $sorts = SortCriterion::normalizeList($sorts);
+
+        if ([] !== $sorts) {
+            $sortField = $sorts[0]->getField();
+            $sortDirection = $sorts[0]->getDirection();
+        }
+
         return new self(
             page: $page,
             pageSize: $pageSize,
@@ -68,6 +82,7 @@ final readonly class DatatableState
             advancedFilters: self::normalizeTransportMap($advancedFilters),
             visibleColumns: self::normalizeColumnList($visibleColumns),
             hiddenColumns: self::normalizeColumnList($hiddenColumns),
+            sorts: $sorts,
         );
     }
 
@@ -88,12 +103,30 @@ final readonly class DatatableState
 
     public function getSortField(): ?string
     {
-        return $this->sortField;
+        return ($this->getSorts()[0] ?? null)?->getField() ?? $this->sortField;
     }
 
     public function getSortDirection(): SortDirection
     {
-        return $this->sortDirection;
+        return ($this->getSorts()[0] ?? null)?->getDirection() ?? $this->sortDirection;
+    }
+
+    /**
+     * @return list<SortCriterion>
+     */
+    public function getSorts(): array
+    {
+        $sorts = SortCriterion::normalizeList($this->sorts);
+
+        if ([] !== $sorts) {
+            return $sorts;
+        }
+
+        if (null === $this->sortField || '' === trim($this->sortField)) {
+            return [];
+        }
+
+        return [new SortCriterion($this->sortField, $this->sortDirection)];
     }
 
     /**
@@ -136,6 +169,7 @@ final readonly class DatatableState
      *     search: string|null,
      *     sortField: string|null,
      *     sortDirection: string,
+     *     sorts: list<array{field: string, direction: string}>,
      *     filters: array<string, mixed>,
      *     advancedFilters: array<string, mixed>,
      *     visibleColumns: list<string>,
@@ -149,8 +183,12 @@ final readonly class DatatableState
             'page' => $this->page,
             'pageSize' => $this->pageSize,
             'search' => $this->searchQuery,
-            'sortField' => $this->sortField,
-            'sortDirection' => $this->sortDirection->value,
+            'sortField' => $this->getSortField(),
+            'sortDirection' => $this->getSortDirection()->value,
+            'sorts' => array_map(
+                static fn (SortCriterion $criterion): array => $criterion->toArray(),
+                $this->getSorts(),
+            ),
             'filters' => $this->filters,
             'advancedFilters' => $this->advancedFilters,
             'visibleColumns' => $this->visibleColumns,

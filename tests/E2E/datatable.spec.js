@@ -86,6 +86,48 @@ test('supports keyboard sorting, pagination and Bootstrap dropdowns', async ({ p
     await expect(datatable.getByRole('link', { name: 'View' }).first()).toBeVisible();
 });
 
+test('builds an accessible multi-column sort with keyboard modifiers', async ({ page }) => {
+    const datatable = await openDatatable(page);
+    const enabledSort = datatable.getByRole('button', { name: 'Sort by Enabled' });
+    const emailSort = datatable.getByRole('button', { name: 'Sort by Email' });
+
+    await enabledSort.focus();
+    await refreshAfter(page, () => page.keyboard.press('Enter'));
+    await enabledSort.focus();
+    await refreshAfter(page, () => page.keyboard.press('Enter'));
+
+    await emailSort.focus();
+    await refreshAfter(page, () => page.keyboard.press('Shift+Enter'));
+
+    await expect(datatable.locator('tbody tr').first()).toContainText('alice@example.test');
+    await expect(enabledSort.locator('.zhortein-datatable__sort-priority')).toHaveText('1');
+    await expect(emailSort.locator('.zhortein-datatable__sort-priority')).toHaveText('2');
+    await expect(enabledSort.locator('xpath=ancestor::th')).toHaveAttribute('aria-sort', 'descending');
+    await expect(emailSort.locator('xpath=ancestor::th')).not.toHaveAttribute('aria-sort');
+    await expect(emailSort).toHaveAccessibleName(/priority 2 of 2/);
+
+    await emailSort.focus();
+    await refreshAfter(page, () => page.keyboard.press('Shift+Enter'));
+    await expect(datatable.locator('tbody tr').first()).toContainText('user20@example.test');
+
+    const results = await new AxeBuilder({ page })
+        .include(DATATABLE)
+        .disableRules([
+            // Page landmarks belong to the host application layout.
+            'region',
+        ])
+        .withTags([
+            'wcag2a',
+            'wcag2aa',
+            'wcag21a',
+            'wcag21aa',
+            'wcag22aa',
+        ])
+        .analyze();
+
+    expect(results.violations).toEqual([]);
+});
+
 test('filters rows through real Bootstrap header controls', async ({ page }) => {
     const datatable = await openDatatable(page);
     const search = datatable.getByRole('searchbox', { name: 'Search' });

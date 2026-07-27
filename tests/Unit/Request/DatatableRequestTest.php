@@ -7,6 +7,7 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Request;
 use PHPUnit\Framework\TestCase;
 use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 
 final class DatatableRequestTest extends TestCase
 {
@@ -22,6 +23,7 @@ final class DatatableRequestTest extends TestCase
         self::assertNull($request->getSortField());
         self::assertFalse($request->hasSort());
         self::assertSame(SortDirection::Asc, $request->getSortDirection());
+        self::assertSame([], $request->getSorts());
         self::assertSame([], $request->getFilters());
         self::assertFalse($request->hasFilters());
         self::assertSame([], $request->getOptions());
@@ -85,6 +87,29 @@ final class DatatableRequestTest extends TestCase
         self::assertFalse($request->hasSearchQuery());
         self::assertNull($request->getSortField());
         self::assertFalse($request->hasSort());
+    }
+
+    public function test_it_exposes_multi_column_sorting_and_legacy_primary_accessors(): void
+    {
+        $request = DatatableRequest::create(
+            sortField: 'legacy',
+            sortDirection: SortDirection::Asc,
+            sorts: [
+                SortCriterion::create('e.displayName'),
+                SortCriterion::create('e.email', SortDirection::Desc),
+                SortCriterion::create('e.displayName', SortDirection::Desc),
+            ],
+        );
+
+        self::assertSame('e.displayName', $request->getSortField());
+        self::assertSame(SortDirection::Asc, $request->getSortDirection());
+        self::assertSame([
+            ['field' => 'e.displayName', 'direction' => 'asc'],
+            ['field' => 'e.email', 'direction' => 'desc'],
+        ], array_map(
+            static fn (SortCriterion $criterion): array => $criterion->toArray(),
+            $request->getSorts(),
+        ));
     }
 
     public function test_it_normalizes_filter_values(): void

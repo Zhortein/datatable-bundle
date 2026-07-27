@@ -28,7 +28,7 @@ Providers are regular Symfony services tagged with `zhortein_datatable.data_prov
 
 - Pagination;
 - Simple scalar search;
-- Single-column sorting.
+- Ordered multi-column sorting.
 
 It allows the data pipeline to be tested without a database.
 

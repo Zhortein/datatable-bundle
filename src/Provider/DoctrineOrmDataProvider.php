@@ -606,26 +606,24 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
             return;
         }
 
-        $sortField = $request->getSortField();
+        foreach ($request->getSorts() as $criterion) {
+            $column = $definition->getColumns()[$criterion->getField()] ?? null;
 
-        if (null === $sortField) {
-            return;
+            if (!$column instanceof ColumnDefinition || !$column->isSortable()) {
+                continue;
+            }
+
+            $reference = $this->fieldReferenceResolver->normalize($column->getName(), $definition);
+
+            if (!$this->fieldMetadataResolver->hasField($entityManager, $entityClass, $definition, $reference)) {
+                continue;
+            }
+
+            $queryBuilder->addOrderBy(
+                $reference->toString(),
+                strtoupper($criterion->getDirection()->value),
+            );
         }
-
-        $column = $definition->getColumns()[$sortField] ?? null;
-
-        if (!$column instanceof ColumnDefinition || !$column->isSortable()) {
-            return;
-        }
-
-        $reference = $this->fieldReferenceResolver->normalize($column->getName(), $definition);
-
-        $fieldReference = $reference->toString();
-        if (!$this->fieldMetadataResolver->hasField($entityManager, $entityClass, $definition, $reference)) {
-            return;
-        }
-
-        $queryBuilder->addOrderBy($fieldReference, strtoupper($request->getSortDirection()->value));
     }
 
     private function isStringSearchableType(string $doctrineType): bool

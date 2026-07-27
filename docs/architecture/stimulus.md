@@ -12,7 +12,7 @@ The `datatable_controller.js` is responsible for:
     - **Search**: Debounced (300ms) global search input.
     - **Filters**: Serializing and applying user-facing filters.
     - **Pagination**: Handling "Go to page" actions.
-    - **Sorting**: Handling header-click sorting.
+    - **Sorting**: Handling single and Shift-modified multi-column sorting.
     - **Page Size**: Handling changes to items-per-page.
     - **Column Visibility**: Toggling and serializing visibility state.
 - **Actions**:
@@ -44,6 +44,7 @@ And values for synchronization:
 - `pageSizeValue`: Current items per page.
 - `sortFieldValue`: Current sort column.
 - `sortDirectionValue`: Current sort direction.
+- `sortsValue`: Ordered sort criteria; the first criterion mirrors the legacy values.
 - `savedViewsUrlValue`: Optional named-view endpoint with its server-generated scope.
 
 ## Interaction Model
