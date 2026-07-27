@@ -281,8 +281,7 @@ final readonly class DatatableRenderer
         DatatableDefinition $definition,
         array $options,
         bool $prepareEndpoints = false,
-    ): array
-    {
+    ): array {
         if (array_key_exists('context', $options)) {
             $renderContext = $options['context'];
 
