@@ -6,6 +6,10 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+_No unreleased changes have been collected yet._
+
+## [1.11.0] - 2026-07-27
+
 ### Added
 
 - Added configurable synchronous export row limits, preflight provider counting and a replaceable authorization context for CSV/XLSX, current/full and child datatable exports.
