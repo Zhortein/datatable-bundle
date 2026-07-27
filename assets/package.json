@@ -1,6 +1,6 @@
 {
   "name": "@zhortein/datatable-bundle",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Stimulus controller for zhortein/datatable-bundle.",
   "type": "module",
   "symfony": {
