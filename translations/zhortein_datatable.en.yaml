@@ -49,6 +49,9 @@ zhortein_datatable:
         csv_full: 'CSV full dataset'
         xlsx_current: 'XLSX current view'
         xlsx_full: 'XLSX full dataset'
+        authorization_denied: 'You are not allowed to export this datatable.'
+        limit_exceeded: 'This export exceeds the %limit%-row limit. Apply more filters or export the current page.'
+        count_unavailable: 'This data provider cannot safely determine the export size. Implement ExportRowCountProviderInterface or use a supported provider.'
     bulk_actions:
         select_all: 'Select all'
         select_row: 'Select row %id%'

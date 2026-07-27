@@ -14,6 +14,7 @@ use Zhortein\DatatableBundle\Context\DatatableContextRequestResolver;
 use Zhortein\DatatableBundle\Context\DatatableContextTransport;
 use Zhortein\DatatableBundle\Contract\DataProviderInterface;
 use Zhortein\DatatableBundle\Contract\DatatableInterface;
+use Zhortein\DatatableBundle\Contract\ExportRowCountProviderInterface;
 use Zhortein\DatatableBundle\Controller\DatatableController;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Export\CsvExportWriter;
@@ -119,7 +120,7 @@ final class ContextTransportControllerDatatable implements DatatableInterface
     }
 }
 
-final class ContextTransportDataProvider implements DataProviderInterface
+final class ContextTransportDataProvider implements DataProviderInterface, ExportRowCountProviderInterface
 {
     public function supports(DatatableDefinition $definition): bool
     {
@@ -135,5 +136,12 @@ final class ContextTransportDataProvider implements DataProviderInterface
             totalItems: 1,
             filteredItems: 1,
         );
+    }
+
+    public function countExportRows(
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+    ): int {
+        return 1;
     }
 }

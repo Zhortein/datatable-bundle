@@ -7,6 +7,9 @@ namespace Zhortein\DatatableBundle\Tests\Unit\DependencyInjection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Zhortein\DatatableBundle\Contract\DatatableExportAuthorizationCheckerInterface;
+use Zhortein\DatatableBundle\Export\AllowAllDatatableExportAuthorizationChecker;
+use Zhortein\DatatableBundle\Export\ExportLimitResolver;
 use Zhortein\DatatableBundle\ZhorteinDatatableBundle;
 
 final class BundleConfigurationTest extends TestCase
@@ -22,6 +25,11 @@ final class BundleConfigurationTest extends TestCase
         self::assertFalse($container->getParameter('zhortein_datatable.search_enabled'));
         self::assertFalse($container->getParameter('zhortein_datatable.search_builder_enabled'));
         self::assertSame([], $container->getParameter('zhortein_datatable.icons'));
+        self::assertSame(10000, $container->getParameter('zhortein_datatable.export.max_rows'));
+        self::assertSame(
+            ['csv' => null, 'xlsx' => null],
+            $container->getParameter('zhortein_datatable.export.format_limits'),
+        );
         self::assertSame(',', $container->getParameter('zhortein_datatable.export.csv.delimiter'));
         self::assertSame('"', $container->getParameter('zhortein_datatable.export.csv.enclosure'));
         self::assertSame('\\', $container->getParameter('zhortein_datatable.export.csv.escape'));
@@ -43,6 +51,18 @@ final class BundleConfigurationTest extends TestCase
         ], $container->getParameter('zhortein_datatable.icons'));
     }
 
+    public function test_it_registers_export_guard_services_and_backward_compatible_authorization(): void
+    {
+        $container = $this->loadBundleConfiguration([]);
+
+        self::assertTrue($container->hasDefinition(ExportLimitResolver::class));
+        self::assertTrue($container->hasAlias(DatatableExportAuthorizationCheckerInterface::class));
+        self::assertSame(
+            AllowAllDatatableExportAuthorizationChecker::class,
+            (string) $container->getAlias(DatatableExportAuthorizationCheckerInterface::class),
+        );
+    }
+
     public function test_it_accepts_custom_configuration_values(): void
     {
         $container = $this->loadBundleConfiguration([
@@ -56,6 +76,11 @@ final class BundleConfigurationTest extends TestCase
                 'action_view' => 'smoke-icon-view',
             ],
             'export' => [
+                'max_rows' => 5000,
+                'format_limits' => [
+                    'csv' => 2500,
+                    'xlsx' => 1000,
+                ],
                 'csv' => [
                     'delimiter' => ';',
                     'enclosure' => '|',
@@ -74,6 +99,11 @@ final class BundleConfigurationTest extends TestCase
         self::assertSame(
             ['action_view' => 'smoke-icon-view'],
             $container->getParameter('zhortein_datatable.icons'),
+        );
+        self::assertSame(5000, $container->getParameter('zhortein_datatable.export.max_rows'));
+        self::assertSame(
+            ['csv' => 2500, 'xlsx' => 1000],
+            $container->getParameter('zhortein_datatable.export.format_limits'),
         );
         self::assertSame(';', $container->getParameter('zhortein_datatable.export.csv.delimiter'));
         self::assertSame('|', $container->getParameter('zhortein_datatable.export.csv.enclosure'));
@@ -114,6 +144,30 @@ final class BundleConfigurationTest extends TestCase
 
         $this->loadBundleConfiguration([
             'max_page_size' => 0,
+        ]);
+    }
+
+    public function test_it_rejects_invalid_export_row_limit(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->loadBundleConfiguration([
+            'export' => [
+                'max_rows' => 0,
+            ],
+        ]);
+    }
+
+    public function test_it_rejects_invalid_format_export_row_limit(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->loadBundleConfiguration([
+            'export' => [
+                'format_limits' => [
+                    'xlsx' => 0,
+                ],
+            ],
         ]);
     }
 

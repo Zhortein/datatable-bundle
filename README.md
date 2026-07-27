@@ -22,6 +22,7 @@ A Symfony 8+ bundle for Bootstrap-first business datatables driven by PHP defini
 - **Multi-column Sorting**: Ordered, accessible sorting shared by providers, URL state, saved views, and exports.
 - **Shareable State**: Per-instance URL state with browser history and Turbo restoration.
 - **Named Views**: Optional saved views with replaceable ownership, authorization and storage contracts.
+- **Guarded Exports**: Server-side CSV/XLSX row limits, preflight counting and replaceable authorization.
 - **Actions**: Declarative row, global and bulk actions with CSRF-aware forms and opt-in Ajax execution.
 - **Exports**: Server-side CSV and optional XLSX exports.
 - **Customization**: Flexible UI/UX customization via Twig blocks and themes.

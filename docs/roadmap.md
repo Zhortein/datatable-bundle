@@ -1349,6 +1349,28 @@ Applications can define enum semantics once and keep localized tables, filters a
 
 ---
 
+## 1.11 - Export limits and authorization safeguards ✅
+
+Delivered:
+
+- configurable global and per-format synchronous export row limits;
+- trusted per-datatable and per-format definition overrides;
+- explicit preflight count capability for Array, Doctrine and custom providers;
+- filtered count checks before row materialization or writer execution;
+- replaceable authorization checker with definition, format, mode, normalized
+  state, Symfony request, signed business context and child-instance metadata;
+- translated private 403, 413 and 422 responses without filtered-count leakage;
+- CSV/XLSX, current/full, filtered and child-compatible safeguards;
+- public API, configuration, security and architecture documentation.
+
+Main outcome:
+
+```text
+Synchronous exports are authorized and bounded before data loading, while host applications keep control of business security and provider-specific counting.
+```
+
+---
+
 ## Later ideas 🔭
 
 Potential future work:
@@ -1364,7 +1386,7 @@ Potential future work:
 - Tailwind or custom theme support;
 - icon provider abstraction;
 - broader cross-browser coverage when concrete compatibility risks justify it;
-- export size limits and queued export jobs.
+- queued export jobs.
 
 ---
 

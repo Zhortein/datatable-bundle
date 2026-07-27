@@ -16,10 +16,13 @@ use Zhortein\DatatableBundle\Context\DatatableContextRequestResolver;
 use Zhortein\DatatableBundle\Context\DatatableContextTransport;
 use Zhortein\DatatableBundle\Contract\ChildDatatableAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Contract\DataProviderInterface;
+use Zhortein\DatatableBundle\Contract\DatatableExportAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Contract\DatatableInterface;
+use Zhortein\DatatableBundle\Contract\ExportRowCountProviderInterface;
 use Zhortein\DatatableBundle\Controller\DatatableController;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Export\CsvExportWriter;
+use Zhortein\DatatableBundle\Export\DatatableExportAuthorizationContext;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
 use Zhortein\DatatableBundle\Factory\AdvancedFilterExpressionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
@@ -111,9 +114,31 @@ final class DatatableControllerChildTest extends TestCase
         )->child(new Request($this->createCoordinates($transport)), 'order-lines');
     }
 
+    public function test_signed_child_export_exposes_restored_context_to_export_authorization(): void
+    {
+        $transport = new DatatableContextTransport('controller-test-secret');
+        $checker = new ChildExportAuthorizationChecker();
+        $coordinates = $this->createCoordinates($transport);
+        $response = $this->createController(
+            $transport,
+            new AllowAllChildDatatableAuthorizationChecker(),
+            $checker,
+        )->export(new Request($coordinates), 'order-lines');
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertNotNull($checker->context);
+        self::assertTrue($checker->context->isChildDatatable());
+        self::assertSame(
+            $coordinates[DatatableContextTransport::INSTANCE_QUERY_PARAMETER],
+            $checker->context->getInstance(),
+        );
+        self::assertSame(42, $checker->context->getDatatableContext()->get('orderId'));
+    }
+
     private function createController(
         DatatableContextTransport $transport,
         ChildDatatableAuthorizationCheckerInterface $authorizationChecker,
+        ?DatatableExportAuthorizationCheckerInterface $exportAuthorizationChecker = null,
     ): DatatableController {
         $datatable = new ChildEndpointDatatable();
         $registry = new DatatableRegistry(
@@ -146,6 +171,7 @@ final class DatatableControllerChildTest extends TestCase
                 $instanceFactory,
                 $authorizationChecker,
             ),
+            exportAuthorizationChecker: $exportAuthorizationChecker,
         );
     }
 
@@ -195,7 +221,7 @@ final class ChildEndpointDatatable implements DatatableInterface
     }
 }
 
-final class ChildEndpointDataProvider implements DataProviderInterface
+final class ChildEndpointDataProvider implements DataProviderInterface, ExportRowCountProviderInterface
 {
     public function supports(DatatableDefinition $definition): bool
     {
@@ -211,5 +237,24 @@ final class ChildEndpointDataProvider implements DataProviderInterface
             totalItems: 1,
             filteredItems: 1,
         );
+    }
+
+    public function countExportRows(
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+    ): int {
+        return 1;
+    }
+}
+
+final class ChildExportAuthorizationChecker implements DatatableExportAuthorizationCheckerInterface
+{
+    public ?DatatableExportAuthorizationContext $context = null;
+
+    public function isGranted(DatatableExportAuthorizationContext $context): bool
+    {
+        $this->context = $context;
+
+        return true;
     }
 }

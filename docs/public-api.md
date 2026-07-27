@@ -59,6 +59,8 @@ Applications may implement or decorate these contracts:
 - `Contract\CellValueResolverInterface`;
 - `Contract\ChildDatatableAuthorizationCheckerInterface`;
 - `Contract\DataProviderInterface`;
+- `Contract\DatatableExportAuthorizationCheckerInterface`;
+- `Contract\ExportRowCountProviderInterface`;
 - `Contract\ExportWriterInterface`;
 - `Contract\EnumPresentationResolverInterface`;
 - `Contract\IconResolverInterface`;
@@ -73,6 +75,7 @@ Objects appearing in those signatures are part of the supported API:
 
 - `Cell\CellContext`;
 - `Action\ActionVisibilityContext`;
+- `Export\DatatableExportAuthorizationContext`;
 - `Export\DatatableExportRequest`;
 - `EnumPresentation\EnumPresentation`;
 - `Preference\DatatablePreference`;
@@ -110,6 +113,13 @@ of its first criterion. Payloads without `sorts` remain accepted throughout the
 computed values](cell-context.md). Resolver services are shared by Twig and
 export writers. Export headers follow the definition translation domain and
 current Symfony locale, matching rendered column labels.
+
+Synchronous export limits and authorization are documented in
+[exports](exports.md). `DatatableDefinition::setExportLimit()`, the two export
+extension contracts and their context/count semantics are additive public 1.x
+APIs. Custom providers may continue to implement only `DataProviderInterface`,
+but synchronous export endpoints reject providers without the explicit count
+capability before loading rows.
 
 Enum presentation metadata declared on columns and filters is resolved at
 render/export time through `EnumPresentationResolverInterface`.

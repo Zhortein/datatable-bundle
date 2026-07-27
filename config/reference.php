@@ -903,6 +903,21 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *     default_page_size?: int, // Default: 25
  *     max_page_size?: int, // Default: 500
  *     search_enabled?: bool, // Default: false
+ *     search_builder_enabled?: bool, // Default: false
+ *     icons?: array<string, scalar|null>,
+ *     export?: array{
+ *         max_rows?: int, // Default: 10000
+ *         format_limits?: array{
+ *             csv?: int|null, // Default: null
+ *             xlsx?: int|null, // Default: null
+ *         },
+ *         csv?: array{
+ *             delimiter?: scalar|null, // Default: ","
+ *             enclosure?: scalar|null, // Default: "\""
+ *             escape?: scalar|null, // Default: "\\"
+ *             bom?: bool, // Default: false
+ *         },
+ *     },
  * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,

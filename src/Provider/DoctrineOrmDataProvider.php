@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Zhortein\DatatableBundle\Contract\DataProviderInterface;
+use Zhortein\DatatableBundle\Contract\ExportRowCountProviderInterface;
 use Zhortein\DatatableBundle\Definition\AggregateColumnDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\ContextFilterValue;
@@ -26,7 +27,7 @@ use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
-final readonly class DoctrineOrmDataProvider implements DataProviderInterface
+final readonly class DoctrineOrmDataProvider implements DataProviderInterface, ExportRowCountProviderInterface
 {
     public const string PROVIDER_NAME = 'doctrine';
     public const string MAIN_ALIAS = 'e';
@@ -91,6 +92,24 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
             pageSize: $request->getPageSize(),
             totalItems: $totalItems,
             filteredItems: $filteredItems,
+        );
+    }
+
+    public function countExportRows(
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+    ): int {
+        $entityClass = $definition->getEntityClass();
+
+        if (null === $entityClass) {
+            throw new \InvalidArgumentException(sprintf('The datatable "%s" must define an entity class to use the Doctrine ORM provider.', $definition->getName()));
+        }
+
+        return $this->countRows(
+            $this->getEntityManager($entityClass),
+            $entityClass,
+            $definition,
+            $request,
         );
     }
 

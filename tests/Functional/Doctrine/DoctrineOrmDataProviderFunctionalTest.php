@@ -88,6 +88,22 @@ final class DoctrineOrmDataProviderFunctionalTest extends FunctionalTestCase
         ], $result->getRows());
     }
 
+    public function test_it_counts_filtered_export_rows_without_pagination(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+
+        $count = $this->createProvider()->countExportRows(
+            $this->createDefinition(),
+            DatatableRequest::create(
+                page: 2,
+                pageSize: 1,
+                searchQuery: 'example.test',
+            ),
+        );
+
+        self::assertSame(3, $count);
+    }
+
     public function test_it_does_not_select_or_hydrate_sources_for_computed_columns(): void
     {
         $this->bootDoctrineAndLoadFixtures();
