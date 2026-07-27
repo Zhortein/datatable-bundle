@@ -139,12 +139,18 @@ final class LocalizedEndpointUrlGeneratorFixture implements UrlGeneratorInterfac
             throw new \InvalidArgumentException('The datatable route requires a name.');
         }
 
+        $format = $parameters['format'] ?? 'csv';
+
+        if (!is_string($format)) {
+            throw new \InvalidArgumentException('The datatable export route requires a format.');
+        }
+
         return match ($name) {
             'zhortein_datatable_fragments' => sprintf('/fr/_zhortein/datatable/%s/fragments', $datatableName),
             'zhortein_datatable_export' => sprintf(
                 '/fr/_zhortein/datatable/%s/export%s',
                 $datatableName,
-                'csv' === ($parameters['format'] ?? null) ? '' : '/'.$parameters['format'],
+                'csv' === $format ? '' : '/'.$format,
             ),
             'zhortein_datatable_views_list' => sprintf('/fr/_zhortein/datatable/%s/views', $datatableName),
             default => throw new \InvalidArgumentException(sprintf('Unexpected route "%s".', $name)),
