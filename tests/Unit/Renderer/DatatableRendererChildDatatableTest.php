@@ -57,6 +57,8 @@ final class DatatableRendererChildDatatableTest extends TestCase
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-child-loading-label="Loading child rows…"', $body);
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-child-state="idle"', $body);
         self::assertStringContainsString('class="zhortein-datatable__child-row"', $body);
+        self::assertStringContainsString('class="zhortein-datatable__child-content p-3"', $body);
+        self::assertStringNotContainsString('bg-body-tertiary', $body);
         self::assertStringContainsString('colspan="2"', $body);
         self::assertStringContainsString('Child rows', $header);
 
