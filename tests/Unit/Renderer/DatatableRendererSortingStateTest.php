@@ -25,7 +25,7 @@ final class DatatableRendererSortingStateTest extends TestCase
 
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-field-value="e.email"', $html);
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-direction-value="desc"', $html);
-        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sorts-value="[{&quot;field&quot;:&quot;e.email&quot;,&quot;direction&quot;:&quot;desc&quot;}]"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sorts-value="&#x5B;&#x7B;&quot;field&quot;&#x3A;&quot;e.email&quot;,&quot;direction&quot;&#x3A;&quot;desc&quot;&#x7D;&#x5D;"', $html);
     }
 
     public function test_it_renders_ascending_sort_state_on_active_header(): void

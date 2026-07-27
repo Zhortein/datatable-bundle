@@ -146,7 +146,7 @@ final class DatatableTwigExtensionTest extends TestCase
         ]);
 
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-field-value=""', $html);
-        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sorts-value="[]"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sorts-value="&#x5B;&#x5D;"', $html);
         self::assertStringNotContainsString('aria-sort=', $html);
     }
 
