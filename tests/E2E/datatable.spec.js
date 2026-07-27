@@ -18,7 +18,7 @@ async function openDatatable(page) {
 
     const datatable = page.locator(DATATABLE);
 
-    await expect(datatable).toHaveAttribute('aria-busy', 'false');
+    await expect(datatable).not.toHaveAttribute('aria-busy');
     await expect(datatable.getByText('alice@example.test')).toBeVisible();
 
     return datatable;
