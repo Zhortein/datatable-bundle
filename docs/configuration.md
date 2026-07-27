@@ -303,6 +303,7 @@ Current options:
 |---|---:|---|
 | `search` | boolean | Displays or hides the search input |
 | `pageSize` | integer | Defines the initial page size |
+| `instance` | string | Identifies one occurrence for HTML IDs, signed context and namespaced URL state |
 | `fragmentsUrl` | string | Overrides the default Ajax fragments URL |
 | `booleanDisplayMode` | string | Defines how boolean values are rendered (`badge`, `icon`, `switch`, `text`) |
 
@@ -326,7 +327,9 @@ Example:
 }) }}
 ```
 
-Runtime options take precedence over global configuration.
+Runtime options take precedence over global configuration and application
+preferences. Valid [URL state](url-state.md) takes precedence over runtime
+options for shareable state fields.
 
 ## Boolean column negation
 

@@ -1,5 +1,8 @@
 import { Controller } from '@hotwired/stimulus';
 
+const DATATABLE_STATE_VERSION = 1;
+const MAX_STATE_PAYLOAD_LENGTH = 32768;
+
 /**
  * Controls a Zhortein datatable.
  *
@@ -37,6 +40,7 @@ export default class extends Controller {
     static values = {
         name: String,
         instance: String,
+        stateParameter: String,
         fragmentsUrl: String,
         exportUrl: String,
         page: { type: Number, default: 1 },
@@ -65,15 +69,35 @@ export default class extends Controller {
         this.confirmationModalInstance = null;
         this.selectedIds = new Set();
         this.ajaxActionAbortControllers = new Map();
+        this.defaultState = this.collectState();
+        this.handlePopState = this.restoreStateFromHistory.bind(this);
+        this.handleTurboBeforeCache = this.persistStateBeforeTurboCache.bind(this);
+        this.stateHistoryEnabled = this.hasStateParameterValue && this.stateParameterValue !== '';
+
+        if (this.stateHistoryEnabled) {
+            window.addEventListener('popstate', this.handlePopState);
+            document.addEventListener('turbo:before-cache', this.handleTurboBeforeCache);
+        }
+
+        const urlState = this.stateHistoryEnabled ? this.readUrlState() : null;
+
+        if (urlState !== null) {
+            this.applyStateSnapshot(urlState);
+            this.dispatchStateEvent('state:restore', urlState, 'connect');
+        }
 
         this.updateActiveFilterState();
 
         if (this.autoLoadValue) {
-            this.refresh();
+            this.refresh(null, 'replace');
         }
     }
 
     disconnect() {
+        if (this.stateHistoryEnabled) {
+            window.removeEventListener('popstate', this.handlePopState);
+            document.removeEventListener('turbo:before-cache', this.handleTurboBeforeCache);
+        }
         this.abortPendingRequest();
         this.ajaxActionAbortControllers.forEach((controller) => controller.abort());
         this.ajaxActionAbortControllers.clear();
@@ -91,7 +115,7 @@ export default class extends Controller {
         }
     }
 
-    refresh(event = null) {
+    refresh(event = null, historyMode = null) {
         if (event !== null) {
             event.preventDefault();
         }
@@ -106,6 +130,7 @@ export default class extends Controller {
         this.abortController = new AbortController();
         this.setLoading(true);
         this.clearError();
+        const resolvedHistoryMode = historyMode ?? this.resolveHistoryMode(event);
 
         return fetch(this.buildFragmentsUrl(), {
             method: 'GET',
@@ -127,6 +152,7 @@ export default class extends Controller {
                 this.applyState(payload);
                 this.updateActiveFilterState();
                 this.clearError();
+                this.commitUrlState(resolvedHistoryMode);
 
                 return payload;
             })
@@ -781,6 +807,347 @@ export default class extends Controller {
         }
     }
 
+    collectState() {
+        const rootSearchBuilderGroup = this.hasSearchBuilderTarget
+            ? this.getRootSearchBuilderGroupElement()
+            : null;
+        const advancedFilters = rootSearchBuilderGroup === null
+            ? null
+            : this.serializeSearchBuilderGroup(rootSearchBuilderGroup);
+        const columns = this.collectColumnVisibilityState();
+
+        return {
+            version: DATATABLE_STATE_VERSION,
+            page: this.pageValue,
+            pageSize: this.pageSizeValue,
+            search: this.searchValue === '' ? null : this.searchValue,
+            sortField: this.sortFieldValue === '' ? null : this.sortFieldValue,
+            sortDirection: this.sortDirectionValue,
+            filters: this.collectFilterState(),
+            advancedFilters: advancedFilters !== null && advancedFilters.conditions.length > 0
+                ? advancedFilters
+                : {},
+            visibleColumns: columns.visibleColumns,
+            hiddenColumns: columns.hiddenColumns,
+        };
+    }
+
+    collectFilterState() {
+        const filters = {};
+
+        this.getFilterControls().forEach((control) => {
+            if (
+                control instanceof HTMLInputElement
+                && (control.type === 'checkbox' || control.type === 'radio')
+                && !control.checked
+            ) {
+                return;
+            }
+
+            const path = this.parseFilterControlPath(control.name);
+            const value = control.value.trim();
+
+            if (path.length === 0 || value === '') {
+                return;
+            }
+
+            this.setNestedValue(filters, path, value);
+        });
+
+        return filters;
+    }
+
+    collectColumnVisibilityState() {
+        const visibleColumns = [];
+        const hiddenColumns = [];
+
+        this.getColumnVisibilityControls().forEach((control) => {
+            if (control.getAttribute('data-zhortein--datatable-bundle--datatable-definition-hidden') === 'true') {
+                return;
+            }
+
+            const columnName = control.getAttribute('data-zhortein--datatable-bundle--datatable-column-name');
+
+            if (!columnName) {
+                return;
+            }
+
+            (control.checked ? visibleColumns : hiddenColumns).push(columnName);
+        });
+
+        return { visibleColumns, hiddenColumns };
+    }
+
+    applyStateSnapshot(state) {
+        this.pageValue = state.page;
+        this.pageSizeValue = state.pageSize;
+        this.searchValue = state.search ?? '';
+        this.sortFieldValue = state.sortField ?? '';
+        this.sortDirectionValue = state.sortDirection;
+
+        if (this.hasSearchInputTarget) {
+            this.searchInputTarget.value = this.searchValue;
+        }
+
+        if (this.hasPageSizeInputTarget) {
+            this.pageSizeInputTarget.value = String(this.pageSizeValue);
+        }
+
+        this.applyFilterState(state.filters);
+        this.applyColumnVisibilityState(state.visibleColumns, state.hiddenColumns);
+        this.applyAdvancedFilterState(state.advancedFilters);
+        this.updateActiveFilterState();
+    }
+
+    applyFilterState(filters) {
+        this.getFilterControls().forEach((control) => {
+            const value = this.getNestedValue(filters, this.parseFilterControlPath(control.name));
+
+            if (control instanceof HTMLInputElement && (control.type === 'checkbox' || control.type === 'radio')) {
+                const values = Array.isArray(value) ? value : [value];
+                control.checked = values.some((item) => String(item ?? '') === control.value);
+
+                return;
+            }
+
+            if (control instanceof HTMLSelectElement && control.multiple) {
+                const values = Array.isArray(value) ? value.map(String) : [String(value ?? '')];
+
+                Array.from(control.options).forEach((option) => {
+                    option.selected = values.includes(option.value);
+                });
+
+                return;
+            }
+
+            control.value = typeof value === 'string' || typeof value === 'number'
+                ? String(value)
+                : '';
+        });
+    }
+
+    applyColumnVisibilityState(visibleColumns, hiddenColumns) {
+        const visibleSet = new Set(visibleColumns);
+        const hiddenSet = new Set(hiddenColumns);
+        const hasWhitelist = visibleSet.size > 0;
+
+        this.getColumnVisibilityControls().forEach((control) => {
+            if (control.getAttribute('data-zhortein--datatable-bundle--datatable-definition-hidden') === 'true') {
+                return;
+            }
+
+            const columnName = control.getAttribute('data-zhortein--datatable-bundle--datatable-column-name');
+
+            if (!columnName) {
+                return;
+            }
+
+            control.checked = (!hasWhitelist || visibleSet.has(columnName)) && !hiddenSet.has(columnName);
+        });
+    }
+
+    parseFilterControlPath(name) {
+        if (typeof name !== 'string' || !name.startsWith('filters[')) {
+            return [];
+        }
+
+        return Array.from(name.matchAll(/\[([^\]]+)]/g), (match) => match[1])
+            .filter((part) => part !== '');
+    }
+
+    setNestedValue(target, path, value) {
+        let cursor = target;
+
+        path.forEach((part, index) => {
+            if (index === path.length - 1) {
+                cursor[part] = value;
+
+                return;
+            }
+
+            if (cursor[part] === null || typeof cursor[part] !== 'object' || Array.isArray(cursor[part])) {
+                cursor[part] = {};
+            }
+
+            cursor = cursor[part];
+        });
+    }
+
+    getNestedValue(source, path) {
+        let cursor = source;
+
+        for (const part of path) {
+            if (cursor === null || typeof cursor !== 'object' || !Object.hasOwn(cursor, part)) {
+                return null;
+            }
+
+            cursor = cursor[part];
+        }
+
+        return cursor;
+    }
+
+    readUrlState() {
+        if (!this.hasStateParameterValue || this.stateParameterValue === '') {
+            return null;
+        }
+
+        const payload = new URL(window.location.href).searchParams.get(this.stateParameterValue);
+
+        if (payload === null || payload === '' || payload.length > MAX_STATE_PAYLOAD_LENGTH) {
+            return null;
+        }
+
+        try {
+            return this.normalizeState(JSON.parse(payload));
+        } catch (error) {
+            return null;
+        }
+    }
+
+    normalizeState(state) {
+        if (
+            state === null
+            || typeof state !== 'object'
+            || Array.isArray(state)
+            || state.version !== DATATABLE_STATE_VERSION
+            || !Number.isInteger(state.page)
+            || state.page < 1
+            || !Number.isInteger(state.pageSize)
+            || state.pageSize < 1
+            || (state.search !== null && typeof state.search !== 'string')
+            || (state.sortField !== null && typeof state.sortField !== 'string')
+            || !['asc', 'desc'].includes(state.sortDirection)
+            || !this.isStateMap(state.filters)
+            || !this.isStateMap(state.advancedFilters)
+            || !this.isStringList(state.visibleColumns)
+            || !this.isStringList(state.hiddenColumns)
+        ) {
+            throw new TypeError('Invalid datatable URL state.');
+        }
+
+        return {
+            version: DATATABLE_STATE_VERSION,
+            page: state.page,
+            pageSize: state.pageSize,
+            search: state.search,
+            sortField: state.sortField,
+            sortDirection: state.sortDirection,
+            filters: state.filters,
+            advancedFilters: state.advancedFilters,
+            visibleColumns: Array.from(new Set(state.visibleColumns)),
+            hiddenColumns: Array.from(new Set(state.hiddenColumns)),
+        };
+    }
+
+    isStateMap(value) {
+        return value !== null && typeof value === 'object' && !Array.isArray(value);
+    }
+
+    isStringList(value) {
+        return Array.isArray(value) && value.every((item) => typeof item === 'string' && item !== '');
+    }
+
+    serializeState(state) {
+        const payload = JSON.stringify(state);
+
+        return payload.length <= MAX_STATE_PAYLOAD_LENGTH ? payload : null;
+    }
+
+    resolveHistoryMode(event) {
+        if (!this.hasStateParameterValue || this.stateParameterValue === '') {
+            return 'none';
+        }
+
+        return event !== null && event.type === 'input' ? 'replace' : 'push';
+    }
+
+    commitUrlState(historyMode = 'replace') {
+        if (
+            historyMode === 'none'
+            || !this.hasStateParameterValue
+            || this.stateParameterValue === ''
+        ) {
+            return;
+        }
+
+        const state = this.collectState();
+        const payload = this.serializeState(state);
+
+        if (payload === null) {
+            return;
+        }
+
+        const url = new URL(window.location.href);
+        const defaultPayload = this.serializeState(this.defaultState);
+
+        if (payload === defaultPayload) {
+            url.searchParams.delete(this.stateParameterValue);
+        } else {
+            url.searchParams.set(this.stateParameterValue, payload);
+        }
+
+        if (url.toString() === window.location.href) {
+            return;
+        }
+
+        this.updateBrowserHistory(historyMode, url);
+
+        this.dispatchStateEvent('state:change', state, historyMode, url.toString());
+    }
+
+    updateBrowserHistory(historyMode, url) {
+        const currentState = this.isStateMap(window.history.state)
+            ? window.history.state
+            : {};
+        const turboHistory = window.Turbo?.navigator?.history;
+        const turboMethod = historyMode === 'push' ? turboHistory?.push : turboHistory?.replace;
+
+        if (typeof turboMethod === 'function') {
+            turboMethod.call(turboHistory, url);
+
+            const turboState = this.isStateMap(window.history.state)
+                ? window.history.state
+                : {};
+
+            window.history.replaceState(
+                { ...currentState, ...turboState },
+                '',
+                url,
+            );
+
+            return;
+        }
+
+        const browserMethod = historyMode === 'push'
+            ? window.history.pushState
+            : window.history.replaceState;
+
+        browserMethod.call(window.history, currentState, '', url);
+    }
+
+    restoreStateFromHistory() {
+        const state = this.readUrlState() ?? this.defaultState;
+
+        this.applyStateSnapshot(state);
+        this.dispatchStateEvent('state:restore', state, 'popstate');
+
+        if (typeof window.Turbo?.navigator?.history === 'undefined') {
+            this.refresh(null, 'none');
+        }
+    }
+
+    persistStateBeforeTurboCache() {
+        this.commitUrlState('replace');
+    }
+
+    dispatchStateEvent(name, state, source, url = window.location.href) {
+        this.dispatch(name, {
+            detail: { state, source, url },
+            prefix: 'zhortein-datatable',
+        });
+    }
+
     buildFragmentsUrl() {
         const url = new URL(this.fragmentsUrlValue, window.location.origin);
 
@@ -901,6 +1268,176 @@ export default class extends Controller {
             .filter((control) => control instanceof HTMLInputElement && control.type === 'checkbox');
     }
 
+    applyAdvancedFilterState(advancedFilters) {
+        if (!this.hasSearchBuilderConditionsTarget) {
+            return;
+        }
+
+        this.searchBuilderConditionsTarget.innerHTML = '';
+
+        if (
+            !this.isStateMap(advancedFilters)
+            || !Array.isArray(advancedFilters.conditions)
+            || advancedFilters.conditions.length === 0
+        ) {
+            const rootGroup = this.getRootSearchBuilderGroupElement();
+            const logicSelect = rootGroup?.querySelector(':scope > .zhortein-datatable__search-builder-header select.zhortein-datatable__search-builder-logic');
+
+            if (logicSelect instanceof HTMLSelectElement) {
+                logicSelect.value = 'AND';
+            }
+
+            return;
+        }
+
+        const rootGroup = this.getRootSearchBuilderGroupElement();
+
+        if (rootGroup === null) {
+            return;
+        }
+
+        this.restoreSearchBuilderGroup(rootGroup, advancedFilters, 1, { remaining: 100 });
+    }
+
+    restoreSearchBuilderGroup(groupElement, groupState, depth, budget) {
+        if (depth > 3 || budget.remaining < 1 || !Array.isArray(groupState.conditions)) {
+            return;
+        }
+
+        const logicSelect = groupElement.querySelector(':scope > .zhortein-datatable__search-builder-header select.zhortein-datatable__search-builder-logic')
+            || groupElement.querySelector(':scope > select.zhortein-datatable__search-builder-logic');
+        const logic = typeof groupState.logic === 'string' ? groupState.logic.toUpperCase() : 'AND';
+
+        if (logicSelect instanceof HTMLSelectElement && ['AND', 'OR'].includes(logic)) {
+            logicSelect.value = logic;
+        }
+
+        const container = groupElement.querySelector(':scope > .zhortein-datatable__search-builder-conditions');
+
+        if (!(container instanceof HTMLElement)) {
+            return;
+        }
+
+        groupState.conditions.forEach((conditionState) => {
+            if (budget.remaining < 1 || !this.isStateMap(conditionState)) {
+                return;
+            }
+
+            if (Array.isArray(conditionState.conditions)) {
+                if (depth >= 3 || !this.hasSearchBuilderGroupTemplateTarget) {
+                    return;
+                }
+
+                const subgroup = this.searchBuilderGroupTemplateTarget.content.firstElementChild?.cloneNode(true);
+
+                if (!(subgroup instanceof HTMLElement)) {
+                    return;
+                }
+
+                budget.remaining -= 1;
+                container.appendChild(subgroup);
+                this.restoreSearchBuilderGroup(subgroup, conditionState, depth + 1, budget);
+
+                return;
+            }
+
+            if (!this.hasSearchBuilderConditionTemplateTarget) {
+                return;
+            }
+
+            const condition = this.searchBuilderConditionTemplateTarget.content.firstElementChild?.cloneNode(true);
+
+            if (!(condition instanceof HTMLElement)) {
+                return;
+            }
+
+            container.appendChild(condition);
+
+            if (!this.restoreSearchBuilderCondition(condition, conditionState)) {
+                condition.remove();
+
+                return;
+            }
+
+            budget.remaining -= 1;
+        });
+    }
+
+    restoreSearchBuilderCondition(condition, conditionState) {
+        const fieldSelect = condition.querySelector('select[data-action*="onSearchBuilderFieldChange"]');
+        const operatorSelect = condition.querySelector('select[data-action*="onSearchBuilderOperatorChange"]');
+
+        if (
+            !(fieldSelect instanceof HTMLSelectElement)
+            || !(operatorSelect instanceof HTMLSelectElement)
+            || typeof conditionState.field !== 'string'
+            || typeof conditionState.operator !== 'string'
+        ) {
+            return false;
+        }
+
+        fieldSelect.value = conditionState.field;
+
+        if (fieldSelect.value !== conditionState.field) {
+            return false;
+        }
+
+        this.onSearchBuilderFieldChange({ target: fieldSelect }, false);
+        operatorSelect.value = conditionState.operator;
+
+        if (operatorSelect.value !== conditionState.operator) {
+            return false;
+        }
+
+        const selectedOption = fieldSelect.options[fieldSelect.selectedIndex];
+        this.updateSearchBuilderValueInput(
+            condition,
+            selectedOption.dataset.type,
+            selectedOption.dataset.choices,
+            false,
+        );
+        this.restoreSearchBuilderValue(condition, conditionState.value);
+
+        return true;
+    }
+
+    restoreSearchBuilderValue(condition, value) {
+        const valueContainer = condition.querySelector('.zhortein-datatable__search-builder-value-container');
+
+        if (!(valueContainer instanceof HTMLElement)) {
+            return;
+        }
+
+        const inputs = valueContainer.querySelectorAll('input, select');
+
+        if (inputs.length === 1) {
+            const input = inputs[0];
+
+            if (input instanceof HTMLSelectElement && input.multiple) {
+                const values = Array.isArray(value) ? value.map(String) : [String(value ?? '')];
+
+                Array.from(input.options).forEach((option) => {
+                    option.selected = values.includes(option.value);
+                });
+
+                return;
+            }
+
+            input.value = value === null || typeof value === 'undefined' ? '' : String(value);
+
+            return;
+        }
+
+        if (inputs.length === 2) {
+            const values = Array.isArray(value)
+                ? value
+                : [value?.from ?? '', value?.to ?? ''];
+
+            inputs[0].value = String(values[0] ?? '');
+            inputs[1].value = String(values[1] ?? '');
+        }
+    }
+
     addSearchBuilderCondition(event) {
         if (event) event.preventDefault();
 
@@ -1000,7 +1537,7 @@ export default class extends Controller {
             || this.searchBuilderTarget;
     }
 
-    onSearchBuilderFieldChange(event) {
+    onSearchBuilderFieldChange(event, shouldRefresh = true) {
         const select = event.target;
         const condition = select.closest('.zhortein-datatable__search-builder-condition');
         const operatorSelect = condition.querySelector('select[data-action*="onSearchBuilderOperatorChange"]');
@@ -1042,14 +1579,14 @@ export default class extends Controller {
         operatorSelect.innerHTML = `<option value="">${i18n.select_operator}</option>` +
             operators.map((op) => `<option value="${op}">${operatorLabels[op] || op}</option>`).join('');
 
-        this.updateSearchBuilderValueInput(condition, type, selectedOption.dataset.choices);
+        this.updateSearchBuilderValueInput(condition, type, selectedOption.dataset.choices, shouldRefresh);
     }
 
     onSearchBuilderOperatorChange() {
         this.refresh();
     }
 
-    updateSearchBuilderValueInput(condition, type, choicesJson) {
+    updateSearchBuilderValueInput(condition, type, choicesJson, shouldRefresh = true) {
         const valueContainer = condition.querySelector('.zhortein-datatable__search-builder-value-container');
         const operatorSelect = condition.querySelector('select[data-action*="onSearchBuilderOperatorChange"]');
         const operator = operatorSelect.value;
@@ -1057,7 +1594,9 @@ export default class extends Controller {
 
         if (operator === 'is_null' || operator === 'is_not_null') {
             valueContainer.innerHTML = '';
-            this.refresh();
+            if (shouldRefresh) {
+                this.refresh();
+            }
 
             return;
         }
@@ -1088,7 +1627,9 @@ export default class extends Controller {
         }
 
         valueContainer.innerHTML = html;
-        this.refresh();
+        if (shouldRefresh) {
+            this.refresh();
+        }
     }
 
     appendAdvancedFilterParameters(searchParams) {

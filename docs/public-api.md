@@ -68,6 +68,12 @@ Objects appearing in those signatures are part of the supported API:
 - `Request\DatatableRequest`;
 - `Result\DatatableResult`.
 
+The canonical URL and future saved-view state model is public:
+
+- `State\DatatableState`;
+- `State\DatatableStateUrlSerializer`;
+- URL state payload version `1`.
+
 The advanced-filter expression model is public for custom providers:
 
 - `AdvancedFilterExpression`;
@@ -115,7 +121,9 @@ The following names are stable in 1.x:
 | Twig | `zhortein_datatable()`, `zhortein_datatable_translate()` |
 | Stimulus | `zhortein--datatable-bundle--datatable` |
 | Ajax action events | `zhortein-datatable:action:before`, `zhortein-datatable:action:success`, `zhortein-datatable:action:error`, `zhortein-datatable:action:complete` |
+| State events | `zhortein-datatable:state:change`, `zhortein-datatable:state:restore` |
 | Ajax action response | version `1` |
+| URL state | version `1`, `_zd_state[...]` namespace |
 | AssetMapper | `@zhortein/datatable-bundle` |
 | Configuration root | `zhortein_datatable` |
 

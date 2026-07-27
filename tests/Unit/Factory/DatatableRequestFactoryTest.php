@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Factory\AdvancedFilterExpressionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
+use Zhortein\DatatableBundle\State\DatatableState;
 
 final class DatatableRequestFactoryTest extends TestCase
 {
@@ -173,5 +174,61 @@ final class DatatableRequestFactoryTest extends TestCase
 
         self::assertTrue($datatableRequest->hasAdvancedFilters());
         self::assertNotNull($datatableRequest->getAdvancedFilterExpression());
+    }
+
+    public function test_it_exposes_the_canonical_state_read_from_the_request(): void
+    {
+        $state = $this->factory->createStateFromRequest(new Request([
+            'page' => '2',
+            'pageSize' => '50',
+            'search' => 'alice',
+            'sortField' => 'email',
+            'sortDirection' => 'desc',
+            'filters' => ['status' => 'active'],
+            'advancedFilters' => [
+                'logic' => 'and',
+                'conditions' => [
+                    ['field' => 'email', 'operator' => 'contains', 'value' => '@example.test'],
+                ],
+            ],
+            'visibleColumns' => ['email'],
+            'hiddenColumns' => ['internal'],
+        ]));
+
+        self::assertSame(2, $state->getPage());
+        self::assertSame(50, $state->getPageSize());
+        self::assertSame('alice', $state->getSearchQuery());
+        self::assertSame(['status' => 'active'], $state->getFilters());
+        self::assertSame(['email'], $state->getVisibleColumns());
+        self::assertSame(['internal'], $state->getHiddenColumns());
+        self::assertSame('email', $state->getAdvancedFilters()['conditions'][0]['field']);
+    }
+
+    public function test_it_creates_an_execution_request_from_canonical_state(): void
+    {
+        $state = DatatableState::create(
+            page: 3,
+            pageSize: 1000,
+            searchQuery: 'alice',
+            sortField: 'email',
+            sortDirection: 'desc',
+            filters: ['status' => 'active'],
+            advancedFilters: [
+                'logic' => 'and',
+                'conditions' => [
+                    ['field' => 'email', 'operator' => 'contains', 'value' => '@example.test'],
+                ],
+            ],
+        );
+
+        $request = $this->factory->createFromState($state, options: ['source' => 'url']);
+
+        self::assertSame(3, $request->getPage());
+        self::assertSame(DatatableRequestFactory::MAX_PAGE_SIZE, $request->getPageSize());
+        self::assertSame('alice', $request->getSearchQuery());
+        self::assertSame(SortDirection::Desc, $request->getSortDirection());
+        self::assertSame(['status' => 'active'], $request->getFilters());
+        self::assertTrue($request->hasAdvancedFilters());
+        self::assertSame('url', $request->getOption('source'));
     }
 }

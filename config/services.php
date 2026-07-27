@@ -16,6 +16,7 @@ use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Context\DatatableContextRequestResolver;
 use Zhortein\DatatableBundle\Context\DatatableContextTransport;
 use Zhortein\DatatableBundle\Renderer\DatatableSummaryRenderer;
+use Zhortein\DatatableBundle\State\DatatableStateUrlSerializer;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -58,6 +59,8 @@ return static function (ContainerConfigurator $container): void {
     ;
 
     $services->set(DatatableContextRequestResolver::class);
+
+    $services->set(DatatableStateUrlSerializer::class);
 
     $services->set(AllowAllActionVisibilityChecker::class);
 
@@ -156,6 +159,7 @@ return static function (ContainerConfigurator $container): void {
         ->arg('$searchBuilderEnabled', param('zhortein_datatable.search_builder_enabled'))
         ->arg('$actionVisibilityChecker', service(ActionVisibilityCheckerInterface::class))
         ->arg('$contextTransport', service(DatatableContextTransport::class))
+        ->arg('$stateUrlSerializer', service(DatatableStateUrlSerializer::class))
         ->arg('$defaultTableOptions', [
             'tableStriped' => param('zhortein_datatable.bootstrap.table_striped'),
             'tableHover' => param('zhortein_datatable.bootstrap.table_hover'),
