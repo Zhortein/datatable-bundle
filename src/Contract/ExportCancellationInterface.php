@@ -9,5 +9,6 @@ namespace Zhortein\DatatableBundle\Contract;
  */
 interface ExportCancellationInterface
 {
+    /** @phpstan-impure */
     public function isCancelled(): bool;
 }

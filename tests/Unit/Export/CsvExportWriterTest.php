@@ -353,15 +353,15 @@ final class CsvExportWriterTest extends TestCase
             ->addColumn('e.email', label: 'Email')
             ->addColumn('e.displayName', label: 'Display name')
         ;
-        $consumedRows = 0;
-        $rows = (static function () use (&$consumedRows): \Generator {
-            ++$consumedRows;
+        $consumption = new CsvStreamConsumptionCounter();
+        $rows = (static function () use ($consumption): \Generator {
+            ++$consumption->rows;
             yield new ExportRow([
                 'e_email' => 'alice@example.test',
                 'e_displayName' => 'Alice',
             ]);
 
-            ++$consumedRows;
+            ++$consumption->rows;
             yield new ExportRow([
                 'e_email' => 'bob@example.test',
                 'e_displayName' => 'Bob',
@@ -375,12 +375,12 @@ final class CsvExportWriterTest extends TestCase
         );
 
         self::assertInstanceOf(StreamedResponse::class, $response);
-        self::assertSame(0, $consumedRows);
+        self::assertSame(0, $consumption->rows);
         self::assertSame(
             "Email,\"Display name\"\nalice@example.test,Alice\nbob@example.test,Bob\n",
             $this->captureStreamedResponse($response),
         );
-        self::assertSame(2, $consumedRows);
+        self::assertSame(2, $consumption->rows);
     }
 
     public function test_it_stops_streaming_cleanly_when_cancelled(): void
@@ -514,4 +514,9 @@ final class CancelAfterChecks implements ExportCancellationInterface
     {
         return ++$this->checks > $this->allowedChecks;
     }
+}
+
+final class CsvStreamConsumptionCounter
+{
+    public int $rows = 0;
 }

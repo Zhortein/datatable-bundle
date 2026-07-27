@@ -35,6 +35,7 @@ final readonly class ExportStreamContext
         return $this->expectedRowCount;
     }
 
+    /** @phpstan-impure */
     public function isCancelled(): bool
     {
         return $this->cancellation->isCancelled();

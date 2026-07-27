@@ -284,12 +284,12 @@ final class XlsxExportWriterTest extends TestCase
             ->addColumn('email', label: 'Email')
             ->addColumn('enabled', label: 'Enabled', type: 'boolean')
         ;
-        $consumedRows = 0;
-        $rows = (static function () use (&$consumedRows): \Generator {
-            ++$consumedRows;
+        $consumption = new XlsxStreamConsumptionCounter();
+        $rows = (static function () use ($consumption): \Generator {
+            ++$consumption->rows;
             yield new ExportRow(['email' => 'alice@example.test', 'enabled' => true]);
 
-            ++$consumedRows;
+            ++$consumption->rows;
             yield new ExportRow(['email' => 'bob@example.test', 'enabled' => false]);
         })();
         $response = new XlsxExportWriter()->writeStream(
@@ -309,14 +309,14 @@ final class XlsxExportWriterTest extends TestCase
         );
 
         self::assertInstanceOf(StreamedResponse::class, $response);
-        self::assertSame(0, $consumedRows);
+        self::assertSame(0, $consumption->rows);
 
         ob_start();
         $response->sendContent();
         $content = ob_get_clean();
 
         self::assertIsString($content);
-        self::assertSame(2, $consumedRows);
+        self::assertSame(2, $consumption->rows);
         self::assertSame(
             [
                 ['Email', 'Enabled'],
@@ -384,4 +384,9 @@ final class XlsxExportWriterTest extends TestCase
 enum XlsxExportStatus: string
 {
     case Active = 'active';
+}
+
+final class XlsxStreamConsumptionCounter
+{
+    public int $rows = 0;
 }
