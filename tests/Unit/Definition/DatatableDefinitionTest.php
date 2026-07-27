@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Zhortein\DatatableBundle\Context\DatatableContext;
 use Zhortein\DatatableBundle\Definition\AjaxActionOptions;
 use Zhortein\DatatableBundle\Definition\ChildContextValue;
+use Zhortein\DatatableBundle\Definition\ChildDatatableDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\AjaxActionSuccessStrategy;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
@@ -55,13 +56,17 @@ final class DatatableDefinitionTest extends TestCase
         self::assertSame($context, $definition->getContext());
     }
 
-    public function test_it_stores_an_explicit_child_datatable_definition(): void
+    public function test_it_has_no_child_datatable_by_default(): void
     {
         $definition = new DatatableDefinition('orders');
 
         self::assertFalse($definition->hasChildDatatable());
         self::assertNull($definition->getChildDatatable());
+    }
 
+    public function test_it_stores_an_explicit_child_datatable_definition(): void
+    {
+        $definition = new DatatableDefinition('orders');
         $definition->setChildDatatable(
             name: 'order-lines',
             context: [
@@ -76,7 +81,7 @@ final class DatatableDefinitionTest extends TestCase
         $child = $definition->getChildDatatable();
 
         self::assertTrue($definition->hasChildDatatable());
-        self::assertNotNull($child);
+        self::assertInstanceOf(ChildDatatableDefinition::class, $child);
         self::assertSame('order-lines', $child->getName());
         self::assertSame(['orderId', 'tenant'], array_keys($child->getContext()));
         self::assertSame('Show order lines', $child->getExpandLabel());
