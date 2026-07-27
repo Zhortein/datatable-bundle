@@ -1,1 +1,0 @@
-- Added a signed lazy-loading endpoint and accessible Bootstrap row markup for hierarchical datatables.
