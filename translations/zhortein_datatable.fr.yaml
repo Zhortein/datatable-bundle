@@ -61,6 +61,9 @@ zhortein_datatable:
         column: 'Lignes enfants'
         expand: 'Déplier la ligne %id%'
         collapse: 'Replier la ligne %id%'
+        loading: 'Chargement des lignes enfants…'
+        error: 'Impossible de charger les lignes enfants.'
+        retry: 'Réessayer'
     actions:
         label: 'Actions'
         row: 'Actions de ligne'

@@ -61,6 +61,9 @@ zhortein_datatable:
         column: 'Child rows'
         expand: 'Expand row %id%'
         collapse: 'Collapse row %id%'
+        loading: 'Loading child rows…'
+        error: 'Unable to load child rows.'
+        retry: 'Retry'
     actions:
         label: 'Actions'
         row: 'Row actions'

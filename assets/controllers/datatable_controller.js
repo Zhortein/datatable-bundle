@@ -1,5 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { Modal } from 'bootstrap';
+import ChildDatatableManager from './child_datatable_manager.js';
 
 const DATATABLE_STATE_VERSION = 1;
 const MAX_STATE_PAYLOAD_LENGTH = 32768;
@@ -82,6 +83,7 @@ export default class extends Controller {
         this.confirmationModalInstance = null;
         this.selectedIds = new Set();
         this.ajaxActionAbortControllers = new Map();
+        this.childDatatableManager = new ChildDatatableManager(this);
         this.savedViewsAbortController = null;
         this.savedViews = [];
         this.defaultState = this.collectState();
@@ -124,6 +126,7 @@ export default class extends Controller {
         this.abortPendingRequest();
         this.ajaxActionAbortControllers.forEach((controller) => controller.abort());
         this.ajaxActionAbortControllers.clear();
+        this.childDatatableManager.abortAll(true);
         this.savedViewsAbortController?.abort();
         this.savedViewsAbortController = null;
 
@@ -195,6 +198,14 @@ export default class extends Controller {
                 this.abortController = null;
                 this.updateActiveFilterState();
             });
+    }
+
+    toggleChildDatatable(event) {
+        this.childDatatableManager.toggle(event);
+    }
+
+    retryChildDatatable(event) {
+        this.childDatatableManager.retry(event);
     }
 
     confirmAction(event) {
@@ -2184,6 +2195,7 @@ export default class extends Controller {
         }
 
         if (this.hasBodyTarget && typeof payload.body === 'string') {
+            this.childDatatableManager.abortAll();
             this.bodyTarget.innerHTML = payload.body;
             this.selectedIds.clear();
             this.updateSelectionUI();
