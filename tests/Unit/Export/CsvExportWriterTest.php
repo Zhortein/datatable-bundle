@@ -258,7 +258,7 @@ final class CsvExportWriterTest extends TestCase
             ),
         );
 
-        self::assertSame("Summary\nalice@example.test / server-source\n", $response->getContent());
+        self::assertSame("Summary\n\"alice@example.test / server-source\"\n", $response->getContent());
     }
 
     private function createDefinition(): DatatableDefinition
