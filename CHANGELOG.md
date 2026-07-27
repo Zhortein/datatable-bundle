@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.8.0] - 2026-07-27
+
+### Added
+
+- Added backward-compatible multi-column sorting across Array and Doctrine providers, URL state, saved views, exports and accessible Stimulus controls.
+
 ## [1.7.0] - 2026-07-27
 
 ### Added
