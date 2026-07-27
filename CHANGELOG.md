@@ -8,6 +8,20 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.7.0] - 2026-07-27
+
+### Added
+
+- Added an explicit child datatable declaration and typed parent-row context mapping contract as the foundation for hierarchical tables.
+- Added a signed lazy-loading endpoint and accessible Bootstrap row markup for hierarchical datatables.
+- Added Array and Doctrine child scoping, recursive Symfony/Chromium coverage, and complete hierarchical datatable documentation.
+- Added lazy Stimulus loading, retry and accessible focus management for hierarchical child datatables.
+- Added signed child datatable instances, typed context resolution, recursion safeguards and an authorization extension point.
+
+### Fixed
+
+- Fixed Bootstrap confirmation modals in ESM applications by importing the modal component explicitly instead of relying on a global `window.bootstrap` object.
+
 ## [1.6.1] - 2026-07-27
 
 ### Fixed

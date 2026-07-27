@@ -1,1 +1,0 @@
-- Fixed Bootstrap confirmation modals in ESM applications by importing the modal component explicitly instead of relying on a global `window.bootstrap` object.
