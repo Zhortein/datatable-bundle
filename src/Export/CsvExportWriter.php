@@ -116,8 +116,7 @@ final readonly class CsvExportWriter implements ExportWriterInterface
         array $columns,
         array $row,
         mixed $source,
-    ): array
-    {
+    ): array {
         $values = [];
 
         foreach ($columns as $column) {

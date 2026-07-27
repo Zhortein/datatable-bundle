@@ -106,8 +106,7 @@ final readonly class XlsxExportWriter implements ExportWriterInterface
         array $columns,
         array $row,
         mixed $source,
-    ): array
-    {
+    ): array {
         $values = [];
 
         foreach ($columns as $column) {

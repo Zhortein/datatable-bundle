@@ -8,7 +8,7 @@ final readonly class DatatableResult
 {
     /**
      * @param list<array<string, mixed>> $rows
-     * @param list<mixed>                $sources Server-side source values aligned with rows.
+     * @param list<mixed>                $sources server-side source values aligned with rows
      */
     public function __construct(
         private array $rows = [],
