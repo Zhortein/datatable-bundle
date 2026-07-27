@@ -102,14 +102,17 @@ final class DatatableRendererChildDatatableTest extends TestCase
             new DatatableContextTransport('renderer-test-secret'),
             new AllowAllChildDatatableAuthorizationChecker(),
         );
+        $definition = $this->createParentDefinition()
+            ->setOption('identifier', 'rowIdentifier')
+        ;
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('A child datatable parent row identifier must be a non-empty scalar');
 
         $renderer->renderBody(
-            $this->createParentDefinition(),
+            $definition,
             new DatatableResult(
-                rows: [['name' => 'Missing identifier']],
+                rows: [['id' => 42, 'name' => 'Missing identifier']],
                 totalItems: 1,
             ),
         );
