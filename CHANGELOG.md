@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.6.0] - 2026-07-27
+
+### Added
+
+- Added a stable server-side cell context, provider-aligned source values and reusable computed-column resolvers shared by Twig, CSV and XLSX exports.
+
 ## [1.5.0] - 2026-07-27
 
 ### Added

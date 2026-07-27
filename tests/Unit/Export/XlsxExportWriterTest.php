@@ -7,6 +7,10 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Export;
 use OpenSpout\Reader\XLSX\Reader;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Zhortein\DatatableBundle\Cell\CellContext;
+use Zhortein\DatatableBundle\Cell\CellContextFactory;
+use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
+use Zhortein\DatatableBundle\Contract\CellValueResolverInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
 use Zhortein\DatatableBundle\Export\DatatableExportRequest;
@@ -143,6 +147,49 @@ final class XlsxExportWriterTest extends TestCase
         self::assertSame([
             ['Identifier'],
             [1],
+        ], $this->readXlsxRows((string) $response->getContent()));
+    }
+
+    public function test_it_exports_computed_values(): void
+    {
+        $resolver = new class implements CellValueResolverInterface {
+            public function getName(): string
+            {
+                return 'summary';
+            }
+
+            public function resolve(CellContext $context): mixed
+            {
+                $email = $context->getRow()['e_email'] ?? null;
+
+                if (!is_string($email)) {
+                    throw new \UnexpectedValueException('Expected the email to be a string.');
+                }
+
+                return strtoupper($email);
+            }
+        };
+        $definition = new DatatableDefinition('users');
+        $definition
+            ->addColumn('e.email', visible: false)
+            ->addComputedColumn('summary', valueResolver: 'summary', label: 'Summary')
+        ;
+        $writer = new XlsxExportWriter(
+            cellContextFactory: new CellContextFactory(new CellValueResolverRegistry([$resolver])),
+        );
+
+        $response = $writer->write(
+            request: new DatatableExportRequest('users', format: ExportFormat::Xlsx),
+            definition: $definition,
+            result: new DatatableResult(
+                rows: [['e_email' => 'alice@example.test']],
+                totalItems: 1,
+            ),
+        );
+
+        self::assertSame([
+            ['Summary'],
+            ['ALICE@EXAMPLE.TEST'],
         ], $this->readXlsxRows((string) $response->getContent()));
     }
 

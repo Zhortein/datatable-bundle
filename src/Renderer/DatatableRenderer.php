@@ -10,6 +10,8 @@ use Twig\Environment;
 use Zhortein\DatatableBundle\Action\ActionVisibilityCheckerInterface;
 use Zhortein\DatatableBundle\Action\ActionVisibilityContext;
 use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
+use Zhortein\DatatableBundle\Cell\CellContext;
+use Zhortein\DatatableBundle\Cell\CellContextFactory;
 use Zhortein\DatatableBundle\Context\DatatableContextTransport;
 use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Definition\ActionDefinition;
@@ -28,6 +30,8 @@ use Zhortein\DatatableBundle\View\DatatableViewScope;
 
 final readonly class DatatableRenderer
 {
+    private CellContextFactory $cellContextFactory;
+
     /**
      * @param array<string, bool> $defaultTableOptions
      */
@@ -45,7 +49,9 @@ final readonly class DatatableRenderer
         private bool $searchBuilderEnabled = false,
         private array $defaultTableOptions = [],
         private ?DatatableStateUrlSerializer $stateUrlSerializer = null,
+        ?CellContextFactory $cellContextFactory = null,
     ) {
+        $this->cellContextFactory = $cellContextFactory ?? new CellContextFactory();
     }
 
     /**
@@ -598,7 +604,7 @@ final readonly class DatatableRenderer
     /**
      * @param array<string, mixed> $options
      *
-     * @return list<array{cells: list<array{column: ColumnDefinition, value: mixed, template: string, className: string|null, booleanDisplayMode: string, booleanTrueIcon: string|null, booleanFalseIcon: string|null, translationDomain: string|null}>, actions: list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null}>, identifier: string|null}>
+     * @return list<array{cells: list<array{context: CellContext, column: ColumnDefinition, value: mixed, template: string, className: string|null, booleanDisplayMode: string, booleanTrueIcon: string|null, booleanFalseIcon: string|null, translationDomain: string|null}>, actions: list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null}>, identifier: string|null}>
      */
     private function normalizeRows(DatatableDefinition $definition, DatatableResult $result, array $options = []): array
     {
@@ -609,13 +615,19 @@ final readonly class DatatableRenderer
         $booleanFalseIcon = $this->iconResolver?->resolve('boolean_false');
         $normalizedRows = [];
 
-        foreach ($result->getRows() as $row) {
+        foreach ($result->getRows() as $rowIndex => $row) {
             $cells = [];
+            $source = $result->getSource($rowIndex);
 
             foreach ($visibleColumns as $column) {
+                $cellContext = $this->normalizeCellContext(
+                    $this->cellContextFactory->create($definition, $column, $row, $source),
+                );
+
                 $cells[] = [
+                    'context' => $cellContext,
                     'column' => $column,
-                    'value' => $this->resolveCellValue($row, $column),
+                    'value' => $cellContext->getValue(),
                     'template' => $this->resolveCellTemplate($column),
                     'className' => $this->resolveCellClassName($column),
                     'booleanDisplayMode' => $booleanDisplayMode->value,
@@ -628,7 +640,9 @@ final readonly class DatatableRenderer
             $normalizedRow = [
                 'cells' => $cells,
                 'actions' => $this->normalizeRowActions($definition, $row, $options),
-                'identifier' => $needsRowIdentifier ? $this->resolveRowIdentifier($row, $definition) : null,
+                'identifier' => $needsRowIdentifier
+                    ? $this->cellContextFactory->resolveRowIdentifier($row, $definition)
+                    : null,
             ];
 
             $normalizedRows[] = $normalizedRow;
@@ -646,30 +660,6 @@ final readonly class DatatableRenderer
         }
 
         return false;
-    }
-
-    /**
-     * @param array<string, mixed> $row
-     */
-    private function resolveRowIdentifier(array $row, DatatableDefinition $definition): ?string
-    {
-        $identifierKey = $definition->getOption('identifier');
-
-        if (is_string($identifierKey)) {
-            $value = $row[$identifierKey] ?? null;
-
-            return is_scalar($value) ? (string) $value : null;
-        }
-
-        foreach (['id', 'e_id'] as $candidate) {
-            if (array_key_exists($candidate, $row)) {
-                $value = $row[$candidate];
-
-                return is_scalar($value) ? (string) $value : null;
-            }
-        }
-
-        return null;
     }
 
     /**
@@ -871,57 +861,20 @@ final readonly class DatatableRenderer
         return $classNames;
     }
 
-    /**
-     * @param array<string, mixed> $row
-     */
-    private function resolveCellValue(array $row, ColumnDefinition $column): mixed
+    private function normalizeCellContext(CellContext $context): CellContext
     {
-        $value = $this->readColumnValue($row, $column);
+        $value = $context->getValue();
+        $column = $context->getColumn();
 
         if (
             !$column->isNegated()
             || CellType::Boolean !== CellType::fromNullableString($column->getType())
             || null === $value
         ) {
-            return $value;
+            return $context;
         }
 
-        return !(bool) $value;
-    }
-
-    /**
-     * @param array<string, mixed> $row
-     */
-    private function readColumnValue(array $row, ColumnDefinition $column): mixed
-    {
-        foreach ($this->getColumnValueCandidateKeys($column->getName()) as $candidateKey) {
-            if (array_key_exists($candidateKey, $row)) {
-                return $row[$candidateKey];
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getColumnValueCandidateKeys(string $columnName): array
-    {
-        $candidateKeys = [$columnName];
-
-        if (str_contains($columnName, '.')) {
-            $candidateKeys[] = str_replace('.', '_', $columnName);
-
-            $parts = explode('.', $columnName);
-            $lastPart = $parts[array_key_last($parts)];
-
-            if ('' !== $lastPart) {
-                $candidateKeys[] = $lastPart;
-            }
-        }
-
-        return array_values(array_unique($candidateKeys));
+        return $context->withValue(!(bool) $value);
     }
 
     /**

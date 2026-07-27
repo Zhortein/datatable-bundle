@@ -119,6 +119,31 @@ $definition->addColumn(
 
 The default is intentionally visibility-aware for backward compatibility and to prevent hidden technical or sensitive values from being exported after a bundle update without an explicit decision.
 
+### Computed Values
+
+Computed columns use the same `CellValueResolverInterface` service for Twig,
+CSV and XLSX:
+
+```php
+$definition->addComputedColumn(
+    name: 'account_summary',
+    valueResolver: 'account_summary',
+    label: 'Account',
+    exportable: true,
+);
+```
+
+The resolver receives the normalized row, optional provider source, row
+identifier, column/table definitions and explicit `DatatableContext`.
+Visibility and `exportable` policies are applied before resolution.
+
+Twig templates are never written into export files. The resolver's return
+value is normalized by the selected writer. Existing boolean `negate` remains
+a display-only modifier.
+
+See [Cell Context and Computed Values](cell-context.md) for the resolver
+contract and [the complete example](examples/computed-cell.md).
+
 ## Security
 
 The export endpoint does not include a built-in authorization layer beyond the route protection. Host applications should protect the `zhortein_datatable_export` route according to their security requirements.
@@ -134,4 +159,5 @@ context](context.md).
 - [Explicit datatable context](context.md)
 - [URL state and browser history](url-state.md)
 - [UI/UX customization](ui-ux.md)
+- [Cell context and computed values](cell-context.md)
 - [Architecture](architecture/overview.md)

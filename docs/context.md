@@ -130,6 +130,12 @@ The host application must therefore:
 Server-only context remains appropriate for objects and values that can be
 reconstructed safely on every request.
 
+Custom cell templates and computed-value resolvers receive the complete
+server-side `DatatableContext` through `CellContext`. Only values explicitly
+placed in that context are visible to cell code. Browser propagation still
+uses the separate `browserSafeKeys` allowlist, and the bundle never serializes
+the complete context into fragment JSON.
+
 ## Compatibility
 
 Existing definitions need no changes. A `DatatableContext` without
@@ -143,3 +149,4 @@ is explicitly enabled.
 - [Exports](exports.md)
 - [Routes](routes.md)
 - [Public API](public-api.md)
+- [Cell context and computed values](cell-context.md)

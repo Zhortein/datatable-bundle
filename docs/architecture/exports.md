@@ -49,7 +49,14 @@ XLSX support is implemented via an optional writer that depends on `openspout/op
 3. **Data Fetching**: The provider fetches data. For `full` mode, pagination is disabled via `DatatableRequest::withoutPagination()`.
 4. **Writing**: The resolved writer generates the response (e.g., streaming a file).
 
+Before format normalization, each writer builds the same server-side
+`CellContext` used by Twig. Named computed columns therefore have one resolver
+for rendered and exported values. Twig templates and display-only boolean
+negation are not applied to file output.
+
 ## Performance and Limitations
 
 - **Synchronous**: Currently, exports are synchronous and data is loaded into memory before writing.
 - **Memory**: Large "full" exports on datasets with millions of rows may hit PHP memory limits. A future streaming provider or async architecture is planned for these cases.
+
+See [Cell Context and Computed Values](../cell-context.md).

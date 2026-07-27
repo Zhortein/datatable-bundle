@@ -14,6 +14,9 @@ final class DatatableResultTest extends TestCase
         $result = new DatatableResult();
 
         self::assertSame([], $result->getRows());
+        self::assertSame([], $result->getSources());
+        self::assertFalse($result->hasSources());
+        self::assertNull($result->getSource(0));
         self::assertSame(1, $result->getPage());
         self::assertSame(25, $result->getPageSize());
         self::assertSame(0, $result->getTotalItems());
@@ -90,6 +93,32 @@ final class DatatableResultTest extends TestCase
         self::assertSame(12, $result->getTotalItems());
         self::assertSame(11, $result->getFilteredItems());
         self::assertSame(2, $result->getTotalPages());
+    }
+
+    public function test_it_exposes_server_side_sources_aligned_with_rows(): void
+    {
+        $source = new \stdClass();
+        $result = new DatatableResult(
+            rows: [['id' => 1]],
+            totalItems: 1,
+            sources: [$source],
+        );
+
+        self::assertTrue($result->hasSources());
+        self::assertSame([$source], $result->getSources());
+        self::assertSame($source, $result->getSource(0));
+        self::assertNull($result->getSource(1));
+    }
+
+    public function test_it_rejects_misaligned_sources(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Datatable result sources must be empty or contain exactly one value for each row.');
+
+        new DatatableResult(
+            rows: [['id' => 1], ['id' => 2]],
+            sources: [new \stdClass()],
+        );
     }
 
     public function test_it_rejects_invalid_page(): void

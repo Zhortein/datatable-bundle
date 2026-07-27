@@ -12,6 +12,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Zhortein\DatatableBundle\Action\ActionVisibilityCheckerInterface;
+use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
 use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
@@ -147,6 +148,11 @@ final class TestKernel extends Kernel
 
         $services
             ->alias('test.'.DatatableRenderer::class, DatatableRenderer::class)
+            ->public()
+        ;
+
+        $services
+            ->alias('test.'.CellValueResolverRegistry::class, CellValueResolverRegistry::class)
             ->public()
         ;
     }

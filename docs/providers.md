@@ -4,6 +4,11 @@ Data providers are responsible for fetching data, applying filters, sorting, and
 
 The `zhortein/datatable-bundle` supports multiple providers through a common `DataProviderInterface`.
 
+Every provider returns normalized associative rows in `DatatableResult`.
+Providers may also attach one server-only source value per row. Array does so
+automatically; Doctrine intentionally keeps source objects unavailable to
+preserve scalar projections and prevent accidental lazy-loading queries.
+
 ## Available Providers
 
 - **[Doctrine ORM Provider](doctrine-provider.md)**: The primary production-ready provider for entity-backed datatables.
@@ -50,3 +55,10 @@ return static function (ContainerConfigurator $container): void {
 ```
 
 See [Architecture: Providers](architecture/providers.md) for internal implementation details.
+
+Custom providers that expose source objects must fetch every value needed by
+cell resolvers in batches. Sources are available only to server-side cell
+templates and exports; they are never serialized automatically.
+
+See [Cell Context and Computed Values](cell-context.md) for the result contract
+and provider capability matrix.

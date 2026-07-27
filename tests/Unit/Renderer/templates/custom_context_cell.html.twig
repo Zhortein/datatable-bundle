@@ -1,0 +1,10 @@
+<span data-context-cell="{{ column.name }}">
+    Value: {{ value }};
+    Cell value: {{ cell.value }};
+    Row: {{ row.email }};
+    Source: {{ source.label }};
+    Identifier: {{ row_identifier }};
+    Datatable: {{ datatable.name }};
+    Scope: {{ datatable_context.get('scope') }};
+    Missing: {{ datatable_context.get('forbidden', 'not-allowed') }}
+</span>
