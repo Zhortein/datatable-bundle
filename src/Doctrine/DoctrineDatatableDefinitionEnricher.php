@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Doctrine;
 
-use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
-use Zhortein\DatatableBundle\Provider\DoctrineOrmDataProvider;
 
 final readonly class DoctrineDatatableDefinitionEnricher
 {
@@ -24,18 +22,12 @@ final readonly class DoctrineDatatableDefinitionEnricher
         }
 
         foreach ($definition->getColumns() as $column) {
-            if (null !== $column->getType()) {
-                continue;
-            }
-
-            $fieldName = $this->extractDoctrineFieldName($column);
-
-            if (null === $fieldName) {
+            if (null !== $column->getType() || $column->isComputed()) {
                 continue;
             }
 
             try {
-                $fieldType = $this->fieldTypeGuesser->guess($entityClass, $fieldName);
+                $fieldType = $this->fieldTypeGuesser->guessForDefinition($definition, $column->getName());
             } catch (\InvalidArgumentException) {
                 continue;
             }
@@ -44,22 +36,5 @@ final readonly class DoctrineDatatableDefinitionEnricher
         }
 
         return $definition;
-    }
-
-    private function extractDoctrineFieldName(ColumnDefinition $column): ?string
-    {
-        $columnName = $column->getName();
-
-        if (!str_contains($columnName, '.')) {
-            return $columnName;
-        }
-
-        [$alias, $fieldName] = explode('.', $columnName, 2);
-
-        if (DoctrineOrmDataProvider::MAIN_ALIAS !== $alias) {
-            return null;
-        }
-
-        return '' !== $fieldName ? $fieldName : null;
     }
 }

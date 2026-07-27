@@ -107,7 +107,12 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(AdvancedFilterExpressionFactory::class);
 
-    $services->set(DatatableDefinitionFactory::class);
+    $definitionFactory = $services
+        ->set(DatatableDefinitionFactory::class)
+        ->arg('$doctrineDefinitionEnricher', null)
+        ->arg('$dataProviderRegistry', service(DataProviderRegistry::class))
+        ->arg('$defaultProvider', param('zhortein_datatable.default_provider'))
+    ;
 
     $services
         ->set(DatatableRequestFactory::class)
@@ -155,6 +160,8 @@ return static function (ContainerConfigurator $container): void {
         $services->set(DoctrineJoinApplier::class);
         $services->set(DoctrinePaginationApplier::class);
         $services->set(DoctrineFieldMetadataResolver::class);
+
+        $definitionFactory->arg('$doctrineDefinitionEnricher', service(DoctrineDatatableDefinitionEnricher::class));
 
         $services
             ->set(DoctrineOrmDataProvider::class)

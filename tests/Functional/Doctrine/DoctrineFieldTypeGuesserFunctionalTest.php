@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
+use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUserStatus;
 use Zhortein\DatatableBundle\Tests\Functional\FunctionalTestCase;
 use Zhortein\DatatableBundle\Tests\Functional\Kernel\TestKernel;
 
@@ -54,6 +55,19 @@ final class DoctrineFieldTypeGuesserFunctionalTest extends FunctionalTestCase
         self::assertSame('datetime', $fieldType->getCellType());
         self::assertFalse($fieldType->isSearchable());
         self::assertTrue($fieldType->isSortable());
+    }
+
+    public function test_it_guesses_backed_enum_field_type(): void
+    {
+        $fieldType = $this->getGuesser()->guess(DoctrineUser::class, 'status');
+
+        self::assertSame('status', $fieldType->getFieldName());
+        self::assertSame('string', $fieldType->getDoctrineType());
+        self::assertSame('enum', $fieldType->getCellType());
+        self::assertTrue($fieldType->isSearchable());
+        self::assertTrue($fieldType->isSortable());
+        self::assertTrue($fieldType->isEnum());
+        self::assertSame(DoctrineUserStatus::class, $fieldType->getEnumClass());
     }
 
     public function test_it_throws_for_unknown_field(): void

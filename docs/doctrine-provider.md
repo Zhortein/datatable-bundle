@@ -43,7 +43,32 @@ $definition->addColumn('e.username', label: 'Username');
 ```
 
 ### Metadata-based Guessing
-The bundle automatically detects Doctrine types (string, boolean, datetime, etc.) and applies appropriate cell templates and alignments.
+The bundle automatically detects Doctrine types (`string`, `numeric`,
+`boolean`, `datetime`, `array` and backed `enum`) and applies the matching cell
+templates and alignments.
+
+Enrichment runs when the datatable definition is created, before the same
+definition is consumed by initial Twig rendering, Ajax fragments, filters and
+exports. It covers:
+
+- fields on the main `e` alias;
+- fields below explicitly declared mapped joins;
+- chained mapped joins;
+- fields below custom joins, using the declared target entity metadata.
+
+An explicit column `type` always takes priority:
+
+```php
+$definition->addColumn(
+    'organization.enabled',
+    label: 'Organization status',
+    type: 'string',
+);
+```
+
+Computed columns, unknown fields and fields using undeclared aliases are left
+untouched. Metadata enrichment never creates a join or traverses an
+association implicitly.
 
 ### Computed Columns
 
@@ -101,6 +126,9 @@ $definition->addJoin('grp', 'org.group', JoinType::Left);
 $definition->addColumn('grp.name', label: 'Group Name');
 ```
 
+The type of `org.name` and `grp.name` is inferred from the target entity
+metadata after the declared aliases have been resolved.
+
 ### Safe Custom Joins
 Custom joins allow joining entities without a mapped Doctrine association.
 ```php
@@ -111,7 +139,11 @@ $definition->addCustomJoin(
     type: JoinType::Left
 );
 $definition->setOption('customJoinParameters', ['audit_class' => User::class]);
+$definition->addColumn('audit.createdAt', label: 'Last audit');
 ```
+
+The type of `audit.createdAt` is inferred from `AuditLog` metadata. The join
+condition and parameters remain explicit application responsibilities.
 
 ## Aggregate Columns
 
