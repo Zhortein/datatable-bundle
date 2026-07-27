@@ -898,9 +898,9 @@ This decision should be revisited after more real-world installations.
 
 # Next roadmap direction
 
-The next milestone should focus on browser-level validation and accessibility.
-
-The next milestone should focus on production-oriented table actions.
+The prerelease feature plan is complete. Browser-level validation and an
+accessibility baseline are the final cross-cutting quality milestone carried
+into the stable series before the next large functional feature.
 
 ## 0.24 - Bulk actions and row selection ✅
 
@@ -1028,7 +1028,7 @@ Target release: v0.3.0-beta.1.
 
 ---
 
-## 0.28 - Frontend E2E and accessibility evaluation 🚧
+## 0.28 - Frontend E2E and accessibility evaluation ✅
 
 Goal:
 
@@ -1036,27 +1036,28 @@ Goal:
 Validate the most interactive UI behavior in a real browser and define an accessibility baseline.
 ```
 
-Planned:
+Delivered:
 
-- decide whether Playwright or another browser-level tool is needed;
-- test Bootstrap dropdown behavior in a real browser;
-- test keyboard navigation;
-- test modal confirmations;
-- test row selection and bulk actions;
-- test column header filters;
-- test export links;
-- add basic accessibility checks where practical;
-- document findings and limitations.
+- focused Playwright Chromium coverage against a fresh Symfony 8 host;
+- real AssetMapper, Stimulus and Bootstrap integration;
+- Bootstrap dropdown behavior in a real browser;
+- keyboard sorting, pagination and row selection;
+- modal confirmation focus and dismissal;
+- column header filters and backend refreshes;
+- real CSV download assertions;
+- axe-core WCAG A/AA component baseline;
+- CI traces uploaded on browser failures;
+- documented browser-test scope and host-layout accessibility boundary.
 
-Main expected outcome:
+Main outcome:
 
 ```text
-The most interactive Bootstrap/Stimulus behaviors are validated beyond jsdom unit tests.
+The highest-risk Bootstrap/Stimulus behaviors are validated beyond jsdom unit tests without turning the bundle CI into a large browser matrix.
 ```
 
 ---
 
-## 0.29 - Hierarchical tables / expandable child datatables 🕒
+## 0.29 - Hierarchical tables / expandable child datatables ✅
 
 Goal:
 
@@ -1064,21 +1065,23 @@ Goal:
 Support expandable rows and child datatables for hierarchical business data.
 ```
 
-Planned:
+Delivered:
 
-- design parent/child datatable API;
-- support expandable detail rows;
-- support lazy Ajax loading;
-- propagate parent row context;
-- define recursion/performance safeguards;
-- document limitations;
-- smoke test hierarchical UI.
+- explicit parent/child datatable API;
+- expandable detail rows;
+- lazy Ajax loading;
+- signed parent row context propagation;
+- recursion, authorization and performance safeguards;
+- documented limitations;
+- Symfony and browser smoke coverage.
 
-Main expected outcome:
+Main outcome:
 
 ```text
 Datatables can represent parent/child business structures without custom per-project table code.
 ```
+
+This prerelease proposal is carried forward as stable milestone `1.7` below.
 
 ---
 
@@ -1195,9 +1198,9 @@ Shareable URLs and browser navigation restore each datatable instance without le
 
 ---
 
-## 1.5 - Named saved datatable views 🚧
+## 1.5 - Named saved datatable views ✅
 
-Current scope:
+Delivered:
 
 - immutable view metadata, scope and saved-state objects reusing `DatatableState`;
 - replaceable provider, owner resolver and authorization contracts;
@@ -1212,6 +1215,58 @@ Main expected outcome:
 
 ```text
 Applications can expose secure named datatable views without coupling the bundle to their user entity, storage technology or authorization model.
+```
+
+---
+
+## 1.6 - Cell context and computed values ✅
+
+Delivered:
+
+- provider-aligned source values beside normalized display rows;
+- immutable server-side `CellContext`;
+- complete row, column, source, definition, request and business context for
+  custom Twig cells;
+- tagged computed-value resolvers;
+- computed values reused consistently by Twig, CSV and XLSX exports;
+- stable public API, examples and compatibility documentation.
+
+Main outcome:
+
+```text
+Rich cells can use complete server-side context and reusable computed values without moving business logic into Twig or duplicating export code.
+```
+
+---
+
+## 1.6.1 - Corrective maintenance ✅
+
+Delivered:
+
+- stable empty-map serialization and legacy normalization for named views;
+- translated CSV and XLSX column headers;
+- frontend tooling security updates;
+- repository branch cleanup after release.
+
+---
+
+## 1.7 - Hierarchical tables / expandable child datatables ✅
+
+Delivered:
+
+- explicit parent/child definition API;
+- accessible expandable row controls;
+- lazy Ajax detail loading;
+- explicit parent row context propagation;
+- isolated nested datatable instances and URL state;
+- recursion, authorization and performance safeguards;
+- Array and Doctrine-backed coverage;
+- browser E2E validation and complete documentation.
+
+Main outcome:
+
+```text
+Applications can represent parent/child business structures without custom per-project table code.
 ```
 
 ---
@@ -1232,7 +1287,7 @@ Potential future work:
 - Symfony Flex recipe if external demand justifies it;
 - Tailwind or custom theme support;
 - icon provider abstraction;
-- frontend smoke test automation;
+- broader cross-browser coverage when concrete compatibility risks justify it;
 - export size limits and queued export jobs.
 
 ---

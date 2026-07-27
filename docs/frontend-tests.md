@@ -23,6 +23,8 @@ Frontend tests use:
 Vitest
 jsdom
 @hotwired/stimulus
+Playwright
+axe-core
 ```
 
 Vitest is used as the JavaScript test runner.
@@ -34,6 +36,10 @@ Stimulus is started directly in tests to register and exercise the controller wi
 ```text
 zhortein--datatable-bundle--datatable
 ```
+
+Playwright provides a focused Chromium smoke suite against the fresh Symfony
+application. axe-core checks the rendered datatable against the WCAG 2.0,
+2.1 and 2.2 A/AA rules that belong to the bundle component.
 
 ---
 
@@ -61,6 +67,18 @@ The bundle controller currently tested is:
 
 ```text
 assets/controllers/datatable_controller.js
+```
+
+Browser tests live under:
+
+```text
+tests/E2E/
+```
+
+Their configuration is:
+
+```text
+playwright.config.js
 ```
 
 ---
@@ -92,6 +110,29 @@ For development watch mode:
 npm run test:frontend:watch
 ```
 
+Install the Chromium browser used by the E2E suite:
+
+```bash
+npx playwright install --with-deps chromium
+```
+
+Run the E2E suite through the real fresh-Symfony smoke application:
+
+```bash
+SMOKE_E2E=1 tools/smoke-test/fresh-symfony-app.sh
+```
+
+The smoke script creates a temporary Symfony 8 application, installs the
+current bundle through a Composer path repository, compiles AssetMapper
+assets, starts the PHP test server and then runs:
+
+```bash
+npm run test:e2e
+```
+
+`PLAYWRIGHT_BASE_URL` may point the browser suite to an already running
+compatible smoke host when debugging.
+
 ---
 
 ## CI execution
@@ -104,6 +145,10 @@ The CI workflow runs:
 npm ci
 npm run test:frontend
 ```
+
+The dedicated browser job additionally installs Chromium and runs the fresh
+Symfony smoke script with `SMOKE_E2E=1`. Failed runs upload Playwright traces
+as a workflow artifact.
 
 `package-lock.json` is committed so CI can use reproducible dependency installation with `npm ci`.
 
@@ -261,11 +306,32 @@ Covered behavior:
 
 These tests protect conditional multi-format export controls.
 
+### Browser E2E and accessibility
+
+The focused Chromium suite validates behavior that jsdom cannot represent
+faithfully:
+
+- the bundle loads through real Symfony routes, AssetMapper and Stimulus;
+- Ajax fragments update the rendered table;
+- sorting and pagination work from the keyboard;
+- Bootstrap action and header-filter dropdowns open in a real browser;
+- search and typed filters refresh real backend results;
+- row selection exposes bulk actions;
+- the Bootstrap confirmation modal receives keyboard focus and closes with
+  `Escape`;
+- CSV export produces a real browser download;
+- the rendered datatable has no axe-core violations in the selected WCAG
+  A/AA baseline.
+
+The `region` rule is intentionally excluded from the component scan because
+page landmarks are owned by the host application's layout, not by an embedded
+datatable.
+
 ---
 
-## Testing conventions
+## Vitest conventions
 
-Tests should:
+Vitest tests should:
 
 - use the real Stimulus controller;
 - register it with the real UX-compatible identifier;
@@ -284,21 +350,34 @@ When fake timers are used, helpers must not rely on unadvanced `setTimeout()` ca
 
 ---
 
-## What frontend tests do not cover
+## Playwright conventions
 
-This is not an end-to-end browser test suite.
+Playwright tests should:
 
-The frontend tests do not validate:
+- use the generated fresh Symfony application;
+- exercise only behavior that needs a real browser;
+- prefer accessible roles and names over implementation-specific selectors;
+- wait for the real fragments response before asserting refreshed content;
+- keep each test isolated in its own browser context;
+- run against Chromium unless a concrete compatibility risk justifies another
+  engine;
+- scan the component with axe-core while leaving host-page responsibilities
+  explicit.
 
-- real browser layout;
-- CSS rendering;
-- Bootstrap dropdown internals;
-- real file downloads;
-- real Symfony routing;
-- real backend provider behavior;
-- full application integration.
+---
 
-Those remain covered by PHP tests, smoke tests and future E2E testing if needed.
+## Coverage boundaries
+
+The combined frontend strategy does not validate:
+
+- pixel-perfect CSS rendering;
+- Firefox or WebKit behavior;
+- host-application page landmarks;
+- every possible definition and provider combination.
+
+PHP tests remain authoritative for provider behavior and the complete
+definition matrix. The Chromium E2E suite protects only the highest-risk
+integration paths and must remain small enough to diagnose reliably.
 
 ---
 
@@ -308,8 +387,9 @@ Possible future improvements:
 
 - add a small shared frontend test fixture helper;
 - add coverage for additional controller methods when new interactions are added;
-- add accessibility-focused assertions for generated controls;
-- decide whether browser E2E tests are needed before 1.0;
-- consider Playwright only if jsdom becomes insufficient.
+- add Firefox or WebKit only when a concrete compatibility risk justifies the
+  additional CI cost;
+- add deeper manual accessibility review for complex Search Builder trees.
 
-For now, Vitest + jsdom provides a good balance between confidence, speed and maintenance cost.
+Vitest remains the fast, exhaustive controller test layer. Playwright is the
+small integration layer for behavior that requires a real browser.

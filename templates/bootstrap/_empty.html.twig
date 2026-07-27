@@ -1,4 +1,4 @@
-{% set colspan = visibleColumns|length + (hasRowActions is defined and hasRowActions ? 1 : 0) + (hasBulkActions is defined and hasBulkActions ? 1 : 0) %}
+{% set colspan = visibleColumns|length + (hasRowActions is defined and hasRowActions ? 1 : 0) + (hasBulkActions is defined and hasBulkActions ? 1 : 0) + (hasChildDatatable is defined and hasChildDatatable ? 1 : 0) %}
 
 <tr>
     <td colspan="{{ colspan > 0 ? colspan : 1 }}" class="text-center text-body-secondary py-4">

@@ -29,17 +29,16 @@ final readonly class DatatableContextTransport
             return null;
         }
 
-        $payload = json_encode([
-            'version' => self::TOKEN_VERSION,
-            'datatable' => $datatableName,
-            'instance' => $this->normalizeInstance($instance),
-            'values' => $values,
-        ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        return $this->createSignedToken($datatableName, $instance, $values);
+    }
 
-        $encodedPayload = $this->base64UrlEncode($payload);
-        $signature = $this->base64UrlEncode(hash_hmac('sha256', $encodedPayload, $this->getSecret(), true));
-
-        return $encodedPayload.'.'.$signature;
+    public function createRequiredToken(string $datatableName, string $instance, DatatableContext $context): string
+    {
+        return $this->createSignedToken(
+            $datatableName,
+            $instance,
+            $this->normalizeBrowserValues($context->getBrowserSafeValues()),
+        );
     }
 
     public function restore(
@@ -140,6 +139,24 @@ final readonly class DatatableContextTransport
         }
 
         return $instance;
+    }
+
+    /**
+     * @param array<string, bool|float|int|string|null> $values
+     */
+    private function createSignedToken(string $datatableName, string $instance, array $values): string
+    {
+        $payload = json_encode([
+            'version' => self::TOKEN_VERSION,
+            'datatable' => $datatableName,
+            'instance' => $this->normalizeInstance($instance),
+            'values' => $values,
+        ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        $encodedPayload = $this->base64UrlEncode($payload);
+        $signature = $this->base64UrlEncode(hash_hmac('sha256', $encodedPayload, $this->getSecret(), true));
+
+        return $encodedPayload.'.'.$signature;
     }
 
     /**

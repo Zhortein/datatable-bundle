@@ -5,6 +5,14 @@
 
 <thead data-zhortein--datatable-bundle--datatable-target="header">
     <tr>
+        {% if hasChildDatatable|default(false) %}
+            <th scope="col" class="zhortein-datatable__child-toggle-column">
+                <span class="visually-hidden">
+                    {{ 'zhortein_datatable.hierarchy.column'|trans({}, 'zhortein_datatable') }}
+                </span>
+            </th>
+        {% endif %}
+
         {% if hasBulkActions|default(false) %}
             <th scope="col" class="zhortein-datatable__selector-column">
                 <input

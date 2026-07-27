@@ -22,7 +22,7 @@ The primary application-facing API is stable:
 - `Definition\DatatableDefinition`;
 - the `zhortein_datatable()` Twig function.
 
-The builder methods documented in the feature guides are part of the contract, including regular and computed columns, simple and advanced filters, joins, aggregate columns, row/global/bulk actions, permanent filters and options.
+The builder methods documented in the feature guides are part of the contract, including regular and computed columns, simple and advanced filters, joins, aggregate columns, row/global/bulk actions, child datatable declarations, permanent filters and options.
 
 The definition value objects returned by `DatatableDefinition` are also public:
 
@@ -31,7 +31,10 @@ The definition value objects returned by `DatatableDefinition` are also public:
 - `AdvancedFilterFieldDefinition`;
 - `AggregateColumnDefinition`;
 - `BulkActionDefinition`;
+- `ChildContextValue`;
+- `ChildDatatableDefinition`;
 - `ColumnDefinition`;
+- `ContextFilterValue`;
 - `CustomJoinDefinition`;
 - `FilterDefinition`;
 - `JoinDefinition`;
@@ -47,13 +50,14 @@ The Ajax action response helper `Response\AjaxActionResponse` and its version
 constant are public. Host controllers may return an equivalent JSON response,
 but the documented v1 fields and semantics must be preserved.
 
-See [configuration](configuration.md), [providers](providers.md), [filters](filters.md), [advanced filters](advanced-filters.md), [actions](actions.md), [explicit context](context.md), [cell context and computed values](cell-context.md), [bulk actions](bulk-actions.md) and [exports](exports.md).
+See [configuration](configuration.md), [providers](providers.md), [filters](filters.md), [advanced filters](advanced-filters.md), [actions](actions.md), [explicit context](context.md), [hierarchical datatables](hierarchical-datatables.md), [cell context and computed values](cell-context.md), [bulk actions](bulk-actions.md) and [exports](exports.md).
 
 ## Extension contracts
 
 Applications may implement or decorate these contracts:
 
 - `Contract\CellValueResolverInterface`;
+- `Contract\ChildDatatableAuthorizationCheckerInterface`;
 - `Contract\DataProviderInterface`;
 - `Contract\ExportWriterInterface`;
 - `Contract\IconResolverInterface`;
@@ -72,6 +76,7 @@ Objects appearing in those signatures are part of the supported API:
 - `Preference\DatatablePreference`;
 - `Request\DatatableRequest`;
 - `Result\DatatableResult`;
+- `Hierarchy\ChildDatatableAuthorizationContext`;
 - `View\DatatableView`;
 - `View\DatatableViewMetadata`;
 - `View\DatatableViewState`;
@@ -120,6 +125,7 @@ Enums accepted by documented definition methods and runtime objects are public:
 - `AggregateFunction`;
 - `BooleanDisplayMode`;
 - `CellType`;
+- `ChildContextSource`;
 - `ExportFormat`;
 - `ExportMode`;
 - `FilterLayout`;
@@ -142,7 +148,7 @@ The following names are stable in 1.x:
 | Providers | `array`, `doctrine` |
 | Writers | `csv`, `xlsx` |
 | Service tags | `zhortein_datatable.datatable`, `zhortein_datatable.data_provider`, `zhortein_datatable.export_writer`, `zhortein_datatable.cell_value_resolver` |
-| Routes | `zhortein_datatable_fragments`, `zhortein_datatable_export` |
+| Routes | `zhortein_datatable_fragments`, `zhortein_datatable_child`, `zhortein_datatable_export` |
 | Named-view routes | `zhortein_datatable_views_list`, `zhortein_datatable_views_create`, `zhortein_datatable_views_load`, `zhortein_datatable_views_mutate`, `zhortein_datatable_views_delete` |
 | Twig | `zhortein_datatable()`, `zhortein_datatable_translate()` |
 | Stimulus | `zhortein--datatable-bundle--datatable` |

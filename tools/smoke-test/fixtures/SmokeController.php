@@ -11,6 +11,8 @@ final class SmokeController extends AbstractController
 {
     public function __invoke(): Response
     {
-        return $this->render('smoke.html.twig');
+        return $this->render('smoke.html.twig', [
+            'hierarchyEnabled' => class_exists('App\Datatable\SmokeOrderDatatable'),
+        ]);
     }
 }

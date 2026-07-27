@@ -6,11 +6,18 @@ namespace Zhortein\DatatableBundle\Provider;
 
 use Zhortein\DatatableBundle\Contract\DataProviderInterface;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
+use Zhortein\DatatableBundle\Definition\ContextFilterValue;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Definition\FilterDefinition;
 use Zhortein\DatatableBundle\Definition\UserFilterDefinition;
+use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Enum\SortDirection;
+use Zhortein\DatatableBundle\Filter\Expression\AdvancedFilterExpression;
 use Zhortein\DatatableBundle\Filter\Expression\ArrayExpressionEvaluator;
+use Zhortein\DatatableBundle\Filter\Expression\ComparisonOperator;
+use Zhortein\DatatableBundle\Filter\Expression\Condition;
+use Zhortein\DatatableBundle\Filter\Expression\Group;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
@@ -29,6 +36,7 @@ final readonly class ArrayDataProvider implements DataProviderInterface
     public function getData(DatatableDefinition $definition, DatatableRequest $request): DatatableResult
     {
         $rows = $this->normalizeRows($definition->getOption(self::OPTION_ROWS, []));
+        $rows = $this->applyPermanentFilters($rows, $definition);
         $totalItems = count($rows);
 
         $rows = $this->applyUserFilters($rows, $definition, $request);
@@ -51,6 +59,115 @@ final readonly class ArrayDataProvider implements DataProviderInterface
             filteredItems: $filteredItems,
             sources: $rows,
         );
+    }
+
+    /**
+     * @param list<array<string, mixed>> $rows
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function applyPermanentFilters(array $rows, DatatableDefinition $definition): array
+    {
+        $evaluator = new ArrayExpressionEvaluator();
+
+        foreach ($definition->getPermanentFilters() as $filter) {
+            $rows = array_values(array_filter(
+                $rows,
+                fn (array $row): bool => $this->rowMatchesPermanentFilter(
+                    $row,
+                    $filter,
+                    $definition,
+                    $evaluator,
+                ),
+            ));
+        }
+
+        return $rows;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function rowMatchesPermanentFilter(
+        array $row,
+        FilterDefinition $filter,
+        DatatableDefinition $definition,
+        ArrayExpressionEvaluator $evaluator,
+    ): bool {
+        $value = $this->resolvePermanentFilterValue($filter->getValue(), $definition);
+        $secondValue = $this->resolvePermanentFilterValue($filter->getSecondValue(), $definition);
+
+        if (FilterOperator::Like === $filter->getOperator() || FilterOperator::NotLike === $filter->getOperator()) {
+            $matches = $this->matchesLikePattern(
+                $this->readFieldValue($row, $filter->getField()),
+                $value,
+            );
+
+            return FilterOperator::Like === $filter->getOperator() ? $matches : !$matches;
+        }
+
+        $conditionValue = FilterOperator::Between === $filter->getOperator()
+            ? [$value, $secondValue]
+            : $value;
+
+        return $evaluator->evaluate(
+            new AdvancedFilterExpression(
+                new Group(children: [
+                    new Condition(
+                        field: $filter->getField(),
+                        operator: $this->toComparisonOperator($filter->getOperator()),
+                        value: $conditionValue,
+                    ),
+                ]),
+            ),
+            $row,
+        );
+    }
+
+    private function resolvePermanentFilterValue(mixed $value, DatatableDefinition $definition): mixed
+    {
+        if (!$value instanceof ContextFilterValue) {
+            return $value;
+        }
+
+        $key = $value->getKey();
+        $context = $definition->getContext();
+
+        if (!$context->has($key)) {
+            throw new \LogicException(sprintf('The permanent filter for datatable "%s" references missing context key "%s".', $definition->getName(), $key));
+        }
+
+        return $context->get($key);
+    }
+
+    private function toComparisonOperator(FilterOperator $operator): ComparisonOperator
+    {
+        return match ($operator) {
+            FilterOperator::Equals => ComparisonOperator::Equals,
+            FilterOperator::NotEquals => ComparisonOperator::NotEquals,
+            FilterOperator::GreaterThan => ComparisonOperator::GreaterThan,
+            FilterOperator::GreaterThanOrEquals => ComparisonOperator::GreaterThanOrEquals,
+            FilterOperator::LessThan => ComparisonOperator::LessThan,
+            FilterOperator::LessThanOrEquals => ComparisonOperator::LessThanOrEquals,
+            FilterOperator::In => ComparisonOperator::In,
+            FilterOperator::NotIn => ComparisonOperator::NotIn,
+            FilterOperator::IsNull => ComparisonOperator::IsNull,
+            FilterOperator::IsNotNull => ComparisonOperator::IsNotNull,
+            FilterOperator::Between => ComparisonOperator::Between,
+            FilterOperator::Like, FilterOperator::NotLike => throw new \LogicException('LIKE operators must be evaluated separately.'),
+        };
+    }
+
+    private function matchesLikePattern(mixed $rowValue, mixed $pattern): bool
+    {
+        if (!is_scalar($rowValue) || !is_scalar($pattern)) {
+            return false;
+        }
+
+        $quotedPattern = preg_quote((string) $pattern, '/');
+        $regularExpression = str_replace(['%', '_'], ['.*', '.'], $quotedPattern);
+
+        return 1 === preg_match('/^'.$regularExpression.'$/iu', (string) $rowValue);
     }
 
     /**

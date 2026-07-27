@@ -45,6 +45,27 @@ final class DatatableRoutesFunctionalTest extends FunctionalTestCase
         );
     }
 
+    public function test_child_route_is_registered_and_can_be_generated(): void
+    {
+        self::bootKernel();
+
+        $router = self::getContainer()->get(RouterInterface::class);
+
+        self::assertInstanceOf(RouterInterface::class, $router);
+
+        $route = $router->getRouteCollection()->get('zhortein_datatable_child');
+
+        self::assertNotNull($route);
+        self::assertSame('/_zhortein/datatable/{name}/child', $route->getPath());
+        self::assertSame(['GET'], $route->getMethods());
+        self::assertSame(
+            '/_zhortein/datatable/order-lines/child',
+            $router->generate('zhortein_datatable_child', [
+                'name' => 'order-lines',
+            ]),
+        );
+    }
+
     public function test_export_route_is_registered(): void
     {
         self::bootKernel();

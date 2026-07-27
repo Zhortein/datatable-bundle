@@ -42,6 +42,7 @@ final class UserArrayDatatable implements DatatableInterface
 - **Global Search**: Simple scalar search across searchable columns.
 - **Sorting**: Single-column sorting.
 - **Filters**: Compatible with user-facing filters.
+- **Permanent filters**: Literal or context-backed filters are applied before result counts.
 - **Cell source**: Each returned associative row is also available as the server-side cell `source`.
 - **Computed values**: Named cell resolvers run after filtering, sorting and pagination.
 
@@ -49,6 +50,24 @@ final class UserArrayDatatable implements DatatableInterface
 
 - `ArrayDataProvider::OPTION_ROWS` (`rows`): An array of associative arrays representing the data.
 - `ArrayDataProvider::OPTION_PROVIDER` (`provider`): Explicit provider identifier. The attribute is preferred for normal usage.
+
+Context-backed permanent filters use the same typed value as the Doctrine
+provider:
+
+```php
+use Zhortein\DatatableBundle\Definition\ContextFilterValue;
+use Zhortein\DatatableBundle\Enum\FilterOperator;
+
+$definition->addPermanentFilter(
+    'orderId',
+    FilterOperator::Equals,
+    ContextFilterValue::from('orderId'),
+);
+```
+
+The definition must declare and browser-allowlist `orderId` through
+`DatatableContext`. See [hierarchical datatables](hierarchical-datatables.md)
+for a complete parent/child example.
 
 ## Limitations
 

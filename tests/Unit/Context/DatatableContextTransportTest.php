@@ -57,6 +57,25 @@ final class DatatableContextTransportTest extends TestCase
         ));
     }
 
+    public function test_it_can_create_a_required_token_without_browser_safe_values(): void
+    {
+        $transport = new DatatableContextTransport(self::SECRET);
+        $token = $transport->createRequiredToken(
+            'children',
+            'zd-child-d1-instance',
+            new DatatableContext(),
+        );
+
+        $restored = $transport->restore(
+            $token,
+            'children',
+            'zd-child-d1-instance',
+            new DatatableContext(),
+        );
+
+        self::assertSame([], $restored->all());
+    }
+
     public function test_it_rejects_a_tampered_token(): void
     {
         $transport = new DatatableContextTransport(self::SECRET);

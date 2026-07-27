@@ -57,6 +57,13 @@ zhortein_datatable:
     error:
         generic: 'Unable to load datatable data.'
     empty: 'No data available.'
+    hierarchy:
+        column: 'Child rows'
+        expand: 'Expand row %id%'
+        collapse: 'Collapse row %id%'
+        loading: 'Loading child rows…'
+        error: 'Unable to load child rows.'
+        retry: 'Retry'
     actions:
         label: 'Actions'
         row: 'Row actions'
