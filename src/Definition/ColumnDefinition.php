@@ -35,11 +35,6 @@ final readonly class ColumnDefinition
             throw new \InvalidArgumentException(sprintf('Class "%s" must be an enum.', $this->enumClass));
         }
 
-        foreach ($this->enumPresentations as $presentation) {
-            if (!$presentation instanceof EnumPresentation) {
-                throw new \InvalidArgumentException('Enum presentations must contain EnumPresentation instances.');
-            }
-        }
     }
 
     public function getName(): string

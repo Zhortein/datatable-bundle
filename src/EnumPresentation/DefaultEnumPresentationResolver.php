@@ -97,7 +97,7 @@ final readonly class DefaultEnumPresentationResolver implements EnumPresentation
         $backedValue = $value;
 
         if ('int' === $backingType) {
-            if (is_string($backedValue) && preg_match('/^-?\d+$/D', $backedValue)) {
+            if (is_string($backedValue) && 1 === preg_match('/^-?\d+$/D', $backedValue)) {
                 $backedValue = (int) $backedValue;
             }
 
@@ -120,10 +120,6 @@ final readonly class DefaultEnumPresentationResolver implements EnumPresentation
 
         if (null === $presentation && $case instanceof \BackedEnum) {
             $presentation = $presentations[$case->value] ?? $presentations[(string) $case->value] ?? null;
-        }
-
-        if (null !== $presentation && !$presentation instanceof EnumPresentation) {
-            throw new \InvalidArgumentException('Enum presentations must contain EnumPresentation instances.');
         }
 
         return $presentation;

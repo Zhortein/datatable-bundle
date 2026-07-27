@@ -338,8 +338,8 @@ final class CsvExportWriterTest extends TestCase
         );
 
         self::assertSame("Status\nActif\n", $response->getContent());
-        self::assertStringNotContainsString('badge', (string) $response->getContent());
-        self::assertStringNotContainsString('bi-check-circle', (string) $response->getContent());
+        self::assertStringNotContainsString('badge', $response->getContent());
+        self::assertStringNotContainsString('bi-check-circle', $response->getContent());
     }
 
     private function createDefinition(): DatatableDefinition

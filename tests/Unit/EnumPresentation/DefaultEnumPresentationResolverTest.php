@@ -48,10 +48,11 @@ final class DefaultEnumPresentationResolverTest extends TestCase
             translationDomain: 'orders',
         );
 
-        self::assertSame('Activé', $presentation?->getLabel());
-        self::assertSame('success', $presentation?->getBadgeVariant());
-        self::assertSame('#198754', $presentation?->getColor());
-        self::assertSame('bi bi-check-circle', $presentation?->getIcon());
+        self::assertNotNull($presentation);
+        self::assertSame('Activé', $presentation->getLabel());
+        self::assertSame('success', $presentation->getBadgeVariant());
+        self::assertSame('#198754', $presentation->getColor());
+        self::assertSame('bi bi-check-circle', $presentation->getIcon());
     }
 
     public function test_it_uses_translated_case_name_then_case_name_as_fallback(): void

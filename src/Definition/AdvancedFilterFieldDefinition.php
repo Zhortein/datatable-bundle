@@ -66,11 +66,6 @@ final readonly class AdvancedFilterFieldDefinition
 
         $this->resolvedChoices = $choices;
 
-        foreach ($this->enumPresentations as $presentation) {
-            if (!$presentation instanceof EnumPresentation) {
-                throw new \InvalidArgumentException('Enum presentations must contain EnumPresentation instances.');
-            }
-        }
     }
 
     public function getName(): string

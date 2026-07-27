@@ -127,7 +127,7 @@ final class DatatableRendererTypedCellsTest extends TestCase
                 ?string $enumClass = null,
                 array $presentations = [],
                 ?string $translationDomain = null,
-            ): ?EnumPresentation {
+            ): EnumPresentation {
                 return new EnumPresentation('Resolved by the application');
             }
 
