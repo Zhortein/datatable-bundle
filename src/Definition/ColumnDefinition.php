@@ -4,8 +4,14 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Definition;
 
+use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
+
 final readonly class ColumnDefinition
 {
+    /**
+     * @param class-string<\UnitEnum>|null        $enumClass
+     * @param array<int|string, EnumPresentation> $enumPresentations
+     */
     public function __construct(
         private string $name,
         private ?string $label = null,
@@ -18,9 +24,15 @@ final readonly class ColumnDefinition
         private bool $negate = false,
         private ?bool $exportable = null,
         private ?string $valueResolver = null,
+        private ?string $enumClass = null,
+        private array $enumPresentations = [],
     ) {
         if (null !== $this->valueResolver && '' === trim($this->valueResolver)) {
             throw new \InvalidArgumentException('A computed column value resolver name must not be empty.');
+        }
+
+        if (null !== $this->enumClass && !enum_exists($this->enumClass)) {
+            throw new \InvalidArgumentException(sprintf('Class "%s" must be an enum.', $this->enumClass));
         }
     }
 
@@ -84,7 +96,26 @@ final readonly class ColumnDefinition
         return null !== $this->valueResolver;
     }
 
-    public function withType(?string $type): self
+    /**
+     * @return class-string<\UnitEnum>|null
+     */
+    public function getEnumClass(): ?string
+    {
+        return $this->enumClass;
+    }
+
+    /**
+     * @return array<int|string, EnumPresentation>
+     */
+    public function getEnumPresentations(): array
+    {
+        return $this->enumPresentations;
+    }
+
+    /**
+     * @param class-string<\UnitEnum>|null $enumClass
+     */
+    public function withType(?string $type, ?string $enumClass = null): self
     {
         return new self(
             name: $this->name,
@@ -98,6 +129,8 @@ final readonly class ColumnDefinition
             negate: $this->negate,
             exportable: $this->exportable,
             valueResolver: $this->valueResolver,
+            enumClass: $enumClass ?? $this->enumClass,
+            enumPresentations: $this->enumPresentations,
         );
     }
 }

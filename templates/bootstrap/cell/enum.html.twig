@@ -1,1 +1,22 @@
-{{ value }}
+{% if enum_presentation is not null %}
+    {% set has_badge = enum_presentation.badgeVariant is not null or enum_presentation.color is not null %}
+
+    {% if has_badge %}
+        <span
+            class="badge{% if enum_presentation.badgeVariant is not null %} text-bg-{{ enum_presentation.badgeVariant }}{% endif %}"
+            {% if enum_presentation.color is not null %}style="background-color: {{ enum_presentation.color }}"{% endif %}
+        >
+    {% endif %}
+
+    {% if enum_presentation.icon is not null %}
+        <i class="{{ enum_presentation.icon }}" aria-hidden="true"></i>
+    {% endif %}
+
+    {{ enum_presentation.label }}
+
+    {% if has_badge %}
+        </span>
+    {% endif %}
+{% elseif value is not null %}
+    {{ value }}
+{% endif %}

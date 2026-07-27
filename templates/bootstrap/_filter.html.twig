@@ -9,7 +9,7 @@
         {{ filter_label }}
     </label>
 
-    {% if filter_type == 'choice' %}
+{% if filter_type in ['choice', 'enum'] %}
         <select
             id="{{ filter_id }}"
             name="filters[{{ filter.name }}]"
@@ -21,8 +21,8 @@
             {% endif %}
         >
             <option value="">{{ filter_placeholder }}</option>
-            {% for choice_label, choice_value in filter.choices %}
-                <option value="{{ choice_value }}"{% if value is not null and value == choice_value %} selected{% endif %}>{{ zhortein_datatable_translate(choice_label, translation_domain) }}</option>
+            {% for choice_label, choice_value in zhortein_datatable_enum_choices(filter.choices, filter.enumClass, filter.enumPresentations, translation_domain) %}
+                <option value="{{ choice_value }}"{% if value is not null and value == choice_value %} selected{% endif %}>{{ choice_label }}</option>
             {% endfor %}
         </select>
     {% elseif filter_type == 'boolean' %}

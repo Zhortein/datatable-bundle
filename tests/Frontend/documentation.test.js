@@ -153,6 +153,7 @@ describe('Documentation', () => {
         expect(publicApi).toContain('Contract\\CellValueResolverInterface');
         expect(publicApi).toContain('Contract\\DataProviderInterface');
         expect(publicApi).toContain('Contract\\ExportWriterInterface');
+        expect(publicApi).toContain('Contract\\EnumPresentationResolverInterface');
         expect(publicApi).toContain('Definition\\DatatableDefinition');
         expect(publicApi).toContain('Implementation boundary');
         expect(publicApi).toContain('zhortein--datatable-bundle--datatable');
@@ -160,6 +161,19 @@ describe('Documentation', () => {
         expect(publicApi).toContain('compatibility contract for `zhortein/datatable-bundle` 1.x');
         expect(releaseChecklist).toContain('# Release checklist');
         expect(releaseChecklist).not.toContain('# First pre-release checklist');
+    });
+
+    it('documents rich enum presentation across cells, filters and exports', () => {
+        const enumPresentation = readFileSync(
+            resolve(documentationRoot, 'enum-presentation.md'),
+            'utf8',
+        );
+
+        expect(enumPresentation).toContain('EnumPresentationResolverInterface');
+        expect(enumPresentation).toContain('enumPresentations');
+        expect(enumPresentation).toContain('enum_presentation');
+        expect(enumPresentation).toContain('CSV and XLSX');
+        expect(enumPresentation).toContain('Array provider');
     });
 
     it('documents rich cells from quick start through public API and examples', () => {

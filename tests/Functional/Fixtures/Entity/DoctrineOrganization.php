@@ -21,6 +21,9 @@ class DoctrineOrganization
     #[ORM\Column(type: 'boolean')]
     private bool $enabled;
 
+    #[ORM\Column(type: 'string', enumType: DoctrineUserStatus::class)]
+    private DoctrineUserStatus $status;
+
     #[ORM\ManyToOne(targetEntity: DoctrineOrganizationGroup::class)]
     private ?DoctrineOrganizationGroup $group = null;
 
@@ -28,10 +31,12 @@ class DoctrineOrganization
         string $name,
         bool $enabled = true,
         ?DoctrineOrganizationGroup $group = null,
+        DoctrineUserStatus $status = DoctrineUserStatus::Active,
     ) {
         $this->name = $name;
         $this->enabled = $enabled;
         $this->group = $group;
+        $this->status = $status;
     }
 
     public function getId(): ?int
@@ -52,5 +57,10 @@ class DoctrineOrganization
     public function getGroup(): ?DoctrineOrganizationGroup
     {
         return $this->group;
+    }
+
+    public function getStatus(): DoctrineUserStatus
+    {
+        return $this->status;
     }
 }

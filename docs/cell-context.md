@@ -53,6 +53,7 @@ fragment refresh.
 | `boolean_display_mode` | `string` | Resolved boolean presentation mode. |
 | `boolean_true_icon` | `string|null` | Resolved icon for true values. |
 | `boolean_false_icon` | `string|null` | Resolved icon for false values. |
+| `enum_presentation` | `EnumPresentation|null` | Resolved label and optional badge, color and icon metadata for enum cells. |
 
 `cell.value`, `cell.row`, `cell.source`, `cell.rowIdentifier`, `cell.column`,
 `cell.definition` and `cell.datatableContext` expose the same data through the
@@ -151,6 +152,10 @@ identifier, definitions and `DatatableContext`.
   behavior.
 
 This keeps one business calculation for the table and its exports.
+
+Enum cells use a parallel presentation contract. See [enum
+presentation](enum-presentation.md) for the fallback order, rich metadata and
+custom resolver extension point.
 
 ## Security and N+1 boundaries
 

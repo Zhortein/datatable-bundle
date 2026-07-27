@@ -89,7 +89,7 @@
             >
                 <option value="">{{ 'zhortein_datatable.search_builder.select_field'|trans({}, 'zhortein_datatable') }}</option>
                 {% for name, field in definition.advancedFilterFields %}
-                    <option value="{{ name }}" data-type="{{ field.type.value }}" data-choices="{{ zhortein_datatable_translate_choices(field.choices, definition.translationDomain)|json_encode|e('html_attr') }}" data-nullable="{{ field.nullable ? '1' : '0' }}" data-allowed-operators="{{ field.effectiveOperatorValues|json_encode|e('html_attr') }}">{{ zhortein_datatable_translate(field.label, definition.translationDomain, name) }}</option>
+                    <option value="{{ name }}" data-type="{{ field.type.value }}" data-choices="{{ zhortein_datatable_enum_choices(field.hasExplicitChoices ? field.choices : {}, field.enumClass, field.enumPresentations, definition.translationDomain)|json_encode|e('html_attr') }}" data-nullable="{{ field.nullable ? '1' : '0' }}" data-allowed-operators="{{ field.effectiveOperatorValues|json_encode|e('html_attr') }}">{{ zhortein_datatable_translate(field.label, definition.translationDomain, name) }}</option>
                 {% endfor %}
             </select>
 

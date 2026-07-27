@@ -13,6 +13,7 @@ use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
 use Zhortein\DatatableBundle\Cell\CellContext;
 use Zhortein\DatatableBundle\Cell\CellContextFactory;
 use Zhortein\DatatableBundle\Context\DatatableContextTransport;
+use Zhortein\DatatableBundle\Contract\EnumPresentationResolverInterface;
 use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Definition\ActionDefinition;
 use Zhortein\DatatableBundle\Definition\BulkActionDefinition;
@@ -25,6 +26,8 @@ use Zhortein\DatatableBundle\Enum\CellType;
 use Zhortein\DatatableBundle\Enum\FilterLayout;
 use Zhortein\DatatableBundle\Enum\PaginationSize;
 use Zhortein\DatatableBundle\Enum\SortDirection;
+use Zhortein\DatatableBundle\EnumPresentation\DefaultEnumPresentationResolver;
+use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 use Zhortein\DatatableBundle\Exception\ChildDatatableAccessDeniedException;
 use Zhortein\DatatableBundle\Hierarchy\ChildDatatableResolver;
 use Zhortein\DatatableBundle\Hierarchy\ResolvedChildDatatable;
@@ -37,6 +40,8 @@ use Zhortein\DatatableBundle\View\DatatableViewScope;
 final readonly class DatatableRenderer
 {
     private CellContextFactory $cellContextFactory;
+
+    private EnumPresentationResolverInterface $enumPresentationResolver;
 
     /**
      * @param array<string, bool> $defaultTableOptions
@@ -57,8 +62,10 @@ final readonly class DatatableRenderer
         private ?DatatableStateUrlSerializer $stateUrlSerializer = null,
         ?CellContextFactory $cellContextFactory = null,
         private ?ChildDatatableResolver $childDatatableResolver = null,
+        ?EnumPresentationResolverInterface $enumPresentationResolver = null,
     ) {
         $this->cellContextFactory = $cellContextFactory ?? new CellContextFactory();
+        $this->enumPresentationResolver = $enumPresentationResolver ?? new DefaultEnumPresentationResolver();
     }
 
     /**
@@ -813,7 +820,7 @@ final readonly class DatatableRenderer
     /**
      * @param array<string, mixed> $options
      *
-     * @return list<array{cells: list<array{context: CellContext, column: ColumnDefinition, value: mixed, template: string, className: string|null, booleanDisplayMode: string, booleanTrueIcon: string|null, booleanFalseIcon: string|null, translationDomain: string|null}>, actions: list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null}>, identifier: string|null, child: array{name: string, instance: string, depth: int, url: string, targetId: string, expandLabel: string|null, collapseLabel: string|null, translationDomain: string|null}|null}>
+     * @return list<array{cells: list<array{context: CellContext, column: ColumnDefinition, value: mixed, template: string, className: string|null, booleanDisplayMode: string, booleanTrueIcon: string|null, booleanFalseIcon: string|null, translationDomain: string|null, enumPresentation: EnumPresentation|null}>, actions: list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null}>, identifier: string|null, child: array{name: string, instance: string, depth: int, url: string, targetId: string, expandLabel: string|null, collapseLabel: string|null, translationDomain: string|null}|null}>
      */
     private function normalizeRows(DatatableDefinition $definition, DatatableResult $result, array $options = []): array
     {
@@ -844,6 +851,10 @@ final readonly class DatatableRenderer
                     'booleanTrueIcon' => $booleanTrueIcon,
                     'booleanFalseIcon' => $booleanFalseIcon,
                     'translationDomain' => $definition->getTranslationDomain(),
+                    'enumPresentation' => $this->resolveEnumPresentation(
+                        $cellContext,
+                        $definition->getTranslationDomain(),
+                    ),
                 ];
             }
 
@@ -1177,6 +1188,25 @@ final readonly class DatatableRenderer
         }
 
         return $context->withValue(!(bool) $value);
+    }
+
+    private function resolveEnumPresentation(CellContext $context, ?string $translationDomain): ?EnumPresentation
+    {
+        $column = $context->getColumn();
+
+        if (
+            CellType::Enum !== CellType::fromNullableString($column->getType())
+            && null === $column->getEnumClass()
+        ) {
+            return null;
+        }
+
+        return $this->enumPresentationResolver->resolve(
+            value: $context->getValue(),
+            enumClass: $column->getEnumClass(),
+            presentations: $column->getEnumPresentations(),
+            translationDomain: $translationDomain,
+        );
     }
 
     /**

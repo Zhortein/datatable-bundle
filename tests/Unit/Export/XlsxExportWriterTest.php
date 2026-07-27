@@ -15,6 +15,8 @@ use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
 use Zhortein\DatatableBundle\Contract\CellValueResolverInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
+use Zhortein\DatatableBundle\EnumPresentation\DefaultEnumPresentationResolver;
+use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 use Zhortein\DatatableBundle\Export\DatatableExportRequest;
 use Zhortein\DatatableBundle\Export\ExportColumnLabelResolver;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
@@ -230,6 +232,47 @@ final class XlsxExportWriterTest extends TestCase
         ], $this->readXlsxRows((string) $response->getContent()));
     }
 
+    public function test_it_exports_the_translated_enum_label_without_presentation_markup(): void
+    {
+        $translator = new Translator('fr');
+        $translator->addLoader('array', new ArrayLoader());
+        $translator->addResource('array', ['status.active' => 'Actif'], 'fr', 'users');
+        $definition = new DatatableDefinition('users');
+        $definition
+            ->setTranslationDomain('users')
+            ->addColumn(
+                name: 'status',
+                label: 'Status',
+                type: 'enum',
+                enumClass: XlsxExportStatus::class,
+                enumPresentations: [
+                    XlsxExportStatus::Active->value => new EnumPresentation(
+                        label: 'status.active',
+                        badgeVariant: 'success',
+                        icon: 'bi bi-check-circle',
+                    ),
+                ],
+            )
+        ;
+        $writer = new XlsxExportWriter(
+            enumPresentationResolver: new DefaultEnumPresentationResolver($translator),
+        );
+
+        $response = $writer->write(
+            request: new DatatableExportRequest('users', format: ExportFormat::Xlsx),
+            definition: $definition,
+            result: new DatatableResult(
+                rows: [['status' => XlsxExportStatus::Active]],
+                totalItems: 1,
+            ),
+        );
+
+        self::assertSame(
+            [['Status'], ['Actif']],
+            $this->readXlsxRows((string) $response->getContent()),
+        );
+    }
+
     /**
      * @return list<list<mixed>>
      */
@@ -282,4 +325,9 @@ final class XlsxExportWriterTest extends TestCase
             $registry->resolve(ExportFormat::Xlsx),
         );
     }
+}
+
+enum XlsxExportStatus: string
+{
+    case Active = 'active';
 }
