@@ -185,7 +185,7 @@ fragments_response="${smoke_root}/fragments.json"
 csv_response="${smoke_root}/export.csv"
 base_url="http://127.0.0.1:8000"
 
-APP_DEBUG=1 DATABASE_URL="${DATABASE_URL:-}" php -S 127.0.0.1:8000 -t public public/router.php \
+APP_ENV="${APP_ENV}" APP_DEBUG=1 DATABASE_URL="${DATABASE_URL:-}" php -S 127.0.0.1:8000 -t public public/router.php \
     >"${server_log}" 2>&1 &
 server_pid="$!"
 
