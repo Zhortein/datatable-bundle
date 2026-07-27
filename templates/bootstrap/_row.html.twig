@@ -1,4 +1,30 @@
 <tr{% if row.identifier is not null %} data-zhortein--datatable-bundle--datatable-row-identifier="{{ row.identifier }}"{% endif %}>
+    {% if hasChildDatatable %}
+        <td class="zhortein-datatable__child-toggle-column">
+            {% if row.child is not null %}
+                {% set default_expand_label = 'zhortein_datatable.hierarchy.expand'|trans({'%id%': row.identifier}, 'zhortein_datatable') %}
+                {% set default_collapse_label = 'zhortein_datatable.hierarchy.collapse'|trans({'%id%': row.identifier}, 'zhortein_datatable') %}
+                {% set expand_label = zhortein_datatable_translate(row.child.expandLabel, row.child.translationDomain, default_expand_label, {'%id%': row.identifier}) %}
+                {% set collapse_label = zhortein_datatable_translate(row.child.collapseLabel, row.child.translationDomain, default_collapse_label, {'%id%': row.identifier}) %}
+
+                <button
+                    type="button"
+                    class="btn btn-sm btn-link p-0 text-decoration-none zhortein-datatable__child-toggle"
+                    aria-expanded="false"
+                    aria-controls="{{ row.child.targetId }}"
+                    aria-label="{{ expand_label }}"
+                    data-zhortein--datatable-bundle--datatable-child-toggle="true"
+                    data-zhortein--datatable-bundle--datatable-child-url="{{ row.child.url }}"
+                    data-zhortein--datatable-bundle--datatable-child-target-id="{{ row.child.targetId }}"
+                    data-zhortein--datatable-bundle--datatable-child-expand-label="{{ expand_label }}"
+                    data-zhortein--datatable-bundle--datatable-child-collapse-label="{{ collapse_label }}"
+                >
+                    <span aria-hidden="true">▸</span>
+                </button>
+            {% endif %}
+        </td>
+    {% endif %}
+
     {% if hasBulkActions and row.identifier is defined %}
         <td class="zhortein-datatable__selector-column">
             <input
@@ -36,3 +62,20 @@
         } only %}
     {% endif %}
 </tr>
+
+{% if row.child is not null %}
+    <tr
+        id="{{ row.child.targetId }}"
+        class="zhortein-datatable__child-row"
+        data-zhortein--datatable-bundle--datatable-child-row="true"
+        data-zhortein--datatable-bundle--datatable-child-instance="{{ row.child.instance }}"
+        hidden
+    >
+        <td colspan="{{ childColspan }}" class="p-0 border-0">
+            <div
+                class="zhortein-datatable__child-content p-3 bg-body-tertiary"
+                data-zhortein--datatable-bundle--datatable-child-content="true"
+            ></div>
+        </td>
+    </tr>
+{% endif %}

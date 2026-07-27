@@ -14,6 +14,12 @@ return static function (RoutingConfigurator $routes): void {
     ;
 
     $routes
+        ->add('zhortein_datatable_child', '/_zhortein/datatable/{name}/child')
+        ->controller([DatatableController::class, 'child'])
+        ->methods(['GET'])
+    ;
+
+    $routes
         ->add('zhortein_datatable_export', '/_zhortein/datatable/{name}/export/{format}')
         ->controller([DatatableController::class, 'export'])
         ->methods(['GET', 'POST'])

@@ -46,6 +46,7 @@ use Zhortein\DatatableBundle\Hierarchy\AllowAllChildDatatableAuthorizationChecke
 use Zhortein\DatatableBundle\Hierarchy\ChildDatatableContextResolver;
 use Zhortein\DatatableBundle\Hierarchy\ChildDatatableInstanceFactory;
 use Zhortein\DatatableBundle\Hierarchy\ChildDatatableResolver;
+use Zhortein\DatatableBundle\Hierarchy\ChildDatatableRequestResolver;
 use Zhortein\DatatableBundle\Hierarchy\DenyAllChildDatatableAuthorizationChecker;
 use Zhortein\DatatableBundle\Hierarchy\RowValueAccessor;
 use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
@@ -76,6 +77,7 @@ return static function (ContainerConfigurator $container): void {
     $services->set(ChildDatatableContextResolver::class);
     $services->set(ChildDatatableInstanceFactory::class);
     $services->set(ChildDatatableResolver::class);
+    $services->set(ChildDatatableRequestResolver::class);
     $services->set(AllowAllChildDatatableAuthorizationChecker::class);
     $services->set(DenyAllChildDatatableAuthorizationChecker::class);
     $services->alias(

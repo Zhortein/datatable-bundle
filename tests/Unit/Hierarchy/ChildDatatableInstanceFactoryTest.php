@@ -17,6 +17,8 @@ final class ChildDatatableInstanceFactoryTest extends TestCase
 
         self::assertSame($instance, $factory->create('orders', 'orders-table', 'order-lines', 42, 2));
         self::assertMatchesRegularExpression('/^zd-child-d2-[A-Za-z0-9_-]{43}$/D', $instance);
+        self::assertTrue($factory->isChildInstance($instance));
+        self::assertFalse($factory->isChildInstance('orders-table'));
         self::assertSame(2, $factory->parseDepth($instance));
     }
 
