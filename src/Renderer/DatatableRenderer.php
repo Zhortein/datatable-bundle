@@ -29,8 +29,8 @@ use Zhortein\DatatableBundle\Exception\ChildDatatableAccessDeniedException;
 use Zhortein\DatatableBundle\Hierarchy\ChildDatatableResolver;
 use Zhortein\DatatableBundle\Hierarchy\ResolvedChildDatatable;
 use Zhortein\DatatableBundle\Result\DatatableResult;
-use Zhortein\DatatableBundle\State\DatatableStateUrlSerializer;
 use Zhortein\DatatableBundle\Sorting\SortCriterion;
+use Zhortein\DatatableBundle\State\DatatableStateUrlSerializer;
 use Zhortein\DatatableBundle\View\DatatableViewCsrfTokenIdGenerator;
 use Zhortein\DatatableBundle\View\DatatableViewScope;
 

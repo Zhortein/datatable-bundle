@@ -83,10 +83,7 @@ final readonly class SortCriterion
             }
 
             if (self::MAX_CRITERIA === count($normalized)) {
-                throw new \InvalidArgumentException(sprintf(
-                    'A datatable cannot use more than %d sort criteria.',
-                    self::MAX_CRITERIA,
-                ));
+                throw new \InvalidArgumentException(sprintf('A datatable cannot use more than %d sort criteria.', self::MAX_CRITERIA));
             }
 
             $normalized[] = $criterion;

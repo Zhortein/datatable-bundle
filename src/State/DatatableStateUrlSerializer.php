@@ -183,10 +183,7 @@ final readonly class DatatableStateUrlSerializer
         }
 
         if (SortCriterion::MAX_CRITERIA < count($value)) {
-            throw new InvalidDatatableStateException(sprintf(
-                'The datatable state cannot contain more than %d sort criteria.',
-                SortCriterion::MAX_CRITERIA,
-            ));
+            throw new InvalidDatatableStateException(sprintf('The datatable state cannot contain more than %d sort criteria.', SortCriterion::MAX_CRITERIA));
         }
 
         $criteria = [];
