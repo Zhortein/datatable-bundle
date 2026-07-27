@@ -1,0 +1,1 @@
+- Added an explicit child datatable declaration and typed parent-row context mapping contract as the foundation for hierarchical tables.

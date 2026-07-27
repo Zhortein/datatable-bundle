@@ -23,6 +23,8 @@ final class DatatableDefinition
 
     private DatatableContext $context;
 
+    private ?ChildDatatableDefinition $childDatatable = null;
+
     /**
      * @var array<string, ColumnDefinition>
      */
@@ -129,6 +131,37 @@ final class DatatableDefinition
     public function getContext(): DatatableContext
     {
         return $this->context;
+    }
+
+    /**
+     * @param array<string, ChildContextValue> $context
+     */
+    public function setChildDatatable(
+        string $name,
+        array $context = [],
+        ?string $expandLabel = null,
+        ?string $collapseLabel = null,
+        int $maxDepth = ChildDatatableDefinition::MAX_DEPTH,
+    ): self {
+        $this->childDatatable = new ChildDatatableDefinition(
+            name: $name,
+            context: $context,
+            expandLabel: $expandLabel,
+            collapseLabel: $collapseLabel,
+            maxDepth: $maxDepth,
+        );
+
+        return $this;
+    }
+
+    public function hasChildDatatable(): bool
+    {
+        return null !== $this->childDatatable;
+    }
+
+    public function getChildDatatable(): ?ChildDatatableDefinition
+    {
+        return $this->childDatatable;
     }
 
     public function addColumn(
