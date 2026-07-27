@@ -7,8 +7,8 @@ namespace Zhortein\DatatableBundle\Tests\Unit\View;
 use PHPUnit\Framework\TestCase;
 use Zhortein\DatatableBundle\Exception\DatatableViewConflictException;
 use Zhortein\DatatableBundle\State\DatatableState;
-use Zhortein\DatatableBundle\View\DatatableViewState;
 use Zhortein\DatatableBundle\View\DatatableViewScope;
+use Zhortein\DatatableBundle\View\DatatableViewState;
 use Zhortein\DatatableBundle\View\InMemoryDatatableViewProvider;
 
 final class InMemoryDatatableViewProviderTest extends TestCase

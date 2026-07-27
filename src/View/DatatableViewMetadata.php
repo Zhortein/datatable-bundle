@@ -80,10 +80,7 @@ final readonly class DatatableViewMetadata
     private function assertIdentifier(string $value, string $label): void
     {
         if ('' === $value || 255 < strlen($value) || 1 === preg_match('/[\x00-\x1F\x7F]/', $value)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The datatable view %s must be a non-empty string of at most 255 characters without control characters.',
-                $label,
-            ));
+            throw new \InvalidArgumentException(sprintf('The datatable view %s must be a non-empty string of at most 255 characters without control characters.', $label));
         }
     }
 

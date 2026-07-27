@@ -125,10 +125,7 @@ final readonly class DatatableViewController
                     $viewIdentifier,
                     $revision,
                 ),
-                default => throw new \InvalidArgumentException(sprintf(
-                    'The datatable view operation "%s" is unsupported.',
-                    $operation,
-                )),
+                default => throw new \InvalidArgumentException(sprintf('The datatable view operation "%s" is unsupported.', $operation)),
             };
 
             return $this->viewResponse($view);
@@ -264,10 +261,7 @@ final readonly class DatatableViewController
         $value = $payload[$name] ?? null;
 
         if (!is_string($value) || '' === trim($value)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The datatable view field "%s" must be a non-empty string.',
-                $name,
-            ));
+            throw new \InvalidArgumentException(sprintf('The datatable view field "%s" must be a non-empty string.', $name));
         }
 
         return trim($value);
@@ -281,10 +275,7 @@ final readonly class DatatableViewController
         $value = $payload[$name] ?? $default;
 
         if (!is_bool($value)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The datatable view field "%s" must be a boolean.',
-                $name,
-            ));
+            throw new \InvalidArgumentException(sprintf('The datatable view field "%s" must be a boolean.', $name));
         }
 
         return $value;
@@ -319,10 +310,7 @@ final readonly class DatatableViewController
         }
 
         if (!is_string($value) || '' === trim($value)) {
-            throw new \InvalidArgumentException(sprintf(
-                'The datatable view query parameter "%s" must be a non-empty string.',
-                $name,
-            ));
+            throw new \InvalidArgumentException(sprintf('The datatable view query parameter "%s" must be a non-empty string.', $name));
         }
 
         return trim($value);

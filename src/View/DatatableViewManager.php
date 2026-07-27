@@ -125,10 +125,7 @@ final readonly class DatatableViewManager
         $view = $this->provider->load($scope, $ownerIdentifier, $viewIdentifier);
 
         if (null === $view) {
-            throw new DatatableViewNotFoundException(sprintf(
-                'The datatable view "%s" does not exist.',
-                $viewIdentifier,
-            ));
+            throw new DatatableViewNotFoundException(sprintf('The datatable view "%s" does not exist.', $viewIdentifier));
         }
 
         return $view;
@@ -147,9 +144,6 @@ final readonly class DatatableViewManager
             return;
         }
 
-        throw new DatatableViewAccessDeniedException(sprintf(
-            'The datatable view operation "%s" is not allowed.',
-            $operation->value,
-        ));
+        throw new DatatableViewAccessDeniedException(sprintf('The datatable view operation "%s" is not allowed.', $operation->value));
     }
 }

@@ -248,8 +248,7 @@ final class DatatableViewControllerTest extends TestCase
     private function createController(
         bool $authorized = true,
         bool $csrfEnabled = true,
-    ): DatatableViewController
-    {
+    ): DatatableViewController {
         $registry = new DatatableRegistry(
             new ServiceLocator([
                 'users' => static fn (): SavedViewControllerTestDatatable => new SavedViewControllerTestDatatable(),

@@ -187,10 +187,7 @@ final class InMemoryDatatableViewProvider implements DatatableViewProviderInterf
                 $view->getMetadata()->getIdentifier() !== $excludedIdentifier
                 && 0 === strcasecmp($view->getMetadata()->getName(), $name)
             ) {
-                throw new DatatableViewConflictException(sprintf(
-                    'A datatable view named "%s" already exists in this scope.',
-                    $name,
-                ));
+                throw new DatatableViewConflictException(sprintf('A datatable view named "%s" already exists in this scope.', $name));
             }
         }
     }

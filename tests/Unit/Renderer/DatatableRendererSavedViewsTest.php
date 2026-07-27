@@ -73,7 +73,7 @@ final class DatatableRendererSavedViewsTest extends TestCase
 
     public function test_named_view_markup_is_absent_by_default(): void
     {
-        $definition = (new DatatableDefinition('orders'))
+        $definition = new DatatableDefinition('orders')
             ->addColumn('reference', label: 'Reference')
         ;
         $renderer = new DatatableRenderer(
