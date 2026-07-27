@@ -8,6 +8,17 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.6.1] - 2026-07-27
+
+### Fixed
+
+- Applied each definition translation domain and current Symfony locale to CSV and XLSX column headers.
+- Fixed named views with no regular or advanced filters by emitting stable JSON objects for empty map fields while accepting legacy empty arrays.
+
+### Security
+
+- Updated transitive frontend tooling dependencies with the current PostCSS source-map hardening and ws memory-exhaustion protections.
+
 ## [1.6.0] - 2026-07-27
 
 ### Added

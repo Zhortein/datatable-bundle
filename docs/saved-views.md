@@ -215,6 +215,13 @@ Responses use JSON contract version `1`. Mutations require the CSRF token
 rendered by the bundle. The Stimulus controller sends it through the
 `X-CSRF-Token` header.
 
+Map-like state fields such as `filters` and `advancedFilters` are emitted as
+JSON objects, including when empty (`{}`). For backward compatibility, the
+frontend also accepts an empty JSON array (`[]`) previously emitted for these
+fields and normalizes it to an empty object. Non-empty arrays remain invalid.
+List fields such as `visibleColumns` and `hiddenColumns` continue to use JSON
+arrays.
+
 A mutation conflict returns HTTP `409` and error code `conflict`. Missing views
 return `404`; denied operations return `403`; invalid state or input returns
 `400`. The UI keeps the current table state when a mutation fails.

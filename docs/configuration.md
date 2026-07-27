@@ -477,10 +477,11 @@ The definition domain is applied at render time to:
 - row, global and bulk action labels;
 - action confirmation messages;
 - column visibility labels.
+- CSV and XLSX column headers.
 
 The current Symfony translator locale is used for both the initial table shell
-and Ajax fragments. Built-in controls remain in the separate
-`zhortein_datatable` domain.
+and Ajax fragments, and for exports generated during the same request. Built-in
+controls remain in the separate `zhortein_datatable` domain.
 
 When `translationDomain` is `null` (the default), all application-provided
 strings are treated as final literal text. Fallback names used when a label is

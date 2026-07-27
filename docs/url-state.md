@@ -127,6 +127,9 @@ $datatableRequest = $factory->createFromState($state);
 
 `State\DatatableStateUrlSerializer` defines the public version 1 JSON format and
 the per-instance parameter name. The state payload is limited to 32 KiB.
+Map-like fields are serialized as JSON objects even when empty. The frontend
+accepts legacy empty arrays for those fields and normalizes them to objects,
+while still rejecting non-empty arrays and invalid typed values.
 
 ## Frontend events
 

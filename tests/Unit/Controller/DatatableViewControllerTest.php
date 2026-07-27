@@ -79,6 +79,26 @@ final class DatatableViewControllerTest extends TestCase
         self::assertIsArray($loadedState);
         self::assertSame('alice', $loadedState['search']);
 
+        $updatedResponse = $controller->mutate(
+            $this->createRequest('PATCH', [
+                'operation' => 'update',
+                'revision' => $revision,
+                'state' => $this->createState(),
+                'includePage' => false,
+            ]),
+            'users',
+            $identifier,
+        );
+        $updatedContent = $updatedResponse->getContent();
+        self::assertIsString($updatedContent);
+        self::assertStringContainsString('"filters":{}', $updatedContent);
+        self::assertStringContainsString('"advancedFilters":{}', $updatedContent);
+        $updatedPayload = $this->decode($updatedResponse);
+        $updatedView = $updatedPayload['view'] ?? null;
+        self::assertIsArray($updatedView);
+        $revision = $updatedView['revision'] ?? null;
+        self::assertIsString($revision);
+
         $renamed = $this->decode($controller->mutate(
             $this->createRequest('PATCH', [
                 'operation' => 'rename',
@@ -105,6 +125,24 @@ final class DatatableViewControllerTest extends TestCase
             $controller->list($this->createRequest('GET'), 'users'),
         );
         self::assertSame([], $emptyList['views']);
+    }
+
+    public function test_it_returns_empty_state_maps_as_json_objects(): void
+    {
+        $response = $this->createController()->create(
+            $this->createRequest('POST', [
+                'name' => 'Unfiltered users',
+                'state' => $this->createState(),
+            ]),
+            'users',
+        );
+        $content = $response->getContent();
+
+        self::assertIsString($content);
+        self::assertStringContainsString('"filters":{}', $content);
+        self::assertStringContainsString('"advancedFilters":{}', $content);
+        self::assertStringContainsString('"visibleColumns":[]', $content);
+        self::assertStringContainsString('"hiddenColumns":[]', $content);
     }
 
     public function test_stale_revision_returns_a_conflict_response(): void

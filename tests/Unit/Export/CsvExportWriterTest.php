@@ -6,6 +6,8 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Export;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Translation\Loader\ArrayLoader;
+use Symfony\Component\Translation\Translator;
 use Zhortein\DatatableBundle\Cell\CellContext;
 use Zhortein\DatatableBundle\Cell\CellContextFactory;
 use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
@@ -14,6 +16,7 @@ use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
 use Zhortein\DatatableBundle\Export\CsvExportWriter;
 use Zhortein\DatatableBundle\Export\DatatableExportRequest;
+use Zhortein\DatatableBundle\Export\ExportColumnLabelResolver;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
@@ -182,6 +185,37 @@ final class CsvExportWriterTest extends TestCase
         self::assertStringContainsString('bob@example.test,"Bob, Jr.",0,', $content);
         self::assertStringNotContainsString('Identifier', $content);
         self::assertStringNotContainsString('e_id', $content);
+    }
+
+    public function test_it_translates_column_headers_in_the_definition_domain(): void
+    {
+        $translator = new Translator('fr');
+        $translator->addLoader('array', new ArrayLoader());
+        $translator->addResource(
+            'array',
+            ['users.columns.email' => 'Adresse e-mail'],
+            'fr',
+            'users',
+        );
+        $definition = new DatatableDefinition('users');
+        $definition
+            ->setTranslationDomain('users')
+            ->addColumn('e.email', label: 'users.columns.email')
+        ;
+        $writer = new CsvExportWriter(
+            columnLabelResolver: new ExportColumnLabelResolver($translator),
+        );
+
+        $response = $writer->write(
+            request: new DatatableExportRequest('users'),
+            definition: $definition,
+            result: new DatatableResult(
+                rows: [['e_email' => 'alice@example.test']],
+                totalItems: 1,
+            ),
+        );
+
+        self::assertSame("\"Adresse e-mail\"\nalice@example.test\n", $response->getContent());
     }
 
     public function test_it_reads_rows_using_full_or_normalized_column_names(): void

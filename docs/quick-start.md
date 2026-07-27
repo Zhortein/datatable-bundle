@@ -118,8 +118,9 @@ The datatable service and all three routes must be present before opening the pa
 
 If labels are translation keys, set the application catalog once on the
 definition with `setTranslationDomain('your_domain')`. Columns, filters,
-actions, confirmations and Search Builder labels will then use the current
-request locale for both the initial page and Ajax fragments. See
+actions, confirmations, Search Builder labels and export headers will then use
+the current request locale for the initial page, Ajax fragments and CSV/XLSX
+files. See
 [declarative translations](configuration.md#translating-declarative-labels).
 
 ## 5. Open the page

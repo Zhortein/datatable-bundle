@@ -8,7 +8,8 @@ This document records documentation reviews for `zhortein/datatable-bundle`. It 
 - The active [public API policy](public-api.md) defines the compatibility promise and implementation boundary.
 - The installation and quick-start flow are exercised by the fresh Symfony application CI job.
 - The `1.0.0` changelog section reflects every consumed release fragment.
-- The release checklist targets stable promotion through `develop`, `main` and `v1.0.0`.
+- The release checklist covers repeatable promotion through `develop`, `main`
+  and the versioned release tag.
 
 ## V1 getting-started review (2026-07-23)
 

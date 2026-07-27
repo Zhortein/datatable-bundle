@@ -244,6 +244,41 @@ describe('datatable_controller named saved views', () => {
         expect(element.querySelector(`[data-${CONTROLLER_IDENTIFIER}-target="savedViewName"]`).value).toBe('Active customers');
     });
 
+    it('normalizes legacy empty arrays used for saved-view map fields', async () => {
+        const view = createView({
+            state: createState({
+                filters: [],
+                advancedFilters: [],
+            }),
+        });
+        const fetchMock = createFetchMock(view);
+        vi.stubGlobal('fetch', fetchMock);
+        document.body.innerHTML = createHtml();
+        application = startApplication();
+
+        const { controller, element } = await getController(application);
+
+        expect(controller.defaultState.filters).toEqual({});
+        expect(controller.defaultState.advancedFilters).toEqual({});
+        expect(element.querySelector(`[data-${CONTROLLER_IDENTIFIER}-target="savedViewStatus"]`).textContent).toBe('');
+    });
+
+    it('rejects non-empty arrays used for saved-view map fields', async () => {
+        const fetchMock = createFetchMock(createView({ default: false }));
+        vi.stubGlobal('fetch', fetchMock);
+        document.body.innerHTML = createHtml();
+        application = startApplication();
+
+        const { controller } = await getController(application);
+
+        expect(() => controller.normalizeState(createState({
+            filters: ['invalid'],
+        }))).toThrowError('Invalid datatable URL state.');
+        expect(() => controller.normalizeState(createState({
+            advancedFilters: ['invalid'],
+        }))).toThrowError('Invalid datatable URL state.');
+    });
+
     it('creates a view with CSRF protection and excludes the current page by default', async () => {
         const view = createView({ default: false });
         const fetchMock = vi.fn((rawUrl, options = {}) => {

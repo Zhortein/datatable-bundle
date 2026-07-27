@@ -35,6 +35,7 @@ use Zhortein\DatatableBundle\DateTime\DefaultDateTimeFormatter;
 use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Export\CsvExportWriter;
+use Zhortein\DatatableBundle\Export\ExportColumnLabelResolver;
 use Zhortein\DatatableBundle\Export\ExportableColumnResolver;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
 use Zhortein\DatatableBundle\Factory\AdvancedFilterExpressionFactory;
@@ -159,6 +160,11 @@ return static function (ContainerConfigurator $container): void {
 
     $services
         ->set(ExportableColumnResolver::class)
+    ;
+
+    $services
+        ->set(ExportColumnLabelResolver::class)
+        ->arg('$translator', service('translator'))
     ;
 
     $services

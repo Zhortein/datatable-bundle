@@ -50,20 +50,20 @@ Create a branch from the latest green `develop`:
 ```bash
 git switch develop
 git pull --ff-only
-git switch -c release/1.0.0
+git switch -c release/<version>
 ```
 
 Then:
 
 1. run `composer changelog`;
 2. review the generated `Unreleased` entries;
-3. move those entries to `## [1.0.0] - YYYY-MM-DD`;
+3. move those entries to `## [<version>] - YYYY-MM-DD`;
 4. leave an empty `## [Unreleased]` section;
 5. remove every consumed file from `changelog/unreleased/`;
-6. set `assets/package.json` to `1.0.0`;
+6. set `assets/package.json` to `<version>`;
 7. update README, documentation status and roadmap;
 8. run the full QA chain and the fresh-application smoke test;
-9. commit with `chore(release): prepare v1.0.0`;
+9. commit with `chore(release): prepare v<version>`;
 10. open and merge a pull request into `develop`.
 
 After that merge, open the promotion pull request from `develop` to `main`.
@@ -87,8 +87,8 @@ After the promotion pull request is merged and `main` is green:
 ```bash
 git switch main
 git pull --ff-only
-git tag -a v1.0.0 -m "Release v1.0.0"
-git push origin v1.0.0
+git tag -a v<version> -m "Release v<version>"
+git push origin v<version>
 ```
 
 Never create a release tag from `develop` or a feature branch.
