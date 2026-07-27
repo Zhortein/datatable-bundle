@@ -26,7 +26,7 @@ final class ExportColumnLabelResolverTest extends TestCase
         $definition = new DatatableDefinition('users');
         $definition->setTranslationDomain('users');
 
-        $label = (new ExportColumnLabelResolver($translator))->resolve(
+        $label = new ExportColumnLabelResolver($translator)->resolve(
             $definition,
             new ColumnDefinition('e.email', 'users.columns.email'),
         );

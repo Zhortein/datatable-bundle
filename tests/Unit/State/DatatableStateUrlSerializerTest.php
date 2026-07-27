@@ -38,7 +38,7 @@ final class DatatableStateUrlSerializerTest extends TestCase
 
     public function test_it_serializes_empty_map_fields_as_json_objects(): void
     {
-        $payload = (new DatatableStateUrlSerializer())->serialize(DatatableState::create());
+        $payload = new DatatableStateUrlSerializer()->serialize(DatatableState::create());
         $state = json_decode($payload, false, flags: JSON_THROW_ON_ERROR);
 
         self::assertInstanceOf(\stdClass::class, $state);
