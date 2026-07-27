@@ -210,10 +210,6 @@ final readonly class DatatableRenderer
     {
         $rawSorts = $options['sorts'] ?? [];
 
-        if (null === $rawSorts) {
-            $rawSorts = [];
-        }
-
         if (!is_array($rawSorts) || !array_is_list($rawSorts)) {
             throw new \InvalidArgumentException('The datatable render option "sorts" must be a list.');
         }
