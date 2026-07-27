@@ -90,9 +90,10 @@ function getLastRequestedUrl(fetchMock) {
     return new URL(rawUrl, window.location.origin);
 }
 
-function createPreventableEvent(params = {}) {
+function createPreventableEvent(params = {}, shiftKey = false) {
     return {
         params,
+        shiftKey,
         preventDefault: vi.fn(),
     };
 }
@@ -207,6 +208,68 @@ describe('datatable_controller sorting and pagination interactions', () => {
         expect(controller.sortDirectionValue).toBe('asc');
         expect(url.searchParams.get('sortField')).toBe('e.displayName');
         expect(url.searchParams.get('sortDirection')).toBe('asc');
+    });
+
+    it('builds, toggles and removes ordered criteria with Shift activation', async () => {
+        const fetchMock = vi.fn(() => Promise.resolve(createJsonResponse({ page: 1 })));
+        vi.stubGlobal('fetch', fetchMock);
+
+        document.body.innerHTML = createDatatableHtml();
+        application = startApplication();
+
+        const { controller } = await getController(application);
+
+        controller.sort(createPreventableEvent({ field: 'e.displayName' }));
+        controller.sort(createPreventableEvent({ field: 'e.email' }, true));
+        await flushPromises();
+
+        let url = getLastRequestedUrl(fetchMock);
+
+        expect(controller.sortsValue).toEqual([
+            { field: 'e.displayName', direction: 'asc' },
+            { field: 'e.email', direction: 'asc' },
+        ]);
+        expect(url.searchParams.get('sorts[0][field]')).toBe('e.displayName');
+        expect(url.searchParams.get('sorts[0][direction]')).toBe('asc');
+        expect(url.searchParams.get('sorts[1][field]')).toBe('e.email');
+        expect(url.searchParams.get('sorts[1][direction]')).toBe('asc');
+
+        controller.sort(createPreventableEvent({ field: 'e.email' }, true));
+        await flushPromises();
+        url = getLastRequestedUrl(fetchMock);
+
+        expect(controller.sortsValue[1]).toEqual({ field: 'e.email', direction: 'desc' });
+        expect(url.searchParams.get('sorts[1][direction]')).toBe('desc');
+
+        controller.sort(createPreventableEvent({ field: 'e.email' }, true));
+        await flushPromises();
+
+        expect(controller.sortsValue).toEqual([
+            { field: 'e.displayName', direction: 'asc' },
+        ]);
+    });
+
+    it('replaces a multi-column sort on plain activation', async () => {
+        const fetchMock = vi.fn(() => Promise.resolve(createJsonResponse({ page: 1 })));
+        vi.stubGlobal('fetch', fetchMock);
+
+        document.body.innerHTML = createDatatableHtml();
+        application = startApplication();
+
+        const { controller } = await getController(application);
+        controller.setSortCriteria([
+            { field: 'e.displayName', direction: 'desc' },
+            { field: 'e.email', direction: 'desc' },
+        ]);
+
+        controller.sort(createPreventableEvent({ field: 'e.email' }));
+        await flushPromises();
+
+        expect(controller.sortsValue).toEqual([
+            { field: 'e.email', direction: 'asc' },
+        ]);
+        expect(controller.sortFieldValue).toBe('e.email');
+        expect(controller.sortDirectionValue).toBe('asc');
     });
 
     it('ignores sort event without field param', async () => {

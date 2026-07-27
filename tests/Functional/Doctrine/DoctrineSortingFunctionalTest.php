@@ -13,6 +13,7 @@ use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Provider\DoctrineOrmDataProvider;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
 use Zhortein\DatatableBundle\Tests\Functional\FunctionalTestCase;
 use Zhortein\DatatableBundle\Tests\Functional\Kernel\TestKernel;
@@ -106,6 +107,28 @@ final class DoctrineSortingFunctionalTest extends FunctionalTestCase
         ], array_column($result->getRows(), 'e_email'));
     }
 
+    public function test_it_sorts_by_multiple_columns_in_declared_priority_order(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+
+        $result = $this->createProvider()->getData(
+            $this->createDefinition(),
+            DatatableRequest::create(
+                pageSize: 10,
+                sorts: [
+                    SortCriterion::create('e.enabled', SortDirection::Desc),
+                    SortCriterion::create('e.email', SortDirection::Desc),
+                ],
+            ),
+        );
+
+        self::assertSame([
+            'charlie@example.test',
+            'alice@example.test',
+            'bob@example.test',
+        ], array_column($result->getRows(), 'e_email'));
+    }
+
     #[After]
     protected function cleanupDoctrine(): void
     {
@@ -143,6 +166,7 @@ final class DoctrineSortingFunctionalTest extends FunctionalTestCase
             ->addColumn('e.id', visible: false, sortable: false, searchable: true)
             ->addColumn('e.email', label: 'Email')
             ->addColumn('e.displayName', label: 'Display name')
+            ->addColumn('e.enabled', label: 'Enabled')
         ;
 
         return $definition;

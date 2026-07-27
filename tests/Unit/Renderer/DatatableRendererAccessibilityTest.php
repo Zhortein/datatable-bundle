@@ -54,7 +54,8 @@ final class DatatableRendererAccessibilityTest extends TestCase
 
         $html = $renderer->render($this->createDefinition());
 
-        self::assertStringContainsString('aria-label="Sort by Email"', $html);
+        self::assertStringContainsString('aria-label="Sort by Email.', $html);
+        self::assertStringContainsString('Hold Shift while activating columns', $html);
     }
 
     public function test_pagination_buttons_have_accessible_labels(): void

@@ -18,6 +18,7 @@ use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
 use Zhortein\DatatableBundle\Preference\NullDatatablePreferenceProvider;
 use Zhortein\DatatableBundle\Registry\DatatableRegistry;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 use Zhortein\DatatableBundle\Tests\Unit\Renderer\TranslatableRendererTestTrait;
 use Zhortein\DatatableBundle\Twig\DatatableTwigExtension;
 
@@ -109,6 +110,44 @@ final class DatatableTwigExtensionTest extends TestCase
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-direction-value="asc"', $html);
         self::assertStringContainsString('Display name', $html);
         self::assertStringNotContainsString('Email', $html);
+    }
+
+    public function test_it_applies_multi_column_sorting_preferences(): void
+    {
+        $extension = $this->createExtension(
+            preferenceProvider: new FixedDatatablePreferenceProvider(DatatablePreference::create(
+                sorts: [
+                    SortCriterion::create('e.displayName'),
+                    SortCriterion::create('e.email', SortDirection::Desc),
+                ],
+            )),
+        );
+
+        $html = $extension->renderDatatable('users');
+
+        self::assertStringContainsString('priority 1 of 2', $html);
+        self::assertStringContainsString('priority 2 of 2', $html);
+        self::assertSame(1, substr_count($html, 'aria-sort='));
+    }
+
+    public function test_an_explicit_empty_runtime_sort_list_clears_the_preference(): void
+    {
+        $extension = $this->createExtension(
+            preferenceProvider: new FixedDatatablePreferenceProvider(DatatablePreference::create(
+                sorts: [
+                    SortCriterion::create('e.displayName'),
+                    SortCriterion::create('e.email', SortDirection::Desc),
+                ],
+            )),
+        );
+
+        $html = $extension->renderDatatable('users', [
+            'sorts' => [],
+        ]);
+
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-field-value=""', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sorts-value="[]"', $html);
+        self::assertStringNotContainsString('aria-sort=', $html);
     }
 
     private function createExtension(

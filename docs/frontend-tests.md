@@ -210,6 +210,9 @@ Covered behavior:
 - sorting a new field starts with ascending direction;
 - sorting the same field toggles direction;
 - sorting another field resets direction to ascending;
+- Shift-modified activation appends, toggles and removes ordered criteria;
+- multi-column criteria are serialized for fragments and exports;
+- legacy single-column state remains accepted;
 - sorting resets the current page to 1;
 - invalid sort events are ignored;
 - pagination changes the current page;

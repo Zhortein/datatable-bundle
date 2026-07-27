@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 use Zhortein\DatatableBundle\State\DatatableState;
 
 final readonly class DatatableRequestFactory
@@ -71,6 +72,7 @@ final readonly class DatatableRequestFactory
                 $state->getAdvancedFilters(),
                 $definition,
             ),
+            sorts: $state->getSorts(),
         );
     }
 
@@ -102,6 +104,7 @@ final readonly class DatatableRequestFactory
             advancedFilters: $advancedFilters,
             visibleColumns: $this->readStringListParameter($parameters, 'visibleColumns'),
             hiddenColumns: $this->readStringListParameter($parameters, 'hiddenColumns'),
+            sorts: $this->readSortCriteria($parameters),
         );
     }
 
@@ -167,6 +170,57 @@ final readonly class DatatableRequestFactory
         } catch (\InvalidArgumentException) {
             return SortDirection::Asc;
         }
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     *
+     * @return list<SortCriterion>
+     */
+    private function readSortCriteria(array $parameters): array
+    {
+        $value = $parameters['sorts'] ?? null;
+
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $criteria = [];
+        $fields = [];
+
+        foreach ($value as $item) {
+            if (SortCriterion::MAX_CRITERIA === count($criteria)) {
+                break;
+            }
+
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $field = $item['field'] ?? null;
+            $direction = $item['direction'] ?? null;
+
+            if (!is_scalar($field) || !is_scalar($direction)) {
+                continue;
+            }
+
+            $field = trim((string) $field);
+
+            if ('' === $field || isset($fields[$field])) {
+                continue;
+            }
+
+            try {
+                $criterion = SortCriterion::create($field, (string) $direction);
+            } catch (\InvalidArgumentException) {
+                continue;
+            }
+
+            $criteria[] = $criterion;
+            $fields[$field] = true;
+        }
+
+        return $criteria;
     }
 
     /**

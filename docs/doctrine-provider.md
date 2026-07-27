@@ -165,7 +165,11 @@ $definition->addFilter('email', 'e.email', type: FilterType::Text);
 Searchable columns participate in the global search. By default, the provider uses a case-insensitive `LIKE` search.
 
 ## Sorting
+
 Columns marked as `sortable: true` can be sorted by clicking the header.
+Ordered multi-column sorting works across main-entity and explicitly joined
+fields. Unsupported criteria are skipped independently instead of disabling
+later valid criteria. See [multi-column sorting](sorting.md).
 
 ## Performance
 

@@ -11,7 +11,7 @@ The version 1 state model contains:
 - global search;
 - simple filters;
 - advanced filter expressions;
-- sort field and direction;
+- ordered sort criteria, with a compatibility primary field and direction;
 - page and page size;
 - visible and hidden columns.
 
@@ -98,6 +98,12 @@ pageSize=50
 search=alice
 filters[status]=active
 visibleColumns[]=email
+sortField=status
+sortDirection=asc
+sorts[0][field]=status
+sorts[0][direction]=asc
+sorts[1][field]=createdAt
+sorts[1][direction]=desc
 ```
 
 The controller translates restored state into those parameters. Custom fragment
@@ -130,6 +136,10 @@ the per-instance parameter name. The state payload is limited to 32 KiB.
 Map-like fields are serialized as JSON objects even when empty. The frontend
 accepts legacy empty arrays for those fields and normalizes them to objects,
 while still rejecting non-empty arrays and invalid typed values.
+
+The version 1 payload now also carries `sorts`. Older version 1 payloads without
+that list remain valid and are normalized from `sortField` and
+`sortDirection`. See [multi-column sorting](sorting.md).
 
 ## Frontend events
 

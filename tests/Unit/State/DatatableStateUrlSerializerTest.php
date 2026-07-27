@@ -6,6 +6,7 @@ namespace Zhortein\DatatableBundle\Tests\Unit\State;
 
 use PHPUnit\Framework\TestCase;
 use Zhortein\DatatableBundle\Exception\InvalidDatatableStateException;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 use Zhortein\DatatableBundle\State\DatatableState;
 use Zhortein\DatatableBundle\State\DatatableStateUrlSerializer;
 
@@ -29,6 +30,10 @@ final class DatatableStateUrlSerializerTest extends TestCase
             ],
             visibleColumns: ['email'],
             hiddenColumns: ['internal'],
+            sorts: [
+                SortCriterion::create('displayName'),
+                SortCriterion::create('email', 'desc'),
+            ],
         );
 
         $restored = $serializer->deserialize($serializer->serialize($state));
@@ -47,6 +52,7 @@ final class DatatableStateUrlSerializerTest extends TestCase
         self::assertInstanceOf(\stdClass::class, $values['advancedFilters'] ?? null);
         self::assertSame([], $values['visibleColumns'] ?? null);
         self::assertSame([], $values['hiddenColumns'] ?? null);
+        self::assertSame([], $values['sorts'] ?? null);
     }
 
     public function test_parameter_names_are_isolated_by_datatable_instance_and_context(): void
@@ -90,5 +96,44 @@ final class DatatableStateUrlSerializerTest extends TestCase
         $this->expectExceptionMessage('invalid length');
 
         $serializer->deserialize(str_repeat('x', DatatableStateUrlSerializer::MAX_PAYLOAD_LENGTH + 1));
+    }
+
+    public function test_it_accepts_legacy_version_one_state_without_sort_criteria(): void
+    {
+        $state = new DatatableStateUrlSerializer()->deserialize(
+            '{"version":1,"page":1,"pageSize":25,"search":null,"sortField":"email","sortDirection":"desc","filters":{},"advancedFilters":{},"visibleColumns":[],"hiddenColumns":[]}',
+        );
+
+        self::assertSame([
+            ['field' => 'email', 'direction' => 'desc'],
+        ], $state->toArray()['sorts']);
+    }
+
+    public function test_it_rejects_too_many_sort_criteria(): void
+    {
+        $sorts = [];
+
+        for ($index = 0; $index <= SortCriterion::MAX_CRITERIA; ++$index) {
+            $sorts[] = ['field' => sprintf('field_%d', $index), 'direction' => 'asc'];
+        }
+
+        $payload = json_encode([
+            'version' => 1,
+            'page' => 1,
+            'pageSize' => 25,
+            'search' => null,
+            'sortField' => null,
+            'sortDirection' => 'asc',
+            'sorts' => $sorts,
+            'filters' => new \stdClass(),
+            'advancedFilters' => new \stdClass(),
+            'visibleColumns' => [],
+            'hiddenColumns' => [],
+        ], JSON_THROW_ON_ERROR);
+
+        $this->expectException(InvalidDatatableStateException::class);
+        $this->expectExceptionMessage('cannot contain more than 8 sort criteria');
+
+        new DatatableStateUrlSerializer()->deserialize($payload);
     }
 }

@@ -6,6 +6,7 @@ namespace Zhortein\DatatableBundle\Tests\Unit\View;
 
 use PHPUnit\Framework\TestCase;
 use Zhortein\DatatableBundle\Enum\SortDirection;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 use Zhortein\DatatableBundle\State\DatatableState;
 use Zhortein\DatatableBundle\View\DatatableViewState;
 
@@ -21,6 +22,13 @@ final class DatatableViewStateTest extends TestCase
         self::assertSame('alice', $viewState->getState()->getSearchQuery());
         self::assertSame('email', $viewState->getState()->getSortField());
         self::assertSame(SortDirection::Desc, $viewState->getState()->getSortDirection());
+        self::assertSame([
+            ['field' => 'email', 'direction' => 'desc'],
+            ['field' => 'createdAt', 'direction' => 'asc'],
+        ], array_map(
+            static fn (SortCriterion $criterion): array => $criterion->toArray(),
+            $viewState->getState()->getSorts(),
+        ));
         self::assertSame(['status' => 'active'], $viewState->getState()->getFilters());
         self::assertSame(['email'], $viewState->getState()->getVisibleColumns());
     }
@@ -41,6 +49,10 @@ final class DatatableViewStateTest extends TestCase
             searchQuery: 'alice',
             sortField: 'email',
             sortDirection: SortDirection::Desc,
+            sorts: [
+                SortCriterion::create('email', SortDirection::Desc),
+                SortCriterion::create('createdAt'),
+            ],
             filters: ['status' => 'active'],
             advancedFilters: [
                 'logic' => 'and',

@@ -6,6 +6,7 @@ namespace Zhortein\DatatableBundle\State;
 
 use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Exception\InvalidDatatableStateException;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 
 /**
  * Defines the versioned JSON format stored in a namespaced page URL parameter.
@@ -58,6 +59,7 @@ final readonly class DatatableStateUrlSerializer
      *     search: string|null,
      *     sortField: string|null,
      *     sortDirection: string,
+     *     sorts: list<array{field: string, direction: string}>,
      *     filters: array<string, mixed>|\stdClass,
      *     advancedFilters: array<string, mixed>|\stdClass,
      *     visibleColumns: list<string>,
@@ -76,6 +78,10 @@ final readonly class DatatableStateUrlSerializer
             'search' => $state->getSearchQuery(),
             'sortField' => $state->getSortField(),
             'sortDirection' => $state->getSortDirection()->value,
+            'sorts' => array_map(
+                static fn (SortCriterion $criterion): array => $criterion->toArray(),
+                $state->getSorts(),
+            ),
             'filters' => [] === $filters ? new \stdClass() : $filters,
             'advancedFilters' => [] === $advancedFilters ? new \stdClass() : $advancedFilters,
             'visibleColumns' => $state->getVisibleColumns(),
@@ -110,6 +116,7 @@ final readonly class DatatableStateUrlSerializer
                 advancedFilters: $this->readMap($state, 'advancedFilters'),
                 visibleColumns: $this->readStringList($state, 'visibleColumns'),
                 hiddenColumns: $this->readStringList($state, 'hiddenColumns'),
+                sorts: $this->readSortCriteria($state),
             );
         } catch (\InvalidArgumentException $exception) {
             throw new InvalidDatatableStateException('The serialized datatable state contains invalid values.', previous: $exception);
@@ -156,6 +163,50 @@ final readonly class DatatableStateUrlSerializer
         }
 
         return SortDirection::fromString($value);
+    }
+
+    /**
+     * @param array<array-key, mixed> $state
+     *
+     * @return list<SortCriterion>
+     */
+    private function readSortCriteria(array $state): array
+    {
+        if (!array_key_exists('sorts', $state)) {
+            return [];
+        }
+
+        $value = $state['sorts'];
+
+        if (!is_array($value) || !array_is_list($value)) {
+            throw new InvalidDatatableStateException('The datatable state sort criteria must be a list.');
+        }
+
+        if (SortCriterion::MAX_CRITERIA < count($value)) {
+            throw new InvalidDatatableStateException(sprintf(
+                'The datatable state cannot contain more than %d sort criteria.',
+                SortCriterion::MAX_CRITERIA,
+            ));
+        }
+
+        $criteria = [];
+
+        foreach ($value as $item) {
+            if (!is_array($item)) {
+                throw new InvalidDatatableStateException('Every datatable state sort criterion must be an object.');
+            }
+
+            $field = $item['field'] ?? null;
+            $direction = $item['direction'] ?? null;
+
+            if (!is_string($field) || !is_string($direction)) {
+                throw new InvalidDatatableStateException('Every datatable state sort criterion must contain string field and direction values.');
+            }
+
+            $criteria[] = SortCriterion::create($field, $direction);
+        }
+
+        return SortCriterion::normalizeList($criteria);
     }
 
     /**

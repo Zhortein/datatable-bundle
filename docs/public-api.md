@@ -76,6 +76,7 @@ Objects appearing in those signatures are part of the supported API:
 - `Preference\DatatablePreference`;
 - `Request\DatatableRequest`;
 - `Result\DatatableResult`;
+- `Sorting\SortCriterion`;
 - `Hierarchy\ChildDatatableAuthorizationContext`;
 - `View\DatatableView`;
 - `View\DatatableViewMetadata`;
@@ -96,6 +97,11 @@ authorization, scope, revision and JSON behavior are documented in
 Version 1 state transport keeps `filters` and `advancedFilters` as JSON objects
 when empty. Legacy empty arrays remain accepted and normalized by the bundled
 frontend; non-empty arrays are invalid for these map-like fields.
+
+Version 1 state transport also includes an ordered `sorts` list. The historical
+`sortField` and `sortDirection` fields remain the compatibility representation
+of its first criterion. Payloads without `sorts` remain accepted throughout the
+1.x series. See [multi-column sorting](sorting.md).
 
 `DatatableResult` source alignment, `CellContext` accessors and
 `DatatableDefinition::addComputedColumn()` are documented in [cell context and

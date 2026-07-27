@@ -24,11 +24,13 @@ use Zhortein\DatatableBundle\Enum\BooleanDisplayMode;
 use Zhortein\DatatableBundle\Enum\CellType;
 use Zhortein\DatatableBundle\Enum\FilterLayout;
 use Zhortein\DatatableBundle\Enum\PaginationSize;
+use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Exception\ChildDatatableAccessDeniedException;
 use Zhortein\DatatableBundle\Hierarchy\ChildDatatableResolver;
 use Zhortein\DatatableBundle\Hierarchy\ResolvedChildDatatable;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 use Zhortein\DatatableBundle\State\DatatableStateUrlSerializer;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 use Zhortein\DatatableBundle\View\DatatableViewCsrfTokenIdGenerator;
 use Zhortein\DatatableBundle\View\DatatableViewScope;
 
@@ -188,7 +190,7 @@ final readonly class DatatableRenderer
      */
     private function resolveOptions(array $options): array
     {
-        return array_replace(
+        return $this->normalizeSortOptions(array_replace(
             $this->defaultTableOptions,
             [
                 'search' => $this->searchEnabled,
@@ -196,7 +198,78 @@ final readonly class DatatableRenderer
                 'pageSize' => $this->defaultPageSize,
             ],
             $options,
+        ));
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return array<string, mixed>
+     */
+    private function normalizeSortOptions(array $options): array
+    {
+        $rawSorts = $options['sorts'] ?? [];
+
+        if (null === $rawSorts) {
+            $rawSorts = [];
+        }
+
+        if (!is_array($rawSorts) || !array_is_list($rawSorts)) {
+            throw new \InvalidArgumentException('The datatable render option "sorts" must be a list.');
+        }
+
+        $sorts = [];
+
+        foreach ($rawSorts as $rawSort) {
+            if ($rawSort instanceof SortCriterion) {
+                $sorts[] = $rawSort;
+
+                continue;
+            }
+
+            if (!is_array($rawSort)) {
+                throw new \InvalidArgumentException('Every datatable render sort must be a SortCriterion or an array.');
+            }
+
+            $field = $rawSort['field'] ?? null;
+            $direction = $rawSort['direction'] ?? SortDirection::Asc->value;
+
+            if (!is_string($field) || (!is_string($direction) && !($direction instanceof SortDirection))) {
+                throw new \InvalidArgumentException('Every datatable render sort must contain a string field and a valid direction.');
+            }
+
+            $sorts[] = SortCriterion::create($field, $direction);
+        }
+
+        $sorts = SortCriterion::normalizeList($sorts);
+
+        if ([] === $sorts) {
+            $field = $options['sortField'] ?? null;
+            $direction = $options['sortDirection'] ?? SortDirection::Asc;
+
+            if (null !== $field && !is_string($field)) {
+                throw new \InvalidArgumentException('The datatable render option "sortField" must be a string or null.');
+            }
+
+            if (!is_string($direction) && !($direction instanceof SortDirection)) {
+                throw new \InvalidArgumentException('The datatable render option "sortDirection" must be a string or SortDirection.');
+            }
+
+            if (is_string($field) && '' !== trim($field)) {
+                $sorts = [SortCriterion::create($field, $direction)];
+            }
+        }
+
+        $options['sorts'] = array_map(
+            static fn (SortCriterion $criterion): array => $criterion->toArray(),
+            $sorts,
         );
+
+        $primary = $sorts[0] ?? null;
+        $options['sortField'] = $primary?->getField();
+        $options['sortDirection'] = $primary?->getDirection()->value ?? SortDirection::Asc->value;
+
+        return $options;
     }
 
     /**

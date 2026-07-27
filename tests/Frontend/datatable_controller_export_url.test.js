@@ -187,8 +187,10 @@ describe('datatable_controller export URL generation', () => {
         controller.searchValue = 'alice';
         controller.pageValue = 3;
         controller.pageSizeValue = 25;
-        controller.sortFieldValue = 'e.email';
-        controller.sortDirectionValue = 'desc';
+        controller.setSortCriteria([
+            { field: 'e.email', direction: 'desc' },
+            { field: 'e.displayName', direction: 'asc' },
+        ]);
 
         const link = document.querySelector('[data-zhortein--datatable-bundle--datatable-export-mode-param="current"]');
         const event = createExportEvent(link, { exportMode: 'current', exportFormat: 'csv' });
@@ -205,6 +207,9 @@ describe('datatable_controller export URL generation', () => {
         expect(url.searchParams.get('search')).toBe('alice');
         expect(url.searchParams.get('sortField')).toBe('e.email');
         expect(url.searchParams.get('sortDirection')).toBe('desc');
+        expect(url.searchParams.get('sorts[0][field]')).toBe('e.email');
+        expect(url.searchParams.get('sorts[1][field]')).toBe('e.displayName');
+        expect(url.searchParams.get('sorts[1][direction]')).toBe('asc');
         expect(url.searchParams.get('filters[email]')).toBe('alice@example.test');
         expect(url.searchParams.get('filters[enabled]')).toBe('1');
         expect(url.searchParams.has('filters[empty]')).toBe(false);

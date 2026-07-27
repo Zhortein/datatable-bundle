@@ -40,7 +40,7 @@ final class UserArrayDatatable implements DatatableInterface
 
 - **Pagination**: Offset-based pagination.
 - **Global Search**: Simple scalar search across searchable columns.
-- **Sorting**: Single-column sorting.
+- **Sorting**: Ordered multi-column sorting on declared sortable columns.
 - **Filters**: Compatible with user-facing filters.
 - **Permanent filters**: Literal or context-backed filters are applied before result counts.
 - **Cell source**: Each returned associative row is also available as the server-side cell `source`.
@@ -79,3 +79,4 @@ for a complete parent/child example.
 For production use cases, see the **[Doctrine Provider](doctrine-provider.md)**.
 
 For rich templates and computed values, see [Cell Context and Computed Values](cell-context.md).
+For initial state, interaction and provider semantics, see [Multi-column Sorting](sorting.md).
