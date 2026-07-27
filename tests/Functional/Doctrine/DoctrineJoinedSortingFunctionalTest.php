@@ -14,6 +14,7 @@ use Zhortein\DatatableBundle\Enum\JoinType;
 use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Provider\DoctrineOrmDataProvider;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineOrganization;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
 use Zhortein\DatatableBundle\Tests\Functional\FunctionalTestCase;
@@ -85,6 +86,31 @@ final class DoctrineJoinedSortingFunctionalTest extends FunctionalTestCase
 
         self::assertSame(3, $result->getTotalItems());
         self::assertCount(3, $result->getRows());
+    }
+
+    public function test_it_combines_joined_and_main_entity_sort_criteria(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+
+        $definition = $this->createDefinitionWithOrganizationJoin();
+        $definition->addColumn('organization.enabled', label: 'Organization enabled');
+
+        $result = $this->createProvider()->getData(
+            $definition,
+            DatatableRequest::create(
+                pageSize: 10,
+                sorts: [
+                    SortCriterion::create('organization.enabled'),
+                    SortCriterion::create('e.email', SortDirection::Desc),
+                ],
+            ),
+        );
+
+        self::assertSame([
+            'charlie@example.test',
+            'bob@example.test',
+            'alice@example.test',
+        ], array_column($result->getRows(), 'e_email'));
     }
 
     #[After]

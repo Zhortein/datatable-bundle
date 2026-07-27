@@ -13,6 +13,7 @@ function createState(overrides = {}) {
         search: null,
         sortField: null,
         sortDirection: 'asc',
+        sorts: [],
         filters: {},
         advancedFilters: {},
         visibleColumns: ['email', 'status'],
@@ -30,6 +31,12 @@ function createView(overrides = {}) {
         includePage: false,
         state: createState({
             search: 'alice',
+            sortField: 'status',
+            sortDirection: 'asc',
+            sorts: [
+                { field: 'status', direction: 'asc' },
+                { field: 'email', direction: 'desc' },
+            ],
             filters: { status: 'active' },
             visibleColumns: ['email'],
             hiddenColumns: ['status'],
@@ -196,6 +203,7 @@ describe('datatable_controller named saved views', () => {
         expect(element.querySelector('[data-zhortein--datatable-bundle--datatable-column-name="status"]').checked).toBe(false);
         expect(fragmentUrl.searchParams.get('search')).toBe('alice');
         expect(fragmentUrl.searchParams.get('filters[status]')).toBe('active');
+        expect(fragmentUrl.searchParams.get('sorts[1][field]')).toBe('email');
         expect(controller.defaultState.search).toBe('alice');
         expect(fetchMock.mock.calls.map(([url]) => new URL(url, window.location.origin).pathname)).toEqual([
             '/_zhortein/datatable/users/views',
@@ -300,6 +308,10 @@ describe('datatable_controller named saved views', () => {
 
         const { controller, element } = await getController(application);
         controller.pageValue = 4;
+        controller.setSortCriteria([
+            { field: 'status', direction: 'asc' },
+            { field: 'email', direction: 'desc' },
+        ]);
         element.querySelector(`[data-${CONTROLLER_IDENTIFIER}-target="savedViewName"]`).value = 'Active customers';
         controller.createSavedView({ preventDefault: vi.fn() });
         await flushPromises();
@@ -311,6 +323,10 @@ describe('datatable_controller named saved views', () => {
         expect(payload.name).toBe('Active customers');
         expect(payload.state.page).toBe(4);
         expect(payload.includePage).toBe(false);
+        expect(payload.state.sorts).toEqual([
+            { field: 'status', direction: 'asc' },
+            { field: 'email', direction: 'desc' },
+        ]);
     });
 
     it('surfaces optimistic concurrency conflicts without replacing the selected state', async () => {

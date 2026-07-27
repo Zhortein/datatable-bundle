@@ -25,6 +25,7 @@ final class DatatableRequestColumnVisibilityTest extends TestCase
             'hiddenColumns' => ['e.createdAt'],
             'sortField' => null,
             'sortDirection' => SortDirection::Asc->value,
+            'sorts' => [],
         ], $request->getColumnVisibilityOptions());
     }
 
@@ -40,6 +41,9 @@ final class DatatableRequestColumnVisibilityTest extends TestCase
             'hiddenColumns' => [],
             'sortField' => 'e.email',
             'sortDirection' => 'desc',
+            'sorts' => [
+                ['field' => 'e.email', 'direction' => 'desc'],
+            ],
         ], $request->getColumnVisibilityOptions());
     }
 

@@ -1271,11 +1271,32 @@ Applications can represent parent/child business structures without custom per-p
 
 ---
 
+## 1.8 - Multi-column sorting ✅
+
+Delivered:
+
+- immutable typed sort criteria with bounded, deduplicated transport;
+- backward-compatible primary `sortField` and `sortDirection` accessors;
+- ordered Array and Doctrine sorting, including explicit joined fields;
+- namespaced URL state, named-view and preference persistence;
+- identical current/full CSV and XLSX export ordering;
+- plain-click single sorting and Shift-modified multi-column interaction;
+- visible priorities and an ARIA-compatible accessibility model;
+- PHPUnit, Vitest and Chromium/axe coverage;
+- complete public documentation and 1.x compatibility guidance.
+
+Main outcome:
+
+```text
+Applications can expose deterministic multi-column business ordering without losing existing single-column integrations.
+```
+
+---
+
 ## Later ideas 🔭
 
 Potential future work:
 
-- multi-column sorting;
 - async exports;
 - streaming export provider contracts;
 - additional export formats;

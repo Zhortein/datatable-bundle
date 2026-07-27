@@ -6,6 +6,7 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Request;
 
 use PHPUnit\Framework\TestCase;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 
 final class DatatableRequestExportModeTest extends TestCase
 {
@@ -28,6 +29,10 @@ final class DatatableRequestExportModeTest extends TestCase
             visibleColumns: ['e.email'],
             hiddenColumns: ['e.createdAt'],
             options: ['foo' => 'bar'],
+            sorts: [
+                SortCriterion::create('e.email', 'desc'),
+                SortCriterion::create('e.createdAt'),
+            ],
         );
 
         $withoutPagination = $request->withoutPagination();
@@ -38,6 +43,13 @@ final class DatatableRequestExportModeTest extends TestCase
         self::assertSame('alice', $withoutPagination->getSearchQuery());
         self::assertSame('e.email', $withoutPagination->getSortField());
         self::assertSame('desc', $withoutPagination->getSortDirection()->value);
+        self::assertSame([
+            ['field' => 'e.email', 'direction' => 'desc'],
+            ['field' => 'e.createdAt', 'direction' => 'asc'],
+        ], array_map(
+            static fn (SortCriterion $criterion): array => $criterion->toArray(),
+            $withoutPagination->getSorts(),
+        ));
         self::assertSame(['enabled' => '1'], $withoutPagination->getFilters());
         self::assertSame(['e.email'], $withoutPagination->getVisibleColumns());
         self::assertSame(['e.createdAt'], $withoutPagination->getHiddenColumns());

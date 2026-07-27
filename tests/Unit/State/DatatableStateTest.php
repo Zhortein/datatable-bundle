@@ -6,6 +6,7 @@ namespace Zhortein\DatatableBundle\Tests\Unit\State;
 
 use PHPUnit\Framework\TestCase;
 use Zhortein\DatatableBundle\Enum\SortDirection;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 use Zhortein\DatatableBundle\State\DatatableState;
 
 final class DatatableStateTest extends TestCase
@@ -61,5 +62,23 @@ final class DatatableStateTest extends TestCase
         $this->expectExceptionMessage('page must be greater than or equal to 1');
 
         DatatableState::create(page: 0);
+    }
+
+    public function test_it_keeps_ordered_sort_criteria_in_canonical_state(): void
+    {
+        $state = DatatableState::create(
+            sortField: 'legacy',
+            sorts: [
+                SortCriterion::create('displayName'),
+                SortCriterion::create('email', SortDirection::Desc),
+            ],
+        );
+
+        self::assertSame('displayName', $state->getSortField());
+        self::assertSame(SortDirection::Asc, $state->getSortDirection());
+        self::assertSame([
+            ['field' => 'displayName', 'direction' => 'asc'],
+            ['field' => 'email', 'direction' => 'desc'],
+        ], $state->toArray()['sorts']);
     }
 }

@@ -161,6 +161,7 @@ It can store:
 - page size;
 - sort field;
 - sort direction;
+- ordered sort criteria;
 - visible columns;
 - hidden columns.
 
@@ -178,6 +179,20 @@ $preference = DatatablePreference::create(
     hiddenColumns: ['e.createdAt'],
 );
 ```
+
+Use typed criteria for a multi-column default:
+
+```php
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
+
+$preference = DatatablePreference::create(sorts: [
+    SortCriterion::create('e.enabled', SortDirection::Desc),
+    SortCriterion::create('e.displayName'),
+]);
+```
+
+The first criterion remains available through `getSortField()` and
+`getSortDirection()`. See [multi-column sorting](sorting.md).
 
 Preferences can be converted to render options:
 

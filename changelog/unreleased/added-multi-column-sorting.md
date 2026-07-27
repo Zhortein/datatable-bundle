@@ -1,0 +1,1 @@
+- Added backward-compatible multi-column sorting across Array and Doctrine providers, URL state, saved views, exports and accessible Stimulus controls.

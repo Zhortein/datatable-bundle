@@ -58,13 +58,17 @@ A view reuses the public version 1 `DatatableState` model:
 - global search;
 - simple filters;
 - advanced filter expression;
-- sort field and direction;
+- ordered sort criteria, with a compatibility primary field and direction;
 - page size;
 - visible and hidden columns.
 
 The current page is reset to `1` unless `savedViewsIncludePage` is explicitly
 enabled. Selections, server-only context, provider options and layout settings
 are never persisted.
+
+Views created before `1.8` remain valid when their version 1 state contains
+only `sortField` and `sortDirection`. New views retain the complete ordered
+list. See [multi-column sorting](sorting.md).
 
 Initial state precedence is:
 

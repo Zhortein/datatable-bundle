@@ -4,6 +4,7 @@ import ChildDatatableManager from './child_datatable_manager.js';
 
 const DATATABLE_STATE_VERSION = 1;
 const MAX_STATE_PAYLOAD_LENGTH = 32768;
+const MAX_SORT_CRITERIA = 8;
 
 /**
  * Controls a Zhortein datatable.
@@ -54,6 +55,7 @@ export default class extends Controller {
         search: { type: String, default: '' },
         sortField: { type: String, default: '' },
         sortDirection: { type: String, default: 'asc' },
+        sorts: { type: Array, default: [] },
         autoLoad: { type: Boolean, default: true },
         filterLayout: String,
         searchBuilder: { type: Boolean, default: false },
@@ -86,6 +88,7 @@ export default class extends Controller {
         this.childDatatableManager = new ChildDatatableManager(this);
         this.savedViewsAbortController = null;
         this.savedViews = [];
+        this.initializeSortState();
         this.defaultState = this.collectState();
         this.handlePopState = this.restoreStateFromHistory.bind(this);
         this.handleTurboBeforeCache = this.persistStateBeforeTurboCache.bind(this);
@@ -661,6 +664,12 @@ export default class extends Controller {
         }
 
         this.searchDebounceTimeout = window.setTimeout(() => {
+            this.searchDebounceTimeout = null;
+
+            if (!this.element.isConnected) {
+                return;
+            }
+
             this.refresh();
         }, 300);
     }
@@ -674,6 +683,12 @@ export default class extends Controller {
         }
 
         this.filterDebounceTimeout = window.setTimeout(() => {
+            this.filterDebounceTimeout = null;
+
+            if (!this.element.isConnected) {
+                return;
+            }
+
             this.refresh();
         }, 300);
     }
@@ -732,6 +747,12 @@ export default class extends Controller {
         }
 
         this.columnVisibilityDebounceTimeout = window.setTimeout(() => {
+            this.columnVisibilityDebounceTimeout = null;
+
+            if (!this.element.isConnected) {
+                return;
+            }
+
             this.refresh();
         }, 150);
     }
@@ -757,15 +778,128 @@ export default class extends Controller {
             return;
         }
 
-        if (this.sortFieldValue === field) {
-            this.sortDirectionValue = this.sortDirectionValue === 'asc' ? 'desc' : 'asc';
+        const sorts = this.getSortCriteria();
+        const sortIndex = sorts.findIndex((sort) => sort.field === field);
+
+        if (event.shiftKey === true) {
+            if (sortIndex === -1) {
+                if (sorts.length >= MAX_SORT_CRITERIA) {
+                    return;
+                }
+
+                sorts.push({ field, direction: 'asc' });
+            } else if (sorts[sortIndex].direction === 'asc') {
+                sorts[sortIndex] = { field, direction: 'desc' };
+            } else {
+                sorts.splice(sortIndex, 1);
+            }
+        } else if (sorts.length === 1 && sortIndex === 0) {
+            sorts[0] = {
+                field,
+                direction: sorts[0].direction === 'asc' ? 'desc' : 'asc',
+            };
         } else {
-            this.sortFieldValue = field;
-            this.sortDirectionValue = 'asc';
+            sorts.splice(0, sorts.length, { field, direction: 'asc' });
         }
 
+        this.setSortCriteria(sorts);
         this.pageValue = 1;
         this.refresh();
+    }
+
+    initializeSortState() {
+        this.setSortCriteria(this.getSortCriteria());
+    }
+
+    getSortCriteria() {
+        const sorts = this.normalizeSortCriteria(this.sortsValue);
+
+        if (sorts.length > 0) {
+            if (
+                this.sortFieldValue !== sorts[0].field
+                || this.sortDirectionValue !== sorts[0].direction
+            ) {
+                return this.sortFieldValue === ''
+                    ? []
+                    : [{
+                        field: this.sortFieldValue,
+                        direction: ['asc', 'desc'].includes(this.sortDirectionValue)
+                            ? this.sortDirectionValue
+                            : 'asc',
+                    }];
+            }
+
+            return sorts;
+        }
+
+        if (this.sortFieldValue === '') {
+            return [];
+        }
+
+        return [{
+            field: this.sortFieldValue,
+            direction: ['asc', 'desc'].includes(this.sortDirectionValue)
+                ? this.sortDirectionValue
+                : 'asc',
+        }];
+    }
+
+    setSortCriteria(sorts) {
+        const normalized = this.normalizeSortCriteria(sorts);
+        const primary = normalized[0] ?? null;
+
+        this.sortsValue = normalized;
+        this.sortFieldValue = primary?.field ?? '';
+        this.sortDirectionValue = primary?.direction ?? 'asc';
+    }
+
+    normalizeSortCriteria(sorts, strict = false) {
+        if (!Array.isArray(sorts)) {
+            if (strict) {
+                throw new TypeError('Invalid datatable sort criteria.');
+            }
+
+            return [];
+        }
+
+        if (strict && sorts.length > MAX_SORT_CRITERIA) {
+            throw new TypeError('Invalid datatable sort criteria.');
+        }
+
+        const normalized = [];
+        const fields = new Set();
+
+        for (const sort of sorts) {
+            if (
+                sort === null
+                || typeof sort !== 'object'
+                || Array.isArray(sort)
+                || typeof sort.field !== 'string'
+                || sort.field.trim() === ''
+                || !['asc', 'desc'].includes(sort.direction)
+            ) {
+                if (strict) {
+                    throw new TypeError('Invalid datatable sort criteria.');
+                }
+
+                continue;
+            }
+
+            const field = sort.field.trim();
+
+            if (fields.has(field)) {
+                continue;
+            }
+
+            if (normalized.length === MAX_SORT_CRITERIA) {
+                break;
+            }
+
+            normalized.push({ field, direction: sort.direction });
+            fields.add(field);
+        }
+
+        return normalized;
     }
 
     goToPage(event) {
@@ -847,14 +981,17 @@ export default class extends Controller {
             ? null
             : this.serializeSearchBuilderGroup(rootSearchBuilderGroup);
         const columns = this.collectColumnVisibilityState();
+        const sorts = this.getSortCriteria();
+        const primarySort = sorts[0] ?? null;
 
         return {
             version: DATATABLE_STATE_VERSION,
             page: this.pageValue,
             pageSize: this.pageSizeValue,
             search: this.searchValue === '' ? null : this.searchValue,
-            sortField: this.sortFieldValue === '' ? null : this.sortFieldValue,
-            sortDirection: this.sortDirectionValue,
+            sortField: primarySort?.field ?? null,
+            sortDirection: primarySort?.direction ?? 'asc',
+            sorts,
             filters: this.collectFilterState(),
             advancedFilters: advancedFilters !== null && advancedFilters.conditions.length > 0
                 ? advancedFilters
@@ -1291,8 +1428,11 @@ export default class extends Controller {
         this.pageValue = state.page;
         this.pageSizeValue = state.pageSize;
         this.searchValue = state.search ?? '';
-        this.sortFieldValue = state.sortField ?? '';
-        this.sortDirectionValue = state.sortDirection;
+        this.setSortCriteria(state.sorts ?? (
+            state.sortField === null
+                ? []
+                : [{ field: state.sortField, direction: state.sortDirection }]
+        ));
 
         if (this.hasSearchInputTarget) {
             this.searchInputTarget.value = this.searchValue;
@@ -1435,14 +1575,25 @@ export default class extends Controller {
 
         const filters = this.normalizeStateMap(state.filters);
         const advancedFilters = this.normalizeStateMap(state.advancedFilters);
+        const sorts = this.normalizeSortCriteria(state.sorts ?? [], true);
+
+        if (sorts.length === 0 && state.sortField !== null) {
+            sorts.push({
+                field: state.sortField,
+                direction: state.sortDirection,
+            });
+        }
+
+        const primarySort = sorts[0] ?? null;
 
         return {
             version: DATATABLE_STATE_VERSION,
             page: state.page,
             pageSize: state.pageSize,
             search: state.search,
-            sortField: state.sortField,
-            sortDirection: state.sortDirection,
+            sortField: primarySort?.field ?? null,
+            sortDirection: primarySort?.direction ?? 'asc',
+            sorts,
             filters,
             advancedFilters,
             visibleColumns: Array.from(new Set(state.visibleColumns)),
@@ -1580,10 +1731,7 @@ export default class extends Controller {
             url.searchParams.set('search', this.searchValue);
         }
 
-        if (this.sortFieldValue !== '') {
-            url.searchParams.set('sortField', this.sortFieldValue);
-            url.searchParams.set('sortDirection', this.sortDirectionValue);
-        }
+        this.appendSortParameters(url.searchParams);
 
         url.searchParams.set('filterLayout', this.filterLayoutValue);
 
@@ -2323,14 +2471,28 @@ export default class extends Controller {
             searchParams.set('search', this.searchValue);
         }
 
-        if (this.sortFieldValue !== '') {
-            searchParams.set('sortField', this.sortFieldValue);
-            searchParams.set('sortDirection', this.sortDirectionValue);
-        }
+        this.appendSortParameters(searchParams);
 
         this.appendFilterParameters(searchParams);
         this.appendAdvancedFilterParameters(searchParams);
         this.appendColumnVisibilityParameters(searchParams);
+    }
+
+    appendSortParameters(searchParams) {
+        const sorts = this.getSortCriteria();
+        const primary = sorts[0] ?? null;
+
+        if (primary === null) {
+            return;
+        }
+
+        searchParams.set('sortField', primary.field);
+        searchParams.set('sortDirection', primary.direction);
+
+        sorts.forEach((sort, index) => {
+            searchParams.set(`sorts[${index}][field]`, sort.field);
+            searchParams.set(`sorts[${index}][direction]`, sort.direction);
+        });
     }
 
     allowDropdownOverflow(event) {

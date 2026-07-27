@@ -1,5 +1,13 @@
 {% set current_sort_field = options.sortField is defined ? options.sortField : null %}
 {% set current_sort_direction = options.sortDirection is defined ? options.sortDirection : 'asc' %}
+{% set current_sorts = options.sorts|default([]) %}
+{% if current_sorts is empty and current_sort_field is not null %}
+    {% set current_sorts = [{
+        field: current_sort_field,
+        direction: current_sort_direction
+    }] %}
+{% endif %}
+{% set sort_count = current_sorts|length %}
 {% set filter_layout = options.filterLayout is defined ? options.filterLayout : 'toolbar' %}
 {% set header_filters_enabled = filter_layout == 'header' %}
 
@@ -26,14 +34,23 @@
         {% endif %}
 
         {% for column in visibleColumns %}
-            {% set is_current_sort = column.name == current_sort_field %}
+            {% set current_sort = null %}
+            {% set sort_priority = null %}
+            {% for sort in current_sorts %}
+                {% if current_sort is null and sort.field == column.name %}
+                    {% set current_sort = sort %}
+                    {% set sort_priority = loop.index %}
+                {% endif %}
+            {% endfor %}
+            {% set is_current_sort = current_sort is not null %}
+            {% set column_sort_direction = is_current_sort ? current_sort.direction : current_sort_direction %}
             {% set aria_sort = null %}
             {% set column_filter = null %}
             {% set column_class_name = columnClassNames[column.name]|default(null) %}
             {% set column_label = zhortein_datatable_translate(column.label, definition.translationDomain, column.name) %}
 
-            {% if is_current_sort %}
-                {% set aria_sort = current_sort_direction == 'desc' ? 'descending' : 'ascending' %}
+            {% if is_current_sort and sort_priority == 1 %}
+                {% set aria_sort = column_sort_direction == 'desc' ? 'descending' : 'ascending' %}
             {% endif %}
 
             {% if header_filters_enabled and definition.filters is not empty %}
@@ -58,17 +75,20 @@
                             data-action="zhortein--datatable-bundle--datatable#sort"
                             data-zhortein--datatable-bundle--datatable-field-param="{{ column.name }}"
                             data-zhortein--datatable-bundle--datatable-current-sort-param="{{ is_current_sort ? 'true' : 'false' }}"
-                            data-zhortein--datatable-bundle--datatable-sort-direction-param="{{ is_current_sort ? current_sort_direction : '' }}"
+                            data-zhortein--datatable-bundle--datatable-sort-direction-param="{{ is_current_sort ? column_sort_direction : '' }}"
                             aria-label="{{ 'zhortein_datatable.sort.label'|trans({
                                 '%column%': column_label
-                            }, 'zhortein_datatable') }}"
+                            }, 'zhortein_datatable') }}{% if is_current_sort %}. {{ (column_sort_direction == 'desc' ? 'zhortein_datatable.sort.sorted_descending_priority' : 'zhortein_datatable.sort.sorted_ascending_priority')|trans({
+                                '%priority%': sort_priority,
+                                '%count%': sort_count
+                            }, 'zhortein_datatable') }}{% endif %}. {{ 'zhortein_datatable.sort.multiple_hint'|trans({}, 'zhortein_datatable') }}"
                         >
                             <span class="zhortein-datatable__sort-label">
                                 {{ column_label }}
                             </span>
 
                             <span class="zhortein-datatable__sort-indicator text-body-secondary" aria-hidden="true">
-                                {% if is_current_sort and current_sort_direction == 'desc' %}
+                                {% if is_current_sort and column_sort_direction == 'desc' %}
                                     {% if sort_desc is not empty %}<i class="{{ sort_desc }}"></i>{% else %}↓{% endif %}
                                 {% elseif is_current_sort %}
                                     {% if sort_asc is not empty %}<i class="{{ sort_asc }}"></i>{% else %}↑{% endif %}
@@ -78,8 +98,14 @@
                             </span>
 
                             {% if is_current_sort %}
-                                <span class="visually-hidden">
-                                    {{ current_sort_direction == 'desc' ? 'zhortein_datatable.sort.sorted_descending'|trans({}, 'zhortein_datatable') : 'zhortein_datatable.sort.sorted_ascending'|trans({}, 'zhortein_datatable') }}
+                                <span
+                                    class="badge rounded-pill text-bg-secondary zhortein-datatable__sort-priority"
+                                    aria-hidden="true"
+                                    title="{{ 'zhortein_datatable.sort.priority'|trans({
+                                        '%priority%': sort_priority
+                                    }, 'zhortein_datatable') }}"
+                                >
+                                    {{ sort_priority }}
                                 </span>
                             {% endif %}
                         </button>

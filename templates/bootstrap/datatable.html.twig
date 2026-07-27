@@ -3,6 +3,7 @@
 {% set page_size = options.pageSize|default(25) %}
 {% set sort_field = options.sortField|default('') %}
 {% set sort_direction = options.sortDirection|default('asc') %}
+{% set sorts = options.sorts|default([]) %}
 {% set auto_load = options.autoLoad is defined ? options.autoLoad : true %}
 {% set search_builder = options.searchBuilder is defined ? options.searchBuilder : false %}
 {% set controls_layout = options.controlsLayout|default('default') %}
@@ -80,6 +81,7 @@
     data-zhortein--datatable-bundle--datatable-page-size-value="{{ page_size }}"
     data-zhortein--datatable-bundle--datatable-sort-field-value="{{ sort_field }}"
     data-zhortein--datatable-bundle--datatable-sort-direction-value="{{ sort_direction }}"
+    data-zhortein--datatable-bundle--datatable-sorts-value="{{ sorts|json_encode|e('html_attr') }}"
     data-zhortein--datatable-bundle--datatable-auto-load-value="{{ auto_load ? 'true' : 'false' }}"
     data-zhortein--datatable-bundle--datatable-filter-layout-value="{{ filter_layout }}"
     data-zhortein--datatable-bundle--datatable-search-builder-value="{{ search_builder ? 'true' : 'false' }}"

@@ -20,6 +20,7 @@ use Zhortein\DatatableBundle\Filter\Expression\Condition;
 use Zhortein\DatatableBundle\Filter\Expression\Group;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
 use Zhortein\DatatableBundle\Result\DatatableResult;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 
 final readonly class ArrayDataProvider implements DataProviderInterface
 {
@@ -431,25 +432,38 @@ final readonly class ArrayDataProvider implements DataProviderInterface
             return $rows;
         }
 
-        $sortField = $request->getSortField();
+        /** @var list<array{SortCriterion, ColumnDefinition}> $criteria */
+        $criteria = [];
 
-        if (null === $sortField || !$this->isSortableColumn($definition, $sortField)) {
+        foreach ($request->getSorts() as $criterion) {
+            $column = $definition->getColumns()[$criterion->getField()] ?? null;
+
+            if (!$column instanceof ColumnDefinition || !$column->isSortable()) {
+                continue;
+            }
+
+            $criteria[] = [$criterion, $column];
+        }
+
+        if ([] === $criteria) {
             return $rows;
         }
 
-        usort($rows, function (array $leftRow, array $rightRow) use ($definition, $request, $sortField): int {
-            $column = $definition->getColumns()[$sortField] ?? null;
+        usort($rows, function (array $leftRow, array $rightRow) use ($criteria): int {
+            foreach ($criteria as [$criterion, $column]) {
+                $leftValue = $this->readColumnValue($leftRow, $column);
+                $rightValue = $this->readColumnValue($rightRow, $column);
 
-            if (!$column instanceof ColumnDefinition) {
-                return 0;
+                $comparison = $this->compareValues($leftValue, $rightValue);
+
+                if (0 === $comparison) {
+                    continue;
+                }
+
+                return SortDirection::Desc === $criterion->getDirection() ? -$comparison : $comparison;
             }
 
-            $leftValue = $this->readColumnValue($leftRow, $column);
-            $rightValue = $this->readColumnValue($rightRow, $column);
-
-            $comparison = $this->compareValues($leftValue, $rightValue);
-
-            return SortDirection::Desc === $request->getSortDirection() ? -$comparison : $comparison;
+            return 0;
         });
 
         return $rows;
@@ -464,13 +478,6 @@ final readonly class ArrayDataProvider implements DataProviderInterface
             $definition->getColumns(),
             static fn (ColumnDefinition $column): bool => $column->isSearchable(),
         ));
-    }
-
-    private function isSortableColumn(DatatableDefinition $definition, string $name): bool
-    {
-        $column = $definition->getColumns()[$name] ?? null;
-
-        return $column instanceof ColumnDefinition && $column->isSortable();
     }
 
     /**

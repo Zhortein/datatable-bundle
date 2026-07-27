@@ -29,6 +29,12 @@ final readonly class DatatableTwigExtension
             ->toRenderOptions()
         ;
 
+        if (array_key_exists('sorts', $options)) {
+            unset($preferenceOptions['sortField'], $preferenceOptions['sortDirection']);
+        } elseif (array_key_exists('sortField', $options) || array_key_exists('sortDirection', $options)) {
+            unset($preferenceOptions['sorts']);
+        }
+
         return $this->renderer->render(
             $this->definitionFactory->create($name),
             array_replace($preferenceOptions, $options),

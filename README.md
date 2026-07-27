@@ -19,6 +19,7 @@ A Symfony 8+ bundle for Bootstrap-first business datatables driven by PHP defini
 - **Ajax Fragments**: Seamless server-side updates using vanilla Stimulus.
 - **Data Providers**: Native support for **Doctrine ORM** and **Array** providers.
 - **Filtering**: Built-in global search, toolbar/header filters, and advanced **Search Builder**.
+- **Multi-column Sorting**: Ordered, accessible sorting shared by providers, URL state, saved views, and exports.
 - **Shareable State**: Per-instance URL state with browser history and Turbo restoration.
 - **Named Views**: Optional saved views with replaceable ownership, authorization and storage contracts.
 - **Actions**: Declarative row, global and bulk actions with CSRF-aware forms and opt-in Ajax execution.
@@ -96,6 +97,7 @@ final class UserDatatable implements DatatableInterface
 - [Doctrine Provider](docs/doctrine-provider.md)
 - [Filters](docs/filters.md)
 - [Advanced Filters](docs/advanced-filters.md)
+- [Multi-column Sorting](docs/sorting.md)
 - [URL State & Browser History](docs/url-state.md)
 - [Named Saved Views](docs/saved-views.md)
 - [Actions & Security](docs/actions.md)

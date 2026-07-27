@@ -201,4 +201,19 @@ describe('Documentation', () => {
         expect(hierarchy).toContain('Array, Doctrine or a');
         expect(hierarchy).toContain('zhortein_datatable_child');
     });
+
+    it('documents the bounded multi-column sorting contract', () => {
+        const sorting = readFileSync(
+            resolve(documentationRoot, 'sorting.md'),
+            'utf8',
+        );
+
+        expect(sorting).toContain('Sorting\\SortCriterion');
+        expect(sorting).toContain('getSorts()');
+        expect(sorting).toContain('at most eight unique criteria');
+        expect(sorting).toContain('sorts[0][field]');
+        expect(sorting).toContain('Version 1 URLs and saved views');
+        expect(sorting).toContain('aria-sort');
+        expect(sorting).toContain('Hold `Shift`');
+    });
 });
