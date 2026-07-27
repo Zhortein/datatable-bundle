@@ -215,7 +215,7 @@ final class CsvExportWriterTest extends TestCase
             ),
         );
 
-        self::assertSame("Adresse e-mail\nalice@example.test\n", $response->getContent());
+        self::assertSame("\"Adresse e-mail\"\nalice@example.test\n", $response->getContent());
     }
 
     public function test_it_reads_rows_using_full_or_normalized_column_names(): void
