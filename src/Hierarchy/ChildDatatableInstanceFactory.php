@@ -37,18 +37,16 @@ final readonly class ChildDatatableInstanceFactory
 
     public function parseDepth(string $instance): int
     {
-        if (
-            1 !== preg_match(
-                sprintf('/^%s([1-%d])-([A-Za-z0-9_-]{%d})$/D', preg_quote(self::PREFIX, '/'), ChildDatatableDefinition::MAX_DEPTH, self::HASH_LENGTH),
-                $instance,
-                $matches,
-            )
-            || !isset($matches[1])
-        ) {
+        if (1 !== preg_match($this->getPattern(), $instance, $matches) || !isset($matches[1])) {
             throw new \InvalidArgumentException('The child datatable instance key is invalid.');
         }
 
         return (int) $matches[1];
+    }
+
+    public function isChildInstance(string $instance): bool
+    {
+        return 1 === preg_match($this->getPattern(), $instance);
     }
 
     private function assertDepth(int $depth): void
@@ -71,5 +69,10 @@ final readonly class ChildDatatableInstanceFactory
         }
 
         return $rowIdentifier;
+    }
+
+    private function getPattern(): string
+    {
+        return sprintf('/^%s([1-%d])-([A-Za-z0-9_-]{%d})$/D', preg_quote(self::PREFIX, '/'), ChildDatatableDefinition::MAX_DEPTH, self::HASH_LENGTH);
     }
 }

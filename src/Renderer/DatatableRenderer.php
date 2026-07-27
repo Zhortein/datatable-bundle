@@ -16,6 +16,7 @@ use Zhortein\DatatableBundle\Context\DatatableContextTransport;
 use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Definition\ActionDefinition;
 use Zhortein\DatatableBundle\Definition\BulkActionDefinition;
+use Zhortein\DatatableBundle\Definition\ChildDatatableDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ActionDisplayMode;
@@ -23,6 +24,9 @@ use Zhortein\DatatableBundle\Enum\BooleanDisplayMode;
 use Zhortein\DatatableBundle\Enum\CellType;
 use Zhortein\DatatableBundle\Enum\FilterLayout;
 use Zhortein\DatatableBundle\Enum\PaginationSize;
+use Zhortein\DatatableBundle\Exception\ChildDatatableAccessDeniedException;
+use Zhortein\DatatableBundle\Hierarchy\ChildDatatableResolver;
+use Zhortein\DatatableBundle\Hierarchy\ResolvedChildDatatable;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 use Zhortein\DatatableBundle\State\DatatableStateUrlSerializer;
 use Zhortein\DatatableBundle\View\DatatableViewCsrfTokenIdGenerator;
@@ -50,6 +54,7 @@ final readonly class DatatableRenderer
         private array $defaultTableOptions = [],
         private ?DatatableStateUrlSerializer $stateUrlSerializer = null,
         ?CellContextFactory $cellContextFactory = null,
+        private ?ChildDatatableResolver $childDatatableResolver = null,
     ) {
         $this->cellContextFactory = $cellContextFactory ?? new CellContextFactory();
     }
@@ -77,6 +82,7 @@ final readonly class DatatableRenderer
             'bulkActions' => $bulkActions,
             'hasRowActions' => [] !== $definition->getRowActions(),
             'hasBulkActions' => [] !== $bulkActions,
+            'hasChildDatatable' => $this->canExpandChildDatatable($definition, $options),
             'htmlId' => $this->createHtmlId($definition, $options),
             'options' => $options,
             'filters' => $filters,
@@ -98,6 +104,7 @@ final readonly class DatatableRenderer
             'columnClassNames' => $this->resolveColumnClassNames($visibleColumns),
             'hasRowActions' => [] !== $definition->getRowActions(),
             'hasBulkActions' => $this->hasBulkActions($definition),
+            'hasChildDatatable' => $this->canExpandChildDatatable($definition, $options),
             'htmlId' => $this->createHtmlId($definition, $options),
             'options' => $options,
             'filters' => $options['filters'] ?? [],
@@ -114,10 +121,17 @@ final readonly class DatatableRenderer
         }
 
         $options = $this->prepareContextOptions($definition, $this->resolveOptions($options));
+        $hasChildDatatable = $this->canExpandChildDatatable($definition, $options);
+        $visibleColumns = $this->getVisibleColumns($definition, $options);
 
         return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_body.html.twig', $this->theme), [
             'rows' => $this->normalizeRows($definition, $result, $options),
             'hasBulkActions' => $this->hasBulkActions($definition),
+            'hasChildDatatable' => $hasChildDatatable,
+            'childColspan' => count($visibleColumns)
+                + ($this->hasBulkActions($definition) ? 1 : 0)
+                + ([] !== $definition->getRowActions() ? 1 : 0)
+                + ($hasChildDatatable ? 1 : 0),
             'htmlId' => $this->createHtmlId($definition, $options),
             'rowActionDisplayMode' => $this->resolveRowActionDisplayMode($definition, $options)->value,
         ]);
@@ -134,6 +148,7 @@ final readonly class DatatableRenderer
             'visibleColumns' => $this->getVisibleColumns($definition, $options),
             'hasRowActions' => [] !== $definition->getRowActions(),
             'hasBulkActions' => $this->hasBulkActions($definition),
+            'hasChildDatatable' => $this->canExpandChildDatatable($definition, $options),
         ]);
     }
 
@@ -226,13 +241,24 @@ final readonly class DatatableRenderer
         $options['instance'] = $instance;
 
         $token = null;
+        $forceContextToken = $options['forceContextToken'] ?? false;
+
+        if (!is_bool($forceContextToken)) {
+            throw new \InvalidArgumentException('The datatable render option "forceContextToken" must be a boolean.');
+        }
 
         if (null !== $this->contextTransport) {
-            $token = $this->contextTransport->createToken(
-                $definition->getName(),
-                $instance,
-                $definition->getContext(),
-            );
+            $token = $forceContextToken
+                ? $this->contextTransport->createRequiredToken(
+                    $definition->getName(),
+                    $instance,
+                    $definition->getContext(),
+                )
+                : $this->contextTransport->createToken(
+                    $definition->getName(),
+                    $instance,
+                    $definition->getContext(),
+                );
 
             if (null !== $token) {
                 $options['contextToken'] = $token;
@@ -604,12 +630,13 @@ final readonly class DatatableRenderer
     /**
      * @param array<string, mixed> $options
      *
-     * @return list<array{cells: list<array{context: CellContext, column: ColumnDefinition, value: mixed, template: string, className: string|null, booleanDisplayMode: string, booleanTrueIcon: string|null, booleanFalseIcon: string|null, translationDomain: string|null}>, actions: list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null}>, identifier: string|null}>
+     * @return list<array{cells: list<array{context: CellContext, column: ColumnDefinition, value: mixed, template: string, className: string|null, booleanDisplayMode: string, booleanTrueIcon: string|null, booleanFalseIcon: string|null, translationDomain: string|null}>, actions: list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null}>, identifier: string|null, child: array{name: string, instance: string, depth: int, url: string, targetId: string, expandLabel: string|null, collapseLabel: string|null, translationDomain: string|null}|null}>
      */
     private function normalizeRows(DatatableDefinition $definition, DatatableResult $result, array $options = []): array
     {
         $visibleColumns = $this->getVisibleColumns($definition, $options);
-        $needsRowIdentifier = $this->hasBulkActions($definition) || $this->hasAjaxRowActions($definition);
+        $hasChildDatatable = $this->canExpandChildDatatable($definition, $options);
+        $needsRowIdentifier = $this->hasBulkActions($definition) || $this->hasAjaxRowActions($definition) || $hasChildDatatable;
         $booleanDisplayMode = $this->resolveBooleanDisplayMode($options);
         $booleanTrueIcon = $this->iconResolver?->resolve('boolean_true');
         $booleanFalseIcon = $this->iconResolver?->resolve('boolean_false');
@@ -637,11 +664,15 @@ final readonly class DatatableRenderer
                 ];
             }
 
+            $identifier = $needsRowIdentifier
+                ? $this->cellContextFactory->resolveRowIdentifier($row, $definition)
+                : null;
             $normalizedRow = [
                 'cells' => $cells,
                 'actions' => $this->normalizeRowActions($definition, $row, $options),
-                'identifier' => $needsRowIdentifier
-                    ? $this->cellContextFactory->resolveRowIdentifier($row, $definition)
+                'identifier' => $identifier,
+                'child' => $hasChildDatatable
+                    ? $this->normalizeChildDatatable($definition, $row, $identifier, $options)
                     : null,
             ];
 
@@ -649,6 +680,94 @@ final readonly class DatatableRenderer
         }
 
         return $normalizedRows;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     * @param array<string, mixed> $options
+     *
+     * @return array{name: string, instance: string, depth: int, url: string, targetId: string, expandLabel: string|null, collapseLabel: string|null, translationDomain: string|null}|null
+     */
+    private function normalizeChildDatatable(
+        DatatableDefinition $definition,
+        array $row,
+        ?string $rowIdentifier,
+        array $options,
+    ): ?array {
+        if (null === $this->childDatatableResolver || null === $this->contextTransport) {
+            return null;
+        }
+
+        try {
+            $child = $this->childDatatableResolver->resolve(
+                parentDefinition: $definition,
+                row: $row,
+                rowIdentifier: $rowIdentifier,
+                parentInstance: $this->resolveStringOption($options, 'instance', $definition->getName()),
+                parentDepth: $this->resolveChildDepth($options),
+            );
+        } catch (ChildDatatableAccessDeniedException) {
+            return null;
+        }
+
+        $childDefinition = $definition->getChildDatatable();
+
+        if (null === $childDefinition) {
+            throw new \LogicException(sprintf('Datatable "%s" does not define a child datatable.', $definition->getName()));
+        }
+
+        return [
+            'name' => $child->getName(),
+            'instance' => $child->getInstance(),
+            'depth' => $child->getDepth(),
+            'url' => $this->contextTransport->appendToUrl(
+                $this->createChildDatatableUrl($child),
+                $child->getContextToken(),
+                $child->getInstance(),
+            ),
+            'targetId' => $this->createHtmlId($definition, $options).'_'.$child->getInstance(),
+            'expandLabel' => $childDefinition->getExpandLabel(),
+            'collapseLabel' => $childDefinition->getCollapseLabel(),
+            'translationDomain' => $definition->getTranslationDomain(),
+        ];
+    }
+
+    private function createChildDatatableUrl(ResolvedChildDatatable $child): string
+    {
+        if (null !== $this->urlGenerator) {
+            return $this->urlGenerator->generate('zhortein_datatable_child', [
+                'name' => $child->getName(),
+            ]);
+        }
+
+        return sprintf('/_zhortein/datatable/%s/child', rawurlencode($child->getName()));
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function canExpandChildDatatable(DatatableDefinition $definition, array $options): bool
+    {
+        $childDefinition = $definition->getChildDatatable();
+
+        return null !== $childDefinition
+            && null !== $this->childDatatableResolver
+            && null !== $this->contextTransport
+            && $this->resolveChildDepth($options) < $childDefinition->getMaxDepth();
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function resolveChildDepth(array $options): int
+    {
+        $depth = $options['childDepth'] ?? 0;
+
+        if (!is_int($depth) || $depth < 0 || $depth > ChildDatatableDefinition::MAX_DEPTH) {
+            throw new \InvalidArgumentException('The datatable render option "childDepth" must be an integer between 0 and 3.');
+        }
+
+        return $depth;
     }
 
     private function hasAjaxRowActions(DatatableDefinition $definition): bool

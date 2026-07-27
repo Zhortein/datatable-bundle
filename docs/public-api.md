@@ -147,7 +147,7 @@ The following names are stable in 1.x:
 | Providers | `array`, `doctrine` |
 | Writers | `csv`, `xlsx` |
 | Service tags | `zhortein_datatable.datatable`, `zhortein_datatable.data_provider`, `zhortein_datatable.export_writer`, `zhortein_datatable.cell_value_resolver` |
-| Routes | `zhortein_datatable_fragments`, `zhortein_datatable_export` |
+| Routes | `zhortein_datatable_fragments`, `zhortein_datatable_child`, `zhortein_datatable_export` |
 | Named-view routes | `zhortein_datatable_views_list`, `zhortein_datatable_views_create`, `zhortein_datatable_views_load`, `zhortein_datatable_views_mutate`, `zhortein_datatable_views_delete` |
 | Twig | `zhortein_datatable()`, `zhortein_datatable_translate()` |
 | Stimulus | `zhortein--datatable-bundle--datatable` |
