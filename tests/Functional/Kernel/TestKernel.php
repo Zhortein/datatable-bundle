@@ -13,6 +13,7 @@ use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Zhortein\DatatableBundle\Action\ActionVisibilityCheckerInterface;
 use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
+use Zhortein\DatatableBundle\Contract\ChildDatatableAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
@@ -133,6 +134,11 @@ final class TestKernel extends Kernel
 
         $services
             ->alias('test.'.ActionVisibilityCheckerInterface::class, ActionVisibilityCheckerInterface::class)
+            ->public()
+        ;
+
+        $services
+            ->alias('test.'.ChildDatatableAuthorizationCheckerInterface::class, ChildDatatableAuthorizationCheckerInterface::class)
             ->public()
         ;
 

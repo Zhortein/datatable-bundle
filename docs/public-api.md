@@ -56,6 +56,7 @@ See [configuration](configuration.md), [providers](providers.md), [filters](filt
 Applications may implement or decorate these contracts:
 
 - `Contract\CellValueResolverInterface`;
+- `Contract\ChildDatatableAuthorizationCheckerInterface`;
 - `Contract\DataProviderInterface`;
 - `Contract\ExportWriterInterface`;
 - `Contract\IconResolverInterface`;
@@ -74,6 +75,7 @@ Objects appearing in those signatures are part of the supported API:
 - `Preference\DatatablePreference`;
 - `Request\DatatableRequest`;
 - `Result\DatatableResult`;
+- `Hierarchy\ChildDatatableAuthorizationContext`;
 - `View\DatatableView`;
 - `View\DatatableViewMetadata`;
 - `View\DatatableViewState`;
