@@ -234,7 +234,10 @@ if [[ "${bundle_version}" == "current" ]]; then
         exit 1
     fi
 
-    php hierarchy.php "${base_url}" "${hierarchy_fragments_response}"
+    if ! php hierarchy.php "${base_url}" "${hierarchy_fragments_response}"; then
+        cat "${server_log}"
+        exit 1
+    fi
 fi
 
 if [[ "${SMOKE_E2E:-0}" == "1" ]]; then
