@@ -119,6 +119,10 @@ final class BulkActionCountingUrlGenerator implements UrlGeneratorInterface
         array $parameters = [],
         int $referenceType = self::ABSOLUTE_PATH,
     ): string {
+        if (str_starts_with($name, 'zhortein_datatable_')) {
+            return '/'.$name;
+        }
+
         ++$this->generateCallCount;
 
         return match ($name) {

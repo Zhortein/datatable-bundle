@@ -1,5 +1,5 @@
-{% set fragments_url = options.fragmentsUrl|default('/_zhortein/datatable/' ~ definition.name ~ '/fragments') %}
-{% set export_url = options.exportUrl|default('/_zhortein/datatable/' ~ definition.name ~ '/export/csv') %}
+{% set fragments_url = options.fragmentsUrl %}
+{% set export_url = options.exportUrl %}
 {% set page_size = options.pageSize|default(25) %}
 {% set sort_field = options.sortField|default('') %}
 {% set sort_direction = options.sortDirection|default('asc') %}
