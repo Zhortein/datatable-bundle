@@ -109,6 +109,7 @@ describe('Documentation', () => {
         expect(smokeTest).toContain('php bin/console cache:clear');
         expect(smokeTest).toContain('debug:router app_smoke');
         expect(smokeTest).toContain('debug:router zhortein_datatable_fragments');
+        expect(smokeTest).toContain('debug:router zhortein_datatable_child');
         expect(smokeTest).toContain('debug:router zhortein_datatable_export');
         expect(smokeTest).toContain("debug:container 'App\\Datatable\\SmokeUserDatatable'");
         expect(smokeTest).toContain("debug:asset-map '@zhortein/datatable-bundle'");
@@ -125,8 +126,10 @@ describe('Documentation', () => {
         );
 
         expect(routes).toContain('zhortein_datatable_fragments');
+        expect(routes).toContain('zhortein_datatable_child');
         expect(routes).toContain('zhortein_datatable_export');
         expect(routes).toContain('debug:router zhortein_datatable_fragments');
+        expect(routes).toContain('debug:router zhortein_datatable_child');
         expect(routes).toContain('debug:router zhortein_datatable_export');
         expect(routes).not.toContain('debug:router zhortein_datatable\n');
     });
@@ -181,5 +184,21 @@ describe('Documentation', () => {
         expect(cellContext).toContain('N+1');
         expect(computedExample).toContain('account_summary');
         expect(computedExample).toContain('exportFormats');
+    });
+
+    it('documents hierarchical datatables across providers and trust boundaries', () => {
+        const hierarchy = readFileSync(
+            resolve(documentationRoot, 'hierarchical-datatables.md'),
+            'utf8',
+        );
+
+        expect(hierarchy).toContain('ChildContextValue');
+        expect(hierarchy).toContain('ContextFilterValue');
+        expect(hierarchy).toContain('ChildDatatableAuthorizationCheckerInterface');
+        expect(hierarchy).toContain('integrity, not encryption');
+        expect(hierarchy).toContain('`1` to `3`');
+        expect(hierarchy).toContain('at-most-once');
+        expect(hierarchy).toContain('Array, Doctrine or a');
+        expect(hierarchy).toContain('zhortein_datatable_child');
     });
 });

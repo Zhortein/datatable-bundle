@@ -34,6 +34,7 @@ The definition value objects returned by `DatatableDefinition` are also public:
 - `ChildContextValue`;
 - `ChildDatatableDefinition`;
 - `ColumnDefinition`;
+- `ContextFilterValue`;
 - `CustomJoinDefinition`;
 - `FilterDefinition`;
 - `JoinDefinition`;
@@ -49,7 +50,7 @@ The Ajax action response helper `Response\AjaxActionResponse` and its version
 constant are public. Host controllers may return an equivalent JSON response,
 but the documented v1 fields and semantics must be preserved.
 
-See [configuration](configuration.md), [providers](providers.md), [filters](filters.md), [advanced filters](advanced-filters.md), [actions](actions.md), [explicit context](context.md), [cell context and computed values](cell-context.md), [bulk actions](bulk-actions.md) and [exports](exports.md).
+See [configuration](configuration.md), [providers](providers.md), [filters](filters.md), [advanced filters](advanced-filters.md), [actions](actions.md), [explicit context](context.md), [hierarchical datatables](hierarchical-datatables.md), [cell context and computed values](cell-context.md), [bulk actions](bulk-actions.md) and [exports](exports.md).
 
 ## Extension contracts
 

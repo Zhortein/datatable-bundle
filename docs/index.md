@@ -17,6 +17,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 - [Advanced Filters](advanced-filters.md): Complex nested filtering with Search Builder.
 - [Actions and Security](actions.md): Row-level and global table actions with CSRF and authorization.
 - [Explicit Context](context.md): Signed locale, tenant and business-scope propagation.
+- [Hierarchical Datatables](hierarchical-datatables.md): Lazy, signed and provider-independent parent/child tables.
 - [URL State and Browser History](url-state.md): Shareable per-instance state, Back/Forward and Turbo restoration.
 - [Named Saved Views](saved-views.md): Opt-in user views with generic storage and authorization contracts.
 - [Bulk Actions and Selection](bulk-actions.md): Managing multiple rows at once.

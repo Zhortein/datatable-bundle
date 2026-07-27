@@ -11,6 +11,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Zhortein\DatatableBundle\Contract\DataProviderInterface;
 use Zhortein\DatatableBundle\Definition\AggregateColumnDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
+use Zhortein\DatatableBundle\Definition\ContextFilterValue;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Definition\FilterDefinition;
 use Zhortein\DatatableBundle\Definition\UserFilterDefinition;
@@ -237,39 +238,41 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
             ->normalize($filter->getField(), $definition)
             ->toString();
         $parameterName = sprintf('permanent_filter_%d', $index);
+        $value = $this->resolvePermanentFilterValue($filter->getValue(), $definition);
+        $secondValue = $this->resolvePermanentFilterValue($filter->getSecondValue(), $definition);
 
         match ($filter->getOperator()) {
             FilterOperator::Equals => $queryBuilder
                 ->andWhere(sprintf('%s = :%s', $field, $parameterName))
-                ->setParameter($parameterName, $filter->getValue()),
+                ->setParameter($parameterName, $value),
 
             FilterOperator::NotEquals => $queryBuilder
                 ->andWhere(sprintf('%s != :%s', $field, $parameterName))
-                ->setParameter($parameterName, $filter->getValue()),
+                ->setParameter($parameterName, $value),
 
             FilterOperator::GreaterThan => $queryBuilder
                 ->andWhere(sprintf('%s > :%s', $field, $parameterName))
-                ->setParameter($parameterName, $filter->getValue()),
+                ->setParameter($parameterName, $value),
 
             FilterOperator::GreaterThanOrEquals => $queryBuilder
                 ->andWhere(sprintf('%s >= :%s', $field, $parameterName))
-                ->setParameter($parameterName, $filter->getValue()),
+                ->setParameter($parameterName, $value),
 
             FilterOperator::LessThan => $queryBuilder
                 ->andWhere(sprintf('%s < :%s', $field, $parameterName))
-                ->setParameter($parameterName, $filter->getValue()),
+                ->setParameter($parameterName, $value),
 
             FilterOperator::LessThanOrEquals => $queryBuilder
                 ->andWhere(sprintf('%s <= :%s', $field, $parameterName))
-                ->setParameter($parameterName, $filter->getValue()),
+                ->setParameter($parameterName, $value),
 
             FilterOperator::In => $queryBuilder
                 ->andWhere(sprintf('%s IN (:%s)', $field, $parameterName))
-                ->setParameter($parameterName, $filter->getValue()),
+                ->setParameter($parameterName, $value),
 
             FilterOperator::NotIn => $queryBuilder
                 ->andWhere(sprintf('%s NOT IN (:%s)', $field, $parameterName))
-                ->setParameter($parameterName, $filter->getValue()),
+                ->setParameter($parameterName, $value),
 
             FilterOperator::IsNull => $queryBuilder
                 ->andWhere(sprintf('%s IS NULL', $field)),
@@ -279,17 +282,33 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface
 
             FilterOperator::Between => $queryBuilder
                 ->andWhere(sprintf('%s BETWEEN :%s_start AND :%s_end', $field, $parameterName, $parameterName))
-                ->setParameter(sprintf('%s_start', $parameterName), $filter->getValue())
-                ->setParameter(sprintf('%s_end', $parameterName), $filter->getSecondValue()),
+                ->setParameter(sprintf('%s_start', $parameterName), $value)
+                ->setParameter(sprintf('%s_end', $parameterName), $secondValue),
 
             FilterOperator::Like => $queryBuilder
                 ->andWhere(sprintf('%s LIKE :%s', $field, $parameterName))
-                ->setParameter($parameterName, $filter->getValue()),
+                ->setParameter($parameterName, $value),
 
             FilterOperator::NotLike => $queryBuilder
                 ->andWhere(sprintf('%s NOT LIKE :%s', $field, $parameterName))
-                ->setParameter($parameterName, $filter->getValue()),
+                ->setParameter($parameterName, $value),
         };
+    }
+
+    private function resolvePermanentFilterValue(mixed $value, DatatableDefinition $definition): mixed
+    {
+        if (!$value instanceof ContextFilterValue) {
+            return $value;
+        }
+
+        $key = $value->getKey();
+        $context = $definition->getContext();
+
+        if (!$context->has($key)) {
+            throw new \LogicException(sprintf('The permanent filter for datatable "%s" references missing context key "%s".', $definition->getName(), $key));
+        }
+
+        return $context->get($key);
     }
 
     /**

@@ -26,6 +26,7 @@ A Symfony 8+ bundle for Bootstrap-first business datatables driven by PHP defini
 - **Customization**: Flexible UI/UX customization via Twig blocks and themes.
 - **Type Safety**: Automatic Doctrine type detection and typed cell rendering.
 - **Rich Cells**: Complete server-side cell context and reusable computed values shared with exports.
+- **Hierarchical Tables**: Accessible lazy child datatables with signed context, isolated state, and independent providers.
 
 ## Installation Summary
 
@@ -104,6 +105,7 @@ final class UserDatatable implements DatatableInterface
 - [Icon System](docs/icons.md)
 - [Theming & Templates](docs/theming.md)
 - [Cell Context & Computed Values](docs/cell-context.md)
+- [Hierarchical Datatables](docs/hierarchical-datatables.md)
 - [Public API & Compatibility](docs/public-api.md)
 - [Frontend Test Strategy](docs/frontend-tests.md)
 - [Roadmap](docs/roadmap.md)

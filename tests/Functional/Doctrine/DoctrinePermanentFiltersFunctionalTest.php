@@ -9,6 +9,8 @@ use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Zhortein\DatatableBundle\Context\DatatableContext;
+use Zhortein\DatatableBundle\Definition\ContextFilterValue;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Provider\DoctrineOrmDataProvider;
@@ -95,6 +97,45 @@ final class DoctrinePermanentFiltersFunctionalTest extends FunctionalTestCase
         self::assertSame([
             'alice@example.test',
         ], array_column($result->getRows(), 'e_email'));
+    }
+
+    public function test_it_resolves_a_permanent_filter_value_from_context(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+
+        $definition = $this->createDefinition()
+            ->setContext(new DatatableContext(['enabled' => false]))
+            ->addPermanentFilter(
+                'e.enabled',
+                FilterOperator::Equals,
+                ContextFilterValue::from('enabled'),
+            )
+        ;
+
+        $result = $this->createProvider()->getData($definition, DatatableRequest::create(pageSize: 10));
+
+        self::assertSame(1, $result->getTotalItems());
+        self::assertSame([
+            'bob@example.test',
+        ], array_column($result->getRows(), 'e_email'));
+    }
+
+    public function test_it_rejects_a_permanent_filter_with_a_missing_context_key(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+
+        $definition = $this->createDefinition()
+            ->addPermanentFilter(
+                'e.enabled',
+                FilterOperator::Equals,
+                ContextFilterValue::from('missing'),
+            )
+        ;
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('The permanent filter for datatable "doctrine-users" references missing context key "missing".');
+
+        $this->createProvider()->getData($definition, DatatableRequest::create(pageSize: 10));
     }
 
     #[After]
