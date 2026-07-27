@@ -29,6 +29,9 @@ final class TranslationCatalogTest extends TestCase
         self::assertSame('The action completed successfully.', $translator->trans('zhortein_datatable.ajax_action.success', [], 'zhortein_datatable'));
         self::assertSame('The action could not be completed.', $translator->trans('zhortein_datatable.ajax_action.error', [], 'zhortein_datatable'));
         self::assertSame('The action returned an invalid response.', $translator->trans('zhortein_datatable.ajax_action.invalid_response', [], 'zhortein_datatable'));
+        self::assertSame('Saved views', $translator->trans('zhortein_datatable.saved_views.label', [], 'zhortein_datatable'));
+        self::assertSame('Set as default', $translator->trans('zhortein_datatable.saved_views.make_default', [], 'zhortein_datatable'));
+        self::assertSame('The saved view changed in another request. Reload it and try again.', $translator->trans('zhortein_datatable.saved_views.conflict', [], 'zhortein_datatable'));
         self::assertSame('Sort by Email', $translator->trans('zhortein_datatable.sort.label', ['%column%' => 'Email'], 'zhortein_datatable'));
         self::assertSame('sorted ascending', $translator->trans('zhortein_datatable.sort.sorted_ascending', [], 'zhortein_datatable'));
         self::assertSame('Previous', $translator->trans('zhortein_datatable.pagination.previous', [], 'zhortein_datatable'));
@@ -68,6 +71,9 @@ final class TranslationCatalogTest extends TestCase
         self::assertSame('L’action a été réalisée.', $translator->trans('zhortein_datatable.ajax_action.success', [], 'zhortein_datatable'));
         self::assertSame('L’action n’a pas pu être réalisée.', $translator->trans('zhortein_datatable.ajax_action.error', [], 'zhortein_datatable'));
         self::assertSame('L’action a renvoyé une réponse invalide.', $translator->trans('zhortein_datatable.ajax_action.invalid_response', [], 'zhortein_datatable'));
+        self::assertSame('Vues enregistrées', $translator->trans('zhortein_datatable.saved_views.label', [], 'zhortein_datatable'));
+        self::assertSame('Définir par défaut', $translator->trans('zhortein_datatable.saved_views.make_default', [], 'zhortein_datatable'));
+        self::assertSame('La vue enregistrée a été modifiée par une autre requête. Rechargez-la puis réessayez.', $translator->trans('zhortein_datatable.saved_views.conflict', [], 'zhortein_datatable'));
         self::assertSame('Oui', $translator->trans('zhortein_datatable.boolean.yes', [], 'zhortein_datatable'));
         self::assertSame('Non', $translator->trans('zhortein_datatable.boolean.no', [], 'zhortein_datatable'));
         self::assertSame('Aucun résultat.', $translator->trans('zhortein_datatable.summary.empty', [], 'zhortein_datatable'));

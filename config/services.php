@@ -13,6 +13,9 @@ use Zhortein\DatatableBundle\Doctrine\DoctrinePaginationApplier;
 use Zhortein\DatatableBundle\Export\XlsxExportWriter;
 use Zhortein\DatatableBundle\Icon\IconResolver;
 use Zhortein\DatatableBundle\Contract\IconResolverInterface;
+use Zhortein\DatatableBundle\Contract\DatatableViewAuthorizationCheckerInterface;
+use Zhortein\DatatableBundle\Contract\DatatableViewOwnerResolverInterface;
+use Zhortein\DatatableBundle\Contract\DatatableViewProviderInterface;
 use Zhortein\DatatableBundle\Context\DatatableContextRequestResolver;
 use Zhortein\DatatableBundle\Context\DatatableContextTransport;
 use Zhortein\DatatableBundle\Renderer\DatatableSummaryRenderer;
@@ -24,6 +27,7 @@ use Zhortein\DatatableBundle\Action\ActionVisibilityCheckerInterface;
 use Zhortein\DatatableBundle\Action\AllowAllActionVisibilityChecker;
 use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
 use Zhortein\DatatableBundle\Controller\DatatableController;
+use Zhortein\DatatableBundle\Controller\DatatableViewController;
 use Zhortein\DatatableBundle\DateTime\DateTimeFormatterInterface;
 use Zhortein\DatatableBundle\DateTime\DefaultDateTimeFormatter;
 use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
@@ -43,6 +47,12 @@ use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 use Zhortein\DatatableBundle\Twig\DeclarativeTranslationExtension;
 use Zhortein\DatatableBundle\Twig\DatatableTwigExtension;
 use Zhortein\DatatableBundle\Twig\DateTimeTwigExtension;
+use Zhortein\DatatableBundle\View\AllowAllDatatableViewAuthorizationChecker;
+use Zhortein\DatatableBundle\View\DatatableViewManager;
+use Zhortein\DatatableBundle\View\DenyDatatableViewAuthorizationChecker;
+use Zhortein\DatatableBundle\View\InMemoryDatatableViewProvider;
+use Zhortein\DatatableBundle\View\NullDatatableViewOwnerResolver;
+use Zhortein\DatatableBundle\View\NullDatatableViewProvider;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services()
@@ -83,6 +93,22 @@ return static function (ContainerConfigurator $container): void {
     $services->set(NullDatatablePreferenceProvider::class);
 
     $services->alias(DatatablePreferenceProviderInterface::class, NullDatatablePreferenceProvider::class);
+
+    $services->set(NullDatatableViewProvider::class);
+    $services->set(InMemoryDatatableViewProvider::class);
+    $services->alias(DatatableViewProviderInterface::class, NullDatatableViewProvider::class);
+
+    $services->set(NullDatatableViewOwnerResolver::class);
+    $services->alias(DatatableViewOwnerResolverInterface::class, NullDatatableViewOwnerResolver::class);
+
+    $services->set(DenyDatatableViewAuthorizationChecker::class);
+    $services->set(AllowAllDatatableViewAuthorizationChecker::class);
+    $services->alias(
+        DatatableViewAuthorizationCheckerInterface::class,
+        DenyDatatableViewAuthorizationChecker::class,
+    );
+
+    $services->set(DatatableViewManager::class);
 
     $services
         ->set(IconResolver::class)
@@ -180,6 +206,11 @@ return static function (ContainerConfigurator $container): void {
 
     $services
         ->set(DatatableController::class)
+        ->tag('controller.service_arguments')
+    ;
+
+    $services
+        ->set(DatatableViewController::class)
         ->tag('controller.service_arguments')
     ;
 };

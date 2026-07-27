@@ -1175,9 +1175,9 @@ Localized and scoped datatables keep their explicit context across Ajax and expo
 
 ---
 
-## 1.4 - Namespaced URL state and browser history 🚧
+## 1.4 - Namespaced URL state and browser history ✅
 
-Current scope:
+Delivered:
 
 - immutable, versioned `DatatableState` shared by HTTP request normalization and future saved views;
 - namespaced JSON state per datatable instance;
@@ -1191,6 +1191,27 @@ Main expected outcome:
 
 ```text
 Shareable URLs and browser navigation restore each datatable instance without leaking server-only context or coupling preferences to an application user model.
+```
+
+---
+
+## 1.5 - Named saved datatable views 🚧
+
+Current scope:
+
+- immutable view metadata, scope and saved-state objects reusing `DatatableState`;
+- replaceable provider, owner resolver and authorization contracts;
+- collision-free table, instance, route/namespace, locale and context scopes;
+- list, load, create, rename, update, default and delete operations;
+- optimistic concurrency through opaque revisions;
+- page excluded by default and explicitly opt-in;
+- CSRF-protected JSON routes and opt-in Bootstrap/Stimulus controls;
+- process-local in-memory implementation for tests, without imposed Doctrine persistence.
+
+Main expected outcome:
+
+```text
+Applications can expose secure named datatable views without coupling the bundle to their user entity, storage technology or authorization model.
 ```
 
 ---

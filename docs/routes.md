@@ -8,6 +8,11 @@ This document describes the bundle routes imported from `@ZhorteinDatatableBundl
 |---|---|---|---|
 | `zhortein_datatable_fragments` | `/_zhortein/datatable/{name}/fragments` | `GET`, `POST` | Refresh rendered datatable fragments |
 | `zhortein_datatable_export` | `/_zhortein/datatable/{name}/export/{format}` | `GET`, `POST` | Generate CSV or XLSX exports |
+| `zhortein_datatable_views_list` | `/_zhortein/datatable/{name}/views` | `GET` | List named views |
+| `zhortein_datatable_views_create` | `/_zhortein/datatable/{name}/views` | `POST` | Create a named view |
+| `zhortein_datatable_views_load` | `/_zhortein/datatable/{name}/views/{viewIdentifier}` | `GET` | Load a named view |
+| `zhortein_datatable_views_mutate` | `/_zhortein/datatable/{name}/views/{viewIdentifier}` | `PATCH` | Rename, update or set a default view |
+| `zhortein_datatable_views_delete` | `/_zhortein/datatable/{name}/views/{viewIdentifier}` | `DELETE` | Delete a named view |
 
 The export `format` requirement accepts `csv` and `xlsx`. CSV is the default, so Symfony can generate a URL without the final `/csv` segment.
 
@@ -39,6 +44,7 @@ Verify the import:
 ```bash
 php bin/console debug:router zhortein_datatable_fragments
 php bin/console debug:router zhortein_datatable_export
+php bin/console debug:router zhortein_datatable_views_list
 ```
 
 ## Generated URLs
@@ -49,6 +55,7 @@ For a datatable named `users`, the default URLs are:
 /_zhortein/datatable/users/fragments
 /_zhortein/datatable/users/export
 /_zhortein/datatable/users/export/xlsx
+/_zhortein/datatable/users/views
 ```
 
 The Stimulus controller generates fragments and export requests from the URLs rendered into the datatable HTML.
@@ -67,6 +74,10 @@ If access depends on the datatable name, enforce that rule in an application sec
 
 Signed context prevents modification but not replay. Tenant and business-scope
 authorization must still be checked by the host application.
+
+Named-view mutations add CSRF validation. Their ownership and authorization
+remain delegated to the host through the documented contracts. All named-view
+operations are denied by default. See [named saved views](saved-views.md).
 
 ## Current limitations
 
