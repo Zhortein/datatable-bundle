@@ -188,6 +188,13 @@ final readonly class DatatableRenderer
                 throw new \InvalidArgumentException('The datatable render option "context" must be an array of browser-safe values.');
             }
 
+            foreach (array_keys($renderContext) as $key) {
+                if (!is_string($key)) {
+                    throw new \InvalidArgumentException('The datatable render option "context" must use string keys.');
+                }
+            }
+
+            /** @var array<string, mixed> $renderContext */
             $definition->setContext($definition->getContext()->withBrowserValues($renderContext));
             unset($options['context']);
         }

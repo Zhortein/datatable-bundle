@@ -202,6 +202,8 @@ final readonly class DatatableContextTransport
     }
 
     /**
+     * @param non-empty-string $separator
+     *
      * @return array{string, string}
      */
     private function splitOnce(string $value, string $separator): array

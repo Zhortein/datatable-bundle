@@ -187,7 +187,6 @@ final class DatatableRendererContextTransportTest extends TestCase
 
         self::assertIsString($query);
         parse_str($query, $parameters);
-        self::assertIsArray($parameters);
 
         /** @var array<string, string> $parameters */
         return $parameters;
