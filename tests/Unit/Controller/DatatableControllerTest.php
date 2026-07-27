@@ -211,7 +211,7 @@ final class DatatableControllerTest extends TestCase
         self::assertIsString($cacheControl);
         self::assertStringContainsString('private', $cacheControl);
         self::assertStringContainsString('no-store', $cacheControl);
-        self::assertStringNotContainsString('alice@example.test', (string) $response->getContent());
+        self::assertStringNotContainsString('alice@example.test', $response->getContent());
     }
 
     public function test_current_export_uses_the_actual_remaining_page_size_for_the_limit(): void

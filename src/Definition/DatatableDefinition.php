@@ -534,7 +534,7 @@ final class DatatableDefinition
             $format = ExportFormat::fromString($format);
         }
 
-        $this->exportLimits[$format?->value ?? '*'] = $maxRows;
+        $this->exportLimits[$format->value ?? '*'] = $maxRows;
 
         return $this;
     }
