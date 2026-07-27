@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.10.0] - 2026-07-27
+
+### Added
+
+- Added extensible, translatable enum presentations shared by cells, filters and CSV/XLSX exports, with optional Bootstrap badges, colors and icons.
+
 ## [1.9.0] - 2026-07-27
 
 ### Added

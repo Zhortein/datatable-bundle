@@ -1,1 +1,0 @@
-- Added extensible, translatable enum presentations shared by cells, filters and CSV/XLSX exports, with optional Bootstrap badges, colors and icons.
