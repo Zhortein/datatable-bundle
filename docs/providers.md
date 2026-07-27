@@ -31,6 +31,11 @@ The default is used when it supports the definition. Otherwise, the registry fal
 - Doctrine supports definitions with an entity class;
 - Array supports definitions with the `rows` option or an explicit `provider: 'array'`.
 
+Parent and child datatables select providers independently. For example, an
+Array parent may lazily open a Doctrine child, which may itself open another
+Array datatable. Use context-backed permanent filters to scope every child;
+see [hierarchical datatables](hierarchical-datatables.md).
+
 Select a custom provider with the same attribute:
 
 ```php

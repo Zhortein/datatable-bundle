@@ -1,0 +1,1 @@
+- Added Array and Doctrine child scoping, recursive Symfony/Chromium coverage, and complete hierarchical datatable documentation.

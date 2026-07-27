@@ -137,6 +137,22 @@ use Zhortein\DatatableBundle\Enum\FilterOperator;
 $definition->addPermanentFilter('e.enabled', FilterOperator::Equals, true);
 ```
 
+For a signed child datatable, defer the permanent-filter value until the
+request context has been restored:
+
+```php
+use Zhortein\DatatableBundle\Definition\ContextFilterValue;
+
+$definition->addPermanentFilter(
+    'e.orderId',
+    FilterOperator::Equals,
+    ContextFilterValue::from('orderId'),
+);
+```
+
+See [hierarchical datatables](hierarchical-datatables.md) for the required
+context allowlist and authorization boundary.
+
 ### User-facing Filters
 Filters rendered in the UI for user interaction.
 ```php

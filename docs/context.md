@@ -127,6 +127,11 @@ The host application must therefore:
 4. apply permanent provider filters for data isolation instead of relying on
    UI visibility.
 
+Hierarchical datatables use the same trust boundary for explicitly mapped
+parent-row values. Their signed child context, authorization checker and
+context-backed permanent filters are documented in
+[hierarchical datatables](hierarchical-datatables.md).
+
 Server-only context remains appropriate for objects and values that can be
 reconstructed safely on every request.
 
@@ -150,3 +155,4 @@ is explicitly enabled.
 - [Routes](routes.md)
 - [Public API](public-api.md)
 - [Cell context and computed values](cell-context.md)
+- [Hierarchical datatables](hierarchical-datatables.md)

@@ -1057,7 +1057,7 @@ The highest-risk Bootstrap/Stimulus behaviors are validated beyond jsdom unit te
 
 ---
 
-## 0.29 - Hierarchical tables / expandable child datatables 🕒
+## 0.29 - Hierarchical tables / expandable child datatables ✅
 
 Goal:
 
@@ -1065,17 +1065,17 @@ Goal:
 Support expandable rows and child datatables for hierarchical business data.
 ```
 
-Planned:
+Delivered:
 
-- design parent/child datatable API;
-- support expandable detail rows;
-- support lazy Ajax loading;
-- propagate parent row context;
-- define recursion/performance safeguards;
-- document limitations;
-- smoke test hierarchical UI.
+- explicit parent/child datatable API;
+- expandable detail rows;
+- lazy Ajax loading;
+- signed parent row context propagation;
+- recursion, authorization and performance safeguards;
+- documented limitations;
+- Symfony and browser smoke coverage.
 
-Main expected outcome:
+Main outcome:
 
 ```text
 Datatables can represent parent/child business structures without custom per-project table code.
@@ -1250,9 +1250,9 @@ Delivered:
 
 ---
 
-## 1.7 - Hierarchical tables / expandable child datatables 🕒
+## 1.7 - Hierarchical tables / expandable child datatables ✅
 
-Planned:
+Delivered:
 
 - explicit parent/child definition API;
 - accessible expandable row controls;
@@ -1263,7 +1263,7 @@ Planned:
 - Array and Doctrine-backed coverage;
 - browser E2E validation and complete documentation.
 
-Main expected outcome:
+Main outcome:
 
 ```text
 Applications can represent parent/child business structures without custom per-project table code.

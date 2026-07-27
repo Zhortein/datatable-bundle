@@ -10,6 +10,11 @@
         <main class="container py-4">
             <h1 class="mb-4">Datatable smoke test</h1>
             {{ zhortein_datatable('smoke-users', { filterLayout: 'header' }) }}
+
+            {% if hierarchyEnabled %}
+                <h2 class="mt-5 mb-4">Hierarchical datatable smoke test</h2>
+                {{ zhortein_datatable('smoke-orders') }}
+            {% endif %}
         </main>
     </body>
 </html>

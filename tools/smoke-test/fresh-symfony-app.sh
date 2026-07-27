@@ -73,6 +73,34 @@ composer require \
     --no-interaction \
     --no-progress
 
+if [[ "${bundle_version}" == "current" ]]; then
+    composer require \
+        doctrine/doctrine-bundle \
+        doctrine/orm \
+        symfony/doctrine-bridge \
+        --no-interaction \
+        --no-progress
+
+    install -D \
+        "${bundle_root}/tools/smoke-test/fixtures/SmokeOrderDatatable.php" \
+        src/Datatable/SmokeOrderDatatable.php
+    install -D \
+        "${bundle_root}/tools/smoke-test/fixtures/SmokeOrderLineDatatable.php" \
+        src/Datatable/SmokeOrderLineDatatable.php
+    install -D \
+        "${bundle_root}/tools/smoke-test/fixtures/SmokeLineEventDatatable.php" \
+        src/Datatable/SmokeLineEventDatatable.php
+    install -D \
+        "${bundle_root}/tools/smoke-test/fixtures/SmokeOrderLine.php" \
+        src/Entity/SmokeOrderLine.php
+    install \
+        "${bundle_root}/tools/smoke-test/fixtures/seed.php" \
+        seed.php
+    install \
+        "${bundle_root}/tools/smoke-test/fixtures/hierarchy.php" \
+        hierarchy.php
+fi
+
 php -r '
     $path = "config/bundles.php";
     $bundles = require $path;
@@ -114,6 +142,11 @@ install \
     config/packages/zhortein_datatable.yaml
 
 export APP_ENV="smoke_complete"
+
+if [[ "${bundle_version}" == "current" ]]; then
+    export DATABASE_URL="sqlite:///${app_root}/var/smoke.db"
+fi
+
 php bin/console cache:clear
 php bin/console cache:warmup
 complete_config_dump="${smoke_root}/complete-config.txt"
@@ -130,6 +163,15 @@ php bin/console debug:router zhortein_datatable_fragments --format=json
 php bin/console debug:router zhortein_datatable_export --format=json
 
 php bin/console debug:container 'App\Datatable\SmokeUserDatatable'
+
+if [[ "${bundle_version}" == "current" ]]; then
+    php bin/console debug:router zhortein_datatable_child --format=json
+    php bin/console debug:container 'App\Datatable\SmokeOrderDatatable'
+    php bin/console debug:container 'App\Datatable\SmokeOrderLineDatatable'
+    php bin/console debug:container 'App\Datatable\SmokeLineEventDatatable'
+    php seed.php
+fi
+
 php bin/console debug:asset-map '@zhortein/datatable-bundle'
 
 php bin/console asset-map:compile
@@ -178,6 +220,22 @@ if ! curl \
 fi
 
 php smoke.php "${shell_response}" "${fragments_response}" "${csv_response}"
+
+if [[ "${bundle_version}" == "current" ]]; then
+    hierarchy_fragments_response="${smoke_root}/hierarchy-fragments.json"
+
+    if ! curl \
+        --fail \
+        --show-error \
+        --silent \
+        "${base_url}/_zhortein/datatable/smoke-orders/fragments" \
+        --output "${hierarchy_fragments_response}"; then
+        cat "${server_log}"
+        exit 1
+    fi
+
+    php hierarchy.php "${base_url}" "${hierarchy_fragments_response}"
+fi
 
 if [[ "${SMOKE_E2E:-0}" == "1" ]]; then
     PLAYWRIGHT_BASE_URL="${base_url}" npm --prefix "${bundle_root}" run test:e2e
