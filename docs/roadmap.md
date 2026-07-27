@@ -1134,9 +1134,9 @@ Delivered:
 
 ---
 
-## 1.2 - Opt-in Ajax business actions 🚧
+## 1.2 - Opt-in Ajax business actions ✅
 
-Current scope:
+Delivered:
 
 - explicit per-action Ajax metadata for row, global and bulk actions;
 - versioned JSON response helper and contract;
@@ -1147,10 +1147,30 @@ Current scope:
 - progressive HTML fallback and Turbo-safe interception;
 - PHP, Twig and frontend coverage.
 
-Main expected outcome:
+Main outcome:
 
 ```text
 Applications can perform business actions without a full page reload while keeping authorization and business logic in their own controllers.
+```
+
+---
+
+## 1.3 - Explicit cross-request datatable context 🚧
+
+Current scope:
+
+- explicit browser-safe keys on `DatatableContext`;
+- signed scalar context bound to a datatable name and instance;
+- context restoration before fragment and export providers run;
+- propagation through fragment, export and opt-in Ajax action URLs;
+- isolated occurrences of the same datatable on one page;
+- localized route coverage and strict rejection of tampered or forbidden values;
+- documented authorization, replay and data-isolation boundaries.
+
+Main expected outcome:
+
+```text
+Localized and scoped datatables keep their explicit context across Ajax and export requests without exposing implicit request, session or security state.
 ```
 
 ---

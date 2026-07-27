@@ -15,13 +15,13 @@ async function getController(application) {
     return { element, controller };
 }
 
-function createDatatableHtml(attributes = '') {
+function createDatatableHtml(attributes = '', fragmentsUrl = '/_zhortein/datatable/users/fragments') {
     return `
         <div
             id="zhortein-datatable-users"
             data-controller="${CONTROLLER_IDENTIFIER}"
             data-${CONTROLLER_IDENTIFIER}-name-value="users"
-            data-${CONTROLLER_IDENTIFIER}-fragments-url-value="/_zhortein/datatable/users/fragments"
+            data-${CONTROLLER_IDENTIFIER}-fragments-url-value="${fragmentsUrl}"
             data-${CONTROLLER_IDENTIFIER}-auto-load-value="false"
             data-${CONTROLLER_IDENTIFIER}-page-value="1"
             data-${CONTROLLER_IDENTIFIER}-page-size-value="25"
@@ -129,6 +129,30 @@ describe('datatable_controller Ajax fragment application', () => {
         expect(document.querySelector(`[data-${CONTROLLER_IDENTIFIER}-target="body"]`).innerHTML).toContain('Alice');
         expect(document.querySelector(`[data-${CONTROLLER_IDENTIFIER}-target="pagination"]`).innerHTML).toContain('Pagination loaded');
         expect(document.querySelector(`[data-${CONTROLLER_IDENTIFIER}-target="summary"]`).textContent).toBe('Showing 1 to 1 of 1 result.');
+    });
+
+    it('preserves signed context parameters while adding fragment state', async () => {
+        const fetchMock = vi.fn(() => Promise.resolve(createJsonResponse(createPayload())));
+        vi.stubGlobal('fetch', fetchMock);
+
+        document.body.innerHTML = createDatatableHtml(
+            '',
+            '/_zhortein/datatable/users/fragments?_zd_instance=french-table&_zd_context=signed-token',
+        );
+        application = startApplication();
+
+        const { controller } = await getController(application);
+
+        controller.pageValue = 3;
+        controller.refresh();
+        await flushPromises();
+
+        const url = new URL(fetchMock.mock.calls[0][0]);
+
+        expect(url.searchParams.get('_zd_instance')).toBe('french-table');
+        expect(url.searchParams.get('_zd_context')).toBe('signed-token');
+        expect(url.searchParams.get('page')).toBe('3');
+        expect(url.searchParams.get('pageSize')).toBe('25');
     });
 
     it('updates page and page size values from payload state', async () => {
