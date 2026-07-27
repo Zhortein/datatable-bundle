@@ -147,13 +147,39 @@ describe('Documentation', () => {
 
         expect(index).toContain('(public-api.md)');
         expect(publicApi).toContain('Contract\\DatatableInterface');
+        expect(publicApi).toContain('Contract\\CellValueResolverInterface');
         expect(publicApi).toContain('Contract\\DataProviderInterface');
         expect(publicApi).toContain('Contract\\ExportWriterInterface');
         expect(publicApi).toContain('Definition\\DatatableDefinition');
         expect(publicApi).toContain('Implementation boundary');
         expect(publicApi).toContain('zhortein--datatable-bundle--datatable');
+        expect(publicApi).toContain('zhortein_datatable.cell_value_resolver');
         expect(publicApi).toContain('compatibility contract for `zhortein/datatable-bundle` 1.x');
         expect(releaseChecklist).toContain('# Stable 1.0.0 release checklist');
         expect(releaseChecklist).not.toContain('# First pre-release checklist');
+    });
+
+    it('documents rich cells from quick start through public API and examples', () => {
+        const quickStart = readFileSync(
+            resolve(documentationRoot, 'quick-start.md'),
+            'utf8',
+        );
+        const cellContext = readFileSync(
+            resolve(documentationRoot, 'cell-context.md'),
+            'utf8',
+        );
+        const computedExample = readFileSync(
+            resolve(documentationRoot, 'examples/computed-cell.md'),
+            'utf8',
+        );
+
+        expect(quickStart).toContain('row_identifier');
+        expect(quickStart).toContain('(cell-context.md)');
+        expect(cellContext).toContain('CellValueResolverInterface');
+        expect(cellContext).toContain('addComputedColumn');
+        expect(cellContext).toContain('never serializes');
+        expect(cellContext).toContain('N+1');
+        expect(computedExample).toContain('account_summary');
+        expect(computedExample).toContain('exportFormats');
     });
 });

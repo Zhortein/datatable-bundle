@@ -42,6 +42,8 @@ final class UserArrayDatatable implements DatatableInterface
 - **Global Search**: Simple scalar search across searchable columns.
 - **Sorting**: Single-column sorting.
 - **Filters**: Compatible with user-facing filters.
+- **Cell source**: Each returned associative row is also available as the server-side cell `source`.
+- **Computed values**: Named cell resolvers run after filtering, sorting and pagination.
 
 ## Options
 
@@ -53,5 +55,8 @@ final class UserArrayDatatable implements DatatableInterface
 - **In-Memory**: All rows must be loaded into memory.
 - **No Metadata**: Does not support Doctrine metadata type guessing.
 - **Small Datasets**: Not suitable for large datasets or production entity-backed tables.
+- **Computed sorting/filtering**: PHP-computed columns are display/export values and are not searchable or sortable.
 
 For production use cases, see the **[Doctrine Provider](doctrine-provider.md)**.
+
+For rich templates and computed values, see [Cell Context and Computed Values](cell-context.md).

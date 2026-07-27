@@ -54,6 +54,29 @@ final class DatatableDefinitionTest extends TestCase
         self::assertSame($context, $definition->getContext());
     }
 
+    public function test_it_adds_a_non_queryable_computed_column(): void
+    {
+        $definition = new DatatableDefinition('users');
+
+        $definition->addComputedColumn(
+            name: 'status_label',
+            valueResolver: 'status_label',
+            label: 'Status',
+            template: 'cell/status.html.twig',
+            type: 'string',
+            exportable: true,
+        );
+
+        $column = $definition->getColumns()['status_label'];
+
+        self::assertTrue($column->isComputed());
+        self::assertSame('status_label', $column->getValueResolver());
+        self::assertFalse($column->isSortable());
+        self::assertFalse($column->isSearchable());
+        self::assertSame('cell/status.html.twig', $column->getTemplate());
+        self::assertTrue($column->getExportable());
+    }
+
     public function test_it_stores_row_and_global_actions(): void
     {
         $definition = new DatatableDefinition('users');

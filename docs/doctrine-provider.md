@@ -45,6 +45,36 @@ $definition->addColumn('e.username', label: 'Username');
 ### Metadata-based Guessing
 The bundle automatically detects Doctrine types (string, boolean, datetime, etc.) and applies appropriate cell templates and alignments.
 
+### Computed Columns
+
+`addComputedColumn()` derives a display/export value in PHP without selecting
+the virtual column name:
+
+```php
+$definition
+    ->addColumn('e.email', visible: false)
+    ->addColumn('e.displayName', visible: false)
+    ->addComputedColumn(
+        name: 'account_summary',
+        valueResolver: 'account_summary',
+        label: 'Account',
+        template: 'datatable/cell/account_summary.html.twig',
+    )
+;
+```
+
+Every dependency must remain in the scalar projection as a regular column. A
+computed column is always non-searchable and non-sortable because its resolver
+cannot be translated into DQL.
+
+The Doctrine provider does not hydrate the root entity as a cell source. This
+is deliberate: custom templates receive the selected scalar row and `source =
+null`, so traversing a lazy association cannot introduce one hidden query per
+row.
+
+See [Cell Context and Computed Values](cell-context.md) and the [complete
+computed-cell example](examples/computed-cell.md).
+
 ## Joins
 
 Associations must be declared explicitly. The provider does not automatically traverse associations.
@@ -134,5 +164,7 @@ The provider automatically uses `COUNT(DISTINCT e.id)` when joins or aggregates 
 - **Deep Nesting**: Complex deep association paths may require multiple explicit joins.
 - **Collection Aggregations**: ManyToMany or OneToMany collections are not fully supported for direct column display.
 - **Async Exports**: Large exports are currently synchronous.
+- **Source objects**: Doctrine uses scalar projections and never exposes root entities to cell templates implicitly.
+- **Computed filtering/sorting**: PHP-resolved columns cannot participate in DQL filtering or sorting.
 
 See [Roadmap](roadmap.md) for planned improvements.

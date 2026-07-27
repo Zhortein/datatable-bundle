@@ -25,6 +25,7 @@ A Symfony 8+ bundle for Bootstrap-first business datatables driven by PHP defini
 - **Exports**: Server-side CSV and optional XLSX exports.
 - **Customization**: Flexible UI/UX customization via Twig blocks and themes.
 - **Type Safety**: Automatic Doctrine type detection and typed cell rendering.
+- **Rich Cells**: Complete server-side cell context and reusable computed values shared with exports.
 
 ## Installation Summary
 
@@ -102,6 +103,7 @@ final class UserDatatable implements DatatableInterface
 - [UI/UX & Controls](docs/ui-ux.md)
 - [Icon System](docs/icons.md)
 - [Theming & Templates](docs/theming.md)
+- [Cell Context & Computed Values](docs/cell-context.md)
 - [Public API & Compatibility](docs/public-api.md)
 - [Frontend Test Strategy](docs/frontend-tests.md)
 - [Roadmap](docs/roadmap.md)

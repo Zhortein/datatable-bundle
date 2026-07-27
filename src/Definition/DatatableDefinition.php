@@ -166,6 +166,34 @@ final class DatatableDefinition
         return $this;
     }
 
+    public function addComputedColumn(
+        string $name,
+        string $valueResolver,
+        ?string $label = null,
+        bool $visible = true,
+        ?string $className = null,
+        ?string $template = null,
+        ?string $type = null,
+        bool $negate = false,
+        ?bool $exportable = null,
+    ): self {
+        $this->columns[$name] = new ColumnDefinition(
+            name: $name,
+            label: $label,
+            visible: $visible,
+            sortable: false,
+            searchable: false,
+            className: $className,
+            template: $template,
+            type: $type,
+            negate: $negate,
+            exportable: $exportable,
+            valueResolver: $valueResolver,
+        );
+
+        return $this;
+    }
+
     /**
      * @return array<string, ColumnDefinition>
      */

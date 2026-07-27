@@ -17,7 +17,11 @@ final readonly class ColumnDefinition
         private ?string $type = null,
         private bool $negate = false,
         private ?bool $exportable = null,
+        private ?string $valueResolver = null,
     ) {
+        if (null !== $this->valueResolver && '' === trim($this->valueResolver)) {
+            throw new \InvalidArgumentException('A computed column value resolver name must not be empty.');
+        }
     }
 
     public function getName(): string
@@ -70,6 +74,16 @@ final readonly class ColumnDefinition
         return $this->exportable;
     }
 
+    public function getValueResolver(): ?string
+    {
+        return null === $this->valueResolver ? null : trim($this->valueResolver);
+    }
+
+    public function isComputed(): bool
+    {
+        return null !== $this->valueResolver;
+    }
+
     public function withType(?string $type): self
     {
         return new self(
@@ -83,6 +97,7 @@ final readonly class ColumnDefinition
             type: $type,
             negate: $this->negate,
             exportable: $this->exportable,
+            valueResolver: $this->valueResolver,
         );
     }
 }

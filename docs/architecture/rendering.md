@@ -18,7 +18,15 @@ The shell (`datatable.html.twig`) renders the high-level container, toolbar (sea
 
 ### Row and Cell Rendering
 
-Rows are normalized against visible columns. Cells are rendered through type-specific Twig templates (string, numeric, boolean, datetime, etc.). Custom templates can be defined per-column in the datatable definition.
+Rows are normalized against visible columns. `CellContextFactory` resolves
+provider values and optional named computed values into one server-side
+`CellContext`. Cells are rendered through type-specific Twig templates
+(string, numeric, boolean, datetime, etc.). Custom templates can be defined
+per-column in the datatable definition.
+
+The final HTML is returned in fragment JSON. Rows, provider sources,
+definitions and application context are never serialized as JSON fields or
+HTML data attributes.
 
 ### Actions Rendering
 
@@ -47,3 +55,4 @@ The renderer provides:
 
 - [Theming and Templates](../theming.md)
 - [UI/UX Rendering](../ui-ux.md)
+- [Cell Context and Computed Values](../cell-context.md)

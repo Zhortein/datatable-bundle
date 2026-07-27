@@ -30,13 +30,33 @@ final class DemoUserDatatable implements DatatableInterface
             ])
             ->addColumn('id', visible: false)
             ->addColumn('email', label: 'Email')
-            ->addColumn('role', label: 'Role')
+            ->addColumn(
+                name: 'role',
+                label: 'Role',
+                template: 'demo/cell/role.html.twig',
+            )
         ;
     }
 }
 ```
 
 The `#[AsDatatable]` attribute registers the service under the `demo-users` name and explicitly selects the array provider.
+
+Create `templates/demo/cell/role.html.twig`:
+
+```twig
+<span class="badge text-bg-secondary">
+    {{ value }}
+</span>
+<small class="text-body-secondary">
+    #{{ row_identifier }} · {{ datatable.name }}
+</small>
+```
+
+The historical `value` variable remains available. Rich templates can also
+use the normalized `row`, provider `source`, `row_identifier`, datatable
+definition and explicit server-side context. See [Cell Context and Computed
+Values](cell-context.md) for the complete contract and named PHP resolvers.
 
 ## 2. Create a page controller
 
@@ -138,3 +158,5 @@ Continue with the [Doctrine Provider Guide](doctrine-provider.md) for joins, fil
 - [Actions and Security](actions.md)
 - [Exports](exports.md)
 - [Theming and Templates](theming.md)
+- [Cell Context and Computed Values](cell-context.md)
+- [Computed Cell Example](examples/computed-cell.md)

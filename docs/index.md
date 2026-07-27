@@ -23,6 +23,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 - [UI/UX and Controls](ui-ux.md): Search, pagination, sorting, and UI customization.
 - [Icon System](icons.md): Unified icon strategy and configuration.
 - [Theming and Templates](theming.md): Customizing the look, icon strategies, and template overrides.
+- [Cell Context and Computed Values](cell-context.md): Rich server-side cells, provider sources and export-safe resolvers.
 - [Server-side Exports](exports.md): CSV and XLSX data exports.
 
 ## Technical Architecture
@@ -34,6 +35,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 
 - [Doctrine-backed datatables](doctrine-provider.md)
 - [Doctrine performance](doctrine-performance.md)
+- [Computed cell example](examples/computed-cell.md)
 
 ## Development and Reference
 

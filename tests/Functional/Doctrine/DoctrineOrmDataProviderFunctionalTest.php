@@ -63,6 +63,8 @@ final class DoctrineOrmDataProviderFunctionalTest extends FunctionalTestCase
                 'e_displayName' => 'Bob',
             ],
         ], $result->getRows());
+        self::assertFalse($result->hasSources());
+        self::assertSame([], $result->getSources());
     }
 
     public function test_it_returns_second_page(): void
@@ -84,6 +86,37 @@ final class DoctrineOrmDataProviderFunctionalTest extends FunctionalTestCase
                 'e_displayName' => 'Charlie',
             ],
         ], $result->getRows());
+    }
+
+    public function test_it_does_not_select_or_hydrate_sources_for_computed_columns(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+
+        $definition = $this->createDefinition();
+        $definition->addComputedColumn(
+            name: 'summary',
+            valueResolver: 'summary',
+            label: 'Summary',
+        );
+
+        $result = $this->createProvider()->getData(
+            $definition,
+            DatatableRequest::create(page: 1, pageSize: 2),
+        );
+
+        self::assertSame([
+            [
+                'e_id' => 1,
+                'e_email' => 'alice@example.test',
+                'e_displayName' => 'Alice',
+            ],
+            [
+                'e_id' => 2,
+                'e_email' => 'bob@example.test',
+                'e_displayName' => 'Bob',
+            ],
+        ], $result->getRows());
+        self::assertFalse($result->hasSources());
     }
 
     public function test_it_rejects_definition_without_entity_class(): void

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Export;
 
 use Symfony\Component\HttpFoundation\Response;
+use Zhortein\DatatableBundle\Cell\CellContextFactory;
 use Zhortein\DatatableBundle\Contract\ExportWriterInterface;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
@@ -15,12 +16,15 @@ final readonly class CsvExportWriter implements ExportWriterInterface
 {
     public const string WRITER_NAME = 'csv';
 
+    private CellContextFactory $cellContextFactory;
+
     public function __construct(
         private string $delimiter = ',',
         private string $enclosure = '"',
         private string $escape = '\\',
         private bool $withBom = false,
         private ExportableColumnResolver $columnResolver = new ExportableColumnResolver(),
+        ?CellContextFactory $cellContextFactory = null,
     ) {
         if (1 !== strlen($this->delimiter)) {
             throw new \InvalidArgumentException('The CSV delimiter must be exactly one character.');
@@ -33,6 +37,8 @@ final readonly class CsvExportWriter implements ExportWriterInterface
         if ('' !== $this->escape && 1 !== strlen($this->escape)) {
             throw new \InvalidArgumentException('The CSV escape character must be empty or exactly one character.');
         }
+
+        $this->cellContextFactory = $cellContextFactory ?? new CellContextFactory();
     }
 
     public function supports(ExportFormat $format): bool
@@ -79,8 +85,13 @@ final readonly class CsvExportWriter implements ExportWriterInterface
             $columns,
         ));
 
-        foreach ($result->getRows() as $row) {
-            $this->writeRow($handle, $this->normalizeRow($columns, $row));
+        foreach ($result->getRows() as $rowIndex => $row) {
+            $this->writeRow($handle, $this->normalizeRow(
+                definition: $definition,
+                columns: $columns,
+                row: $row,
+                source: $result->getSource($rowIndex),
+            ));
         }
 
         rewind($handle);
@@ -100,50 +111,23 @@ final readonly class CsvExportWriter implements ExportWriterInterface
      *
      * @return list<string>
      */
-    private function normalizeRow(array $columns, array $row): array
-    {
+    private function normalizeRow(
+        DatatableDefinition $definition,
+        array $columns,
+        array $row,
+        mixed $source,
+    ): array {
         $values = [];
 
         foreach ($columns as $column) {
-            $values[] = $this->normalizeValue($this->readColumnValue($row, $column));
+            $values[] = $this->normalizeValue(
+                $this->cellContextFactory
+                    ->create($definition, $column, $row, $source)
+                    ->getValue(),
+            );
         }
 
         return $values;
-    }
-
-    /**
-     * @param array<string, mixed> $row
-     */
-    private function readColumnValue(array $row, ColumnDefinition $column): mixed
-    {
-        foreach ($this->getColumnValueCandidateKeys($column->getName()) as $candidateKey) {
-            if (array_key_exists($candidateKey, $row)) {
-                return $row[$candidateKey];
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getColumnValueCandidateKeys(string $columnName): array
-    {
-        $candidateKeys = [$columnName];
-
-        if (str_contains($columnName, '.')) {
-            $candidateKeys[] = str_replace('.', '_', $columnName);
-
-            $parts = explode('.', $columnName);
-            $lastPart = $parts[array_key_last($parts)];
-
-            if ('' !== $lastPart) {
-                $candidateKeys[] = $lastPart;
-            }
-        }
-
-        return array_values(array_unique($candidateKeys));
     }
 
     private function normalizeValue(mixed $value): string
