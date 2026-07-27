@@ -27,6 +27,9 @@ class DoctrineUser
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(type: 'string', enumType: DoctrineUserStatus::class)]
+    private DoctrineUserStatus $status;
+
     #[ORM\ManyToOne(targetEntity: DoctrineOrganization::class)]
     #[ORM\JoinColumn(name: 'organization_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?DoctrineOrganization $organization;
@@ -37,12 +40,14 @@ class DoctrineUser
         bool $enabled = true,
         ?\DateTimeImmutable $createdAt = null,
         ?DoctrineOrganization $organization = null,
+        DoctrineUserStatus $status = DoctrineUserStatus::Active,
     ) {
         $this->email = $email;
         $this->displayName = $displayName;
         $this->enabled = $enabled;
         $this->createdAt = $createdAt ?? new \DateTimeImmutable();
         $this->organization = $organization;
+        $this->status = $status;
     }
 
     public function getId(): ?int
@@ -73,5 +78,10 @@ class DoctrineUser
     public function getOrganization(): ?DoctrineOrganization
     {
         return $this->organization;
+    }
+
+    public function getStatus(): DoctrineUserStatus
+    {
+        return $this->status;
     }
 }
