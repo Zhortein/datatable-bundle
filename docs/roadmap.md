@@ -1371,12 +1371,36 @@ Synchronous exports are authorized and bounded before data loading, while host a
 
 ---
 
+## 1.12 - Streaming providers and exports ✅
+
+Delivered:
+
+- additive streaming provider and writer capability contracts;
+- immutable export rows and bounded stream context;
+- configurable server-side batch size;
+- Doctrine scalar batch iteration with stable UnitOfWork usage;
+- direct CSV response output;
+- incremental OpenSpout XLSX generation and chunked file transfer;
+- cooperative cancellation and native client-disconnect handling;
+- explicit late-failure semantics;
+- materialized fallback for existing providers, writers and the Array provider;
+- synthetic memory regression, Doctrine, CSV/XLSX, cancellation and
+  compatibility coverage;
+- public API, provider, export, configuration and architecture documentation.
+
+Main outcome:
+
+```text
+Large synchronous exports no longer require the complete filtered dataset or generated file to be held in PHP memory, while every existing 1.x provider and writer remains compatible.
+```
+
+---
+
 ## Later ideas 🔭
 
 Potential future work:
 
 - async exports;
-- streaming export provider contracts;
 - additional export formats;
 - user preference persistence adapters;
 - API/data-source providers;
@@ -1413,4 +1437,5 @@ The authoritative 1.x contract is documented in [`public-api.md`](public-api.md)
 
 The stable boundary keeps definition builders, extension interfaces, DTOs, enums and named integration contracts public. Renderer, registry, factory, controller and Doctrine helper implementations remain internal.
 
-Future streaming exports, asynchronous jobs and provider capabilities must use additive contracts during the 1.x series.
+Asynchronous jobs and future provider capabilities must reuse or extend the
+additive streaming contracts during the 1.x series.

@@ -47,6 +47,7 @@ final class ZhorteinDatatableBundle extends AbstractBundle
 
         /** @var array{
          *     max_rows: int,
+         *     batch_size: int,
          *     format_limits: array{csv: int|null, xlsx: int|null},
          *     csv: array{
          *         delimiter: string,
@@ -87,6 +88,7 @@ final class ZhorteinDatatableBundle extends AbstractBundle
             ->set('zhortein_datatable.bootstrap.table_small', $tableConfig['small'])
             ->set('zhortein_datatable.bootstrap.table_responsive', $tableConfig['responsive'])
             ->set('zhortein_datatable.export.max_rows', $exportConfig['max_rows'])
+            ->set('zhortein_datatable.export.batch_size', $exportConfig['batch_size'])
             ->set('zhortein_datatable.export.format_limits', $exportConfig['format_limits'])
             ->set('zhortein_datatable.export.csv.delimiter', $csvConfig['delimiter'])
             ->set('zhortein_datatable.export.csv.enclosure', $csvConfig['enclosure'])
@@ -116,6 +118,11 @@ final class ZhorteinDatatableBundle extends AbstractBundle
                             ->integerNode('max_rows')
                                 ->min(1)
                                 ->defaultValue(10000)
+                            ->end()
+                            ->integerNode('batch_size')
+                                ->min(1)
+                                ->max(10000)
+                                ->defaultValue(500)
                             ->end()
                             ->arrayNode('format_limits')
                                 ->addDefaultsIfNotSet()

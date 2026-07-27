@@ -10,7 +10,11 @@ use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Zhortein\DatatableBundle\Contract\ExportCancellationInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\SortDirection;
+use Zhortein\DatatableBundle\Export\ExportRow;
+use Zhortein\DatatableBundle\Export\ExportStreamContext;
 use Zhortein\DatatableBundle\Provider\DoctrineOrmDataProvider;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
@@ -102,6 +106,56 @@ final class DoctrineOrmDataProviderFunctionalTest extends FunctionalTestCase
         );
 
         self::assertSame(3, $count);
+    }
+
+    public function test_it_streams_doctrine_exports_in_scalar_batches_without_growing_the_unit_of_work(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+        $entityManager = $this->getStoredEntityManager();
+        $provider = $this->createProvider();
+        $request = DatatableRequest::create(
+            pageSize: 1,
+            searchQuery: 'example.test',
+            sortField: 'e.email',
+            sortDirection: SortDirection::Desc,
+        )->withoutPagination();
+
+        self::assertSame(0, $entityManager->getUnitOfWork()->size());
+
+        $rows = $this->collectExportRows($provider->streamExportRows(
+            definition: $this->createDefinition(),
+            request: $request,
+            context: $this->createStreamContext(batchSize: 2, expectedRows: 3),
+        ));
+
+        self::assertSame([
+            'charlie@example.test',
+            'bob@example.test',
+            'alice@example.test',
+        ], array_column(array_map(
+            static fn (ExportRow $row): array => $row->getValues(),
+            $rows,
+        ), 'e_email'));
+        self::assertSame(0, $entityManager->getUnitOfWork()->size());
+    }
+
+    public function test_it_streams_only_the_requested_current_page(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+        $provider = $this->createProvider();
+
+        $rows = $this->collectExportRows($provider->streamExportRows(
+            definition: $this->createDefinition(),
+            request: DatatableRequest::create(
+                page: 2,
+                pageSize: 2,
+                sortField: 'e.id',
+            ),
+            context: $this->createStreamContext(batchSize: 10, expectedRows: 1),
+        ));
+
+        self::assertCount(1, $rows);
+        self::assertSame('charlie@example.test', $rows[0]->getValues()['e_email']);
     }
 
     public function test_it_does_not_select_or_hydrate_sources_for_computed_columns(): void
@@ -256,5 +310,35 @@ final class DoctrineOrmDataProviderFunctionalTest extends FunctionalTestCase
         }
 
         return $this->entityManager;
+    }
+
+    private function createStreamContext(int $batchSize, int $expectedRows): ExportStreamContext
+    {
+        return new ExportStreamContext(
+            batchSize: $batchSize,
+            expectedRowCount: $expectedRows,
+            cancellation: new class implements ExportCancellationInterface {
+                public function isCancelled(): bool
+                {
+                    return false;
+                }
+            },
+        );
+    }
+
+    /**
+     * @param iterable<ExportRow> $rows
+     *
+     * @return list<ExportRow>
+     */
+    private function collectExportRows(iterable $rows): array
+    {
+        $collectedRows = [];
+
+        foreach ($rows as $row) {
+            $collectedRows[] = $row;
+        }
+
+        return $collectedRows;
     }
 }

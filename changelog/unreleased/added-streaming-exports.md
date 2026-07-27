@@ -1,0 +1,1 @@
+- Added additive streaming provider and writer contracts, bounded Doctrine batches, direct CSV output, incremental OpenSpout XLSX generation, cancellation support and configurable export batch sizes.

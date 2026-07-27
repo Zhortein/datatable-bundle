@@ -62,6 +62,9 @@ Applications may implement or decorate these contracts:
 - `Contract\DatatableExportAuthorizationCheckerInterface`;
 - `Contract\ExportRowCountProviderInterface`;
 - `Contract\ExportWriterInterface`;
+- `Contract\ExportCancellationInterface`;
+- `Contract\StreamingDataProviderInterface`;
+- `Contract\StreamingExportWriterInterface`;
 - `Contract\EnumPresentationResolverInterface`;
 - `Contract\IconResolverInterface`;
 - `DateTime\DateTimeFormatterInterface`;
@@ -77,6 +80,8 @@ Objects appearing in those signatures are part of the supported API:
 - `Action\ActionVisibilityContext`;
 - `Export\DatatableExportAuthorizationContext`;
 - `Export\DatatableExportRequest`;
+- `Export\ExportRow`;
+- `Export\ExportStreamContext`;
 - `EnumPresentation\EnumPresentation`;
 - `Preference\DatatablePreference`;
 - `Request\DatatableRequest`;
@@ -116,10 +121,18 @@ current Symfony locale, matching rendered column labels.
 
 Synchronous export limits and authorization are documented in
 [exports](exports.md). `DatatableDefinition::setExportLimit()`, the two export
-extension contracts and their context/count semantics are additive public 1.x
-APIs. Custom providers may continue to implement only `DataProviderInterface`,
-but synchronous export endpoints reject providers without the explicit count
-capability before loading rows.
+[exports](exports.md). `DatatableDefinition::setExportLimit()`, export
+authorization/count contracts and their context semantics are additive public
+1.x APIs. Custom providers may continue to implement only
+`DataProviderInterface`, but synchronous export endpoints reject providers
+without the explicit count capability before loading rows.
+
+Bounded-memory exports add `StreamingDataProviderInterface` and
+`StreamingExportWriterInterface` without changing either historical interface.
+`ExportRow`, `ExportStreamContext` and `ExportCancellationInterface` are public
+extension types. Capability negotiation requires both sides; otherwise the
+materialized writer path remains supported. The default cancellation service
+may be replaced through the interface alias.
 
 Enum presentation metadata declared on columns and filters is resolved at
 render/export time through `EnumPresentationResolverInterface`.
@@ -143,7 +156,9 @@ The advanced-filter expression model is public for custom providers:
 - `LogicOperator`;
 - `OperatorCompatibility`.
 
-Future streaming or asynchronous export support will use additive contracts instead of changing `DataProviderInterface` or `ExportWriterInterface` incompatibly.
+Future asynchronous export support will reuse these additive streaming
+contracts instead of changing `DataProviderInterface` or
+`ExportWriterInterface` incompatibly.
 
 ## Enums and exceptions
 

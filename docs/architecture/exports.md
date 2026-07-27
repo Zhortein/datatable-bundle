@@ -9,6 +9,9 @@ The export system uses typed objects to represent the request and delegates the 
 - `DatatableExportRequest`: Captures the datatable name, format, mode, and current request parameters.
 - `DatatableExportAuthorizationContext`: Exposes the definition, format, mode, normalized state, Symfony request and signed business/child context to a replaceable checker.
 - `ExportRowCountProviderInterface`: Additive provider capability used to count or conservatively bound filtered rows before materialization.
+- `StreamingDataProviderInterface`: Additive provider capability yielding normalized `ExportRow` values incrementally.
+- `StreamingExportWriterInterface`: Additive writer capability consuming those rows without a complete `DatatableResult`.
+- `ExportStreamContext`: Immutable batch size, expected row count and cooperative cancellation signal.
 - `ExportLimitResolver`: Resolves definition, format and global row-limit precedence.
 - `ExportFormat`: Enum for supported formats (`csv`, `xlsx`).
 - `ExportMode`: Enum for `current` (paged) or `full` (entire filtered dataset) modes.
@@ -35,15 +38,33 @@ interface ExportWriterInterface
 
 Custom writers construct and return their Symfony response directly. They do not need an intermediate bundle-specific result object.
 
+Streaming writers implement the separate capability without changing the
+stable writer signature:
+
+```php
+interface StreamingExportWriterInterface
+{
+    public function writeStream(
+        DatatableExportRequest $request,
+        DatatableDefinition $definition,
+        iterable $rows,
+        ExportStreamContext $context,
+    ): Response;
+}
+```
+
 ## Format Implementations
 
 ### CSV Writer
 
-`CsvExportWriter` provides native support for CSV exports without external dependencies. It uses PHP's built-in CSV handling and the resolved per-column export policy.
+`CsvExportWriter` provides native support for CSV exports without external dependencies. Its streaming path writes header and rows directly to `php://output`.
 
 ### XLSX Writer (Optional)
 
-XLSX support is implemented via an optional writer that depends on `openspout/openspout`. It follows the same server-side pipeline as CSV.
+XLSX support is implemented via an optional writer that depends on
+`openspout/openspout`. Rows are fed incrementally into a temporary XLSX file,
+then the completed archive is transferred to the response in fixed-size
+chunks. The complete workbook is never read into a PHP string.
 
 ## Export Flow
 
@@ -51,8 +72,9 @@ XLSX support is implemented via an optional writer that depends on `openspout/op
 2. **Controller**: The `zhortein_datatable_export` endpoint resolves the datatable and normalized request.
 3. **Authorization**: The replaceable checker runs before provider access.
 4. **Preflight**: The provider counts the filtered rows and the effective synchronous limit is enforced.
-5. **Data Fetching**: The provider fetches data. For `full` mode, pagination is disabled via `DatatableRequest::withoutPagination()`.
-6. **Writing**: The resolved writer generates the response (e.g., streaming a file).
+5. **Capability negotiation**: Streaming is selected only when both provider and writer expose their additive interfaces.
+6. **Data Fetching**: The streaming provider yields bounded rows. Otherwise the provider returns the historical `DatatableResult`.
+7. **Writing**: The streaming writer consumes rows incrementally. Otherwise the historical `write()` method remains in use.
 
 Before format normalization, each writer builds the same server-side
 `CellContext` used by Twig. Named computed columns therefore have one resolver
@@ -61,7 +83,12 @@ negation are not applied to file output.
 
 ## Performance and Limitations
 
-- **Synchronous**: Currently, exports are synchronous and data is loaded into memory before writing.
-- **Memory**: Synchronous exports are bounded before row loading. A future streaming provider or async architecture is still required for substantially larger datasets.
+- **Synchronous**: The request stays open while the export is produced.
+- **Memory**: Doctrine batches, CSV output and XLSX generation are bounded; row limits still protect request duration and resource usage.
+- **UnitOfWork**: Doctrine streams scalar projections and never clears the host application's entity manager.
+- **Cancellation**: The default signal reflects a native client disconnect. Custom signals can replace the service alias.
+- **Late errors**: Exceptions raised after streaming starts propagate; a partial download is never reported as a successful complete export.
+- **Compatibility**: A provider or writer without streaming capability uses the materialized 1.x fallback.
+- **Very long jobs**: Asynchronous exports remain a separate future capability.
 
 See [Cell Context and Computed Values](../cell-context.md).

@@ -5,16 +5,18 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Export;
 
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Zhortein\DatatableBundle\Cell\CellContextFactory;
 use Zhortein\DatatableBundle\Contract\EnumPresentationResolverInterface;
 use Zhortein\DatatableBundle\Contract\ExportWriterInterface;
+use Zhortein\DatatableBundle\Contract\StreamingExportWriterInterface;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
 use Zhortein\DatatableBundle\EnumPresentation\DefaultEnumPresentationResolver;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
-final readonly class CsvExportWriter implements ExportWriterInterface
+final readonly class CsvExportWriter implements ExportWriterInterface, StreamingExportWriterInterface
 {
     public const string WRITER_NAME = 'csv';
 
@@ -62,6 +64,63 @@ final readonly class CsvExportWriter implements ExportWriterInterface
 
         return new Response(
             content: $content,
+            status: Response::HTTP_OK,
+            headers: [
+                'Content-Type' => ExportFormat::Csv->getContentType(),
+                'Content-Disposition' => sprintf('attachment; filename="%s"', $request->getFilename()),
+            ],
+        );
+    }
+
+    /**
+     * @param iterable<ExportRow> $rows
+     */
+    public function writeStream(
+        DatatableExportRequest $request,
+        DatatableDefinition $definition,
+        iterable $rows,
+        ExportStreamContext $context,
+    ): Response {
+        return new StreamedResponse(
+            callback: function () use ($request, $definition, $rows, $context): void {
+                $handle = fopen('php://output', 'wb');
+
+                if (false === $handle) {
+                    throw new \RuntimeException('Unable to open the CSV output stream.');
+                }
+
+                try {
+                    if ($context->isCancelled()) {
+                        return;
+                    }
+
+                    if ($this->withBom) {
+                        fwrite($handle, "\xEF\xBB\xBF");
+                    }
+
+                    $columns = $this->columnResolver->resolve($request, $definition);
+
+                    $this->writeRow($handle, array_map(
+                        fn (ColumnDefinition $column): string => $this->columnLabelResolver->resolve($definition, $column),
+                        $columns,
+                    ));
+
+                    foreach ($rows as $row) {
+                        if ($context->isCancelled()) {
+                            return;
+                        }
+
+                        $this->writeRow($handle, $this->normalizeRow(
+                            definition: $definition,
+                            columns: $columns,
+                            row: $row->getValues(),
+                            source: $row->getSource(),
+                        ));
+                    }
+                } finally {
+                    fclose($handle);
+                }
+            },
             status: Response::HTTP_OK,
             headers: [
                 'Content-Type' => ExportFormat::Csv->getContentType(),

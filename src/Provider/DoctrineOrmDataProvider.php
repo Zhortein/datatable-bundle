@@ -10,6 +10,7 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Zhortein\DatatableBundle\Contract\DataProviderInterface;
 use Zhortein\DatatableBundle\Contract\ExportRowCountProviderInterface;
+use Zhortein\DatatableBundle\Contract\StreamingDataProviderInterface;
 use Zhortein\DatatableBundle\Definition\AggregateColumnDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\ContextFilterValue;
@@ -24,10 +25,12 @@ use Zhortein\DatatableBundle\Doctrine\DoctrineJoinApplier;
 use Zhortein\DatatableBundle\Doctrine\DoctrinePaginationApplier;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Enum\FilterType;
+use Zhortein\DatatableBundle\Export\ExportRow;
+use Zhortein\DatatableBundle\Export\ExportStreamContext;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
-final readonly class DoctrineOrmDataProvider implements DataProviderInterface, ExportRowCountProviderInterface
+final readonly class DoctrineOrmDataProvider implements DataProviderInterface, ExportRowCountProviderInterface, StreamingDataProviderInterface
 {
     public const string PROVIDER_NAME = 'doctrine';
     public const string MAIN_ALIAS = 'e';
@@ -114,6 +117,70 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
     }
 
     /**
+     * @return iterable<ExportRow>
+     */
+    public function streamExportRows(
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+        ExportStreamContext $context,
+    ): iterable {
+        $entityClass = $definition->getEntityClass();
+
+        if (null === $entityClass) {
+            throw new \InvalidArgumentException(sprintf('The datatable "%s" must define an entity class to use the Doctrine ORM provider.', $definition->getName()));
+        }
+
+        $entityManager = $this->getEntityManager($entityClass);
+        $queryBuilder = $this->createRowQueryBuilder(
+            entityManager: $entityManager,
+            entityClass: $entityClass,
+            columns: $this->getSelectableColumns($definition),
+            definition: $definition,
+            request: $request,
+            applyPagination: false,
+        );
+        $offset = $request->isPaginationEnabled() ? $request->getOffset() : 0;
+        $remaining = $context->getExpectedRowCount();
+
+        while ($remaining > 0 && !$context->isCancelled()) {
+            $batchLimit = min($context->getBatchSize(), $remaining);
+            $batchQueryBuilder = clone $queryBuilder;
+            $batchQueryBuilder
+                ->setFirstResult($offset)
+                ->setMaxResults($batchLimit)
+            ;
+
+            /**
+             * Scalar projections keep Doctrine's unit of work stable. Clearing
+             * the entity manager here would unexpectedly detach host objects.
+             *
+             * @var list<array<string, mixed>> $rows
+             */
+            $rows = $batchQueryBuilder->getQuery()->getArrayResult();
+
+            if ([] === $rows) {
+                return;
+            }
+
+            foreach ($rows as $row) {
+                if ($context->isCancelled()) {
+                    return;
+                }
+
+                yield new ExportRow($row);
+            }
+
+            $loadedRows = count($rows);
+            $offset += $loadedRows;
+            $remaining -= $loadedRows;
+
+            if ($loadedRows < $batchLimit) {
+                return;
+            }
+        }
+    }
+
+    /**
      * @param class-string $entityClass
      */
     private function getEntityManager(string $entityClass): EntityManagerInterface
@@ -151,11 +218,39 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
         DatatableDefinition $definition,
         DatatableRequest $request,
     ): array {
+        $queryBuilder = $this->createRowQueryBuilder(
+            entityManager: $entityManager,
+            entityClass: $entityClass,
+            columns: $columns,
+            definition: $definition,
+            request: $request,
+        );
+
+        /** @var list<array<string, mixed>> $rows */
+        $rows = $queryBuilder->getQuery()->getArrayResult();
+
+        return $rows;
+    }
+
+    /**
+     * @param class-string                    $entityClass
+     * @param array<string, ColumnDefinition> $columns
+     */
+    private function createRowQueryBuilder(
+        EntityManagerInterface $entityManager,
+        string $entityClass,
+        array $columns,
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+        bool $applyPagination = true,
+    ): QueryBuilder {
         $queryBuilder = $entityManager->createQueryBuilder()
             ->from($entityClass, self::MAIN_ALIAS)
         ;
 
-        $this->paginationApplier->apply($queryBuilder, $request);
+        if ($applyPagination) {
+            $this->paginationApplier->apply($queryBuilder, $request);
+        }
 
         $this->joinApplier->apply($queryBuilder, $definition);
         $this->bindCustomJoinParameters($queryBuilder, $definition);
@@ -199,10 +294,7 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
             $queryBuilder->addGroupBy($groupByField);
         }
 
-        /** @var list<array<string, mixed>> $rows */
-        $rows = $queryBuilder->getQuery()->getArrayResult();
-
-        return $rows;
+        return $queryBuilder;
     }
 
     /**

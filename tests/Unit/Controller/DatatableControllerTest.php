@@ -7,6 +7,8 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Controller;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Translation\Loader\YamlFileLoader;
 use Symfony\Component\Translation\Translator;
 use Twig\Environment;
@@ -15,14 +17,20 @@ use Zhortein\DatatableBundle\Contract\DataProviderInterface;
 use Zhortein\DatatableBundle\Contract\DatatableExportAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Contract\DatatableInterface;
 use Zhortein\DatatableBundle\Contract\ExportRowCountProviderInterface;
+use Zhortein\DatatableBundle\Contract\ExportWriterInterface;
+use Zhortein\DatatableBundle\Contract\StreamingDataProviderInterface;
 use Zhortein\DatatableBundle\Controller\DatatableController;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
 use Zhortein\DatatableBundle\Enum\ExportMode;
 use Zhortein\DatatableBundle\Export\CsvExportWriter;
 use Zhortein\DatatableBundle\Export\DatatableExportAuthorizationContext;
+use Zhortein\DatatableBundle\Export\DatatableExportRequest;
 use Zhortein\DatatableBundle\Export\ExportLimitResolver;
+use Zhortein\DatatableBundle\Export\ExportRow;
+use Zhortein\DatatableBundle\Export\ExportStreamContext;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
+use Zhortein\DatatableBundle\Exception\ExportException;
 use Zhortein\DatatableBundle\Factory\AdvancedFilterExpressionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
@@ -291,6 +299,83 @@ final class DatatableControllerTest extends TestCase
         self::assertFalse($provider->getDataCalled);
     }
 
+    public function test_it_uses_the_streaming_capabilities_without_loading_a_datatable_result(): void
+    {
+        $provider = new StreamingControllerTestProvider();
+        $response = $this->createController(
+            provider: $provider,
+            exportBatchSize: 2,
+        )->export(new Request(['mode' => 'full']), 'users', 'csv');
+
+        self::assertInstanceOf(StreamedResponse::class, $response);
+        self::assertFalse($provider->getDataCalled);
+        self::assertFalse($provider->streamCalled);
+
+        ob_start();
+        $response->sendContent();
+        $content = ob_get_clean();
+
+        self::assertIsString($content);
+        self::assertTrue($provider->streamCalled);
+        self::assertFalse($provider->getDataCalled);
+        self::assertNotNull($provider->context);
+        self::assertSame(2, $provider->context->getBatchSize());
+        self::assertSame(3, $provider->context->getExpectedRowCount());
+        self::assertStringContainsString('alice@example.test', $content);
+        self::assertStringContainsString('charlie@example.test', $content);
+    }
+
+    public function test_array_provider_keeps_the_backward_compatible_non_streaming_path(): void
+    {
+        $response = $this->createController()->export(
+            new Request(['mode' => 'full']),
+            'users',
+            'csv',
+        );
+
+        self::assertNotInstanceOf(StreamedResponse::class, $response);
+        self::assertStringContainsString('alice@example.test', (string) $response->getContent());
+    }
+
+    public function test_legacy_writer_keeps_the_materialized_provider_path(): void
+    {
+        $provider = new StreamingControllerTestProvider();
+        $writer = new LegacyControllerTestWriter();
+        $response = $this->createController(
+            provider: $provider,
+            writer: $writer,
+        )->export(new Request(['mode' => 'full']), 'users', 'csv');
+
+        self::assertTrue($provider->getDataCalled);
+        self::assertFalse($provider->streamCalled);
+        self::assertTrue($writer->called);
+        self::assertSame('legacy', $response->getContent());
+    }
+
+    public function test_streaming_limit_is_still_enforced_when_a_provider_undercounts(): void
+    {
+        $response = $this->createController(
+            provider: new StreamingControllerTestProvider(filteredRowCount: 1),
+            exportLimitResolver: new ExportLimitResolver(2),
+        )->export(new Request(['mode' => 'full']), 'users', 'csv');
+
+        self::assertInstanceOf(StreamedResponse::class, $response);
+
+        ob_start();
+
+        try {
+            $response->sendContent();
+            self::fail('An undercounting provider must not bypass the export limit.');
+        } catch (ExportException $exception) {
+            self::assertSame(
+                'The streaming provider yielded more than the configured 2-row export limit.',
+                $exception->getMessage(),
+            );
+        } finally {
+            ob_end_clean();
+        }
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -309,9 +394,12 @@ final class DatatableControllerTest extends TestCase
         ?ExportLimitResolver $exportLimitResolver = null,
         ?Translator $translator = null,
         ?DataProviderInterface $provider = null,
+        int $exportBatchSize = 500,
+        ?ExportWriterInterface $writer = null,
     ): DatatableController {
         $translator ??= $this->createTranslator();
         $provider ??= new ArrayDataProvider();
+        $writer ??= new CsvExportWriter();
 
         return new DatatableController(
             definitionFactory: new DatatableDefinitionFactory($this->createDatatableRegistry()),
@@ -321,12 +409,13 @@ final class DatatableControllerTest extends TestCase
             ]),
             renderer: new DatatableRenderer($this->createTwigEnvironment()),
             exportWriterRegistry: new ExportWriterRegistry([
-                CsvExportWriter::WRITER_NAME => new CsvExportWriter(),
+                CsvExportWriter::WRITER_NAME => $writer,
             ]),
             summaryRenderer: new DatatableSummaryRenderer($translator),
             exportAuthorizationChecker: $exportAuthorizationChecker,
             exportLimitResolver: $exportLimitResolver,
             translator: $translator,
+            exportBatchSize: $exportBatchSize,
         );
     }
 
@@ -417,6 +506,74 @@ final class InvalidCountControllerTestProvider implements DataProviderInterface,
         DatatableRequest $request,
     ): int {
         return -1;
+    }
+}
+
+final class StreamingControllerTestProvider implements DataProviderInterface, ExportRowCountProviderInterface, StreamingDataProviderInterface
+{
+    public bool $getDataCalled = false;
+
+    public bool $streamCalled = false;
+
+    public ?ExportStreamContext $context = null;
+
+    public function __construct(
+        private readonly int $filteredRowCount = 3,
+    ) {
+    }
+
+    public function supports(DatatableDefinition $definition): bool
+    {
+        return true;
+    }
+
+    public function getData(
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+    ): DatatableResult {
+        $this->getDataCalled = true;
+
+        return new DatatableResult();
+    }
+
+    public function countExportRows(
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+    ): int {
+        return $this->filteredRowCount;
+    }
+
+    public function streamExportRows(
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+        ExportStreamContext $context,
+    ): iterable {
+        $this->streamCalled = true;
+        $this->context = $context;
+
+        yield new ExportRow(['e_email' => 'alice@example.test']);
+        yield new ExportRow(['e_email' => 'bob@example.test']);
+        yield new ExportRow(['e_email' => 'charlie@example.test']);
+    }
+}
+
+final class LegacyControllerTestWriter implements ExportWriterInterface
+{
+    public bool $called = false;
+
+    public function supports(ExportFormat $format): bool
+    {
+        return ExportFormat::Csv === $format;
+    }
+
+    public function write(
+        DatatableExportRequest $request,
+        DatatableDefinition $definition,
+        DatatableResult $result,
+    ): Response {
+        $this->called = true;
+
+        return new Response('legacy');
     }
 }
 

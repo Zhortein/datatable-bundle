@@ -7,18 +7,22 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Export;
 use OpenSpout\Reader\XLSX\Reader;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\Translator;
 use Zhortein\DatatableBundle\Cell\CellContext;
 use Zhortein\DatatableBundle\Cell\CellContextFactory;
 use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
 use Zhortein\DatatableBundle\Contract\CellValueResolverInterface;
+use Zhortein\DatatableBundle\Contract\ExportCancellationInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
 use Zhortein\DatatableBundle\EnumPresentation\DefaultEnumPresentationResolver;
 use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 use Zhortein\DatatableBundle\Export\DatatableExportRequest;
 use Zhortein\DatatableBundle\Export\ExportColumnLabelResolver;
+use Zhortein\DatatableBundle\Export\ExportRow;
+use Zhortein\DatatableBundle\Export\ExportStreamContext;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
 use Zhortein\DatatableBundle\Export\XlsxExportWriter;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
@@ -270,6 +274,56 @@ final class XlsxExportWriterTest extends TestCase
         self::assertSame(
             [['Status'], ['Actif']],
             $this->readXlsxRows((string) $response->getContent()),
+        );
+    }
+
+    public function test_it_feeds_openspout_incrementally_and_streams_the_generated_file(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition
+            ->addColumn('email', label: 'Email')
+            ->addColumn('enabled', label: 'Enabled', type: 'boolean')
+        ;
+        $consumedRows = 0;
+        $rows = (static function () use (&$consumedRows): \Generator {
+            ++$consumedRows;
+            yield new ExportRow(['email' => 'alice@example.test', 'enabled' => true]);
+
+            ++$consumedRows;
+            yield new ExportRow(['email' => 'bob@example.test', 'enabled' => false]);
+        })();
+        $response = new XlsxExportWriter()->writeStream(
+            request: new DatatableExportRequest('users', format: ExportFormat::Xlsx),
+            definition: $definition,
+            rows: $rows,
+            context: new ExportStreamContext(
+                batchSize: 100,
+                expectedRowCount: 2,
+                cancellation: new class implements ExportCancellationInterface {
+                    public function isCancelled(): bool
+                    {
+                        return false;
+                    }
+                },
+            ),
+        );
+
+        self::assertInstanceOf(StreamedResponse::class, $response);
+        self::assertSame(0, $consumedRows);
+
+        ob_start();
+        $response->sendContent();
+        $content = ob_get_clean();
+
+        self::assertIsString($content);
+        self::assertSame(2, $consumedRows);
+        self::assertSame(
+            [
+                ['Email', 'Enabled'],
+                ['alice@example.test', true],
+                ['bob@example.test', false],
+            ],
+            $this->readXlsxRows($content),
         );
     }
 

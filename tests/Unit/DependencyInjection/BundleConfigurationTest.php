@@ -8,7 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Zhortein\DatatableBundle\Contract\DatatableExportAuthorizationCheckerInterface;
+use Zhortein\DatatableBundle\Contract\ExportCancellationInterface;
 use Zhortein\DatatableBundle\Export\AllowAllDatatableExportAuthorizationChecker;
+use Zhortein\DatatableBundle\Export\ConnectionAbortedExportCancellation;
 use Zhortein\DatatableBundle\Export\ExportLimitResolver;
 use Zhortein\DatatableBundle\ZhorteinDatatableBundle;
 
@@ -26,6 +28,7 @@ final class BundleConfigurationTest extends TestCase
         self::assertFalse($container->getParameter('zhortein_datatable.search_builder_enabled'));
         self::assertSame([], $container->getParameter('zhortein_datatable.icons'));
         self::assertSame(10000, $container->getParameter('zhortein_datatable.export.max_rows'));
+        self::assertSame(500, $container->getParameter('zhortein_datatable.export.batch_size'));
         self::assertSame(
             ['csv' => null, 'xlsx' => null],
             $container->getParameter('zhortein_datatable.export.format_limits'),
@@ -56,6 +59,12 @@ final class BundleConfigurationTest extends TestCase
         $container = $this->loadBundleConfiguration([]);
 
         self::assertTrue($container->hasDefinition(ExportLimitResolver::class));
+        self::assertTrue($container->hasDefinition(ConnectionAbortedExportCancellation::class));
+        self::assertTrue($container->hasAlias(ExportCancellationInterface::class));
+        self::assertSame(
+            ConnectionAbortedExportCancellation::class,
+            (string) $container->getAlias(ExportCancellationInterface::class),
+        );
         self::assertTrue($container->hasAlias(DatatableExportAuthorizationCheckerInterface::class));
         self::assertSame(
             AllowAllDatatableExportAuthorizationChecker::class,
@@ -77,6 +86,7 @@ final class BundleConfigurationTest extends TestCase
             ],
             'export' => [
                 'max_rows' => 5000,
+                'batch_size' => 250,
                 'format_limits' => [
                     'csv' => 2500,
                     'xlsx' => 1000,
@@ -101,6 +111,7 @@ final class BundleConfigurationTest extends TestCase
             $container->getParameter('zhortein_datatable.icons'),
         );
         self::assertSame(5000, $container->getParameter('zhortein_datatable.export.max_rows'));
+        self::assertSame(250, $container->getParameter('zhortein_datatable.export.batch_size'));
         self::assertSame(
             ['csv' => 2500, 'xlsx' => 1000],
             $container->getParameter('zhortein_datatable.export.format_limits'),
@@ -167,6 +178,28 @@ final class BundleConfigurationTest extends TestCase
                 'format_limits' => [
                     'xlsx' => 0,
                 ],
+            ],
+        ]);
+    }
+
+    public function test_it_rejects_invalid_export_batch_size(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->loadBundleConfiguration([
+            'export' => [
+                'batch_size' => 0,
+            ],
+        ]);
+    }
+
+    public function test_it_rejects_export_batch_size_above_the_bound(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->loadBundleConfiguration([
+            'export' => [
+                'batch_size' => 10001,
             ],
         ]);
     }
