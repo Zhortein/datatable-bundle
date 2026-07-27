@@ -52,7 +52,10 @@ final class DatatableRendererChildDatatableTest extends TestCase
         self::assertSame(2, substr_count($body, 'data-zhortein--datatable-bundle--datatable-child-row="true"'));
         self::assertStringContainsString('aria-expanded="false"', $body);
         self::assertStringContainsString('aria-label="Expand row 42"', $body);
+        self::assertStringContainsString('data-action="click->zhortein--datatable-bundle--datatable#toggleChildDatatable"', $body);
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-child-collapse-label="Collapse row 42"', $body);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-child-loading-label="Loading child rows…"', $body);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-child-state="idle"', $body);
         self::assertStringContainsString('class="zhortein-datatable__child-row"', $body);
         self::assertStringContainsString('colspan="2"', $body);
         self::assertStringContainsString('Child rows', $header);
