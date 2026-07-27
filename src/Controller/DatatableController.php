@@ -16,6 +16,7 @@ use Zhortein\DatatableBundle\Contract\StreamingDataProviderInterface;
 use Zhortein\DatatableBundle\Contract\StreamingExportWriterInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
+use Zhortein\DatatableBundle\Exception\ExportException;
 use Zhortein\DatatableBundle\Export\AllowAllDatatableExportAuthorizationChecker;
 use Zhortein\DatatableBundle\Export\ConnectionAbortedExportCancellation;
 use Zhortein\DatatableBundle\Export\DatatableExportAuthorizationContext;
@@ -23,7 +24,6 @@ use Zhortein\DatatableBundle\Export\DatatableExportRequest;
 use Zhortein\DatatableBundle\Export\ExportLimitResolver;
 use Zhortein\DatatableBundle\Export\ExportStreamContext;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
-use Zhortein\DatatableBundle\Exception\ExportException;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
 use Zhortein\DatatableBundle\Hierarchy\ChildDatatableRequest;
@@ -218,10 +218,7 @@ final readonly class DatatableController
             ++$rowCount;
 
             if ($rowCount > $limit) {
-                throw new ExportException(sprintf(
-                    'The streaming provider yielded more than the configured %d-row export limit.',
-                    $limit,
-                ));
+                throw new ExportException(sprintf('The streaming provider yielded more than the configured %d-row export limit.', $limit));
             }
 
             yield $row;
