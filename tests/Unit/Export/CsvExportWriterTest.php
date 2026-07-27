@@ -230,10 +230,15 @@ final class CsvExportWriterTest extends TestCase
                 $sourceLabel = is_array($source) && is_string($source['label'] ?? null)
                     ? $source['label']
                     : 'no-source';
+                $email = $context->getRow()['e_email'] ?? null;
+
+                if (!is_string($email)) {
+                    throw new \UnexpectedValueException('Expected the email to be a string.');
+                }
 
                 return sprintf(
                     '%s / %s',
-                    (string) ($context->getRow()['e_email'] ?? ''),
+                    $email,
                     $sourceLabel,
                 );
             }

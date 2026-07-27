@@ -160,7 +160,13 @@ final class XlsxExportWriterTest extends TestCase
 
             public function resolve(CellContext $context): mixed
             {
-                return strtoupper((string) ($context->getRow()['e_email'] ?? ''));
+                $email = $context->getRow()['e_email'] ?? null;
+
+                if (!is_string($email)) {
+                    throw new \UnexpectedValueException('Expected the email to be a string.');
+                }
+
+                return strtoupper($email);
             }
         };
         $definition = new DatatableDefinition('users');

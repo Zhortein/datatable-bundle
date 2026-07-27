@@ -52,10 +52,21 @@ final class CellContextFactoryTest extends TestCase
 
             public function resolve(CellContext $context): mixed
             {
+                $email = $context->getRow()['email'] ?? null;
+                $scope = $context->getDatatableContext()->get('scope');
+
+                if (!is_string($email)) {
+                    throw new \UnexpectedValueException('Expected the email to be a string.');
+                }
+
+                if (!is_string($scope)) {
+                    throw new \UnexpectedValueException('Expected the scope to be a string.');
+                }
+
                 return sprintf(
                     '%s (%s)',
-                    (string) ($context->getRow()['email'] ?? ''),
-                    (string) $context->getDatatableContext()->get('scope'),
+                    $email,
+                    $scope,
                 );
             }
         };
