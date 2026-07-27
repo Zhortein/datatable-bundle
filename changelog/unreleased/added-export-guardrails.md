@@ -1,0 +1,1 @@
+- Added configurable synchronous export row limits, preflight provider counting and a replaceable authorization context for CSV/XLSX, current/full and child datatable exports.

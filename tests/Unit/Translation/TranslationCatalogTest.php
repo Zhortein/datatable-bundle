@@ -22,6 +22,18 @@ final class TranslationCatalogTest extends TestCase
         self::assertSame('Export', $translator->trans('zhortein_datatable.export.label', [], 'zhortein_datatable'));
         self::assertSame('CSV current view', $translator->trans('zhortein_datatable.export.csv_current', [], 'zhortein_datatable'));
         self::assertSame('CSV full dataset', $translator->trans('zhortein_datatable.export.csv_full', [], 'zhortein_datatable'));
+        self::assertSame(
+            'This export exceeds the 100-row limit. Apply more filters or export the current page.',
+            $translator->trans(
+                'zhortein_datatable.export.limit_exceeded',
+                ['%limit%' => 100],
+                'zhortein_datatable',
+            ),
+        );
+        self::assertSame(
+            'You are not allowed to export this datatable.',
+            $translator->trans('zhortein_datatable.export.authorization_denied', [], 'zhortein_datatable'),
+        );
         self::assertSame('Loading...', $translator->trans('zhortein_datatable.loading', [], 'zhortein_datatable'));
         self::assertSame('Unable to load datatable data.', $translator->trans('zhortein_datatable.error.generic', [], 'zhortein_datatable'));
         self::assertSame('No data available.', $translator->trans('zhortein_datatable.empty', [], 'zhortein_datatable'));
@@ -62,6 +74,18 @@ final class TranslationCatalogTest extends TestCase
         self::assertSame('Exporter', $translator->trans('zhortein_datatable.export.label', [], 'zhortein_datatable'));
         self::assertSame('CSV vue courante', $translator->trans('zhortein_datatable.export.csv_current', [], 'zhortein_datatable'));
         self::assertSame('CSV complet', $translator->trans('zhortein_datatable.export.csv_full', [], 'zhortein_datatable'));
+        self::assertSame(
+            'Cet export dépasse la limite de 100 lignes. Affinez les filtres ou exportez la page courante.',
+            $translator->trans(
+                'zhortein_datatable.export.limit_exceeded',
+                ['%limit%' => 100],
+                'zhortein_datatable',
+            ),
+        );
+        self::assertSame(
+            'L’export de ce tableau n’est pas autorisé.',
+            $translator->trans('zhortein_datatable.export.authorization_denied', [], 'zhortein_datatable'),
+        );
         self::assertSame('Chargement...', $translator->trans('zhortein_datatable.loading', [], 'zhortein_datatable'));
         self::assertSame('Impossible de charger les données du tableau.', $translator->trans('zhortein_datatable.error.generic', [], 'zhortein_datatable'));
         self::assertSame('Trier par Email', $translator->trans('zhortein_datatable.sort.label', ['%column%' => 'Email'], 'zhortein_datatable'));

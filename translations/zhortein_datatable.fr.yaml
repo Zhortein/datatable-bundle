@@ -49,6 +49,9 @@ zhortein_datatable:
         csv_full: 'CSV complet'
         xlsx_current: 'XLSX vue courante'
         xlsx_full: 'XLSX complet'
+        authorization_denied: 'L’export de ce tableau n’est pas autorisé.'
+        limit_exceeded: 'Cet export dépasse la limite de %limit% lignes. Affinez les filtres ou exportez la page courante.'
+        count_unavailable: 'Ce fournisseur de données ne peut pas déterminer le volume de l’export de manière sûre. Implémentez ExportRowCountProviderInterface ou utilisez un fournisseur compatible.'
     bulk_actions:
         select_all: 'Tout sélectionner'
         select_row: 'Sélectionner la ligne %id%'

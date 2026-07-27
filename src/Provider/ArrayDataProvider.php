@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Provider;
 
 use Zhortein\DatatableBundle\Contract\DataProviderInterface;
+use Zhortein\DatatableBundle\Contract\ExportRowCountProviderInterface;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\ContextFilterValue;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
@@ -22,7 +23,7 @@ use Zhortein\DatatableBundle\Request\DatatableRequest;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 use Zhortein\DatatableBundle\Sorting\SortCriterion;
 
-final readonly class ArrayDataProvider implements DataProviderInterface
+final readonly class ArrayDataProvider implements DataProviderInterface, ExportRowCountProviderInterface
 {
     public const string PROVIDER_NAME = 'array';
     public const string OPTION_PROVIDER = DataProviderRegistry::OPTION_PROVIDER;
@@ -60,6 +61,19 @@ final readonly class ArrayDataProvider implements DataProviderInterface
             filteredItems: $filteredItems,
             sources: $rows,
         );
+    }
+
+    public function countExportRows(
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+    ): int {
+        $rows = $this->normalizeRows($definition->getOption(self::OPTION_ROWS, []));
+        $rows = $this->applyPermanentFilters($rows, $definition);
+        $rows = $this->applyUserFilters($rows, $definition, $request);
+        $rows = $this->applyAdvancedFilters($rows, $request);
+        $rows = $this->applySearch($rows, $definition, $request);
+
+        return count($rows);
     }
 
     /**

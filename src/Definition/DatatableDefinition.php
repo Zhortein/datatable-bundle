@@ -7,6 +7,7 @@ namespace Zhortein\DatatableBundle\Definition;
 use Zhortein\DatatableBundle\Context\DatatableContext;
 use Zhortein\DatatableBundle\Enum\ActionIconPosition;
 use Zhortein\DatatableBundle\Enum\AggregateFunction;
+use Zhortein\DatatableBundle\Enum\ExportFormat;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Enum\JoinType;
@@ -80,6 +81,11 @@ final class DatatableDefinition
      * @var array<string, AdvancedFilterFieldDefinition>
      */
     private array $advancedFilterFields = [];
+
+    /**
+     * @var array<string, int>
+     */
+    private array $exportLimits = [];
 
     public function __construct(
         private readonly string $name,
@@ -514,6 +520,36 @@ final class DatatableDefinition
     public function getOptions(): array
     {
         return $this->options;
+    }
+
+    public function setExportLimit(
+        int $maxRows,
+        ExportFormat|string|null $format = null,
+    ): self {
+        if ($maxRows < 1) {
+            throw new \InvalidArgumentException('The datatable export row limit must be greater than or equal to 1.');
+        }
+
+        if (is_string($format)) {
+            $format = ExportFormat::fromString($format);
+        }
+
+        $this->exportLimits[$format->value ?? '*'] = $maxRows;
+
+        return $this;
+    }
+
+    public function getExportLimit(ExportFormat|string|null $format = null): ?int
+    {
+        if (is_string($format)) {
+            $format = ExportFormat::fromString($format);
+        }
+
+        if (null !== $format && isset($this->exportLimits[$format->value])) {
+            return $this->exportLimits[$format->value];
+        }
+
+        return $this->exportLimits['*'] ?? null;
     }
 
     /**

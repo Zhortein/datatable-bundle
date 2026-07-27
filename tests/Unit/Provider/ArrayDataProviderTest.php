@@ -75,6 +75,20 @@ final class ArrayDataProviderTest extends TestCase
         ], $result->getRows());
     }
 
+    public function test_it_counts_filtered_export_rows_without_pagination(): void
+    {
+        $count = new ArrayDataProvider()->countExportRows(
+            $this->createDefinition(),
+            DatatableRequest::create(
+                page: 2,
+                pageSize: 1,
+                searchQuery: 'zoe',
+            ),
+        );
+
+        self::assertSame(2, $count);
+    }
+
     public function test_it_does_not_search_non_searchable_columns(): void
     {
         $result = new ArrayDataProvider()->getData(

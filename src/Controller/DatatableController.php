@@ -7,10 +7,16 @@ namespace Zhortein\DatatableBundle\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Zhortein\DatatableBundle\Context\DatatableContextRequestResolver;
+use Zhortein\DatatableBundle\Contract\DatatableExportAuthorizationCheckerInterface;
+use Zhortein\DatatableBundle\Contract\ExportRowCountProviderInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
+use Zhortein\DatatableBundle\Export\AllowAllDatatableExportAuthorizationChecker;
+use Zhortein\DatatableBundle\Export\DatatableExportAuthorizationContext;
 use Zhortein\DatatableBundle\Export\DatatableExportRequest;
+use Zhortein\DatatableBundle\Export\ExportLimitResolver;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
@@ -31,6 +37,9 @@ final readonly class DatatableController
         private DatatableSummaryRenderer $summaryRenderer,
         private ?DatatableContextRequestResolver $contextRequestResolver = null,
         private ?ChildDatatableRequestResolver $childRequestResolver = null,
+        private ?DatatableExportAuthorizationCheckerInterface $exportAuthorizationChecker = null,
+        private ?ExportLimitResolver $exportLimitResolver = null,
+        private ?TranslatorInterface $translator = null,
     ) {
     }
 
@@ -71,7 +80,7 @@ final readonly class DatatableController
     public function export(Request $request, string $name, string $format = 'csv'): Response
     {
         $definition = $this->definitionFactory->create($name);
-        $this->resolveContext($request, $definition);
+        [$instance, $childRequest] = $this->resolveContext($request, $definition);
         $datatableRequest = $this->requestFactory->createFromRequest($request, $definition);
         $exportFormat = ExportFormat::fromString($format);
         $mode = $request->query->get('mode', 'current');
@@ -85,13 +94,77 @@ final readonly class DatatableController
             datatableRequest: $datatableRequest,
         );
 
+        $authorizationContext = new DatatableExportAuthorizationContext(
+            definition: $definition,
+            exportRequest: $exportRequest,
+            request: $request,
+            instance: $instance,
+            childDatatable: null !== $childRequest,
+        );
+        $authorizationChecker = $this->exportAuthorizationChecker
+            ?? new AllowAllDatatableExportAuthorizationChecker();
+
+        if (!$authorizationChecker->isGranted($authorizationContext)) {
+            return $this->createExportErrorResponse(
+                'zhortein_datatable.export.authorization_denied',
+                Response::HTTP_FORBIDDEN,
+                'You are not allowed to export this datatable.',
+            );
+        }
+
+        $writer = $this->exportWriterRegistry->resolve($exportFormat);
         $effectiveDatatableRequest = $exportRequest->shouldKeepPagination()
             ? $datatableRequest
             : $datatableRequest->withoutPagination();
 
         $provider = $this->providerRegistry->resolve($definition);
+
+        if (!$provider instanceof ExportRowCountProviderInterface) {
+            return $this->createExportErrorResponse(
+                'zhortein_datatable.export.count_unavailable',
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+                'This data provider cannot safely determine the export size. Implement ExportRowCountProviderInterface or use a supported provider.',
+            );
+        }
+
+        $filteredRowCount = $provider->countExportRows($definition, $datatableRequest);
+
+        if ($filteredRowCount < 0) {
+            return $this->createExportErrorResponse(
+                'zhortein_datatable.export.count_unavailable',
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+                'This data provider cannot safely determine the export size. Implement ExportRowCountProviderInterface or use a supported provider.',
+            );
+        }
+
+        $exportRowCount = $exportRequest->shouldKeepPagination()
+            ? min(
+                $datatableRequest->getPageSize(),
+                max(0, $filteredRowCount - $datatableRequest->getOffset()),
+            )
+            : $filteredRowCount;
+        $exportLimit = ($this->exportLimitResolver ?? new ExportLimitResolver())
+            ->resolve($definition, $exportFormat);
+
+        if ($exportRowCount > $exportLimit) {
+            return $this->createExportErrorResponse(
+                'zhortein_datatable.export.limit_exceeded',
+                Response::HTTP_REQUEST_ENTITY_TOO_LARGE,
+                sprintf('This export exceeds the %d-row limit. Apply more filters or export the current page.', $exportLimit),
+                ['%limit%' => $exportLimit],
+            );
+        }
+
         $result = $provider->getData($definition, $effectiveDatatableRequest);
-        $writer = $this->exportWriterRegistry->resolve($exportFormat);
+
+        if (count($result->getRows()) > $exportLimit) {
+            return $this->createExportErrorResponse(
+                'zhortein_datatable.export.limit_exceeded',
+                Response::HTTP_REQUEST_ENTITY_TOO_LARGE,
+                sprintf('This export exceeds the %d-row limit. Apply more filters or export the current page.', $exportLimit),
+                ['%limit%' => $exportLimit],
+            );
+        }
 
         return $writer->write($exportRequest, $definition, $result);
     }
@@ -130,5 +203,31 @@ final readonly class DatatableController
         $childRequest = $this->childRequestResolver->resolve($request, $definition);
 
         return [$childRequest->getInstance(), $childRequest];
+    }
+
+    /**
+     * @param array<string, int|string> $parameters
+     */
+    private function createExportErrorResponse(
+        string $translationKey,
+        int $status,
+        string $fallback,
+        array $parameters = [],
+    ): Response {
+        $message = $this->translator?->trans(
+            $translationKey,
+            $parameters,
+            'zhortein_datatable',
+        ) ?? $fallback;
+
+        $response = new Response(
+            $message,
+            $status,
+            ['Content-Type' => 'text/plain; charset=UTF-8'],
+        );
+        $response->setPrivate();
+        $response->headers->addCacheControlDirective('no-store');
+
+        return $response;
     }
 }

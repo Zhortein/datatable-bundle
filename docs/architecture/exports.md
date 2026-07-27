@@ -7,6 +7,9 @@ Server-side exports allow downloading datatable data in various formats while re
 The export system uses typed objects to represent the request and delegates the HTTP result to each writer:
 
 - `DatatableExportRequest`: Captures the datatable name, format, mode, and current request parameters.
+- `DatatableExportAuthorizationContext`: Exposes the definition, format, mode, normalized state, Symfony request and signed business/child context to a replaceable checker.
+- `ExportRowCountProviderInterface`: Additive provider capability used to count or conservatively bound filtered rows before materialization.
+- `ExportLimitResolver`: Resolves definition, format and global row-limit precedence.
 - `ExportFormat`: Enum for supported formats (`csv`, `xlsx`).
 - `ExportMode`: Enum for `current` (paged) or `full` (entire filtered dataset) modes.
 - Symfony `Response`: Returned directly by the selected writer.
@@ -45,9 +48,11 @@ XLSX support is implemented via an optional writer that depends on `openspout/op
 ## Export Flow
 
 1. **Request**: Stimulus builds an export URL with current table state.
-2. **Controller**: The `zhortein_datatable_export` endpoint resolves the datatable, provider, and writer.
-3. **Data Fetching**: The provider fetches data. For `full` mode, pagination is disabled via `DatatableRequest::withoutPagination()`.
-4. **Writing**: The resolved writer generates the response (e.g., streaming a file).
+2. **Controller**: The `zhortein_datatable_export` endpoint resolves the datatable and normalized request.
+3. **Authorization**: The replaceable checker runs before provider access.
+4. **Preflight**: The provider counts the filtered rows and the effective synchronous limit is enforced.
+5. **Data Fetching**: The provider fetches data. For `full` mode, pagination is disabled via `DatatableRequest::withoutPagination()`.
+6. **Writing**: The resolved writer generates the response (e.g., streaming a file).
 
 Before format normalization, each writer builds the same server-side
 `CellContext` used by Twig. Named computed columns therefore have one resolver
@@ -57,6 +62,6 @@ negation are not applied to file output.
 ## Performance and Limitations
 
 - **Synchronous**: Currently, exports are synchronous and data is loaded into memory before writing.
-- **Memory**: Large "full" exports on datasets with millions of rows may hit PHP memory limits. A future streaming provider or async architecture is planned for these cases.
+- **Memory**: Synchronous exports are bounded before row loading. A future streaming provider or async architecture is still required for substantially larger datasets.
 
 See [Cell Context and Computed Values](../cell-context.md).
