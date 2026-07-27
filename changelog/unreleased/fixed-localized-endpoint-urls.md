@@ -1,0 +1,1 @@
+- Fixed default fragments, export and saved-view URLs when bundle routes use localized or custom import prefixes.

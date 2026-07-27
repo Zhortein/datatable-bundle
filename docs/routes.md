@@ -40,6 +40,21 @@ return static function (RoutingConfigurator $routes): void {
 };
 ```
 
+Symfony import prefixes are supported, including localized prefixes:
+
+```yaml
+zhortein_datatable:
+    resource: '@ZhorteinDatatableBundle/config/routes.php'
+    prefix:
+        en: /en
+        fr: /fr
+```
+
+Default fragments, child, export and saved-view URLs are generated from the
+named routes. They therefore retain the active locale, import prefix, base URL
+and router context. Explicit endpoint URLs configured through render options
+remain authoritative.
+
 Verify the import:
 
 ```bash
@@ -93,7 +108,6 @@ Named-view mutations add CSRF validation. Their ownership and authorization
 remain delegated to the host through the documented contracts. All named-view
 operations are denied by default. See [named saved views](saved-views.md).
 
-## Current limitations
-
-- The route prefix is not configurable.
-- Multiple route contexts, such as separate public and administration prefixes, are not built in.
+When importing the route set more than once for separate application areas,
+use distinct route-name prefixes and configure explicit endpoint URLs for each
+datatable instance.

@@ -66,7 +66,11 @@ final readonly class DatatableRenderer
      */
     public function render(DatatableDefinition $definition, array $options = []): string
     {
-        $options = $this->prepareContextOptions($definition, $this->resolveOptions($options));
+        $options = $this->prepareContextOptions(
+            $definition,
+            $this->resolveOptions($options),
+            prepareEndpoints: true,
+        );
 
         $options['filterLayout'] = $this->resolveFilterLayout($options)->value;
         $options['paginationSize'] = $this->resolvePaginationSize($options)->value;
@@ -273,8 +277,11 @@ final readonly class DatatableRenderer
      *
      * @return array<string, mixed>
      */
-    private function prepareContextOptions(DatatableDefinition $definition, array $options): array
-    {
+    private function prepareContextOptions(
+        DatatableDefinition $definition,
+        array $options,
+        bool $prepareEndpoints = false,
+    ): array {
         if (array_key_exists('context', $options)) {
             $renderContext = $options['context'];
 
@@ -331,64 +338,130 @@ final readonly class DatatableRenderer
 
             if (null !== $token) {
                 $options['contextToken'] = $token;
-                $options['fragmentsUrl'] = $this->contextTransport->appendToUrl(
-                    $this->resolveStringOption(
-                        $options,
-                        'fragmentsUrl',
-                        sprintf('/_zhortein/datatable/%s/fragments', $definition->getName()),
-                    ),
-                    $token,
-                    $instance,
-                );
-                $options['exportUrl'] = $this->contextTransport->appendToUrl(
-                    $this->resolveStringOption(
-                        $options,
-                        'exportUrl',
-                        sprintf('/_zhortein/datatable/%s/export/csv', $definition->getName()),
-                    ),
-                    $token,
-                    $instance,
-                );
-
-                $exportUrls = $options['exportUrls'] ?? [];
-
-                if (!is_array($exportUrls)) {
-                    throw new \InvalidArgumentException('The datatable render option "exportUrls" must be an array.');
-                }
-
-                $exportFormats = $options['exportFormats'] ?? ['csv'];
-
-                if (!is_array($exportFormats)) {
-                    throw new \InvalidArgumentException('The datatable render option "exportFormats" must be an array.');
-                }
-
-                foreach ($exportFormats as $format) {
-                    if (!is_string($format) || !in_array($format, ['csv', 'xlsx'], true)) {
-                        continue;
-                    }
-
-                    $formatUrl = $exportUrls[$format] ?? ('csv' === $format
-                        ? $options['exportUrl']
-                        : sprintf('/_zhortein/datatable/%s/export/%s', $definition->getName(), $format));
-
-                    if (!is_string($formatUrl)) {
-                        throw new \InvalidArgumentException(sprintf('The datatable export URL for format "%s" must be a string.', $format));
-                    }
-
-                    $exportUrls[$format] = $this->contextTransport->appendToUrl(
-                        $formatUrl,
-                        $token,
-                        $instance,
-                    );
-                }
-
-                $options['exportUrls'] = $exportUrls;
             }
+        }
+
+        if ($prepareEndpoints) {
+            $options = $this->prepareEndpointOptions(
+                $definition,
+                $options,
+                $token,
+                $instance,
+            );
         }
 
         $options = $this->prepareStateOptions($definition, $options, $token);
 
-        return $this->prepareSavedViewOptions($definition, $options, $token);
+        return $prepareEndpoints
+            ? $this->prepareSavedViewOptions($definition, $options, $token)
+            : $options;
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return array<string, mixed>
+     */
+    private function prepareEndpointOptions(
+        DatatableDefinition $definition,
+        array $options,
+        ?string $contextToken,
+        string $instance,
+    ): array {
+        $name = $definition->getName();
+        $fragmentsUrl = $this->resolveEndpointOption(
+            options: $options,
+            optionName: 'fragmentsUrl',
+            routeName: 'zhortein_datatable_fragments',
+            routeParameters: ['name' => $name],
+            fallbackUrl: sprintf('/_zhortein/datatable/%s/fragments', $name),
+        );
+        $exportUrl = $this->resolveEndpointOption(
+            options: $options,
+            optionName: 'exportUrl',
+            routeName: 'zhortein_datatable_export',
+            routeParameters: [
+                'name' => $name,
+                'format' => 'csv',
+            ],
+            fallbackUrl: sprintf('/_zhortein/datatable/%s/export/csv', $name),
+        );
+
+        $exportUrls = $options['exportUrls'] ?? [];
+
+        if (!is_array($exportUrls)) {
+            throw new \InvalidArgumentException('The datatable render option "exportUrls" must be an array.');
+        }
+
+        $exportFormats = $options['exportFormats'] ?? ['csv'];
+
+        if (!is_array($exportFormats)) {
+            throw new \InvalidArgumentException('The datatable render option "exportFormats" must be an array.');
+        }
+
+        foreach ($exportFormats as $format) {
+            if (!is_string($format) || !in_array($format, ['csv', 'xlsx'], true)) {
+                continue;
+            }
+
+            $formatUrl = $exportUrls[$format] ?? null;
+
+            if (null === $formatUrl) {
+                $formatUrl = 'csv' === $format
+                    ? $exportUrl
+                    : $this->generateEndpointUrl(
+                        routeName: 'zhortein_datatable_export',
+                        routeParameters: [
+                            'name' => $name,
+                            'format' => $format,
+                        ],
+                        fallbackUrl: sprintf('/_zhortein/datatable/%s/export/%s', $name, $format),
+                    );
+            }
+
+            if (!is_string($formatUrl)) {
+                throw new \InvalidArgumentException(sprintf('The datatable export URL for format "%s" must be a string.', $format));
+            }
+
+            $exportUrls[$format] = $formatUrl;
+        }
+
+        if (null !== $contextToken && null !== $this->contextTransport) {
+            $fragmentsUrl = $this->contextTransport->appendToUrl(
+                $fragmentsUrl,
+                $contextToken,
+                $instance,
+            );
+            $exportUrl = $this->contextTransport->appendToUrl(
+                $exportUrl,
+                $contextToken,
+                $instance,
+            );
+
+            foreach ($exportFormats as $format) {
+                if (!is_string($format) || !in_array($format, ['csv', 'xlsx'], true)) {
+                    continue;
+                }
+
+                $formatUrl = $exportUrls[$format] ?? null;
+
+                if (!is_string($formatUrl)) {
+                    throw new \LogicException(sprintf('The prepared datatable export URL for format "%s" must be a string.', $format));
+                }
+
+                $exportUrls[$format] = $this->contextTransport->appendToUrl(
+                    $formatUrl,
+                    $contextToken,
+                    $instance,
+                );
+            }
+        }
+
+        $options['fragmentsUrl'] = $fragmentsUrl;
+        $options['exportUrl'] = $exportUrl;
+        $options['exportUrls'] = $exportUrls;
+
+        return $options;
     }
 
     /**
@@ -468,10 +541,12 @@ final readonly class DatatableRenderer
         }
 
         $options['savedViewsUrl'] = $this->appendQueryParameters(
-            $this->resolveStringOption(
-                $options,
-                'savedViewsUrl',
-                sprintf('/_zhortein/datatable/%s/views', $definition->getName()),
+            $this->resolveEndpointOption(
+                options: $options,
+                optionName: 'savedViewsUrl',
+                routeName: 'zhortein_datatable_views_list',
+                routeParameters: ['name' => $definition->getName()],
+                fallbackUrl: sprintf('/_zhortein/datatable/%s/views', $definition->getName()),
             ),
             $parameters,
         );
@@ -529,6 +604,45 @@ final readonly class DatatableRenderer
         $parts = explode($separator, $value, 2);
 
         return [$parts[0], $parts[1] ?? ''];
+    }
+
+    /**
+     * @param array<string, mixed>  $options
+     * @param array<string, string> $routeParameters
+     */
+    private function resolveEndpointOption(
+        array $options,
+        string $optionName,
+        string $routeName,
+        array $routeParameters,
+        string $fallbackUrl,
+    ): string {
+        $value = $options[$optionName] ?? null;
+
+        if (null === $value) {
+            return $this->generateEndpointUrl($routeName, $routeParameters, $fallbackUrl);
+        }
+
+        if (!is_string($value)) {
+            throw new \InvalidArgumentException(sprintf('The datatable render option "%s" must be a string.', $optionName));
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param array<string, string> $routeParameters
+     */
+    private function generateEndpointUrl(
+        string $routeName,
+        array $routeParameters,
+        string $fallbackUrl,
+    ): string {
+        if (null !== $this->urlGenerator) {
+            return $this->urlGenerator->generate($routeName, $routeParameters);
+        }
+
+        return $fallbackUrl;
     }
 
     /**
