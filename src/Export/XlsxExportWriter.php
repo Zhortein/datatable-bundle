@@ -24,6 +24,7 @@ final readonly class XlsxExportWriter implements ExportWriterInterface
     public function __construct(
         private ExportableColumnResolver $columnResolver = new ExportableColumnResolver(),
         ?CellContextFactory $cellContextFactory = null,
+        private ExportColumnLabelResolver $columnLabelResolver = new ExportColumnLabelResolver(),
     ) {
         $this->cellContextFactory = $cellContextFactory ?? new CellContextFactory();
     }
@@ -55,7 +56,7 @@ final readonly class XlsxExportWriter implements ExportWriterInterface
             $columns = $this->columnResolver->resolve($request, $definition);
 
             $writer->addRow(Row::fromValues(array_map(
-                static fn (ColumnDefinition $column): string => $column->getLabel() ?? $column->getName(),
+                fn (ColumnDefinition $column): string => $this->columnLabelResolver->resolve($definition, $column),
                 $columns,
             )));
 

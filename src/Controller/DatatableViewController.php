@@ -331,7 +331,12 @@ final readonly class DatatableViewController
         DatatableView $view,
         int $status = Response::HTTP_OK,
     ): JsonResponse {
-        return $this->success(['view' => $view->toArray()], $status);
+        $payload = $view->toArray();
+        $payload['state'] = $this->stateSerializer->normalizeForTransport(
+            $view->getState()->getState(),
+        );
+
+        return $this->success(['view' => $payload], $status);
     }
 
     private function error(\Throwable $exception): JsonResponse

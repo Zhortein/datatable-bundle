@@ -36,6 +36,19 @@ final class DatatableStateUrlSerializerTest extends TestCase
         self::assertSame($state->toArray(), $restored->toArray());
     }
 
+    public function test_it_serializes_empty_map_fields_as_json_objects(): void
+    {
+        $payload = (new DatatableStateUrlSerializer())->serialize(DatatableState::create());
+        $state = json_decode($payload, false, flags: JSON_THROW_ON_ERROR);
+
+        self::assertInstanceOf(\stdClass::class, $state);
+        $values = get_object_vars($state);
+        self::assertInstanceOf(\stdClass::class, $values['filters'] ?? null);
+        self::assertInstanceOf(\stdClass::class, $values['advancedFilters'] ?? null);
+        self::assertSame([], $values['visibleColumns'] ?? null);
+        self::assertSame([], $values['hiddenColumns'] ?? null);
+    }
+
     public function test_parameter_names_are_isolated_by_datatable_instance_and_context(): void
     {
         $serializer = new DatatableStateUrlSerializer();

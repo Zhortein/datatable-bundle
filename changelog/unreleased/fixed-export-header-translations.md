@@ -1,0 +1,1 @@
+- Applied each definition translation domain and current Symfony locale to CSV and XLSX column headers.

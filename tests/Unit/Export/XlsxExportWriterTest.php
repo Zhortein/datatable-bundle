@@ -7,6 +7,8 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Export;
 use OpenSpout\Reader\XLSX\Reader;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Translation\Loader\ArrayLoader;
+use Symfony\Component\Translation\Translator;
 use Zhortein\DatatableBundle\Cell\CellContext;
 use Zhortein\DatatableBundle\Cell\CellContextFactory;
 use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
@@ -14,6 +16,7 @@ use Zhortein\DatatableBundle\Contract\CellValueResolverInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
 use Zhortein\DatatableBundle\Export\DatatableExportRequest;
+use Zhortein\DatatableBundle\Export\ExportColumnLabelResolver;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
 use Zhortein\DatatableBundle\Export\XlsxExportWriter;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
@@ -71,6 +74,40 @@ final class XlsxExportWriterTest extends TestCase
             ['Email', 'Display name', 'Enabled'],
             ['alice@example.test', 'Alice', true],
         ], $rows);
+    }
+
+    public function test_it_translates_column_headers_in_the_definition_domain(): void
+    {
+        $translator = new Translator('fr');
+        $translator->addLoader('array', new ArrayLoader());
+        $translator->addResource(
+            'array',
+            ['users.columns.email' => 'Adresse e-mail'],
+            'fr',
+            'users',
+        );
+        $definition = new DatatableDefinition('users');
+        $definition
+            ->setTranslationDomain('users')
+            ->addColumn('e.email', label: 'users.columns.email')
+        ;
+        $writer = new XlsxExportWriter(
+            columnLabelResolver: new ExportColumnLabelResolver($translator),
+        );
+
+        $response = $writer->write(
+            request: new DatatableExportRequest('users', format: ExportFormat::Xlsx),
+            definition: $definition,
+            result: new DatatableResult(
+                rows: [['e_email' => 'alice@example.test']],
+                totalItems: 1,
+            ),
+        );
+
+        self::assertSame([
+            ['Adresse e-mail'],
+            ['alice@example.test'],
+        ], $this->readXlsxRows((string) $response->getContent()));
     }
 
     public function test_it_respects_runtime_column_visibility(): void
