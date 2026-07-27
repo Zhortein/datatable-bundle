@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.9.0] - 2026-07-27
+
+### Added
+
+- Applied Doctrine metadata type enrichment in the normal datatable definition flow, including explicitly declared mapped, chained and custom joins.
+
 ## [1.8.1] - 2026-07-27
 
 ### Fixed
