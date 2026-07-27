@@ -8,6 +8,7 @@ use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Filter\Expression\ComparisonOperator;
 use Zhortein\DatatableBundle\Filter\Expression\OperatorCompatibility;
+use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 
 final readonly class AdvancedFilterFieldDefinition
 {
@@ -26,10 +27,13 @@ final readonly class AdvancedFilterFieldDefinition
      */
     private array $normalizedAllowedOperators;
 
+    private bool $explicitChoices;
+
     /**
      * @param list<FilterOperator|ComparisonOperator> $allowedOperators
      * @param array<string, string>                   $choices
      * @param class-string<\BackedEnum>|null          $enumClass
+     * @param array<int|string, EnumPresentation>     $enumPresentations
      */
     public function __construct(
         private string $name,
@@ -40,6 +44,7 @@ final readonly class AdvancedFilterFieldDefinition
         array $choices = [],
         ?string $enumClass = null,
         private bool $nullable = false,
+        private array $enumPresentations = [],
     ) {
         if ('' === trim($this->name)) {
             throw new \InvalidArgumentException('The advanced filter field name cannot be empty.');
@@ -53,11 +58,19 @@ final readonly class AdvancedFilterFieldDefinition
 
         $this->resolvedEnumClass = $this->resolveEnumClass($enumClass);
 
-        if ([] === $choices && null !== $this->resolvedEnumClass) {
+        $this->explicitChoices = [] !== $choices;
+
+        if (!$this->explicitChoices && null !== $this->resolvedEnumClass) {
             $choices = $this->deriveChoicesFromEnum($this->resolvedEnumClass);
         }
 
         $this->resolvedChoices = $choices;
+
+        foreach ($this->enumPresentations as $presentation) {
+            if (!$presentation instanceof EnumPresentation) {
+                throw new \InvalidArgumentException('Enum presentations must contain EnumPresentation instances.');
+            }
+        }
     }
 
     public function getName(): string
@@ -101,6 +114,11 @@ final readonly class AdvancedFilterFieldDefinition
         return $this->resolvedChoices;
     }
 
+    public function hasExplicitChoices(): bool
+    {
+        return $this->explicitChoices;
+    }
+
     /**
      * @return class-string<\BackedEnum>|null
      */
@@ -112,6 +130,14 @@ final readonly class AdvancedFilterFieldDefinition
     public function isNullable(): bool
     {
         return $this->nullable;
+    }
+
+    /**
+     * @return array<int|string, EnumPresentation>
+     */
+    public function getEnumPresentations(): array
+    {
+        return $this->enumPresentations;
     }
 
     /**

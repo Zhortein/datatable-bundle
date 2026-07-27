@@ -60,6 +60,7 @@ Applications may implement or decorate these contracts:
 - `Contract\ChildDatatableAuthorizationCheckerInterface`;
 - `Contract\DataProviderInterface`;
 - `Contract\ExportWriterInterface`;
+- `Contract\EnumPresentationResolverInterface`;
 - `Contract\IconResolverInterface`;
 - `DateTime\DateTimeFormatterInterface`;
 - `Action\ActionVisibilityCheckerInterface`;
@@ -73,6 +74,7 @@ Objects appearing in those signatures are part of the supported API:
 - `Cell\CellContext`;
 - `Action\ActionVisibilityContext`;
 - `Export\DatatableExportRequest`;
+- `EnumPresentation\EnumPresentation`;
 - `Preference\DatatablePreference`;
 - `Request\DatatableRequest`;
 - `Result\DatatableResult`;
@@ -108,6 +110,11 @@ of its first criterion. Payloads without `sorts` remain accepted throughout the
 computed values](cell-context.md). Resolver services are shared by Twig and
 export writers. Export headers follow the definition translation domain and
 current Symfony locale, matching rendered column labels.
+
+Enum presentation metadata declared on columns and filters is resolved at
+render/export time through `EnumPresentationResolverInterface`.
+`EnumPresentation` and the default fallback order are documented in [enum
+presentation](enum-presentation.md).
 
 Doctrine-backed definitions are enriched from ORM metadata before they reach
 rendering, requests or exports. Inference covers the main entity and explicitly
@@ -163,7 +170,7 @@ The following names are stable in 1.x:
 | Service tags | `zhortein_datatable.datatable`, `zhortein_datatable.data_provider`, `zhortein_datatable.export_writer`, `zhortein_datatable.cell_value_resolver` |
 | Routes | `zhortein_datatable_fragments`, `zhortein_datatable_child`, `zhortein_datatable_export` |
 | Named-view routes | `zhortein_datatable_views_list`, `zhortein_datatable_views_create`, `zhortein_datatable_views_load`, `zhortein_datatable_views_mutate`, `zhortein_datatable_views_delete` |
-| Twig | `zhortein_datatable()`, `zhortein_datatable_translate()` |
+| Twig | `zhortein_datatable()`, `zhortein_datatable_translate()`, `zhortein_datatable_enum_choices()` |
 | Stimulus | `zhortein--datatable-bundle--datatable` |
 | Ajax action events | `zhortein-datatable:action:before`, `zhortein-datatable:action:success`, `zhortein-datatable:action:error`, `zhortein-datatable:action:complete` |
 | State events | `zhortein-datatable:state:change`, `zhortein-datatable:state:restore` |

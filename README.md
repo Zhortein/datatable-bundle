@@ -26,6 +26,7 @@ A Symfony 8+ bundle for Bootstrap-first business datatables driven by PHP defini
 - **Exports**: Server-side CSV and optional XLSX exports.
 - **Customization**: Flexible UI/UX customization via Twig blocks and themes.
 - **Type Safety**: Automatic Doctrine type detection and typed cell rendering.
+- **Rich Enums**: Localized enum labels with optional badges, colors and icons, shared by filters and exports.
 - **Rich Cells**: Complete server-side cell context and reusable computed values shared with exports.
 - **Hierarchical Tables**: Accessible lazy child datatables with signed context, isolated state, and independent providers.
 
@@ -97,6 +98,7 @@ final class UserDatatable implements DatatableInterface
 - [Doctrine Provider](docs/doctrine-provider.md)
 - [Filters](docs/filters.md)
 - [Advanced Filters](docs/advanced-filters.md)
+- [Enum Presentation](docs/enum-presentation.md)
 - [Multi-column Sorting](docs/sorting.md)
 - [URL State & Browser History](docs/url-state.md)
 - [Named Saved Views](docs/saved-views.md)

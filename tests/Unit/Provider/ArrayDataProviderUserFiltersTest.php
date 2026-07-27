@@ -51,6 +51,26 @@ final class ArrayDataProviderUserFiltersTest extends TestCase
         self::assertSame(1, $result->getFilteredItems());
     }
 
+    public function test_it_applies_enum_filter_to_enum_instances(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition
+            ->addColumn('status', enumClass: ArrayStatus::class)
+            ->addFilter('status', 'status', enumClass: ArrayStatus::class)
+            ->setOption(ArrayDataProvider::OPTION_ROWS, [
+                ['status' => ArrayStatus::Enabled],
+                ['status' => ArrayStatus::Disabled],
+            ])
+        ;
+
+        $result = new ArrayDataProvider()->getData(
+            $definition,
+            DatatableRequest::create(filters: ['status' => 'enabled']),
+        );
+
+        self::assertSame([ArrayStatus::Enabled], array_column($result->getRows(), 'status'));
+    }
+
     public function test_it_ignores_unknown_filters(): void
     {
         $result = new ArrayDataProvider()->getData(
@@ -104,4 +124,10 @@ final class ArrayDataProviderUserFiltersTest extends TestCase
 
         return $definition;
     }
+}
+
+enum ArrayStatus: string
+{
+    case Enabled = 'enabled';
+    case Disabled = 'disabled';
 }

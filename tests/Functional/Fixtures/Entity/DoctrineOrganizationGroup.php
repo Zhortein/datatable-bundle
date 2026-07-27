@@ -17,6 +17,8 @@ class DoctrineOrganizationGroup
     public function __construct(
         #[ORM\Column(type: 'string', length: 120)]
         private string $name,
+        #[ORM\Column(type: 'string', enumType: DoctrineUserStatus::class)]
+        private DoctrineUserStatus $status = DoctrineUserStatus::Active,
     ) {
     }
 
@@ -28,5 +30,10 @@ class DoctrineOrganizationGroup
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getStatus(): DoctrineUserStatus
+    {
+        return $this->status;
     }
 }

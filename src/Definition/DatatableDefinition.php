@@ -11,6 +11,7 @@ use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Enum\JoinType;
 use Zhortein\DatatableBundle\Filter\Expression\ComparisonOperator;
+use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 
 final class DatatableDefinition
 {
@@ -164,6 +165,10 @@ final class DatatableDefinition
         return $this->childDatatable;
     }
 
+    /**
+     * @param class-string<\UnitEnum>|null         $enumClass
+     * @param array<int|string, EnumPresentation> $enumPresentations
+     */
     public function addColumn(
         string $name,
         ?string $label = null,
@@ -175,7 +180,11 @@ final class DatatableDefinition
         ?string $type = null,
         bool $negate = false,
         ?bool $exportable = null,
+        ?string $enumClass = null,
+        array $enumPresentations = [],
     ): self {
+        $type ??= null !== $enumClass ? 'enum' : null;
+
         $this->columns[$name] = new ColumnDefinition(
             name: $name,
             label: $label,
@@ -187,6 +196,8 @@ final class DatatableDefinition
             type: $type,
             negate: $negate,
             exportable: $exportable,
+            enumClass: $enumClass,
+            enumPresentations: $enumPresentations,
         );
 
         return $this;
@@ -199,6 +210,10 @@ final class DatatableDefinition
         return $this;
     }
 
+    /**
+     * @param class-string<\UnitEnum>|null         $enumClass
+     * @param array<int|string, EnumPresentation> $enumPresentations
+     */
     public function addComputedColumn(
         string $name,
         string $valueResolver,
@@ -209,7 +224,11 @@ final class DatatableDefinition
         ?string $type = null,
         bool $negate = false,
         ?bool $exportable = null,
+        ?string $enumClass = null,
+        array $enumPresentations = [],
     ): self {
+        $type ??= null !== $enumClass ? 'enum' : null;
+
         $this->columns[$name] = new ColumnDefinition(
             name: $name,
             label: $label,
@@ -222,6 +241,8 @@ final class DatatableDefinition
             negate: $negate,
             exportable: $exportable,
             valueResolver: $valueResolver,
+            enumClass: $enumClass,
+            enumPresentations: $enumPresentations,
         );
 
         return $this;
@@ -238,6 +259,8 @@ final class DatatableDefinition
     /**
      * @param array<string, string> $choices
      * @param array<string, mixed>  $options
+     * @param class-string<\UnitEnum>|null $enumClass
+     * @param array<int|string, EnumPresentation> $enumPresentations
      */
     public function addFilter(
         string $name,
@@ -248,7 +271,13 @@ final class DatatableDefinition
         ?string $placeholder = null,
         bool $required = false,
         array $options = [],
+        ?string $enumClass = null,
+        array $enumPresentations = [],
     ): self {
+        if (null !== $enumClass && FilterType::Text === $type) {
+            $type = FilterType::Enum;
+        }
+
         $this->filters[$name] = new UserFilterDefinition(
             name: $name,
             field: $field,
@@ -258,6 +287,8 @@ final class DatatableDefinition
             placeholder: $placeholder,
             required: $required,
             options: $options,
+            enumClass: $enumClass,
+            enumPresentations: $enumPresentations,
         );
 
         return $this;
@@ -549,6 +580,7 @@ final class DatatableDefinition
      * @param list<FilterOperator|ComparisonOperator> $allowedOperators
      * @param array<string, string>                   $choices
      * @param class-string<\BackedEnum>|null          $enumClass
+     * @param array<int|string, EnumPresentation>     $enumPresentations
      */
     public function addAdvancedFilterField(
         string $name,
@@ -559,6 +591,7 @@ final class DatatableDefinition
         array $choices = [],
         ?string $enumClass = null,
         bool $nullable = false,
+        array $enumPresentations = [],
     ): self {
         if (null !== $enumClass && FilterType::Text === $type) {
             $type = FilterType::Enum;
@@ -573,6 +606,7 @@ final class DatatableDefinition
             choices: $choices,
             enumClass: $enumClass,
             nullable: $nullable,
+            enumPresentations: $enumPresentations,
         );
 
         return $this;

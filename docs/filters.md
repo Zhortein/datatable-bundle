@@ -7,7 +7,7 @@ The bundle distinguishes between **permanent filters** (backend-defined, non-rem
 ## Status
 
 Currently implemented:
--   **Types**: Text, Choice, Boolean, Date, Date Range, Number, Number Range.
+-   **Types**: Text, Choice, Enum, Boolean, Date, Date Range, Number, Number Range.
 -   **Layouts**: Toolbar (default) and Column Header Dropdowns.
 -   **Features**: Active filter summary, clear filters action, Stimulus-powered refresh with debouncing.
 -   **Advanced Filters**: [Advanced search builder](advanced-filters.md) for complex `AND`/`OR` logic.
@@ -45,6 +45,8 @@ $definition->addFilter(
 | `choices` | Label-to-value map for `Choice` filters. Labels are translated when the definition has a translation domain. |
 | `placeholder` | Placeholder text or translation key for the input or empty option. |
 | `required` | Adds HTML `required` attribute. |
+| `enumClass` | Optional backed or pure enum class. It selects `FilterType::Enum` and derives choices when `choices` is empty. |
+| `enumPresentations` | Optional rich presentation map shared with cells, advanced filters and exports. |
 
 When the definition calls `setTranslationDomain()`, filter labels,
 placeholders and choice labels are resolved in that domain during every render.
@@ -56,9 +58,14 @@ Without a domain, they remain literal. See
 ### Text
 Applies `LOWER(field) LIKE :value` (case-insensitive) in Doctrine.
 
-### Choice / Boolean
-Choice renders a `<select>`. Boolean renders a `<select>` with Yes/No. 
+### Choice / Enum / Boolean
+Choice and Enum render a `<select>`. Enum choices use backed values or pure
+case names and share translated labels with enum cells and exports. Explicit
+`choices` remain authoritative. Boolean renders a `<select>` with Yes/No.
 Doctrine applies equality for scalars or `IN` for arrays.
+
+See [enum presentation](enum-presentation.md) for rich labels, badges and custom
+resolvers.
 
 ### Date / Date Range
 Date interprets a single date as a full-day range. Date range provides `from` and `to` inputs.

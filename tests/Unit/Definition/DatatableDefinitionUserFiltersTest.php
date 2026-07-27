@@ -70,4 +70,23 @@ final class DatatableDefinitionUserFiltersTest extends TestCase
         self::assertSame('e.secondaryEmail', $filters['email']->getField());
         self::assertSame('Secondary email', $filters['email']->getLabel());
     }
+
+    public function test_enum_class_enables_enum_column_and_filter_types(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition
+            ->addColumn('status', enumClass: DefinitionStatus::class)
+            ->addFilter('status', 'status', enumClass: DefinitionStatus::class)
+        ;
+
+        self::assertSame('enum', $definition->getColumns()['status']->getType());
+        self::assertSame(DefinitionStatus::class, $definition->getColumns()['status']->getEnumClass());
+        self::assertSame(FilterType::Enum, $definition->getFilters()['status']->getType());
+        self::assertSame(DefinitionStatus::class, $definition->getFilters()['status']->getEnumClass());
+    }
+}
+
+enum DefinitionStatus: string
+{
+    case Active = 'active';
 }

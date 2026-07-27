@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Contract\EnumPresentationResolverInterface;
+use Zhortein\DatatableBundle\EnumPresentation\DefaultEnumPresentationResolver;
+use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
@@ -71,6 +74,93 @@ final class DatatableRendererTypedCellsTest extends TestCase
         self::assertStringContainsString('Fallback', $html);
     }
 
+    public function test_it_renders_a_translated_rich_enum_presentation(): void
+    {
+        $loader = new FilesystemLoader();
+        $loader->addPath(__DIR__.'/../../../templates', 'ZhorteinDatatable');
+        $twig = new Environment($loader, [
+            'strict_variables' => true,
+            'autoescape' => 'html',
+        ]);
+        $translator = $this->addTranslationExtension($twig, 'fr');
+        $translator->addResource('array', ['status.active' => 'Actif'], 'fr', 'users');
+        $definition = new DatatableDefinition('users');
+        $definition
+            ->setTranslationDomain('users')
+            ->addColumn(
+                name: 'status',
+                type: 'enum',
+                enumClass: RendererStatus::class,
+                enumPresentations: [
+                    RendererStatus::Active->value => new EnumPresentation(
+                        label: 'status.active',
+                        badgeVariant: 'success',
+                        icon: 'bi bi-check-circle',
+                    ),
+                ],
+            )
+        ;
+        $renderer = new DatatableRenderer(
+            $twig,
+            enumPresentationResolver: new DefaultEnumPresentationResolver($translator),
+        );
+
+        $html = $renderer->renderBody(
+            $definition,
+            new DatatableResult(
+                rows: [['status' => RendererStatus::Active]],
+                totalItems: 1,
+            ),
+        );
+
+        self::assertStringContainsString('text-bg-success', $html);
+        self::assertStringContainsString('bi bi-check-circle', $html);
+        self::assertStringContainsString('Actif', $html);
+        self::assertStringNotContainsString('status.active', $html);
+    }
+
+    public function test_it_uses_a_custom_enum_presentation_resolver(): void
+    {
+        $resolver = new class implements EnumPresentationResolverInterface {
+            public function resolve(
+                mixed $value,
+                ?string $enumClass = null,
+                array $presentations = [],
+                ?string $translationDomain = null,
+            ): ?EnumPresentation {
+                return new EnumPresentation('Resolved by the application');
+            }
+
+            public function resolveChoices(
+                string $enumClass,
+                array $presentations = [],
+                ?string $translationDomain = null,
+            ): array {
+                return ['Resolved by the application' => 'active'];
+            }
+        };
+        $definition = new DatatableDefinition('users');
+        $definition->addColumn(
+            name: 'status',
+            type: 'enum',
+            enumClass: RendererStatus::class,
+        );
+        $renderer = new DatatableRenderer(
+            $this->createTwigEnvironment(),
+            enumPresentationResolver: $resolver,
+        );
+
+        $html = $renderer->renderBody(
+            $definition,
+            new DatatableResult(
+                rows: [['status' => RendererStatus::Active]],
+                totalItems: 1,
+            ),
+        );
+
+        self::assertStringContainsString('Resolved by the application', $html);
+    }
+
     private function renderSingleColumn(string $type, mixed $value): string
     {
         $definition = new DatatableDefinition('users');
@@ -109,4 +199,9 @@ final class DatatableRendererTypedCellsTest extends TestCase
 
         return $twig;
     }
+}
+
+enum RendererStatus: string
+{
+    case Active = 'active';
 }

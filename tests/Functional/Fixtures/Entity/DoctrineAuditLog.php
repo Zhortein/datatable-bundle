@@ -21,6 +21,8 @@ class DoctrineAuditLog
         private int $objectId,
         #[ORM\Column(type: 'string', length: 120)]
         private string $eventName,
+        #[ORM\Column(type: 'string', enumType: DoctrineUserStatus::class)]
+        private DoctrineUserStatus $status = DoctrineUserStatus::Active,
     ) {
     }
 
@@ -42,5 +44,10 @@ class DoctrineAuditLog
     public function getEventName(): string
     {
         return $this->eventName;
+    }
+
+    public function getStatus(): DoctrineUserStatus
+    {
+        return $this->status;
     }
 }

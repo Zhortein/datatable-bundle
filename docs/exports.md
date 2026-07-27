@@ -172,6 +172,11 @@ Twig templates are never written into export files. The resolver's return
 value is normalized by the selected writer. Existing boolean `negate` remains
 a display-only modifier.
 
+Enum columns are resolved through the same locale-aware presentation contract
+as Twig cells and filters. CSV/XLSX receive only the final human-readable
+label; badge, color and icon markup never enters an export. See [enum
+presentation](enum-presentation.md).
+
 See [Cell Context and Computed Values](cell-context.md) for the resolver
 contract and [the complete example](examples/computed-cell.md).
 

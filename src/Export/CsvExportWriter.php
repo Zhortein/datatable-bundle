@@ -7,9 +7,11 @@ namespace Zhortein\DatatableBundle\Export;
 use Symfony\Component\HttpFoundation\Response;
 use Zhortein\DatatableBundle\Cell\CellContextFactory;
 use Zhortein\DatatableBundle\Contract\ExportWriterInterface;
+use Zhortein\DatatableBundle\Contract\EnumPresentationResolverInterface;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
+use Zhortein\DatatableBundle\EnumPresentation\DefaultEnumPresentationResolver;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
 final readonly class CsvExportWriter implements ExportWriterInterface
@@ -17,6 +19,8 @@ final readonly class CsvExportWriter implements ExportWriterInterface
     public const string WRITER_NAME = 'csv';
 
     private CellContextFactory $cellContextFactory;
+
+    private EnumPresentationResolverInterface $enumPresentationResolver;
 
     public function __construct(
         private string $delimiter = ',',
@@ -26,6 +30,7 @@ final readonly class CsvExportWriter implements ExportWriterInterface
         private ExportableColumnResolver $columnResolver = new ExportableColumnResolver(),
         ?CellContextFactory $cellContextFactory = null,
         private ExportColumnLabelResolver $columnLabelResolver = new ExportColumnLabelResolver(),
+        ?EnumPresentationResolverInterface $enumPresentationResolver = null,
     ) {
         if (1 !== strlen($this->delimiter)) {
             throw new \InvalidArgumentException('The CSV delimiter must be exactly one character.');
@@ -40,6 +45,7 @@ final readonly class CsvExportWriter implements ExportWriterInterface
         }
 
         $this->cellContextFactory = $cellContextFactory ?? new CellContextFactory();
+        $this->enumPresentationResolver = $enumPresentationResolver ?? new DefaultEnumPresentationResolver();
     }
 
     public function supports(ExportFormat $format): bool
@@ -121,11 +127,26 @@ final readonly class CsvExportWriter implements ExportWriterInterface
         $values = [];
 
         foreach ($columns as $column) {
-            $values[] = $this->normalizeValue(
-                $this->cellContextFactory
-                    ->create($definition, $column, $row, $source)
-                    ->getValue(),
-            );
+            $value = $this->cellContextFactory
+                ->create($definition, $column, $row, $source)
+                ->getValue();
+
+            if ('enum' === $column->getType() || null !== $column->getEnumClass()) {
+                $presentation = $this->enumPresentationResolver->resolve(
+                    value: $value,
+                    enumClass: $column->getEnumClass(),
+                    presentations: $column->getEnumPresentations(),
+                    translationDomain: $definition->getTranslationDomain(),
+                );
+
+                if (null !== $presentation) {
+                    $values[] = $presentation->getLabel();
+
+                    continue;
+                }
+            }
+
+            $values[] = $this->normalizeValue($value);
         }
 
         return $values;

@@ -13,11 +13,11 @@ Currently implemented:
 -   **Variants**: Runtime Bootstrap table options (striped, hover, bordered, etc.).
 -   **Boolean Display Modes**: Configurable rendering for boolean columns (`badge`, `icon`, `switch`, `text`).
 -   **Boolean Negation**: Per-column inversion of rendered boolean values.
+-   **Enum Presentation**: Localized labels with optional Bootstrap badges, custom colors and icons.
 -   **Icons**: Extensible `IconResolver` for common UI elements (sort, filter, export, actions).
 
 Not implemented yet:
 -   Tailwind or other built-in themes.
--   Rich enum badges/icons by default.
 
 ## Template Override Strategy
 
@@ -77,6 +77,7 @@ Available variables: `definition`, `visibleColumns`, `rowActions`, `globalAction
 -   `datatable`: Current `DatatableDefinition`.
 -   `datatable_context`: Explicit server-side `DatatableContext`.
 -   `boolean_display_mode`, `boolean_true_icon`, `boolean_false_icon`: Resolved typed-cell rendering options.
+-   `enum_presentation`: Resolved `EnumPresentation` metadata for enum cells, or `null`.
 
 The bundle never serializes these objects into browser attributes or JSON.
 See [Cell Context and Computed Values](cell-context.md) for provider
@@ -129,4 +130,5 @@ Or override them at runtime:
 - [UI/UX Rendering](ui-ux.md)
 - [Actions and Security](actions.md)
 - [Cell Context and Computed Values](cell-context.md)
+- [Enum Presentation](enum-presentation.md)
 - [Architecture](architecture/overview.md)

@@ -26,6 +26,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 - [Icon System](icons.md): Unified icon strategy and configuration.
 - [Theming and Templates](theming.md): Customizing the look, icon strategies, and template overrides.
 - [Cell Context and Computed Values](cell-context.md): Rich server-side cells, provider sources and export-safe resolvers.
+- [Enum Presentation](enum-presentation.md): Localized labels, badges, filter choices and export-safe enum metadata.
 - [Server-side Exports](exports.md): CSV and XLSX data exports.
 
 ## Technical Architecture

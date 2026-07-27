@@ -251,8 +251,32 @@ final readonly class ArrayDataProvider implements DataProviderInterface
 
     private function matchesChoiceFilter(mixed $rowValue, mixed $filterValue): bool
     {
+        if ($rowValue instanceof \BackedEnum) {
+            $rowValue = $rowValue->value;
+        } elseif ($rowValue instanceof \UnitEnum) {
+            $rowValue = $rowValue->name;
+        }
+
         if (is_array($filterValue)) {
-            return in_array($rowValue, $filterValue, true);
+            if (!is_scalar($rowValue)) {
+                return false;
+            }
+
+            $normalizedValues = [];
+
+            foreach ($filterValue as $value) {
+                if ($value instanceof \BackedEnum) {
+                    $value = $value->value;
+                } elseif ($value instanceof \UnitEnum) {
+                    $value = $value->name;
+                }
+
+                if (is_scalar($value)) {
+                    $normalizedValues[] = (string) $value;
+                }
+            }
+
+            return in_array((string) $rowValue, $normalizedValues, true);
         }
 
         return $rowValue === $filterValue || (is_scalar($rowValue) && is_scalar($filterValue) && (string) $rowValue === (string) $filterValue);
