@@ -11,15 +11,18 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Zhortein\DatatableBundle\Cell\CellContextFactory;
 use Zhortein\DatatableBundle\Contract\EnumPresentationResolverInterface;
+use Zhortein\DatatableBundle\Contract\ExportArtifactWriterInterface;
 use Zhortein\DatatableBundle\Contract\ExportWriterInterface;
 use Zhortein\DatatableBundle\Contract\StreamingExportWriterInterface;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
 use Zhortein\DatatableBundle\EnumPresentation\DefaultEnumPresentationResolver;
+use Zhortein\DatatableBundle\Exception\ExportException;
+use Zhortein\DatatableBundle\Export\Job\ExportArtifact;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
-final readonly class XlsxExportWriter implements ExportWriterInterface, StreamingExportWriterInterface
+final readonly class XlsxExportWriter implements ExportWriterInterface, StreamingExportWriterInterface, ExportArtifactWriterInterface
 {
     public const string WRITER_NAME = 'xlsx';
 
@@ -204,6 +207,74 @@ final readonly class XlsxExportWriter implements ExportWriterInterface, Streamin
                 'Content-Disposition' => sprintf('attachment; filename="%s"', $request->getFilename()),
             ],
         );
+    }
+
+    public function writeArtifact(
+        DatatableExportRequest $request,
+        DatatableDefinition $definition,
+        iterable $rows,
+        ExportStreamContext $context,
+    ): ExportArtifact {
+        if (!class_exists(Writer::class)) {
+            throw new \RuntimeException('XLSX export requires the optional "openspout/openspout" package.');
+        }
+
+        $temporaryFile = tempnam(sys_get_temp_dir(), 'zhortein_datatable_xlsx_');
+
+        if (false === $temporaryFile) {
+            throw new \RuntimeException('Unable to create temporary XLSX file.');
+        }
+
+        $writer = null;
+
+        try {
+            $writer = new Writer();
+            $writer->openToFile($temporaryFile);
+
+            $columns = $this->columnResolver->resolve($request, $definition);
+
+            $writer->addRow(Row::fromValues(array_map(
+                fn (ColumnDefinition $column): string => $this->columnLabelResolver->resolve($definition, $column),
+                $columns,
+            )));
+
+            foreach ($rows as $row) {
+                if ($context->isCancelled()) {
+                    throw new ExportException('The background XLSX export was cancelled.');
+                }
+
+                $writer->addRow(new Row(array_map(
+                    static fn (mixed $value): Cell => Cell::fromValue($value),
+                    $this->normalizeRow(
+                        definition: $definition,
+                        columns: $columns,
+                        row: $row->getValues(),
+                        source: $row->getSource(),
+                    ),
+                )));
+            }
+
+            $writer->close();
+            $writer = null;
+
+            return new ExportArtifact(
+                path: $temporaryFile,
+                filename: $request->getFilename(),
+                contentType: ExportFormat::Xlsx->getContentType(),
+            );
+        } catch (\Throwable $exception) {
+            if ($writer instanceof Writer) {
+                try {
+                    $writer->close();
+                } catch (\Throwable) {
+                    // Preserve the exception that interrupted generation.
+                }
+            }
+
+            @unlink($temporaryFile);
+
+            throw $exception;
+        }
     }
 
     /**

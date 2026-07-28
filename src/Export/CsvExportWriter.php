@@ -8,15 +8,18 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Zhortein\DatatableBundle\Cell\CellContextFactory;
 use Zhortein\DatatableBundle\Contract\EnumPresentationResolverInterface;
+use Zhortein\DatatableBundle\Contract\ExportArtifactWriterInterface;
 use Zhortein\DatatableBundle\Contract\ExportWriterInterface;
 use Zhortein\DatatableBundle\Contract\StreamingExportWriterInterface;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
 use Zhortein\DatatableBundle\EnumPresentation\DefaultEnumPresentationResolver;
+use Zhortein\DatatableBundle\Exception\ExportException;
+use Zhortein\DatatableBundle\Export\Job\ExportArtifact;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
-final readonly class CsvExportWriter implements ExportWriterInterface, StreamingExportWriterInterface
+final readonly class CsvExportWriter implements ExportWriterInterface, StreamingExportWriterInterface, ExportArtifactWriterInterface
 {
     public const string WRITER_NAME = 'csv';
 
@@ -126,6 +129,66 @@ final readonly class CsvExportWriter implements ExportWriterInterface, Streaming
                 'Content-Type' => ExportFormat::Csv->getContentType(),
                 'Content-Disposition' => sprintf('attachment; filename="%s"', $request->getFilename()),
             ],
+        );
+    }
+
+    public function writeArtifact(
+        DatatableExportRequest $request,
+        DatatableDefinition $definition,
+        iterable $rows,
+        ExportStreamContext $context,
+    ): ExportArtifact {
+        $temporaryFile = tempnam(sys_get_temp_dir(), 'zhortein_datatable_csv_');
+
+        if (false === $temporaryFile) {
+            throw new \RuntimeException('Unable to create temporary CSV file.');
+        }
+
+        $handle = fopen($temporaryFile, 'wb');
+
+        if (false === $handle) {
+            @unlink($temporaryFile);
+
+            throw new \RuntimeException('Unable to open the temporary CSV file.');
+        }
+
+        try {
+            if ($this->withBom) {
+                fwrite($handle, "\xEF\xBB\xBF");
+            }
+
+            $columns = $this->columnResolver->resolve($request, $definition);
+
+            $this->writeRow($handle, array_map(
+                fn (ColumnDefinition $column): string => $this->columnLabelResolver->resolve($definition, $column),
+                $columns,
+            ));
+
+            foreach ($rows as $row) {
+                if ($context->isCancelled()) {
+                    throw new ExportException('The background CSV export was cancelled.');
+                }
+
+                $this->writeRow($handle, $this->normalizeRow(
+                    definition: $definition,
+                    columns: $columns,
+                    row: $row->getValues(),
+                    source: $row->getSource(),
+                ));
+            }
+        } catch (\Throwable $exception) {
+            fclose($handle);
+            @unlink($temporaryFile);
+
+            throw $exception;
+        }
+
+        fclose($handle);
+
+        return new ExportArtifact(
+            path: $temporaryFile,
+            filename: $request->getFilename(),
+            contentType: ExportFormat::Csv->getContentType(),
         );
     }
 

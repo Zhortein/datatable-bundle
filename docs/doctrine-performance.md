@@ -278,7 +278,7 @@ Performance guidance:
 
 - keep row limits aligned with synchronous HTTP timeouts;
 - prefer filters before exporting;
-- use future async exports for jobs that should outlive the HTTP request;
+- use [asynchronous exports](async-exports.md) for jobs that should outlive the HTTP request;
 - keep selected export columns minimal;
 - use indexes for active filters and sort fields.
 

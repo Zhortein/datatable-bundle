@@ -99,6 +99,40 @@ final class DatatableRoutesFunctionalTest extends FunctionalTestCase
         );
     }
 
+    public function test_background_export_job_routes_are_registered(): void
+    {
+        self::bootKernel();
+
+        $router = self::getContainer()->get(RouterInterface::class);
+
+        self::assertInstanceOf(RouterInterface::class, $router);
+        $routes = $router->getRouteCollection();
+
+        self::assertSame(
+            ['POST'],
+            $routes->get('zhortein_datatable_export_job_submit')?->getMethods(),
+        );
+        self::assertSame(
+            '/_zhortein/datatable/users/export-jobs',
+            $router->generate('zhortein_datatable_export_job_submit', [
+                'name' => 'users',
+                'format' => 'csv',
+            ]),
+        );
+        self::assertSame(
+            '/_zhortein/datatable/export-jobs/job_1234567890abcdef',
+            $router->generate('zhortein_datatable_export_job_status', [
+                'jobIdentifier' => 'job_1234567890abcdef',
+            ]),
+        );
+        self::assertSame(
+            '/_zhortein/datatable/export-jobs/job_1234567890abcdef/download',
+            $router->generate('zhortein_datatable_export_job_download', [
+                'jobIdentifier' => 'job_1234567890abcdef',
+            ]),
+        );
+    }
+
     public function test_named_view_routes_are_registered(): void
     {
         self::bootKernel();

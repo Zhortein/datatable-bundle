@@ -12,9 +12,9 @@ Currently implemented:
 -   **Features**: Toolbar export dropdown, custom export URLs, and per-column export policies.
 -   **Safeguards**: Server-side row limits, provider preflight counting and a replaceable authorization checker.
 -   **Streaming**: Bounded Doctrine batches, direct CSV output and incremental OpenSpout XLSX generation.
+-   **Background jobs**: Optional storage-agnostic CSV/XLSX jobs with Messenger integration.
 
 Not implemented yet:
--   Asynchronous/Background exports.
 -   Export progress UI.
 
 ## Export Formats
@@ -251,7 +251,7 @@ HTTP runtime boundary.
 -   Encourage users to apply filters before performing a "full" export.
 -   Keep the number of exported columns to a minimum.
 -   Keep synchronous limits aligned with request timeouts, even though memory is bounded.
--   For millions of rows or long-running remote sources, use the planned asynchronous export jobs.
+-   For long-running remote sources, enable [asynchronous export jobs](async-exports.md) and configure a persistent repository/result storage.
 
 ## Customization
 
