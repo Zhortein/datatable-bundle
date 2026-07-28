@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.12.0] - 2026-07-28
+
+### Added
+
+- Added additive streaming provider and writer contracts, bounded Doctrine batches, direct CSV output, incremental OpenSpout XLSX generation, cancellation support and configurable export batch sizes.
+
 ## [1.11.0] - 2026-07-27
 
 ### Added
