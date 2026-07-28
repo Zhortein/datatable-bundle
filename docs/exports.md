@@ -11,11 +11,11 @@ Currently implemented:
     -   `full`: Exports the entire filtered dataset (pagination disabled).
 -   **Features**: Toolbar export dropdown, custom export URLs, and per-column export policies.
 -   **Safeguards**: Server-side row limits, provider preflight counting and a replaceable authorization checker.
+-   **Streaming**: Bounded Doctrine batches, direct CSV output and incremental OpenSpout XLSX generation.
 
 Not implemented yet:
 -   Asynchronous/Background exports.
 -   Export progress UI.
--   Streamed Doctrine iterators (currently loads full result set into memory).
 
 ## Export Formats
 
@@ -91,7 +91,9 @@ for custom-route compatibility. See [multi-column sorting](sorting.md).
 
 ## Performance and Memory Constraints
 
-The current implementation is **synchronous**. The data is loaded into memory before being written to the response.
+Exports remain synchronous HTTP operations, but the built-in Doctrine provider
+and CSV/XLSX writers use an additive bounded-memory pipeline. The controller
+never materializes the complete streamed dataset.
 
 ### Export row limits
 
@@ -101,6 +103,7 @@ The bundle defaults to a maximum of 10,000 rows per synchronous export:
 zhortein_datatable:
     export:
         max_rows: 10000
+        batch_size: 500
         format_limits:
             csv: 10000
             xlsx: 5000
@@ -150,11 +153,105 @@ search, simple filters and advanced filters. Providers without this capability
 receive HTTP `422` before `getData()` is called; the bundle will not load a
 full dataset merely to discover its size.
 
+### Streaming capabilities
+
+Streaming is selected only when both the provider and writer expose the
+additive capabilities:
+
+- `StreamingDataProviderInterface`;
+- `StreamingExportWriterInterface`.
+
+`DataProviderInterface`, `ExportWriterInterface` and their existing signatures
+are unchanged. If either capability is absent, the controller uses the
+historical `DatatableResult` path. This keeps custom 1.x providers and writers
+compatible. The built-in Array provider deliberately uses this fallback
+because its source dataset is already an in-memory array.
+
+The Doctrine provider fetches scalar projections in bounded batches. It
+preserves permanent context, simple and advanced filters, search, ordered
+sorting and current/full pagination semantics. Scalar hydration does not grow
+Doctrine's UnitOfWork, and the provider never clears the application's entity
+manager.
+
+Configure the maximum provider batch:
+
+```yaml
+zhortein_datatable:
+    export:
+        batch_size: 500
+```
+
+The accepted range is `1` through `10000`. The value is trusted server-side
+configuration and cannot be overridden by the export URL.
+
+### Custom streaming provider
+
+A custom streaming provider still implements the regular data and count
+contracts. The streaming capability yields normalized `ExportRow` values:
+
+```php
+use Zhortein\DatatableBundle\Contract\DataProviderInterface;
+use Zhortein\DatatableBundle\Contract\ExportRowCountProviderInterface;
+use Zhortein\DatatableBundle\Contract\StreamingDataProviderInterface;
+use Zhortein\DatatableBundle\Export\ExportRow;
+use Zhortein\DatatableBundle\Export\ExportStreamContext;
+
+final class ApiDataProvider implements
+    DataProviderInterface,
+    ExportRowCountProviderInterface,
+    StreamingDataProviderInterface
+{
+    public function streamExportRows(
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+        ExportStreamContext $context,
+    ): iterable {
+        foreach ($this->api->pages($request, $context->getBatchSize()) as $page) {
+            foreach ($page as $item) {
+                if ($context->isCancelled()) {
+                    return;
+                }
+
+                yield new ExportRow(
+                    values: $this->normalize($item),
+                    source: $item,
+                );
+            }
+        }
+    }
+}
+```
+
+The request is the same canonical request used by the normal provider path.
+For `full` mode pagination is disabled; for `current` mode page and offset are
+preserved. Providers must keep sorting stable between batches and should check
+`ExportStreamContext::isCancelled()` before remote calls and between rows.
+
+`ExportRow::getSource()` feeds the existing server-side `CellContext`, so
+computed values behave identically in streamed and materialized exports.
+
+### Cancellation, disconnects and late failures
+
+The default `ExportCancellationInterface` implementation reports native PHP
+client disconnects. Applications may replace the service alias when they have
+an additional cancellation signal.
+
+Cancellation is cooperative: providers and writers stop at the next check.
+CSV may therefore end after its last complete row. XLSX closes its OpenSpout
+writer, but does not send the generated file after cancellation. No success
+footer or synthetic row is added.
+
+An exception before the stream callback runs can still become a normal error
+response. An exception raised after response streaming starts is rethrown and
+the download is considered incomplete; it is never hidden or converted into a
+successful partial export. Applications should log such exceptions at the
+HTTP runtime boundary.
+
 ### Recommendations for Large Datasets
 -   Encourage users to apply filters before performing a "full" export.
 -   Keep the number of exported columns to a minimum.
--   Be cautious with "full" exports on datasets with more than 10,000 rows.
--   For millions of rows, synchronous export is not recommended and may hit PHP memory or execution time limits.
+-   Keep synchronous limits aligned with request timeouts, even though memory is bounded.
+-   For millions of rows or long-running remote sources, use the planned asynchronous export jobs.
 
 ## Customization
 

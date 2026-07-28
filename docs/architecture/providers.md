@@ -48,6 +48,12 @@ implicit lazy association traversal and N+1 queries in Twig.
 Custom providers may attach one source array/object per normalized row. The
 provider owns batching and eager-loading responsibilities.
 
+For exports, `StreamingDataProviderInterface` is an optional capability layered
+on top of the unchanged provider contract. It yields one `ExportRow` at a time
+and receives the controller-created `ExportStreamContext` containing the
+bounded batch size, preflight row count and cancellation signal. Doctrine uses
+scalar batch queries; Array stays on the compatible materialized fallback.
+
 See [Doctrine Architecture](doctrine.md).
 
 See [Cell Context and Computed Values](../cell-context.md).

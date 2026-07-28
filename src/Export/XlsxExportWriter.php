@@ -8,16 +8,18 @@ use OpenSpout\Common\Entity\Cell;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Writer\XLSX\Writer;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Zhortein\DatatableBundle\Cell\CellContextFactory;
 use Zhortein\DatatableBundle\Contract\EnumPresentationResolverInterface;
 use Zhortein\DatatableBundle\Contract\ExportWriterInterface;
+use Zhortein\DatatableBundle\Contract\StreamingExportWriterInterface;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
 use Zhortein\DatatableBundle\EnumPresentation\DefaultEnumPresentationResolver;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
-final readonly class XlsxExportWriter implements ExportWriterInterface
+final readonly class XlsxExportWriter implements ExportWriterInterface, StreamingExportWriterInterface
 {
     public const string WRITER_NAME = 'xlsx';
 
@@ -100,6 +102,108 @@ final readonly class XlsxExportWriter implements ExportWriterInterface
                 @unlink($temporaryFile);
             }
         }
+    }
+
+    /**
+     * @param iterable<ExportRow> $rows
+     */
+    public function writeStream(
+        DatatableExportRequest $request,
+        DatatableDefinition $definition,
+        iterable $rows,
+        ExportStreamContext $context,
+    ): Response {
+        if (!class_exists(Writer::class)) {
+            throw new \RuntimeException('XLSX export requires the optional "openspout/openspout" package.');
+        }
+
+        return new StreamedResponse(
+            function () use ($request, $definition, $rows, $context): void {
+                if ($context->isCancelled()) {
+                    return;
+                }
+
+                $temporaryFile = tempnam(sys_get_temp_dir(), 'zhortein_datatable_xlsx_');
+
+                if (false === $temporaryFile) {
+                    throw new \RuntimeException('Unable to create temporary XLSX file.');
+                }
+
+                $writer = null;
+
+                try {
+                    $writer = new Writer();
+                    $writer->openToFile($temporaryFile);
+
+                    $columns = $this->columnResolver->resolve($request, $definition);
+
+                    $writer->addRow(Row::fromValues(array_map(
+                        fn (ColumnDefinition $column): string => $this->columnLabelResolver->resolve($definition, $column),
+                        $columns,
+                    )));
+
+                    foreach ($rows as $row) {
+                        if ($context->isCancelled()) {
+                            break;
+                        }
+
+                        $writer->addRow(new Row(array_map(
+                            static fn (mixed $value): Cell => Cell::fromValue($value),
+                            $this->normalizeRow(
+                                definition: $definition,
+                                columns: $columns,
+                                row: $row->getValues(),
+                                source: $row->getSource(),
+                            ),
+                        )));
+                    }
+
+                    $writer->close();
+                    $writer = null;
+
+                    if ($context->isCancelled()) {
+                        return;
+                    }
+
+                    $handle = fopen($temporaryFile, 'rb');
+
+                    if (false === $handle) {
+                        throw new \RuntimeException('Unable to open generated XLSX file.');
+                    }
+
+                    try {
+                        while (!feof($handle) && !$context->isCancelled()) {
+                            $chunk = fread($handle, 8192);
+
+                            if (false === $chunk) {
+                                throw new \RuntimeException('Unable to read generated XLSX file.');
+                            }
+
+                            echo $chunk;
+                        }
+                    } finally {
+                        fclose($handle);
+                    }
+                } finally {
+                    if ($writer instanceof Writer) {
+                        try {
+                            $writer->close();
+                        } catch (\Throwable) {
+                            // Preserve the exception that interrupted generation.
+                        }
+                    }
+
+                    if (is_file($temporaryFile)) {
+                        @unlink($temporaryFile);
+                    }
+                }
+            },
+            Response::HTTP_OK,
+            [
+                'Content-Type' => ExportFormat::Xlsx->getContentType(),
+                'Content-Disposition' => sprintf('attachment; filename="%s"', $request->getFilename()),
+            ],
+        );
     }
 
     /**

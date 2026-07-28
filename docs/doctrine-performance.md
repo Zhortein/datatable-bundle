@@ -276,25 +276,29 @@ raw unfiltered database export
 
 Performance guidance:
 
-- avoid very large full exports in synchronous HTTP requests;
+- keep row limits aligned with synchronous HTTP timeouts;
 - prefer filters before exporting;
-- consider future async exports for large datasets;
+- use future async exports for jobs that should outlive the HTTP request;
 - keep selected export columns minimal;
 - use indexes for active filters and sort fields.
 
 ## Memory and hydration
 
-The current provider returns a `DatatableResult` with rows.
-
-This is appropriate for normal paginated requests.
-
-For large exports, a future streaming provider API may be needed.
-
-Current limitation:
+Normal table requests return a paginated `DatatableResult`. The export endpoint
+uses the provider's additive streaming capability instead:
 
 ```text
-no dedicated streaming provider contract yet
+count preflight → bounded scalar batches → ExportRow iterator
 ```
+
+Each batch is capped by `export.batch_size`. Scalar projections do not enter
+Doctrine's UnitOfWork, and the provider intentionally does not call
+`EntityManagerInterface::clear()` because doing so would detach objects owned
+by the host application.
+
+CSV consumes rows directly. XLSX feeds OpenSpout incrementally and transfers
+the completed temporary archive in chunks. See [server-side
+exports](exports.md) for cancellation and compatibility behavior.
 
 ## Selecting only visible columns
 
@@ -359,6 +363,7 @@ Before shipping a Doctrine-backed datatable:
 - [ ] Counts are checked with joins.
 - [ ] Later pages are tested.
 - [ ] CSV export is tested.
+- [ ] Streaming batch size is realistic for selected columns and joins.
 
 ## Current limitations
 
@@ -366,7 +371,6 @@ Before shipping a Doctrine-backed datatable:
 - No collection-valued association support.
 - No ManyToMany aggregation support.
 - No async export.
-- No streaming provider contract.
 - No full-text search abstraction.
 - No database-specific optimization layer.
 - No automatic index recommendations.
