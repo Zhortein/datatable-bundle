@@ -37,7 +37,7 @@ final class DatatablePreferenceSanitizerTest extends TestCase
             ],
         );
 
-        $preference = (new DatatablePreferenceSanitizer(100))->sanitize(
+        $preference = new DatatablePreferenceSanitizer(100)->sanitize(
             $definition,
             $state,
         );

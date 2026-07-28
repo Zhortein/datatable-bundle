@@ -10,9 +10,9 @@ use Zhortein\DatatableBundle\Sorting\SortCriterion;
 final readonly class DatatablePreference
 {
     /**
-     * @param list<string>        $visibleColumns
-     * @param list<string>        $hiddenColumns
-     * @param list<SortCriterion> $sorts
+     * @param list<string>         $visibleColumns
+     * @param list<string>         $hiddenColumns
+     * @param list<SortCriterion>  $sorts
      * @param array<string, mixed> $filters
      */
     public function __construct(
@@ -38,9 +38,9 @@ final readonly class DatatablePreference
     }
 
     /**
-     * @param list<string>        $visibleColumns
-     * @param list<string>        $hiddenColumns
-     * @param list<SortCriterion> $sorts
+     * @param list<string>         $visibleColumns
+     * @param list<string>         $hiddenColumns
+     * @param list<SortCriterion>  $sorts
      * @param array<string, mixed> $filters
      */
     public static function create(

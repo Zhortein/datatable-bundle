@@ -80,10 +80,7 @@ final readonly class CacheDatatablePreferenceProvider implements WritableDatatab
         } catch (DatatablePreferenceStorageException $exception) {
             throw $exception;
         } catch (\Throwable $exception) {
-            throw new DatatablePreferenceStorageException(
-                'The datatable preference could not be saved.',
-                previous: $exception,
-            );
+            throw new DatatablePreferenceStorageException('The datatable preference could not be saved.', previous: $exception);
         }
     }
 
@@ -96,10 +93,7 @@ final readonly class CacheDatatablePreferenceProvider implements WritableDatatab
         } catch (DatatablePreferenceStorageException $exception) {
             throw $exception;
         } catch (\Throwable $exception) {
-            throw new DatatablePreferenceStorageException(
-                'The datatable preference could not be reset.',
-                previous: $exception,
-            );
+            throw new DatatablePreferenceStorageException('The datatable preference could not be reset.', previous: $exception);
         }
     }
 
