@@ -8,6 +8,13 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.15.0] - 2026-07-28
+
+### Added
+
+- Added optional PSR-6-backed user preference persistence with opaque identity and collision-free table, route, locale, context and schema scopes.
+- Added CSRF-protected save/reset controls and events for page size, ordered sorts, column visibility and explicitly preference-safe filters.
+
 ## [1.14.0] - 2026-07-28
 
 ### Added
