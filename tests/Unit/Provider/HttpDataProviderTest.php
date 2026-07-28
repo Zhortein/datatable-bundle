@@ -124,7 +124,7 @@ final class HttpDataProviderTest extends TestCase
 
     private function definition(HttpProviderConfiguration $configuration): DatatableDefinition
     {
-        return (new DatatableDefinition('remote-users'))
+        return new DatatableDefinition('remote-users')
             ->addColumn('id')
             ->addColumn('name')
             ->setOption(DataProviderRegistry::OPTION_PROVIDER, HttpDataProvider::PROVIDER_NAME)

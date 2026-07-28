@@ -18,7 +18,7 @@ final class DefaultHttpResponseMapperTest extends TestCase
 {
     public function test_it_maps_rows_identifiers_counts_and_cursor_metadata(): void
     {
-        $definition = (new DatatableDefinition('remote-users'))
+        $definition = new DatatableDefinition('remote-users')
             ->addColumn('id')
             ->addColumn('displayName')
         ;
@@ -51,7 +51,7 @@ final class DefaultHttpResponseMapperTest extends TestCase
             ],
         ], \JSON_THROW_ON_ERROR));
 
-        $page = (new DefaultHttpResponseMapper())->mapResponse(
+        $page = new DefaultHttpResponseMapper()->mapResponse(
             $response,
             $definition,
             DatatableRequest::create(),
@@ -72,7 +72,7 @@ final class DefaultHttpResponseMapperTest extends TestCase
         $this->expectExceptionMessage('HTTP status 401');
         $this->expectExceptionMessageMatches('/^(?!.*private-token).*$/s');
 
-        (new DefaultHttpResponseMapper())->mapResponse(
+        new DefaultHttpResponseMapper()->mapResponse(
             new HttpTransportResponse(401, '{"error":"private-token"}'),
             new DatatableDefinition('remote-users'),
             DatatableRequest::create(),
@@ -88,7 +88,7 @@ final class DefaultHttpResponseMapperTest extends TestCase
         $this->expectException(HttpDataProviderException::class);
         $this->expectExceptionMessage('malformed JSON');
 
-        (new DefaultHttpResponseMapper())->mapResponse(
+        new DefaultHttpResponseMapper()->mapResponse(
             new HttpTransportResponse(200, 'secret malformed body'),
             new DatatableDefinition('remote-users'),
             DatatableRequest::create(),

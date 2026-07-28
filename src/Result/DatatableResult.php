@@ -8,8 +8,8 @@ final readonly class DatatableResult
 {
     /**
      * @param list<array<string, mixed>> $rows
-     * @param list<mixed>                $sources server-side source values aligned with rows
-     * @param array<string, mixed>        $metadata provider-specific non-rendered metadata
+     * @param list<mixed>                $sources  server-side source values aligned with rows
+     * @param array<string, mixed>       $metadata provider-specific non-rendered metadata
      */
     public function __construct(
         private array $rows = [],
@@ -44,7 +44,7 @@ final readonly class DatatableResult
     /**
      * @param list<array<string, mixed>> $rows
      * @param list<mixed>                $sources
-     * @param array<string, mixed>        $metadata
+     * @param array<string, mixed>       $metadata
      */
     public static function create(
         array $rows = [],

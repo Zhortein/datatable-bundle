@@ -13,12 +13,12 @@ use Zhortein\DatatableBundle\Enum\HttpPaginationStrategy;
 final readonly class HttpProviderConfiguration
 {
     /**
-     * @param array<string, string>        $headers
-     * @param array<string, string>        $parameterNames
-     * @param array<string, string>        $fieldMap local field => remote field
-     * @param array<string, string>        $operatorMap local operator => remote operator
-     * @param list<string>                 $contextKeys
-     * @param list<int>                    $retryStatusCodes
+     * @param array<string, string> $headers
+     * @param array<string, string> $parameterNames
+     * @param array<string, string> $fieldMap         local field => remote field
+     * @param array<string, string> $operatorMap      local operator => remote operator
+     * @param list<string>          $contextKeys
+     * @param list<int>             $retryStatusCodes
      */
     public function __construct(
         private string $endpoint,

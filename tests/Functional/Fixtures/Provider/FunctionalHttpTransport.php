@@ -26,7 +26,7 @@ final readonly class FunctionalHttpTransport implements HttpTransportInterface
             ], \JSON_THROW_ON_ERROR));
         });
 
-        return (new SymfonyHttpClientTransport($client))->send($request);
+        return new SymfonyHttpClientTransport($client)->send($request);
     }
 
     private static function assertRequest(string $method, string $url): void

@@ -70,7 +70,7 @@ final class SymfonyHttpClientTransportTest extends TestCase
         $this->expectException(HttpTransportException::class);
         $this->expectExceptionMessage('provide a custom HttpTransportInterface');
 
-        (new SymfonyHttpClientTransport())->send(new HttpTransportRequest(
+        new SymfonyHttpClientTransport()->send(new HttpTransportRequest(
             method: 'GET',
             url: 'https://api.example.test/users',
         ));

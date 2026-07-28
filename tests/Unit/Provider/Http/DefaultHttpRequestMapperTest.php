@@ -26,7 +26,7 @@ final class DefaultHttpRequestMapperTest extends TestCase
 {
     public function test_it_maps_page_search_sorts_filters_advanced_filters_and_allowlisted_context(): void
     {
-        $definition = (new DatatableDefinition('remote-users'))
+        $definition = new DatatableDefinition('remote-users')
             ->addFilter('status', 'status', type: FilterType::Choice)
             ->addPermanentFilter('tenantStatus', FilterOperator::Equals, 'enabled')
             ->setContext(new DatatableContext([
@@ -62,7 +62,7 @@ final class DefaultHttpRequestMapperTest extends TestCase
             contextKeys: ['tenant'],
         );
 
-        $transportRequest = (new DefaultHttpRequestMapper())->mapRequest($definition, $request, $configuration);
+        $transportRequest = new DefaultHttpRequestMapper()->mapRequest($definition, $request, $configuration);
         $query = $transportRequest->getQuery();
 
         self::assertSame(3, $query['page']);
@@ -122,7 +122,7 @@ final class DefaultHttpRequestMapperTest extends TestCase
         $this->expectException(HttpDataProviderException::class);
         $this->expectExceptionMessage('does not support search');
 
-        (new DefaultHttpRequestMapper())->mapRequest(
+        new DefaultHttpRequestMapper()->mapRequest(
             new DatatableDefinition('remote-users'),
             DatatableRequest::create(searchQuery: 'alice'),
             new HttpProviderConfiguration(
