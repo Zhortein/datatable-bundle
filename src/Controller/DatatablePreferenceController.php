@@ -39,7 +39,7 @@ final readonly class DatatablePreferenceController
         private DatatablePreferenceScopeResolver $scopeResolver,
         private DatatablePreferenceSanitizer $sanitizer,
         private DatatableStateUrlSerializer $stateSerializer,
-        private CsrfTokenManagerInterface $csrfTokenManager,
+        private ?CsrfTokenManagerInterface $csrfTokenManager = null,
         private string $schemaVersion = '1',
     ) {
     }
@@ -165,7 +165,8 @@ final readonly class DatatablePreferenceController
         $token = $request->headers->get('X-CSRF-Token');
 
         if (
-            !is_string($token)
+            null === $this->csrfTokenManager
+            || !is_string($token)
             || '' === $token
             || !$this->csrfTokenManager->isTokenValid(new CsrfToken(
                 DatatablePreferenceCsrfTokenIdGenerator::generate($datatableName, $instance),

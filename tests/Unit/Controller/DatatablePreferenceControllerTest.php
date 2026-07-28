@@ -110,15 +110,15 @@ final class DatatablePreferenceControllerTest extends TestCase
      */
     private function createRequest(string $method, ?array $payload = null): Request
     {
+        $query = http_build_query([
+            '_zd_instance' => 'admin-users',
+            DatatablePreferenceScope::SCOPE_QUERY_PARAMETER => 'tenant-a',
+            DatatablePreferenceScope::ROUTE_QUERY_PARAMETER => 'admin_users',
+            DatatablePreferenceScope::LOCALE_QUERY_PARAMETER => 'fr',
+        ]);
         $request = Request::create(
-            '/_zhortein/datatable/users/preferences',
+            '/_zhortein/datatable/users/preferences?'.$query,
             $method,
-            [
-                '_zd_instance' => 'admin-users',
-                DatatablePreferenceScope::SCOPE_QUERY_PARAMETER => 'tenant-a',
-                DatatablePreferenceScope::ROUTE_QUERY_PARAMETER => 'admin_users',
-                DatatablePreferenceScope::LOCALE_QUERY_PARAMETER => 'fr',
-            ],
             server: [
                 'HTTP_X_CSRF_TOKEN' => 'preference-token',
             ],

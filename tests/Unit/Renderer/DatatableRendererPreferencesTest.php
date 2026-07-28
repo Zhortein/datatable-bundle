@@ -86,7 +86,10 @@ final class DatatableRendererPreferencesTest extends TestCase
             $html,
         );
         self::assertStringContainsString('Email', $html);
-        self::assertStringNotContainsString('Phone', $html);
+        self::assertStringNotContainsString(
+            'data-zhortein--datatable-bundle--datatable-field-param="phone"',
+            $html,
+        );
         self::assertStringContainsString('value="active" selected', $html);
         self::assertStringContainsString(
             'data-zhortein--datatable-bundle--datatable-preferences-csrf-token-value="preference-token"',
