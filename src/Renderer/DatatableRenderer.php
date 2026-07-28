@@ -293,6 +293,7 @@ final readonly class DatatableRenderer
 
     /**
      * @param array<string, mixed> $options
+     * @param array<string, mixed> $runtimeOptions
      *
      * @return array<string, mixed>
      */

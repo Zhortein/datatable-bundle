@@ -159,7 +159,7 @@ final class PreferenceControllerDatatable implements DatatableInterface
 
 final readonly class ControllerPreferenceIdentityResolver implements DatatablePreferenceIdentityResolverInterface
 {
-    public function resolvePreferenceOwnerIdentifier(Request $request): ?string
+    public function resolvePreferenceOwnerIdentifier(Request $request): string
     {
         return 'user-42';
     }

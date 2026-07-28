@@ -7,6 +7,7 @@ namespace Zhortein\DatatableBundle\Tests\Unit\DependencyInjection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
 use Zhortein\DatatableBundle\Contract\DatatableExportAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Contract\DatatablePreferenceIdentityResolverInterface;
 use Zhortein\DatatableBundle\Contract\ExportCancellationInterface;
@@ -203,12 +204,12 @@ final class BundleConfigurationTest extends TestCase
             CacheDatatablePreferenceProvider::class,
             (string) $container->getAlias(DatatablePreferenceProviderInterface::class),
         );
-        self::assertSame(
-            'cache.custom',
-            (string) $container
-                ->getDefinition(CacheDatatablePreferenceProvider::class)
-                ->getArgument('$cachePool'),
-        );
+        $cachePool = $container
+            ->getDefinition(CacheDatatablePreferenceProvider::class)
+            ->getArgument('$cachePool');
+
+        self::assertInstanceOf(Reference::class, $cachePool);
+        self::assertSame('cache.custom', (string) $cachePool);
     }
 
     public function test_it_rejects_invalid_default_provider(): void

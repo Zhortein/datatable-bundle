@@ -118,7 +118,7 @@ final class DatatableRendererPreferencesTest extends TestCase
 
 final readonly class RendererPreferenceIdentityResolver implements DatatablePreferenceIdentityResolverInterface
 {
-    public function resolvePreferenceOwnerIdentifier(Request $request): ?string
+    public function resolvePreferenceOwnerIdentifier(Request $request): string
     {
         return 'user-42';
     }

@@ -31,8 +31,9 @@ final readonly class DatatablePreferenceScopeResolver
             return null;
         }
 
+        $requestLocale = $request->getLocale();
         $locale = '' === trim($locale)
-            ? ($request->getLocale() ?: 'und')
+            ? ('' === trim($requestLocale) ? 'und' : $requestLocale)
             : $locale;
 
         return $this->resolve(
