@@ -45,6 +45,6 @@ final class CssClassIconRendererTest extends TestCase
 
     public function test_it_ignores_an_empty_icon(): void
     {
-        self::assertSame('', (new CssClassIconRenderer())->render('  '));
+        self::assertSame('', new CssClassIconRenderer()->render('  '));
     }
 }
