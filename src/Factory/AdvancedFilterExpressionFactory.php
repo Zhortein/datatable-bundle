@@ -48,13 +48,9 @@ final readonly class AdvancedFilterExpressionFactory
         ?DatatableDefinition $definition,
         int &$conditionCount,
         int $depth,
-    ): Group
-    {
+    ): Group {
         if ($depth > self::MAX_DEPTH) {
-            throw new InvalidExpressionException(sprintf(
-                'Expression tree depth exceeds maximum allowed depth of %d.',
-                self::MAX_DEPTH,
-            ));
+            throw new InvalidExpressionException(sprintf('Expression tree depth exceeds maximum allowed depth of %d.', self::MAX_DEPTH));
         }
 
         $logicValue = $payload['logic'] ?? 'AND';
@@ -89,10 +85,7 @@ final readonly class AdvancedFilterExpressionFactory
                 ++$conditionCount;
 
                 if ($conditionCount > self::MAX_CONDITIONS) {
-                    throw new InvalidExpressionException(sprintf(
-                        'Expression contains more than %d conditions.',
-                        self::MAX_CONDITIONS,
-                    ));
+                    throw new InvalidExpressionException(sprintf('Expression contains more than %d conditions.', self::MAX_CONDITIONS));
                 }
 
                 $condition = $this->parseCondition($childPayload, $definition);
