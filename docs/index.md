@@ -12,7 +12,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 
 ## Core features
 
-- [Providers](providers.md): Array and Doctrine data sources.
+- [Providers](providers.md): Array, Doctrine and remote HTTP/API data sources.
 - [Filters](filters.md): Toolbar and header-based data filtering.
 - [Advanced Filters](advanced-filters.md): Complex nested filtering with Search Builder.
 - [Multi-column Sorting](sorting.md): Ordered sorting across providers, state, views, and exports.
@@ -38,6 +38,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 ## In-depth guides
 
 - [Doctrine-backed datatables](doctrine-provider.md)
+- [HTTP/API-backed datatables](http-provider.md)
 - [Doctrine performance](doctrine-performance.md)
 - [Computed cell example](examples/computed-cell.md)
 

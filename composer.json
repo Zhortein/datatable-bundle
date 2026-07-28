@@ -55,6 +55,7 @@
     "symfony/doctrine-bridge": "^8.0",
     "symfony/event-dispatcher-contracts": "^3.6",
     "symfony/framework-bundle": "^8.0",
+    "symfony/http-client": "^8.0",
     "symfony/translation-contracts": "^3.6",
     "symfony/var-dumper": "^8.0"
   },
@@ -64,6 +65,7 @@
     "symfony/asset-mapper": "Recommended to expose the provided Stimulus controller with Symfony AssetMapper.",
     "symfony/stimulus-bundle": "Recommended to integrate the provided vanilla Stimulus controller.",
     "openspout/openspout": "Required to enable XLSX export support.",
+    "symfony/http-client": "Recommended to use the built-in Symfony adapter for HTTP/API backed datatables.",
     "ext-intl": "Recommended for locale-aware datetime formatting through IntlDateFormatter."
   },
   "autoload": {

@@ -75,6 +75,10 @@ Applications may implement or decorate these contracts:
 - `Contract\ExportJobDispatcherInterface`;
 - `Contract\EnumPresentationResolverInterface`;
 - `Contract\IconResolverInterface`;
+- `Contract\HttpRequestCancellationInterface`;
+- `Contract\HttpRequestMapperInterface`;
+- `Contract\HttpResponseMapperInterface`;
+- `Contract\HttpTransportInterface`;
 - `DateTime\DateTimeFormatterInterface`;
 - `Action\ActionVisibilityCheckerInterface`;
 - `Preference\DatatablePreferenceProviderInterface`;
@@ -100,6 +104,12 @@ Objects appearing in those signatures are part of the supported API:
 - `Preference\DatatablePreference`;
 - `Request\DatatableRequest`;
 - `Result\DatatableResult`;
+- `Provider\Http\HttpDataPage`;
+- `Provider\Http\HttpProviderCapabilities`;
+- `Provider\Http\HttpProviderConfiguration`;
+- `Provider\Http\HttpResponseMapping`;
+- `Provider\Http\HttpTransportRequest`;
+- `Provider\Http\HttpTransportResponse`;
 - `Sorting\SortCriterion`;
 - `Hierarchy\ChildDatatableAuthorizationContext`;
 - `View\DatatableView`;
@@ -174,6 +184,12 @@ changing `DataProviderInterface` or `ExportWriterInterface`. Their persistence,
 storage, owner, clock, expiry, identifier and dispatcher contracts are
 documented in [asynchronous exports](async-exports.md).
 
+The built-in remote provider adds transport, request-mapper and response-mapper
+contracts without changing `DataProviderInterface`. Its immutable
+configuration, capability, transport and page value objects are public.
+Provider-specific pagination metadata is exposed through the additive
+`DatatableResult::getMetadata()` API. See [HTTP/API provider](http-provider.md).
+
 ## Enums and exceptions
 
 Enums accepted by documented definition methods and runtime objects are public:
@@ -192,6 +208,7 @@ Enums accepted by documented definition methods and runtime objects are public:
 - `FilterOperator`;
 - `FilterType`;
 - `JoinType`;
+- `HttpPaginationStrategy`;
 - `PaginationSize`;
 - `RouteParameterSource`;
 - `SortDirection`;
@@ -205,7 +222,7 @@ The following names are stable in 1.x:
 
 | Contract | Stable names |
 |---|---|
-| Providers | `array`, `doctrine` |
+| Providers | `array`, `doctrine`, `http` |
 | Writers | `csv`, `xlsx` |
 | Service tags | `zhortein_datatable.datatable`, `zhortein_datatable.data_provider`, `zhortein_datatable.export_writer`, `zhortein_datatable.cell_value_resolver` |
 | Routes | `zhortein_datatable_fragments`, `zhortein_datatable_child`, `zhortein_datatable_export` |

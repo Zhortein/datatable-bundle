@@ -15,6 +15,7 @@ final class DatatableResultTest extends TestCase
 
         self::assertSame([], $result->getRows());
         self::assertSame([], $result->getSources());
+        self::assertSame([], $result->getMetadata());
         self::assertFalse($result->hasSources());
         self::assertNull($result->getSource(0));
         self::assertSame(1, $result->getPage());
@@ -108,6 +109,25 @@ final class DatatableResultTest extends TestCase
         self::assertSame([$source], $result->getSources());
         self::assertSame($source, $result->getSource(0));
         self::assertNull($result->getSource(1));
+    }
+
+    public function test_it_keeps_optional_provider_metadata_outside_rows(): void
+    {
+        $result = new DatatableResult(
+            rows: [['id' => 1]],
+            totalItems: 1,
+            metadata: [
+                'identifiers' => ['remote-1'],
+                'pagination' => ['nextCursor' => 'cursor-2'],
+            ],
+        );
+
+        self::assertSame(['remote-1'], $result->getMetadataValue('identifiers'));
+        self::assertSame([
+            'identifiers' => ['remote-1'],
+            'pagination' => ['nextCursor' => 'cursor-2'],
+        ], $result->getMetadata());
+        self::assertNull($result->getMetadataValue('missing'));
     }
 
     public function test_it_rejects_misaligned_sources(): void
