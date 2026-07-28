@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.13.0] - 2026-07-28
+
+### Added
+
+- Added storage-agnostic asynchronous export jobs with immutable lifecycle contracts, owner isolation, idempotent submission, expiration, bounded CSV/XLSX artifacts and optional Symfony Messenger dispatch.
+
 ## [1.12.0] - 2026-07-28
 
 ### Added

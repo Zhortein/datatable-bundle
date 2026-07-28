@@ -1,1 +1,0 @@
-- Added storage-agnostic asynchronous export jobs with immutable lifecycle contracts, owner isolation, idempotent submission, expiration, bounded CSV/XLSX artifacts and optional Symfony Messenger dispatch.
