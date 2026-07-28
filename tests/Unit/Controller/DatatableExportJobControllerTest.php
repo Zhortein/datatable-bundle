@@ -239,7 +239,7 @@ final class DatatableExportJobControllerTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    private function decode(\Symfony\Component\HttpFoundation\JsonResponse $response): array
+    private function decode(\Symfony\Component\HttpFoundation\Response $response): array
     {
         $content = $response->getContent();
         self::assertIsString($content);

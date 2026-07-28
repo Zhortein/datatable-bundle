@@ -142,7 +142,7 @@ final readonly class ExportJobRunner
             }
 
             if (null !== $previousLocale) {
-                $this->localeAware?->setLocale($previousLocale);
+                $this->localeAware->setLocale($previousLocale);
             }
         }
     }

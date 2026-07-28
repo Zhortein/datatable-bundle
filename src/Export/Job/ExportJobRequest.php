@@ -37,7 +37,7 @@ final readonly class ExportJobRequest
         }
 
         foreach ($this->contextValues as $name => $value) {
-            if ('' === trim($name) || (null !== $value && !is_scalar($value))) {
+            if ('' === trim($name) || !self::isValidContextValue($value)) {
                 throw new \InvalidArgumentException('Export job context values must use non-empty string keys and scalar or null values.');
             }
         }
@@ -90,5 +90,10 @@ final readonly class ExportJobRequest
             $this->contextValues,
             $this->locale,
         ]));
+    }
+
+    private static function isValidContextValue(mixed $value): bool
+    {
+        return null === $value || is_scalar($value);
     }
 }
