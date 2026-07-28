@@ -65,6 +65,14 @@ Applications may implement or decorate these contracts:
 - `Contract\ExportCancellationInterface`;
 - `Contract\StreamingDataProviderInterface`;
 - `Contract\StreamingExportWriterInterface`;
+- `Contract\ExportArtifactWriterInterface`;
+- `Contract\ExportJobRepositoryInterface`;
+- `Contract\ExportJobResultStorageInterface`;
+- `Contract\ExportJobClockInterface`;
+- `Contract\ExportJobExpiryPolicyInterface`;
+- `Contract\ExportJobIdentifierGeneratorInterface`;
+- `Contract\ExportJobOwnerResolverInterface`;
+- `Contract\ExportJobDispatcherInterface`;
 - `Contract\EnumPresentationResolverInterface`;
 - `Contract\IconResolverInterface`;
 - `DateTime\DateTimeFormatterInterface`;
@@ -82,6 +90,12 @@ Objects appearing in those signatures are part of the supported API:
 - `Export\DatatableExportRequest`;
 - `Export\ExportRow`;
 - `Export\ExportStreamContext`;
+- `Export\Job\ExportArtifact`;
+- `Export\Job\ExportJob`;
+- `Export\Job\ExportJobIdentifier`;
+- `Export\Job\ExportJobRequest`;
+- `Export\Job\ExportJobResultMetadata`;
+- `Export\Job\RunExportJobMessage`;
 - `EnumPresentation\EnumPresentation`;
 - `Preference\DatatablePreference`;
 - `Request\DatatableRequest`;
@@ -120,7 +134,6 @@ export writers. Export headers follow the definition translation domain and
 current Symfony locale, matching rendered column labels.
 
 Synchronous export limits and authorization are documented in
-[exports](exports.md). `DatatableDefinition::setExportLimit()`, the two export
 [exports](exports.md). `DatatableDefinition::setExportLimit()`, export
 authorization/count contracts and their context semantics are additive public
 1.x APIs. Custom providers may continue to implement only
@@ -156,9 +169,10 @@ The advanced-filter expression model is public for custom providers:
 - `LogicOperator`;
 - `OperatorCompatibility`.
 
-Future asynchronous export support will reuse these additive streaming
-contracts instead of changing `DataProviderInterface` or
-`ExportWriterInterface` incompatibly.
+Asynchronous export jobs reuse these additive streaming contracts without
+changing `DataProviderInterface` or `ExportWriterInterface`. Their persistence,
+storage, owner, clock, expiry, identifier and dispatcher contracts are
+documented in [asynchronous exports](async-exports.md).
 
 ## Enums and exceptions
 
@@ -173,6 +187,7 @@ Enums accepted by documented definition methods and runtime objects are public:
 - `ChildContextSource`;
 - `ExportFormat`;
 - `ExportMode`;
+- `ExportJobStatus`;
 - `FilterLayout`;
 - `FilterOperator`;
 - `FilterType`;
@@ -194,6 +209,7 @@ The following names are stable in 1.x:
 | Writers | `csv`, `xlsx` |
 | Service tags | `zhortein_datatable.datatable`, `zhortein_datatable.data_provider`, `zhortein_datatable.export_writer`, `zhortein_datatable.cell_value_resolver` |
 | Routes | `zhortein_datatable_fragments`, `zhortein_datatable_child`, `zhortein_datatable_export` |
+| Background export routes | `zhortein_datatable_export_job_submit`, `zhortein_datatable_export_job_status`, `zhortein_datatable_export_job_download` |
 | Named-view routes | `zhortein_datatable_views_list`, `zhortein_datatable_views_create`, `zhortein_datatable_views_load`, `zhortein_datatable_views_mutate`, `zhortein_datatable_views_delete` |
 | Twig | `zhortein_datatable()`, `zhortein_datatable_translate()`, `zhortein_datatable_enum_choices()` |
 | Stimulus | `zhortein--datatable-bundle--datatable` |

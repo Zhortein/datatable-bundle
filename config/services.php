@@ -5,9 +5,17 @@ declare(strict_types=1);
 use Doctrine\Persistence\ManagerRegistry;
 use OpenSpout\Writer\XLSX\Writer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Zhortein\DatatableBundle\Contract\ChildDatatableAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Contract\DatatableExportAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Contract\ExportCancellationInterface;
+use Zhortein\DatatableBundle\Contract\ExportJobClockInterface;
+use Zhortein\DatatableBundle\Contract\ExportJobDispatcherInterface;
+use Zhortein\DatatableBundle\Contract\ExportJobExpiryPolicyInterface;
+use Zhortein\DatatableBundle\Contract\ExportJobIdentifierGeneratorInterface;
+use Zhortein\DatatableBundle\Contract\ExportJobOwnerResolverInterface;
+use Zhortein\DatatableBundle\Contract\ExportJobRepositoryInterface;
+use Zhortein\DatatableBundle\Contract\ExportJobResultStorageInterface;
 use Zhortein\DatatableBundle\Doctrine\DoctrineCountExpressionFactory;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldMetadataResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
@@ -35,6 +43,7 @@ use Zhortein\DatatableBundle\Action\RowActionRouteParameterResolver;
 use Zhortein\DatatableBundle\Cell\CellContextFactory;
 use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
 use Zhortein\DatatableBundle\Controller\DatatableController;
+use Zhortein\DatatableBundle\Controller\DatatableExportJobController;
 use Zhortein\DatatableBundle\Controller\DatatableViewController;
 use Zhortein\DatatableBundle\DateTime\DateTimeFormatterInterface;
 use Zhortein\DatatableBundle\DateTime\DefaultDateTimeFormatter;
@@ -45,6 +54,17 @@ use Zhortein\DatatableBundle\Export\ExportColumnLabelResolver;
 use Zhortein\DatatableBundle\Export\ExportableColumnResolver;
 use Zhortein\DatatableBundle\Export\ExportLimitResolver;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
+use Zhortein\DatatableBundle\Export\Job\ExportJobCleanup;
+use Zhortein\DatatableBundle\Export\Job\ExportJobRunner;
+use Zhortein\DatatableBundle\Export\Job\FixedExportJobExpiryPolicy;
+use Zhortein\DatatableBundle\Export\Job\InMemoryExportJobRepository;
+use Zhortein\DatatableBundle\Export\Job\InMemoryExportJobResultStorage;
+use Zhortein\DatatableBundle\Export\Job\MessengerExportJobDispatcher;
+use Zhortein\DatatableBundle\Export\Job\NullExportJobOwnerResolver;
+use Zhortein\DatatableBundle\Export\Job\RandomExportJobIdentifierGenerator;
+use Zhortein\DatatableBundle\Export\Job\RunExportJobHandler;
+use Zhortein\DatatableBundle\Export\Job\SystemExportJobClock;
+use Zhortein\DatatableBundle\Export\Job\UnavailableExportJobDispatcher;
 use Zhortein\DatatableBundle\EnumPresentation\DefaultEnumPresentationResolver;
 use Zhortein\DatatableBundle\Factory\AdvancedFilterExpressionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
@@ -240,6 +260,58 @@ return static function (ContainerConfigurator $container): void {
         ->arg('$formatLimits', param('zhortein_datatable.export.format_limits'))
     ;
 
+    $services
+        ->set('zhortein_datatable.export.async_limit_resolver', ExportLimitResolver::class)
+        ->arg('$maxRows', param('zhortein_datatable.export.async.max_rows'))
+        ->arg('$formatLimits', param('zhortein_datatable.export.async.format_limits'))
+    ;
+
+    $services->set(InMemoryExportJobRepository::class);
+    $services->alias(ExportJobRepositoryInterface::class, InMemoryExportJobRepository::class);
+
+    $services->set(InMemoryExportJobResultStorage::class);
+    $services->alias(ExportJobResultStorageInterface::class, InMemoryExportJobResultStorage::class);
+
+    $services->set(SystemExportJobClock::class);
+    $services->alias(ExportJobClockInterface::class, SystemExportJobClock::class);
+
+    $services
+        ->set(FixedExportJobExpiryPolicy::class)
+        ->arg('$ttl', param('zhortein_datatable.export.async.ttl'))
+    ;
+    $services->alias(ExportJobExpiryPolicyInterface::class, FixedExportJobExpiryPolicy::class);
+
+    $services->set(RandomExportJobIdentifierGenerator::class);
+    $services->alias(ExportJobIdentifierGeneratorInterface::class, RandomExportJobIdentifierGenerator::class);
+
+    $services->set(NullExportJobOwnerResolver::class);
+    $services->alias(ExportJobOwnerResolverInterface::class, NullExportJobOwnerResolver::class);
+
+    if (interface_exists(MessageBusInterface::class)) {
+        $services
+            ->set(MessengerExportJobDispatcher::class)
+            ->arg('$messageBus', service('messenger.default_bus'))
+        ;
+        $services->alias(ExportJobDispatcherInterface::class, MessengerExportJobDispatcher::class);
+    } else {
+        $services->set(UnavailableExportJobDispatcher::class);
+        $services->alias(ExportJobDispatcherInterface::class, UnavailableExportJobDispatcher::class);
+    }
+
+    $services
+        ->set(ExportJobRunner::class)
+        ->arg('$batchSize', param('zhortein_datatable.export.batch_size'))
+        ->arg('$maxAttempts', param('zhortein_datatable.export.async.max_attempts'))
+        ->arg('$localeAware', service('translator'))
+    ;
+
+    $services
+        ->set(RunExportJobHandler::class)
+        ->tag('messenger.message_handler')
+    ;
+
+    $services->set(ExportJobCleanup::class);
+
     $services->set(ConnectionAbortedExportCancellation::class);
     $services->alias(
         ExportCancellationInterface::class,
@@ -280,6 +352,13 @@ return static function (ContainerConfigurator $container): void {
         ->arg('$translator', service('translator'))
         ->arg('$exportBatchSize', param('zhortein_datatable.export.batch_size'))
         ->arg('$exportCancellation', service(ExportCancellationInterface::class))
+        ->tag('controller.service_arguments')
+    ;
+
+    $services
+        ->set(DatatableExportJobController::class)
+        ->arg('$enabled', param('zhortein_datatable.export.async.enabled'))
+        ->arg('$limitResolver', service('zhortein_datatable.export.async_limit_resolver'))
         ->tag('controller.service_arguments')
     ;
 

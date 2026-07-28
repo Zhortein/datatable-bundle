@@ -24,6 +24,7 @@ A Symfony 8+ bundle for Bootstrap-first business datatables driven by PHP defini
 - **Named Views**: Optional saved views with replaceable ownership, authorization and storage contracts.
 - **Streaming Exports**: Bounded-memory Doctrine, CSV and XLSX pipelines with explicit provider/writer capabilities.
 - **Guarded Exports**: Server-side CSV/XLSX row limits, preflight counting and replaceable authorization.
+- **Asynchronous Exports**: Optional owner-bound background jobs with storage-agnostic persistence and Symfony Messenger integration.
 - **Actions**: Declarative row, global and bulk actions with CSRF-aware forms and opt-in Ajax execution.
 - **Exports**: Server-side CSV and optional XLSX exports.
 - **Customization**: Flexible UI/UX customization via Twig blocks and themes.
@@ -107,6 +108,7 @@ final class UserDatatable implements DatatableInterface
 - [Actions & Security](docs/actions.md)
 - [Bulk Actions & Selection](docs/bulk-actions.md)
 - [Exports](docs/exports.md)
+- [Asynchronous Export Jobs](docs/async-exports.md)
 - [UI/UX & Controls](docs/ui-ux.md)
 - [Icon System](docs/icons.md)
 - [Theming & Templates](docs/theming.md)

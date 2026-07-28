@@ -38,6 +38,14 @@ zhortein_datatable:
             enclosure: '"'
             escape: "\\"
             bom: false
+        async:
+            enabled: false
+            max_rows: 250000
+            ttl: 86400
+            max_attempts: 3
+            format_limits:
+                csv: null
+                xlsx: null
 ```
 
 This configuration is intentionally small.
@@ -324,6 +332,33 @@ receive.
 
 See [server-side exports](exports.md) for provider capability and authorization
 details.
+
+## `export.async`
+
+Background export jobs are disabled by default:
+
+```yaml
+zhortein_datatable:
+    export:
+        async:
+            enabled: false
+            max_rows: 250000
+            ttl: 86400
+            max_attempts: 3
+            format_limits:
+                csv: null
+                xlsx: null
+```
+
+- `enabled` exposes job submission, status and download behavior;
+- `max_rows` is the background fallback row limit;
+- `format_limits` optionally narrows CSV or XLSX jobs;
+- `ttl` controls job/result retention in seconds;
+- `max_attempts` bounds application-level retries.
+
+All integer values must be at least `1`; `max_attempts` is capped at `100`.
+Enabling the endpoints also requires persistent repository/storage services and
+an owner resolver. See [asynchronous export jobs](async-exports.md).
 
 ## `export.csv`
 

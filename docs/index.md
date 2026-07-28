@@ -28,6 +28,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 - [Cell Context and Computed Values](cell-context.md): Rich server-side cells, provider sources and export-safe resolvers.
 - [Enum Presentation](enum-presentation.md): Localized labels, badges, filter choices and export-safe enum metadata.
 - [Server-side Exports](exports.md): CSV and XLSX data exports.
+- [Asynchronous Export Jobs](async-exports.md): Storage-agnostic background CSV/XLSX jobs and optional Messenger integration.
 
 ## Technical Architecture
 

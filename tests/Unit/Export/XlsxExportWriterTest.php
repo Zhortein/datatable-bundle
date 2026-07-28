@@ -327,6 +327,49 @@ final class XlsxExportWriterTest extends TestCase
         );
     }
 
+    public function test_it_writes_a_background_xlsx_artifact(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition
+            ->addColumn('email', label: 'Email')
+            ->addColumn('enabled', label: 'Enabled', type: 'boolean')
+        ;
+        $artifact = new XlsxExportWriter()->writeArtifact(
+            request: new DatatableExportRequest('users', format: ExportFormat::Xlsx),
+            definition: $definition,
+            rows: [
+                new ExportRow(['email' => 'alice@example.test', 'enabled' => true]),
+                new ExportRow(['email' => 'bob@example.test', 'enabled' => false]),
+            ],
+            context: new ExportStreamContext(
+                batchSize: 100,
+                expectedRowCount: 2,
+                cancellation: new class implements ExportCancellationInterface {
+                    public function isCancelled(): bool
+                    {
+                        return false;
+                    }
+                },
+            ),
+        );
+
+        try {
+            $content = file_get_contents($artifact->getPath());
+            self::assertIsString($content);
+            self::assertSame('users.xlsx', $artifact->getFilename());
+            self::assertSame(
+                [
+                    ['Email', 'Enabled'],
+                    ['alice@example.test', true],
+                    ['bob@example.test', false],
+                ],
+                $this->readXlsxRows($content),
+            );
+        } finally {
+            $artifact->delete();
+        }
+    }
+
     /**
      * @return list<list<mixed>>
      */
