@@ -215,7 +215,15 @@ export default class ChildDatatableManager {
         const indicator = toggle.querySelector(`[${CHILD_INDICATOR_ATTRIBUTE}="true"]`);
 
         if (indicator instanceof HTMLElement) {
-            indicator.textContent = expanded ? '▾' : '▸';
+            const expandIcon = indicator.querySelector('[data-zhortein--datatable-bundle--datatable-child-expand-icon="true"]');
+            const collapseIcon = indicator.querySelector('[data-zhortein--datatable-bundle--datatable-child-collapse-icon="true"]');
+
+            if (expandIcon instanceof HTMLElement && collapseIcon instanceof HTMLElement) {
+                expandIcon.hidden = expanded;
+                collapseIcon.hidden = !expanded;
+            } else {
+                indicator.textContent = expanded ? '▾' : '▸';
+            }
         }
 
         if (shouldRestoreFocus) {

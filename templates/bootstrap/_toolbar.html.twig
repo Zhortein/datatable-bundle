@@ -107,7 +107,7 @@
                 title="{{ 'zhortein_datatable.search_builder.title'|trans({}, 'zhortein_datatable') }}"
             >
                 {% if search_builder_icon is not empty %}
-                    <i class="{{ search_builder_icon }}"></i>
+                    {{ zhortein_datatable_icon(search_builder_icon) }}
                 {% endif %}
                 <span class="d-none d-md-inline">{{ 'zhortein_datatable.search_builder.title'|trans({}, 'zhortein_datatable') }}</span>
             </button>

@@ -70,7 +70,9 @@ $definition
 
 `badgeVariant` is appended to Bootstrap's `text-bg-*` class. `color` supplies a
 custom badge background color when the standard variants are not sufficient.
-`icon` is a trusted CSS class declared by the application. All configured
+`icon` is a provider-specific icon identifier declared by the application. It
+is a CSS class string with the default provider or an icon name such as
+`bi:hourglass-split` with Symfony UX Icons. All configured
 values are escaped by Twig.
 
 Decoration is presentation-only. CSV and XLSX contain the same resolved label,

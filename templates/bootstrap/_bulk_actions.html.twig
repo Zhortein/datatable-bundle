@@ -48,13 +48,13 @@
                         {% endfor %}
                     >
                         {% if action.icon is not empty and action.iconPosition == 'before' %}
-                            <span class="{{ action.icon }} me-1" aria-hidden="true"></span>
+                            {{ zhortein_datatable_icon(action.icon, {class: 'me-1'}) }}
                         {% endif %}
 
                         <span>{{ action_label }}</span>
 
                         {% if action.icon is not empty and action.iconPosition == 'after' %}
-                            <span class="{{ action.icon }} ms-1" aria-hidden="true"></span>
+                            {{ zhortein_datatable_icon(action.icon, {class: 'ms-1'}) }}
                         {% endif %}
                     </button>
                 </form>

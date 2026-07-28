@@ -9,7 +9,7 @@
     {% endif %}
 
     {% if enum_presentation.icon is not null %}
-        <i class="{{ enum_presentation.icon }}" aria-hidden="true"></i>
+        {{ zhortein_datatable_icon(enum_presentation.icon) }}
     {% endif %}
 
     {{ enum_presentation.label }}

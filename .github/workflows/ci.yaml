@@ -91,6 +91,28 @@ jobs:
           SMOKE_BUNDLE_VERSION: 1.0.0
         run: tools/smoke-test/fresh-symfony-app.sh
 
+  fresh-symfony-app-ux-icons:
+    name: Fresh Symfony application with UX Icons
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer
+          extensions: mbstring, intl
+
+      - name: Run UX Icons fresh application smoke test
+        env:
+          SMOKE_UX_ICONS: 1
+        run: tools/smoke-test/fresh-symfony-app.sh
+
   browser-e2e:
     name: Browser E2E and accessibility
     runs-on: ubuntu-latest

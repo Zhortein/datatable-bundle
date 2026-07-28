@@ -18,6 +18,7 @@ use Zhortein\DatatableBundle\Contract\ExportJobIdentifierGeneratorInterface;
 use Zhortein\DatatableBundle\Contract\ExportJobOwnerResolverInterface;
 use Zhortein\DatatableBundle\Contract\ExportJobRepositoryInterface;
 use Zhortein\DatatableBundle\Contract\ExportJobResultStorageInterface;
+use Zhortein\DatatableBundle\Contract\IconRendererInterface;
 use Zhortein\DatatableBundle\Doctrine\DoctrineCountExpressionFactory;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldMetadataResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
@@ -27,6 +28,9 @@ use Zhortein\DatatableBundle\Export\XlsxExportWriter;
 use Zhortein\DatatableBundle\Export\AllowAllDatatableExportAuthorizationChecker;
 use Zhortein\DatatableBundle\Export\ConnectionAbortedExportCancellation;
 use Zhortein\DatatableBundle\Icon\IconResolver;
+use Zhortein\DatatableBundle\Icon\ConfiguredIconRenderer;
+use Zhortein\DatatableBundle\Icon\CssClassIconRenderer;
+use Zhortein\DatatableBundle\Icon\SymfonyUxIconRenderer;
 use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Contract\HttpRequestMapperInterface;
 use Zhortein\DatatableBundle\Contract\HttpResponseMapperInterface;
@@ -99,6 +103,7 @@ use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 use Zhortein\DatatableBundle\Twig\DeclarativeTranslationExtension;
 use Zhortein\DatatableBundle\Twig\DatatableTwigExtension;
 use Zhortein\DatatableBundle\Twig\DateTimeTwigExtension;
+use Zhortein\DatatableBundle\Twig\IconExtension;
 use Zhortein\DatatableBundle\View\AllowAllDatatableViewAuthorizationChecker;
 use Zhortein\DatatableBundle\View\DatatableViewManager;
 use Zhortein\DatatableBundle\View\DenyDatatableViewAuthorizationChecker;
@@ -219,6 +224,26 @@ return static function (ContainerConfigurator $container): void {
     ;
 
     $services->alias(IconResolverInterface::class, IconResolver::class);
+
+    $services->set(CssClassIconRenderer::class);
+
+    $configuredIconRenderer = $services
+        ->set(ConfiguredIconRenderer::class)
+        ->arg('$provider', param('zhortein_datatable.icon_provider'))
+        ->arg('$uxIconRenderer', null)
+    ;
+
+    if (interface_exists('Symfony\\UX\\Icons\\IconRendererInterface')) {
+        $services
+            ->set(SymfonyUxIconRenderer::class)
+            ->arg('$renderer', service('Symfony\\UX\\Icons\\IconRendererInterface')->nullOnInvalid())
+        ;
+
+        $configuredIconRenderer->arg('$uxIconRenderer', service(SymfonyUxIconRenderer::class));
+    }
+
+    $services->alias(IconRendererInterface::class, ConfiguredIconRenderer::class);
+    $services->set(IconExtension::class);
 
     if (interface_exists(ManagerRegistry::class)) {
         $services->set(DoctrineFieldTypeGuesser::class);

@@ -19,6 +19,7 @@ $profiles = [
             'max_page_size:\s+500',
             'search_enabled:\s+false',
             'search_builder_enabled:\s+false',
+            'icon_provider:\s+css',
             'icons:\s+(?:\[\]|\{\s*\})',
             'striped:\s+true',
             'hover:\s+true',
@@ -38,6 +39,7 @@ $profiles = [
             'zhortein_datatable.max_page_size' => 500,
             'zhortein_datatable.search_enabled' => false,
             'zhortein_datatable.search_builder_enabled' => false,
+            'zhortein_datatable.icon_provider' => 'css',
             'zhortein_datatable.icons' => [],
             'zhortein_datatable.bootstrap.table_striped' => true,
             'zhortein_datatable.bootstrap.table_hover' => true,
@@ -59,6 +61,7 @@ $profiles = [
             'max_page_size:\s+120',
             'search_enabled:\s+true',
             'search_builder_enabled:\s+true',
+            'icon_provider:\s+'.('1' === getenv('SMOKE_UX_ICONS') ? 'ux_icons' : 'css'),
             'action_view:\s+smoke-icon-view',
             'striped:\s+false',
             'hover:\s+false',
@@ -78,6 +81,7 @@ $profiles = [
             'zhortein_datatable.max_page_size' => 120,
             'zhortein_datatable.search_enabled' => true,
             'zhortein_datatable.search_builder_enabled' => true,
+            'zhortein_datatable.icon_provider' => '1' === getenv('SMOKE_UX_ICONS') ? 'ux_icons' : 'css',
             'zhortein_datatable.icons' => ['action_view' => 'smoke-icon-view'],
             'zhortein_datatable.bootstrap.table_striped' => false,
             'zhortein_datatable.bootstrap.table_hover' => false,
@@ -92,6 +96,19 @@ $profiles = [
         ],
     ],
 ];
+
+$bundleVersion = getenv('SMOKE_BUNDLE_VERSION') ?: 'current';
+
+if ('current' !== $bundleVersion) {
+    foreach ($profiles as &$versionedProfile) {
+        $versionedProfile['patterns'] = array_values(array_filter(
+            $versionedProfile['patterns'],
+            static fn (string $pattern): bool => !str_contains($pattern, 'icon_provider:'),
+        ));
+        unset($versionedProfile['parameters']['zhortein_datatable.icon_provider']);
+    }
+    unset($versionedProfile);
+}
 
 $profile = $profiles[$argv[1]] ?? null;
 

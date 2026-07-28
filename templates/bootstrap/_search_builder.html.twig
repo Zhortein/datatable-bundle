@@ -68,14 +68,16 @@
                 class="btn btn-sm btn-outline-primary"
                 data-action="zhortein--datatable-bundle--datatable#addSearchBuilderCondition"
             >
-                <i class="bi bi-plus-lg"></i> {{ 'zhortein_datatable.search_builder.add_condition'|trans({}, 'zhortein_datatable') }}
+                {{ zhortein_datatable_icon_key('search_builder_add_condition') }}
+                {{ 'zhortein_datatable.search_builder.add_condition'|trans({}, 'zhortein_datatable') }}
             </button>
             <button
                 type="button"
                 class="btn btn-sm btn-outline-secondary"
                 data-action="zhortein--datatable-bundle--datatable#addSearchBuilderSubgroup"
             >
-                <i class="bi bi-folder-plus"></i> {{ 'zhortein_datatable.search_builder.add_subgroup'|trans({}, 'zhortein_datatable') }}
+                {{ zhortein_datatable_icon_key('search_builder_add_group') }}
+                {{ 'zhortein_datatable.search_builder.add_subgroup'|trans({}, 'zhortein_datatable') }}
             </button>
         </div>
     </div>
@@ -111,7 +113,7 @@
                 data-action="zhortein--datatable-bundle--datatable#removeSearchBuilderCondition"
                 aria-label="{{ 'zhortein_datatable.search_builder.remove_condition'|trans({}, 'zhortein_datatable') }}"
             >
-                <i class="bi bi-trash"></i>
+                {{ zhortein_datatable_icon_key('search_builder_remove') }}
             </button>
         </div>
     </template>
@@ -133,7 +135,7 @@
                     data-action="zhortein--datatable-bundle--datatable#removeSearchBuilderSubgroup"
                     aria-label="{{ 'zhortein_datatable.search_builder.remove_subgroup'|trans({}, 'zhortein_datatable') }}"
                 >
-                    <i class="bi bi-trash"></i>
+                    {{ zhortein_datatable_icon_key('search_builder_remove') }}
                 </button>
             </div>
 
@@ -145,14 +147,16 @@
                     class="btn btn-sm btn-outline-primary"
                     data-action="zhortein--datatable-bundle--datatable#addSearchBuilderCondition"
                 >
-                    <i class="bi bi-plus-lg"></i> {{ 'zhortein_datatable.search_builder.add_condition'|trans({}, 'zhortein_datatable') }}
+                    {{ zhortein_datatable_icon_key('search_builder_add_condition') }}
+                    {{ 'zhortein_datatable.search_builder.add_condition'|trans({}, 'zhortein_datatable') }}
                 </button>
                 <button
                     type="button"
                     class="btn btn-sm btn-outline-secondary"
                     data-action="zhortein--datatable-bundle--datatable#addSearchBuilderSubgroup"
                 >
-                    <i class="bi bi-folder-plus"></i> {{ 'zhortein_datatable.search_builder.add_subgroup'|trans({}, 'zhortein_datatable') }}
+                    {{ zhortein_datatable_icon_key('search_builder_add_group') }}
+                    {{ 'zhortein_datatable.search_builder.add_subgroup'|trans({}, 'zhortein_datatable') }}
                 </button>
             </div>
         </div>

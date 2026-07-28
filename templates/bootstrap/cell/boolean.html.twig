@@ -5,14 +5,14 @@
 {% if display_mode == 'icon' %}
     {% if value %}
         {% if boolean_true_icon %}
-            <i class="{{ boolean_true_icon }} text-success" aria-hidden="true"></i>
+            {{ zhortein_datatable_icon(boolean_true_icon, {class: 'text-success'}) }}
         {% else %}
             <span class="text-success" aria-hidden="true">✓</span>
         {% endif %}
         <span class="visually-hidden">{{ yes_label }}</span>
     {% else %}
         {% if boolean_false_icon %}
-            <i class="{{ boolean_false_icon }} text-danger" aria-hidden="true"></i>
+            {{ zhortein_datatable_icon(boolean_false_icon, {class: 'text-danger'}) }}
         {% else %}
             <span class="text-danger" aria-hidden="true">×</span>
         {% endif %}

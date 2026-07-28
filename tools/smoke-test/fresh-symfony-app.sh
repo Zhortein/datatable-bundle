@@ -81,6 +81,13 @@ if [[ "${bundle_version}" == "current" ]]; then
         --no-interaction \
         --no-progress
 
+    if [[ "${SMOKE_UX_ICONS:-0}" == "1" ]]; then
+        composer require \
+            symfony/ux-icons \
+            --no-interaction \
+            --no-progress
+    fi
+
     install -D \
         "${bundle_root}/tools/smoke-test/fixtures/SmokeOrderDatatable.php" \
         src/Datatable/SmokeOrderDatatable.php
@@ -146,6 +153,13 @@ php configuration.php minimal "${minimal_environment}" "${minimal_config_dump}"
 install \
     "${bundle_root}/tools/smoke-test/fixtures/zhortein_datatable_complete.yaml" \
     config/packages/zhortein_datatable.yaml
+
+if [[ "${SMOKE_UX_ICONS:-0}" == "1" ]]; then
+    php -r '
+        $path = "config/packages/zhortein_datatable.yaml";
+        file_put_contents($path, file_get_contents($path)."\n    icon_provider: ux_icons\n");
+    '
+fi
 
 export APP_ENV="smoke_complete"
 

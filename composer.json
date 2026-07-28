@@ -68,6 +68,7 @@
     "openspout/openspout": "Required to enable XLSX export support.",
     "symfony/http-client": "Recommended to use the built-in Symfony adapter for HTTP/API backed datatables.",
     "symfony/cache": "Recommended to provide a PSR-6 cache pool for persistent datatable preferences.",
+    "symfony/ux-icons": "Optional adapter for rendering datatable icons as SVG through Symfony UX Icons.",
     "ext-intl": "Recommended for locale-aware datetime formatting through IntlDateFormatter."
   },
   "autoload": {

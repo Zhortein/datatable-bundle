@@ -89,11 +89,14 @@
 
                             <span class="zhortein-datatable__sort-indicator text-body-secondary" aria-hidden="true">
                                 {% if is_current_sort and column_sort_direction == 'desc' %}
-                                    {% if sort_desc is not empty %}<i class="{{ sort_desc }}"></i>{% else %}↓{% endif %}
+                                    {% set rendered_sort_icon = zhortein_datatable_icon(sort_desc) %}
+                                    {% if rendered_sort_icon is not empty %}{{ rendered_sort_icon }}{% else %}↓{% endif %}
                                 {% elseif is_current_sort %}
-                                    {% if sort_asc is not empty %}<i class="{{ sort_asc }}"></i>{% else %}↑{% endif %}
+                                    {% set rendered_sort_icon = zhortein_datatable_icon(sort_asc) %}
+                                    {% if rendered_sort_icon is not empty %}{{ rendered_sort_icon }}{% else %}↑{% endif %}
                                 {% else %}
-                                    {% if sort_neutral is not empty %}<i class="{{ sort_neutral }}"></i>{% else %}↕{% endif %}
+                                    {% set rendered_sort_icon = zhortein_datatable_icon(sort_neutral) %}
+                                    {% if rendered_sort_icon is not empty %}{{ rendered_sort_icon }}{% else %}↕{% endif %}
                                 {% endif %}
                             </span>
 

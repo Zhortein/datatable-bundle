@@ -23,7 +23,8 @@
                         aria-label="{{ 'zhortein_datatable.pagination.previous'|trans({}, 'zhortein_datatable') }}"
                         {% if result.page <= 1 %}disabled aria-disabled="true"{% endif %}
                     >
-                        <span aria-hidden="true">{{ 'zhortein_datatable.pagination.previous'|trans({}, 'zhortein_datatable') }}</span>
+                        {{ zhortein_datatable_icon_key('pagination_previous', {class: 'me-1'}) }}
+                        <span>{{ 'zhortein_datatable.pagination.previous'|trans({}, 'zhortein_datatable') }}</span>
                     </button>
                 </li>
 
@@ -53,7 +54,8 @@
                         aria-label="{{ 'zhortein_datatable.pagination.next'|trans({}, 'zhortein_datatable') }}"
                         {% if result.page >= result.totalPages %}disabled aria-disabled="true"{% endif %}
                     >
-                        <span aria-hidden="true">{{ 'zhortein_datatable.pagination.next'|trans({}, 'zhortein_datatable') }}</span>
+                        <span>{{ 'zhortein_datatable.pagination.next'|trans({}, 'zhortein_datatable') }}</span>
+                        {{ zhortein_datatable_icon_key('pagination_next', {class: 'ms-1'}) }}
                     </button>
                 </li>
             </ul>

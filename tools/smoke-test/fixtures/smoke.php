@@ -39,6 +39,16 @@ foreach (['table-striped', 'table-hover', 'class="table-responsive"'] as $unexpe
     }
 }
 
+if ('1' === getenv('SMOKE_UX_ICONS')) {
+    if (!str_contains($shell, '<svg') || !str_contains($shell, 'aria-hidden="true"')) {
+        throw new RuntimeException('The Symfony UX Icons adapter did not render accessible SVG markup.');
+    }
+
+    if (str_contains($shell, 'bi bi-sliders')) {
+        throw new RuntimeException('The Symfony UX Icons adapter fell back for a built-in Bootstrap icon.');
+    }
+}
+
 $content = file_get_contents($argv[2]);
 
 if (!is_string($content)) {

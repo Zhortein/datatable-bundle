@@ -13,7 +13,10 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 use Zhortein\DatatableBundle\DateTime\DateTimeFormatterInterface;
 use Zhortein\DatatableBundle\DateTime\DefaultDateTimeFormatter;
+use Zhortein\DatatableBundle\Icon\CssClassIconRenderer;
+use Zhortein\DatatableBundle\Icon\IconResolver;
 use Zhortein\DatatableBundle\Twig\DeclarativeTranslationExtension;
+use Zhortein\DatatableBundle\Twig\IconExtension;
 
 trait TranslatableRendererTestTrait
 {
@@ -68,6 +71,7 @@ trait TranslatableRendererTestTrait
         $twig->addExtension(new TranslationExtension($translator));
         $twig->addExtension(new DeclarativeTranslationExtension($translator));
         $twig->addExtension($this->createDateTimeTestExtension());
+        $twig->addExtension(new IconExtension(new CssClassIconRenderer(), new IconResolver()));
 
         return $translator;
     }

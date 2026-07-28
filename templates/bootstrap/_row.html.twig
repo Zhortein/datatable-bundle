@@ -26,7 +26,16 @@
                     <span
                         aria-hidden="true"
                         data-zhortein--datatable-bundle--datatable-child-indicator="true"
-                    >▸</span>
+                    >
+                        <span data-zhortein--datatable-bundle--datatable-child-expand-icon="true">
+                            {% set expand_icon = zhortein_datatable_icon_key('hierarchy_expand') %}
+                            {% if expand_icon is not empty %}{{ expand_icon }}{% else %}▸{% endif %}
+                        </span>
+                        <span data-zhortein--datatable-bundle--datatable-child-collapse-icon="true" hidden>
+                            {% set collapse_icon = zhortein_datatable_icon_key('hierarchy_collapse') %}
+                            {% if collapse_icon is not empty %}{{ collapse_icon }}{% else %}▾{% endif %}
+                        </span>
+                    </span>
                 </button>
             {% endif %}
         </td>
