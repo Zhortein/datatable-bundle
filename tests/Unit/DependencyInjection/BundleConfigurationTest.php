@@ -185,6 +185,15 @@ final class BundleConfigurationTest extends TestCase
         ]);
     }
 
+    public function test_it_accepts_http_as_default_provider(): void
+    {
+        $container = $this->loadBundleConfiguration([
+            'default_provider' => 'http',
+        ]);
+
+        self::assertSame('http', $container->getParameter('zhortein_datatable.default_provider'));
+    }
+
     public function test_it_rejects_invalid_default_theme(): void
     {
         $this->expectException(InvalidConfigurationException::class);

@@ -13,6 +13,7 @@ preserve scalar projections and prevent accidental lazy-loading queries.
 
 - **[Doctrine ORM Provider](doctrine-provider.md)**: The primary production-ready provider for entity-backed datatables.
 - **[Array Provider](array-provider.md)**: A lightweight provider for in-memory arrays, ideal for demos, tests, and small static datasets.
+- **[HTTP/API Provider](http-provider.md)**: A protocol-neutral remote provider with replaceable transport and mapping contracts.
 
 ## Provider Selection
 
@@ -22,6 +23,8 @@ You can specify the provider in the `#[AsDatatable]` attribute:
 #[AsDatatable(name: 'users', provider: 'doctrine')]
 // OR
 #[AsDatatable(name: 'demo', provider: 'array')]
+// OR
+#[AsDatatable(name: 'remote-users', provider: 'http')]
 ```
 
 If no provider is specified, the bundle uses the `default_provider` configured in `zhortein_datatable.yaml`.
@@ -30,6 +33,8 @@ The default is used when it supports the definition. Otherwise, the registry fal
 
 - Doctrine supports definitions with an entity class;
 - Array supports definitions with the `rows` option or an explicit `provider: 'array'`.
+- HTTP supports definitions with an `HttpProviderConfiguration` or an explicit
+  `provider: 'http'`; it never probes a remote endpoint during resolution.
 
 Parent and child datatables select providers independently. For example, an
 Array parent may lazily open a Doctrine child, which may itself open another
@@ -60,6 +65,10 @@ return static function (ContainerConfigurator $container): void {
 ```
 
 See [Architecture: Providers](architecture/providers.md) for internal implementation details.
+
+The built-in HTTP provider is preferable to a one-off custom provider when the
+remote protocol can be represented through its page/offset/cursor,
+field/operator and response-path mappings. See [HTTP/API Provider](http-provider.md).
 
 Custom providers that expose source objects must fetch every value needed by
 cell resolvers in batches. Sources are available only to server-side cell

@@ -65,6 +65,7 @@ Allowed values:
 ```text
 array
 doctrine
+http
 ```
 
 Default:
@@ -81,10 +82,15 @@ Current providers:
 
 - `array`;
 - `doctrine`.
+- `http`.
 
 The array provider is mostly intended for tests and demos.
 
 Doctrine is the first production-oriented provider.
+
+The HTTP provider requires an explicit per-datatable
+`HttpProviderConfiguration`. Symfony HttpClient is optional; see the
+[HTTP/API provider guide](http-provider.md).
 
 ## `default_theme`
 

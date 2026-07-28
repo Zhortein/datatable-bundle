@@ -1421,13 +1421,40 @@ Applications can generate very large authorized exports in background workers wh
 
 ---
 
+## 1.14 - Generic HTTP/API provider foundation ✅
+
+Delivered:
+
+- replaceable HTTP transport, request-mapper and response-mapper contracts;
+- optional Symfony HttpClient adapter without a mandatory runtime dependency;
+- immutable endpoint, capability, response-path and transport value objects;
+- page, offset and cursor pagination strategies;
+- API-specific parameter, field and operator mappings;
+- explicit search, sort, simple-filter, advanced-filter, count and export
+  capabilities;
+- allowlisted server context propagation;
+- bounded timeout, retry and cooperative cancellation behavior;
+- normalized remote status, transport and malformed-payload failures without
+  credential or raw-body leakage;
+- guarded page/offset/cursor export streaming for APIs that explicitly provide
+  exact counts;
+- unit, functional, MockHttpClient and compatibility coverage;
+- provider, architecture, configuration and public API documentation.
+
+Main outcome:
+
+```text
+Datatables can consume heterogeneous remote APIs through explicit capabilities and replaceable protocol boundaries without coupling existing providers to Symfony HttpClient.
+```
+
+---
+
 ## Later ideas 🔭
 
 Potential future work:
 
 - additional export formats;
 - user preference persistence adapters;
-- API/data-source providers;
 - Elasticsearch provider;
 - UX Icons integration;
 - Symfony Flex recipe if external demand justifies it;

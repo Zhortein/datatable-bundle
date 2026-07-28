@@ -6,6 +6,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use OpenSpout\Writer\XLSX\Writer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Zhortein\DatatableBundle\Contract\ChildDatatableAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Contract\DatatableExportAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Contract\ExportCancellationInterface;
@@ -26,6 +27,9 @@ use Zhortein\DatatableBundle\Export\AllowAllDatatableExportAuthorizationChecker;
 use Zhortein\DatatableBundle\Export\ConnectionAbortedExportCancellation;
 use Zhortein\DatatableBundle\Icon\IconResolver;
 use Zhortein\DatatableBundle\Contract\IconResolverInterface;
+use Zhortein\DatatableBundle\Contract\HttpRequestMapperInterface;
+use Zhortein\DatatableBundle\Contract\HttpResponseMapperInterface;
+use Zhortein\DatatableBundle\Contract\HttpTransportInterface;
 use Zhortein\DatatableBundle\Contract\DatatableViewAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Contract\DatatableViewOwnerResolverInterface;
 use Zhortein\DatatableBundle\Contract\DatatableViewProviderInterface;
@@ -81,6 +85,10 @@ use Zhortein\DatatableBundle\Preference\NullDatatablePreferenceProvider;
 use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Provider\DoctrineOrmDataProvider;
+use Zhortein\DatatableBundle\Provider\Http\DefaultHttpRequestMapper;
+use Zhortein\DatatableBundle\Provider\Http\DefaultHttpResponseMapper;
+use Zhortein\DatatableBundle\Provider\Http\SymfonyHttpClientTransport;
+use Zhortein\DatatableBundle\Provider\HttpDataProvider;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 use Zhortein\DatatableBundle\Twig\DeclarativeTranslationExtension;
 use Zhortein\DatatableBundle\Twig\DatatableTwigExtension;
@@ -211,6 +219,30 @@ return static function (ContainerConfigurator $container): void {
         ->set(ArrayDataProvider::class)
         ->tag('zhortein_datatable.data_provider', [
             'name' => ArrayDataProvider::PROVIDER_NAME,
+        ])
+    ;
+
+    $services->set(DefaultHttpRequestMapper::class);
+    $services->alias(HttpRequestMapperInterface::class, DefaultHttpRequestMapper::class);
+
+    $services->set(DefaultHttpResponseMapper::class);
+    $services->alias(HttpResponseMapperInterface::class, DefaultHttpResponseMapper::class);
+
+    if (interface_exists(HttpClientInterface::class)) {
+        $services
+            ->set(SymfonyHttpClientTransport::class)
+            ->arg('$httpClient', service('http_client')->nullOnInvalid())
+        ;
+        $services->alias(HttpTransportInterface::class, SymfonyHttpClientTransport::class);
+    }
+
+    $services
+        ->set(HttpDataProvider::class)
+        ->arg('$transport', service(HttpTransportInterface::class)->nullOnInvalid())
+        ->arg('$requestMapper', service(DefaultHttpRequestMapper::class))
+        ->arg('$responseMapper', service(DefaultHttpResponseMapper::class))
+        ->tag('zhortein_datatable.data_provider', [
+            'name' => HttpDataProvider::PROVIDER_NAME,
         ])
     ;
 

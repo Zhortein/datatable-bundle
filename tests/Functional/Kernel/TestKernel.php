@@ -15,6 +15,7 @@ use Zhortein\DatatableBundle\Action\ActionVisibilityCheckerInterface;
 use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
 use Zhortein\DatatableBundle\Contract\ChildDatatableAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Contract\IconResolverInterface;
+use Zhortein\DatatableBundle\Contract\HttpTransportInterface;
 use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
@@ -24,6 +25,7 @@ use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
+use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Provider\FunctionalHttpTransport;
 use Zhortein\DatatableBundle\ZhorteinDatatableBundle;
 
 class TestKernel extends Kernel
@@ -161,6 +163,8 @@ class TestKernel extends Kernel
             ->alias('test.'.CellValueResolverRegistry::class, CellValueResolverRegistry::class)
             ->public()
         ;
+
+        $services->alias(HttpTransportInterface::class, FunctionalHttpTransport::class);
     }
 
     protected function configureRoutes(RoutingConfigurator $routes): void

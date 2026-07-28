@@ -9,6 +9,7 @@ final readonly class DatatableResult
     /**
      * @param list<array<string, mixed>> $rows
      * @param list<mixed>                $sources server-side source values aligned with rows
+     * @param array<string, mixed>        $metadata provider-specific non-rendered metadata
      */
     public function __construct(
         private array $rows = [],
@@ -17,6 +18,7 @@ final readonly class DatatableResult
         private int $totalItems = 0,
         private ?int $filteredItems = null,
         private array $sources = [],
+        private array $metadata = [],
     ) {
         if ($this->page < 1) {
             throw new \InvalidArgumentException('The datatable result page must be greater than or equal to 1.');
@@ -42,6 +44,7 @@ final readonly class DatatableResult
     /**
      * @param list<array<string, mixed>> $rows
      * @param list<mixed>                $sources
+     * @param array<string, mixed>        $metadata
      */
     public static function create(
         array $rows = [],
@@ -50,6 +53,7 @@ final readonly class DatatableResult
         int $totalItems = 0,
         ?int $filteredItems = null,
         array $sources = [],
+        array $metadata = [],
     ): self {
         return new self(
             rows: $rows,
@@ -58,6 +62,7 @@ final readonly class DatatableResult
             totalItems: $totalItems,
             filteredItems: $filteredItems,
             sources: $sources,
+            metadata: $metadata,
         );
     }
 
@@ -85,6 +90,19 @@ final readonly class DatatableResult
     public function hasSources(): bool
     {
         return [] !== $this->sources;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getMetadata(): array
+    {
+        return $this->metadata;
+    }
+
+    public function getMetadataValue(string $name, mixed $default = null): mixed
+    {
+        return $this->metadata[$name] ?? $default;
     }
 
     public function getPage(): int
