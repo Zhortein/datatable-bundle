@@ -238,6 +238,12 @@ Security is a core design principle of the Advanced Filters system:
 3.  **Strict Operators**: The backend validates that only supported operators are used.
 4.  **Parameter Binding**: All values from the frontend are treated as parameters and bound using Doctrine's secure parameter binding system. No values are ever directly concatenated into query strings.
 5.  **Depth Limit**: The expression tree depth is limited (default 3) to prevent complex query exhaustion attacks.
+6.  **Breadth and Value Limits**: A request accepts at most 50 conditions,
+    100 values per condition and 2,048 characters per string value. Invalid or
+    oversized expressions are ignored before reaching a provider.
+
+See the [security model](security.md) for the complete transport and provider
+boundaries.
 
 ## Limitations
 

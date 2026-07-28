@@ -108,6 +108,7 @@ final class UserDatatable implements DatatableInterface
 - [URL State & Browser History](docs/url-state.md)
 - [Named Saved Views](docs/saved-views.md)
 - [Actions & Security](docs/actions.md)
+- [Security Model](docs/security.md)
 - [Bulk Actions & Selection](docs/bulk-actions.md)
 - [Exports](docs/exports.md)
 - [Asynchronous Export Jobs](docs/async-exports.md)

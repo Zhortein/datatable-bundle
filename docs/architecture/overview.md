@@ -78,7 +78,11 @@ Providers receive a typed `DatatableRequest` instead of parsing Symfony HTTP req
 
 ### DatatableRequestFactory
 
-Converts Symfony HTTP requests into typed `DatatableRequest` objects, normalizing parameters and applying defaults.
+Converts Symfony HTTP requests into typed `DatatableRequest` objects,
+normalizing parameters and applying defaults. A dedicated
+`DatatableRequestInputSanitizer` bounds transport complexity, rejects
+client-controlled internal options and reduces fields to the resolved
+definition before provider execution.
 
 ### DatatableResult
 

@@ -251,6 +251,9 @@ HTTP runtime boundary.
 -   Encourage users to apply filters before performing a "full" export.
 -   Keep the number of exported columns to a minimum.
 -   Keep synchronous limits aligned with request timeouts, even though memory is bounded.
+-   CSV string cells that could be interpreted as spreadsheet formulas are
+    neutralized with a leading apostrophe. Numeric negative values are
+    preserved as numbers.
 -   For long-running remote sources, enable [asynchronous export jobs](async-exports.md) and configure a persistent repository/result storage.
 
 ## Customization

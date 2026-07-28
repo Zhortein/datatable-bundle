@@ -100,6 +100,7 @@ use Zhortein\DatatableBundle\Provider\Http\DefaultHttpResponseMapper;
 use Zhortein\DatatableBundle\Provider\Http\SymfonyHttpClientTransport;
 use Zhortein\DatatableBundle\Provider\HttpDataProvider;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
+use Zhortein\DatatableBundle\Request\DatatableRequestInputSanitizer;
 use Zhortein\DatatableBundle\Twig\DeclarativeTranslationExtension;
 use Zhortein\DatatableBundle\Twig\DatatableTwigExtension;
 use Zhortein\DatatableBundle\Twig\DateTimeTwigExtension;
@@ -161,6 +162,7 @@ return static function (ContainerConfigurator $container): void {
     $services->alias(ActionVisibilityCheckerInterface::class, AllowAllActionVisibilityChecker::class);
 
     $services->set(AdvancedFilterExpressionFactory::class);
+    $services->set(DatatableRequestInputSanitizer::class);
 
     $definitionFactory = $services
         ->set(DatatableDefinitionFactory::class)

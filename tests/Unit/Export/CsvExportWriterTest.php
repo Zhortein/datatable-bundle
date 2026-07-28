@@ -170,6 +170,32 @@ final class CsvExportWriterTest extends TestCase
         self::assertStringStartsWith("\xEF\xBB\xBF", (string) $response->getContent());
     }
 
+    public function test_it_neutralizes_spreadsheet_formulas_from_string_cells(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition
+            ->addColumn('e.formula', label: 'Formula')
+            ->addColumn('e.negativeNumber', label: 'Negative number')
+        ;
+
+        $response = new CsvExportWriter()->write(
+            request: new DatatableExportRequest('users'),
+            definition: $definition,
+            result: new DatatableResult(
+                rows: [[
+                    'e_formula' => " \t=HYPERLINK(\"https://example.test\")",
+                    'e_negativeNumber' => -42,
+                ]],
+                totalItems: 1,
+            ),
+        );
+
+        $content = (string) $response->getContent();
+
+        self::assertStringContainsString("' \t=HYPERLINK", $content);
+        self::assertStringContainsString(',-42', $content);
+    }
+
     public function test_it_writes_csv_response(): void
     {
         $writer = new CsvExportWriter();
