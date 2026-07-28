@@ -1396,11 +1396,35 @@ Large synchronous exports no longer require the complete filtered dataset or gen
 
 ---
 
+## 1.13 - Asynchronous export jobs and Messenger ✅
+
+Delivered:
+
+- immutable request, identifier, status, job and result metadata contracts;
+- `pending`, `running`, `completed`, `failed` and `expired` lifecycle states;
+- replaceable repository, result storage, owner, identifier, clock, expiry and
+  dispatcher contracts;
+- owner-bound submission/status/download with authorization recheck;
+- canonical state, signed context, enum presentation and locale reuse;
+- owner-scoped idempotency and deterministic conflict behavior;
+- bounded retries with transport-safe Messenger messages and handler;
+- configurable background row limits, retention and maximum attempts;
+- streaming CSV/XLSX artifacts without full result materialization;
+- bounded cleanup service and deterministic in-memory test adapters;
+- complete security, Messenger, host-integration and architecture documentation.
+
+Main outcome:
+
+```text
+Applications can generate very large authorized exports in background workers while retaining full control over persistence, storage and user scope.
+```
+
+---
+
 ## Later ideas 🔭
 
 Potential future work:
 
-- async exports;
 - additional export formats;
 - user preference persistence adapters;
 - API/data-source providers;
@@ -1410,7 +1434,6 @@ Potential future work:
 - Tailwind or custom theme support;
 - icon provider abstraction;
 - broader cross-browser coverage when concrete compatibility risks justify it;
-- queued export jobs.
 
 ---
 

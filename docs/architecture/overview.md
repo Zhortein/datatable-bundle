@@ -104,6 +104,19 @@ When either additive streaming capability is unavailable, the unchanged
 `DataProviderInterface` → `DatatableResult` → `ExportWriterInterface` flow is
 used for 1.x compatibility.
 
+Opt-in asynchronous jobs reuse the canonical request and streaming provider,
+but replace the HTTP writer with an artifact and host-provided persistence:
+
+```text
+job submission
+→ ExportJobRepositoryInterface
+→ optional Messenger message
+→ ExportJobRunner
+→ ExportArtifactWriterInterface
+→ ExportJobResultStorageInterface
+→ owner-bound download
+```
+
 ## Test and quality architecture
 
 The project adheres to strict quality gates: PHPUnit, PHPStan (max level), PHP-CS-Fixer, and twigcs.

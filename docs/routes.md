@@ -9,6 +9,9 @@ This document describes the bundle routes imported from `@ZhorteinDatatableBundl
 | `zhortein_datatable_fragments` | `/_zhortein/datatable/{name}/fragments` | `GET`, `POST` | Refresh rendered datatable fragments |
 | `zhortein_datatable_child` | `/_zhortein/datatable/{name}/child` | `GET` | Render one signed lazy child datatable shell |
 | `zhortein_datatable_export` | `/_zhortein/datatable/{name}/export/{format}` | `GET`, `POST` | Generate CSV or XLSX exports |
+| `zhortein_datatable_export_job_submit` | `/_zhortein/datatable/{name}/export-jobs/{format}` | `POST` | Submit an asynchronous CSV/XLSX job |
+| `zhortein_datatable_export_job_status` | `/_zhortein/datatable/export-jobs/{jobIdentifier}` | `GET` | Read an owner-bound job status |
+| `zhortein_datatable_export_job_download` | `/_zhortein/datatable/export-jobs/{jobIdentifier}/download` | `GET` | Download an authorized completed result |
 | `zhortein_datatable_views_list` | `/_zhortein/datatable/{name}/views` | `GET` | List named views |
 | `zhortein_datatable_views_create` | `/_zhortein/datatable/{name}/views` | `POST` | Create a named view |
 | `zhortein_datatable_views_load` | `/_zhortein/datatable/{name}/views/{viewIdentifier}` | `GET` | Load a named view |
@@ -61,6 +64,7 @@ Verify the import:
 php bin/console debug:router zhortein_datatable_fragments
 php bin/console debug:router zhortein_datatable_child
 php bin/console debug:router zhortein_datatable_export
+php bin/console debug:router zhortein_datatable_export_job_submit
 php bin/console debug:router zhortein_datatable_views_list
 ```
 
@@ -73,6 +77,9 @@ For a datatable named `users`, the default URLs are:
 /_zhortein/datatable/order-lines/child
 /_zhortein/datatable/users/export
 /_zhortein/datatable/users/export/xlsx
+/_zhortein/datatable/users/export-jobs/csv
+/_zhortein/datatable/export-jobs/{opaque-identifier}
+/_zhortein/datatable/export-jobs/{opaque-identifier}/download
 /_zhortein/datatable/users/views
 ```
 
@@ -101,6 +108,12 @@ allows access.
 If export access depends on the datatable name, format, mode, restored state or
 business context, replace the export checker as documented in
 [server-side exports](exports.md).
+
+Asynchronous routes are disabled by default. Once enabled, they additionally
+require a non-null opaque owner from `ExportJobOwnerResolverInterface`.
+Submission and download call the export authorization checker independently;
+status/download never reveal whether a job belongs to another owner. See
+[asynchronous export jobs](async-exports.md).
 
 Signed context prevents modification but not replay. Tenant and business-scope
 authorization must still be checked by the host application.

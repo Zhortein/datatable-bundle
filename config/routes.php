@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Zhortein\DatatableBundle\Controller\DatatableController;
+use Zhortein\DatatableBundle\Controller\DatatableExportJobController;
 use Zhortein\DatatableBundle\Controller\DatatableViewController;
 
 return static function (RoutingConfigurator $routes): void {
@@ -28,6 +29,36 @@ return static function (RoutingConfigurator $routes): void {
         ])
         ->requirements([
             'format' => 'csv|xlsx',
+        ])
+    ;
+
+    $routes
+        ->add('zhortein_datatable_export_job_submit', '/_zhortein/datatable/{name}/export-jobs/{format}')
+        ->controller([DatatableExportJobController::class, 'submit'])
+        ->methods(['POST'])
+        ->defaults([
+            'format' => 'csv',
+        ])
+        ->requirements([
+            'format' => 'csv|xlsx',
+        ])
+    ;
+
+    $routes
+        ->add('zhortein_datatable_export_job_status', '/_zhortein/datatable/export-jobs/{jobIdentifier}')
+        ->controller([DatatableExportJobController::class, 'status'])
+        ->methods(['GET'])
+        ->requirements([
+            'jobIdentifier' => '[A-Za-z0-9_-]{16,128}',
+        ])
+    ;
+
+    $routes
+        ->add('zhortein_datatable_export_job_download', '/_zhortein/datatable/export-jobs/{jobIdentifier}/download')
+        ->controller([DatatableExportJobController::class, 'download'])
+        ->methods(['GET'])
+        ->requirements([
+            'jobIdentifier' => '[A-Za-z0-9_-]{16,128}',
         ])
     ;
 

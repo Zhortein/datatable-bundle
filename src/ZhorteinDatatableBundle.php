@@ -45,6 +45,12 @@ final class ZhorteinDatatableBundle extends AbstractBundle
             throw new \LogicException('The CSV export configuration must be an array.');
         }
 
+        $asyncConfig = $exportConfig['async'] ?? [];
+
+        if (!is_array($asyncConfig)) {
+            throw new \LogicException('The asynchronous export configuration must be an array.');
+        }
+
         /** @var array{
          *     max_rows: int,
          *     batch_size: int,
@@ -54,6 +60,13 @@ final class ZhorteinDatatableBundle extends AbstractBundle
          *         enclosure: string,
          *         escape: string,
          *         bom: bool
+         *     },
+         *     async: array{
+         *         enabled: bool,
+         *         max_rows: int,
+         *         ttl: int,
+         *         max_attempts: int,
+         *         format_limits: array{csv: int|null, xlsx: int|null}
          *     }
          * } $exportConfig */
 
@@ -94,6 +107,11 @@ final class ZhorteinDatatableBundle extends AbstractBundle
             ->set('zhortein_datatable.export.csv.enclosure', $csvConfig['enclosure'])
             ->set('zhortein_datatable.export.csv.escape', $csvConfig['escape'])
             ->set('zhortein_datatable.export.csv.bom', $csvConfig['bom'])
+            ->set('zhortein_datatable.export.async.enabled', $asyncConfig['enabled'])
+            ->set('zhortein_datatable.export.async.max_rows', $asyncConfig['max_rows'])
+            ->set('zhortein_datatable.export.async.ttl', $asyncConfig['ttl'])
+            ->set('zhortein_datatable.export.async.max_attempts', $asyncConfig['max_attempts'])
+            ->set('zhortein_datatable.export.async.format_limits', $asyncConfig['format_limits'])
         ;
 
         $configurator->import('../config/services.php');
@@ -151,6 +169,40 @@ final class ZhorteinDatatableBundle extends AbstractBundle
                                     ->end()
                                     ->booleanNode('bom')
                                         ->defaultFalse()
+                                    ->end()
+                                ->end()
+                            ->end()
+                            ->arrayNode('async')
+                                ->addDefaultsIfNotSet()
+                                ->children()
+                                    ->booleanNode('enabled')
+                                        ->defaultFalse()
+                                    ->end()
+                                    ->integerNode('max_rows')
+                                        ->min(1)
+                                        ->defaultValue(250000)
+                                    ->end()
+                                    ->integerNode('ttl')
+                                        ->min(1)
+                                        ->defaultValue(86400)
+                                    ->end()
+                                    ->integerNode('max_attempts')
+                                        ->min(1)
+                                        ->max(100)
+                                        ->defaultValue(3)
+                                    ->end()
+                                    ->arrayNode('format_limits')
+                                        ->addDefaultsIfNotSet()
+                                        ->children()
+                                            ->integerNode('csv')
+                                                ->min(1)
+                                                ->defaultNull()
+                                            ->end()
+                                            ->integerNode('xlsx')
+                                                ->min(1)
+                                                ->defaultNull()
+                                            ->end()
+                                        ->end()
                                     ->end()
                                 ->end()
                             ->end()

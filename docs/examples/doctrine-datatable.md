@@ -477,7 +477,7 @@ Current limitations:
 - no persisted column preferences;
 - no built-in action controllers;
 - no built-in voters;
-- no asynchronous exports yet.
+- asynchronous exports require host persistence, storage and owner adapters.
 
 ## Related documentation
 
@@ -485,6 +485,7 @@ Current limitations:
 - [`../filters.md`](../filters.md)
 - [`../actions.md`](../actions.md)
 - [`../exports.md`](../exports.md)
+- [`../async-exports.md`](../async-exports.md)
 - [`../preferences.md`](../preferences.md)
 - [`../ui-ux.md`](../ui-ux.md)
 - [`../sorting.md`](../sorting.md)

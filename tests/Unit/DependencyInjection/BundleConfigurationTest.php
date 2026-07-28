@@ -9,9 +9,19 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Zhortein\DatatableBundle\Contract\DatatableExportAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Contract\ExportCancellationInterface;
+use Zhortein\DatatableBundle\Contract\ExportJobClockInterface;
+use Zhortein\DatatableBundle\Contract\ExportJobDispatcherInterface;
+use Zhortein\DatatableBundle\Contract\ExportJobExpiryPolicyInterface;
+use Zhortein\DatatableBundle\Contract\ExportJobOwnerResolverInterface;
+use Zhortein\DatatableBundle\Contract\ExportJobRepositoryInterface;
+use Zhortein\DatatableBundle\Contract\ExportJobResultStorageInterface;
 use Zhortein\DatatableBundle\Export\AllowAllDatatableExportAuthorizationChecker;
 use Zhortein\DatatableBundle\Export\ConnectionAbortedExportCancellation;
 use Zhortein\DatatableBundle\Export\ExportLimitResolver;
+use Zhortein\DatatableBundle\Export\Job\InMemoryExportJobRepository;
+use Zhortein\DatatableBundle\Export\Job\InMemoryExportJobResultStorage;
+use Zhortein\DatatableBundle\Export\Job\NullExportJobOwnerResolver;
+use Zhortein\DatatableBundle\Export\Job\UnavailableExportJobDispatcher;
 use Zhortein\DatatableBundle\ZhorteinDatatableBundle;
 
 final class BundleConfigurationTest extends TestCase
@@ -37,6 +47,14 @@ final class BundleConfigurationTest extends TestCase
         self::assertSame('"', $container->getParameter('zhortein_datatable.export.csv.enclosure'));
         self::assertSame('\\', $container->getParameter('zhortein_datatable.export.csv.escape'));
         self::assertFalse($container->getParameter('zhortein_datatable.export.csv.bom'));
+        self::assertFalse($container->getParameter('zhortein_datatable.export.async.enabled'));
+        self::assertSame(250000, $container->getParameter('zhortein_datatable.export.async.max_rows'));
+        self::assertSame(86400, $container->getParameter('zhortein_datatable.export.async.ttl'));
+        self::assertSame(3, $container->getParameter('zhortein_datatable.export.async.max_attempts'));
+        self::assertSame(
+            ['csv' => null, 'xlsx' => null],
+            $container->getParameter('zhortein_datatable.export.async.format_limits'),
+        );
     }
 
     public function test_it_accepts_custom_icons(): void
@@ -70,6 +88,24 @@ final class BundleConfigurationTest extends TestCase
             AllowAllDatatableExportAuthorizationChecker::class,
             (string) $container->getAlias(DatatableExportAuthorizationCheckerInterface::class),
         );
+        self::assertSame(
+            InMemoryExportJobRepository::class,
+            (string) $container->getAlias(ExportJobRepositoryInterface::class),
+        );
+        self::assertSame(
+            InMemoryExportJobResultStorage::class,
+            (string) $container->getAlias(ExportJobResultStorageInterface::class),
+        );
+        self::assertTrue($container->hasAlias(ExportJobClockInterface::class));
+        self::assertTrue($container->hasAlias(ExportJobExpiryPolicyInterface::class));
+        self::assertSame(
+            NullExportJobOwnerResolver::class,
+            (string) $container->getAlias(ExportJobOwnerResolverInterface::class),
+        );
+        self::assertSame(
+            UnavailableExportJobDispatcher::class,
+            (string) $container->getAlias(ExportJobDispatcherInterface::class),
+        );
     }
 
     public function test_it_accepts_custom_configuration_values(): void
@@ -97,6 +133,16 @@ final class BundleConfigurationTest extends TestCase
                     'escape' => '!',
                     'bom' => true,
                 ],
+                'async' => [
+                    'enabled' => true,
+                    'max_rows' => 500000,
+                    'ttl' => 7200,
+                    'max_attempts' => 5,
+                    'format_limits' => [
+                        'csv' => 400000,
+                        'xlsx' => 100000,
+                    ],
+                ],
             ],
         ]);
 
@@ -120,6 +166,14 @@ final class BundleConfigurationTest extends TestCase
         self::assertSame('|', $container->getParameter('zhortein_datatable.export.csv.enclosure'));
         self::assertSame('!', $container->getParameter('zhortein_datatable.export.csv.escape'));
         self::assertTrue($container->getParameter('zhortein_datatable.export.csv.bom'));
+        self::assertTrue($container->getParameter('zhortein_datatable.export.async.enabled'));
+        self::assertSame(500000, $container->getParameter('zhortein_datatable.export.async.max_rows'));
+        self::assertSame(7200, $container->getParameter('zhortein_datatable.export.async.ttl'));
+        self::assertSame(5, $container->getParameter('zhortein_datatable.export.async.max_attempts'));
+        self::assertSame(
+            ['csv' => 400000, 'xlsx' => 100000],
+            $container->getParameter('zhortein_datatable.export.async.format_limits'),
+        );
     }
 
     public function test_it_rejects_invalid_default_provider(): void

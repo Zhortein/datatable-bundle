@@ -435,6 +435,32 @@ final class CsvExportWriterTest extends TestCase
         }
     }
 
+    public function test_it_writes_a_bounded_background_artifact(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition->addColumn('email', label: 'Email');
+        $artifact = new CsvExportWriter()->writeArtifact(
+            request: new DatatableExportRequest('users'),
+            definition: $definition,
+            rows: [
+                new ExportRow(['email' => 'alice@example.test']),
+                new ExportRow(['email' => 'bob@example.test']),
+            ],
+            context: $this->createStreamContext(2),
+        );
+
+        try {
+            self::assertSame('users.csv', $artifact->getFilename());
+            self::assertSame('text/csv; charset=UTF-8', $artifact->getContentType());
+            self::assertSame(
+                "Email\nalice@example.test\nbob@example.test\n",
+                file_get_contents($artifact->getPath()),
+            );
+        } finally {
+            $artifact->delete();
+        }
+    }
+
     private function createStreamContext(int $expectedRowCount): ExportStreamContext
     {
         return new ExportStreamContext(
