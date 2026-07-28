@@ -1,1 +1,0 @@
-- Prevented HTTP payloads from disabling pagination, allowlisted declared filters, sorts and columns before provider execution, bounded search/filter/Search Builder inputs, and neutralized spreadsheet formulas in CSV string cells.
