@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Tests\Functional;
 
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
 use Zhortein\DatatableBundle\Tests\Functional\Kernel\TestKernel;
 
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState(false)]
 final class HttpDataProviderFunctionalTest extends FunctionalTestCase
 {
     public function test_it_loads_an_http_datatable_through_the_bundle_registry(): void

@@ -28,9 +28,14 @@ final readonly class HttpProviderCapabilities
         }
 
         foreach ($this->paginationStrategies as $strategy) {
-            if (!$strategy instanceof HttpPaginationStrategy) {
-                throw new \InvalidArgumentException('HTTP pagination strategies must use HttpPaginationStrategy values.');
-            }
+            self::validatePaginationStrategy($strategy);
+        }
+    }
+
+    private static function validatePaginationStrategy(mixed $strategy): void
+    {
+        if (!$strategy instanceof HttpPaginationStrategy) {
+            throw new \InvalidArgumentException('HTTP pagination strategies must use HttpPaginationStrategy values.');
         }
     }
 

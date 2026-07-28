@@ -90,6 +90,7 @@ final readonly class HttpTransportRequest
         return $this->retryStatusCodes;
     }
 
+    /** @phpstan-impure */
     public function isCancellationRequested(): bool
     {
         return $this->cancellation?->isCancellationRequested() ?? false;

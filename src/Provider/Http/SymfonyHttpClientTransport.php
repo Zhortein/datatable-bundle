@@ -65,7 +65,7 @@ final readonly class SymfonyHttpClientTransport implements HttpTransportInterfac
                 return new HttpTransportResponse(
                     statusCode: $statusCode,
                     body: $response->getContent(false),
-                    headers: $response->getHeaders(false),
+                    headers: self::normalizeHeaders($response->getHeaders(false)),
                 );
             } catch (TransportExceptionInterface) {
                 if ($attempt >= $request->getMaxAttempts()) {
@@ -75,5 +75,25 @@ final readonly class SymfonyHttpClientTransport implements HttpTransportInterfac
         }
 
         throw new HttpTransportException('The remote data provider request failed.');
+    }
+
+    /**
+     * @param array<array<string>> $headers
+     *
+     * @return array<string, list<string>>
+     */
+    private static function normalizeHeaders(array $headers): array
+    {
+        $normalizedHeaders = [];
+
+        foreach ($headers as $name => $values) {
+            if (!is_string($name)) {
+                continue;
+            }
+
+            $normalizedHeaders[$name] = array_values($values);
+        }
+
+        return $normalizedHeaders;
     }
 }
