@@ -85,9 +85,12 @@ Supported pagination strategies are:
 
 Page and offset strategies integrate with the built-in numbered pagination.
 Cursor metadata is exposed in `DatatableResult::getMetadata()` for custom
-clients. A cursor-aware client must pass the selected token as the trusted
-`http_cursor` request option; the built-in numbered pagination does not invent
-or persist cursor chains.
+clients. A cursor-aware client passes the selected token as the `httpCursor`
+transport parameter. `DatatableRequestFactory` bounds it and maps it to the
+internal `http_cursor` option; all other client-provided request options are
+discarded. Server-side callers can also supply `http_cursor` explicitly through
+`createFromState(..., options: [...])`. The built-in numbered pagination does
+not invent or persist cursor chains.
 
 ## Request mapping
 

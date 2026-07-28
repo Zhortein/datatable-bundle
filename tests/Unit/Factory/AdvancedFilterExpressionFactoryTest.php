@@ -381,4 +381,49 @@ final class AdvancedFilterExpressionFactoryTest extends TestCase
 
         self::assertNull($this->factory->createFromArray($payload));
     }
+
+    public function test_it_rejects_unknown_group_logic(): void
+    {
+        self::assertNull($this->factory->createFromArray([
+            'logic' => 'XOR',
+            'conditions' => [
+                ['field' => 'name', 'operator' => 'eq', 'value' => 'Alice'],
+            ],
+        ]));
+    }
+
+    public function test_it_rejects_more_than_the_maximum_condition_count(): void
+    {
+        $conditions = [];
+
+        for ($index = 0; $index <= AdvancedFilterExpressionFactory::MAX_CONDITIONS; ++$index) {
+            $conditions[] = ['field' => 'name', 'operator' => 'eq', 'value' => $index];
+        }
+
+        self::assertNull($this->factory->createFromArray([
+            'logic' => 'AND',
+            'conditions' => $conditions,
+        ]));
+    }
+
+    public function test_it_drops_oversized_condition_values(): void
+    {
+        self::assertNull($this->factory->createFromArray([
+            'logic' => 'AND',
+            'conditions' => [[
+                'field' => 'name',
+                'operator' => 'contains',
+                'value' => str_repeat('a', AdvancedFilterExpressionFactory::MAX_VALUE_LENGTH + 1),
+            ]],
+        ]));
+
+        self::assertNull($this->factory->createFromArray([
+            'logic' => 'AND',
+            'conditions' => [[
+                'field' => 'name',
+                'operator' => 'in',
+                'value' => range(1, AdvancedFilterExpressionFactory::MAX_VALUES_PER_CONDITION + 1),
+            ]],
+        ]));
+    }
 }
