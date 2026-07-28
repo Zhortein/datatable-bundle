@@ -6,6 +6,7 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Factory;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Factory\AdvancedFilterExpressionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
@@ -33,6 +34,8 @@ final class DatatableRequestFactoryTest extends TestCase
                 'status' => 'enabled',
             ],
             'options' => [
+                'http_cursor' => ' next-page ',
+                'disablePagination' => true,
                 'foo' => 'bar',
             ],
         ]));
@@ -44,7 +47,8 @@ final class DatatableRequestFactoryTest extends TestCase
         self::assertSame('e.email', $datatableRequest->getSortField());
         self::assertSame(SortDirection::Desc, $datatableRequest->getSortDirection());
         self::assertSame(['status' => 'enabled'], $datatableRequest->getFilters());
-        self::assertSame(['foo' => 'bar'], $datatableRequest->getOptions());
+        self::assertSame(['http_cursor' => 'next-page'], $datatableRequest->getOptions());
+        self::assertTrue($datatableRequest->isPaginationEnabled());
     }
 
     public function test_request_payload_overrides_query_parameters(): void
@@ -157,6 +161,97 @@ final class DatatableRequestFactoryTest extends TestCase
         ]));
 
         self::assertSame(DatatableRequestFactory::MAX_PAGE_SIZE, $datatableRequest->getPageSize());
+    }
+
+    public function test_it_caps_page_and_search_length(): void
+    {
+        $datatableRequest = $this->factory->createFromRequest(new Request([
+            'page' => (string) PHP_INT_MAX,
+            'search' => str_repeat('a', DatatableRequestFactory::MAX_SEARCH_LENGTH + 1),
+        ]));
+
+        self::assertSame(DatatableRequestFactory::MAX_PAGE, $datatableRequest->getPage());
+        self::assertSame(
+            str_repeat('a', DatatableRequestFactory::MAX_SEARCH_LENGTH),
+            $datatableRequest->getSearchQuery(),
+        );
+        self::assertSame(
+            (DatatableRequestFactory::MAX_PAGE - 1) * DatatableRequestFactory::DEFAULT_PAGE_SIZE,
+            $datatableRequest->getOffset(),
+        );
+    }
+
+    public function test_it_drops_oversized_filter_payloads(): void
+    {
+        $datatableRequest = $this->factory->createFromRequest(new Request([
+            'filters' => [
+                'oversized_string' => str_repeat('a', DatatableRequestFactory::MAX_FILTER_VALUE_LENGTH + 1),
+                'oversized_list' => range(1, DatatableRequestFactory::MAX_FILTER_VALUES + 1),
+                'nested' => [['unexpected']],
+                'allowed' => 'yes',
+            ],
+        ]));
+
+        self::assertSame(['allowed' => 'yes'], $datatableRequest->getFilters());
+    }
+
+    public function test_it_accepts_a_bounded_top_level_http_cursor(): void
+    {
+        $datatableRequest = $this->factory->createFromRequest(new Request([
+            'httpCursor' => 'next-page',
+        ]));
+
+        self::assertSame('next-page', $datatableRequest->getOption('http_cursor'));
+    }
+
+    public function test_it_keeps_only_server_declared_filters_sorts_and_columns(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition
+            ->addColumn('e.email')
+            ->addColumn('e.createdAt', sortable: false)
+            ->addFilter('email', 'e.email')
+        ;
+
+        $datatableRequest = $this->factory->createFromRequest(new Request([
+            'filters' => [
+                'email' => 'alice@example.test',
+                'arbitrary_dql' => 'injected',
+            ],
+            'sorts' => [
+                ['field' => 'e.email', 'direction' => 'asc'],
+                ['field' => 'e.createdAt', 'direction' => 'desc'],
+                ['field' => 'e.unknown', 'direction' => 'desc'],
+            ],
+            'visibleColumns' => ['e.email', 'e.unknown'],
+            'hiddenColumns' => ['e.createdAt', 'e.unknown'],
+        ]), $definition);
+
+        self::assertSame(['email' => 'alice@example.test'], $datatableRequest->getFilters());
+        self::assertSame(
+            [['field' => 'e.email', 'direction' => 'asc']],
+            array_map(
+                static fn (SortCriterion $criterion): array => $criterion->toArray(),
+                $datatableRequest->getSorts(),
+            ),
+        );
+        self::assertSame(['e.email'], $datatableRequest->getVisibleColumns());
+        self::assertSame(['e.createdAt'], $datatableRequest->getHiddenColumns());
+    }
+
+    public function test_it_drops_excessively_nested_advanced_filter_transport(): void
+    {
+        $payload = ['field' => 'name', 'operator' => 'eq', 'value' => 'Alice'];
+
+        for ($depth = 0; $depth <= DatatableRequestFactory::MAX_TRANSPORT_DEPTH; ++$depth) {
+            $payload = ['logic' => 'AND', 'conditions' => [$payload]];
+        }
+
+        $datatableRequest = $this->factory->createFromRequest(new Request([
+            'advancedFilters' => $payload,
+        ]));
+
+        self::assertFalse($datatableRequest->hasAdvancedFilters());
     }
 
     public function test_it_normalizes_empty_strings(): void

@@ -262,7 +262,7 @@ final readonly class CsvExportWriter implements ExportWriterInterface, Streaming
                 );
 
                 if (null !== $presentation) {
-                    $values[] = $presentation->getLabel();
+                    $values[] = $this->escapeSpreadsheetFormula($presentation->getLabel());
 
                     continue;
                 }
@@ -288,15 +288,28 @@ final readonly class CsvExportWriter implements ExportWriterInterface, Streaming
             return $value ? '1' : '0';
         }
 
+        if (is_string($value)) {
+            return $this->escapeSpreadsheetFormula($value);
+        }
+
         if (is_scalar($value)) {
             return (string) $value;
         }
 
         if ($value instanceof \Stringable) {
-            return (string) $value;
+            return $this->escapeSpreadsheetFormula((string) $value);
         }
 
         return json_encode($value, JSON_THROW_ON_ERROR);
+    }
+
+    private function escapeSpreadsheetFormula(string $value): string
+    {
+        if (1 !== preg_match('/^[\x00-\x20]*[=+\-@]/', $value)) {
+            return $value;
+        }
+
+        return '\''.$value;
     }
 
     /**
