@@ -97,6 +97,19 @@ $profiles = [
     ],
 ];
 
+$bundleVersion = getenv('SMOKE_BUNDLE_VERSION') ?: 'current';
+
+if ('current' !== $bundleVersion) {
+    foreach ($profiles as &$versionedProfile) {
+        $versionedProfile['patterns'] = array_values(array_filter(
+            $versionedProfile['patterns'],
+            static fn (string $pattern): bool => !str_contains($pattern, 'icon_provider:'),
+        ));
+        unset($versionedProfile['parameters']['zhortein_datatable.icon_provider']);
+    }
+    unset($versionedProfile);
+}
+
 $profile = $profiles[$argv[1]] ?? null;
 
 if (!is_array($profile)) {
