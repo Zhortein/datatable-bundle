@@ -1,1 +1,0 @@
-- Added a dependency-free icon renderer abstraction with safe CSS-class output, consistent control and cell rendering, and an optional Symfony UX Icons adapter with deterministic fallback behavior.
