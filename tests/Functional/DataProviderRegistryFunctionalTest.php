@@ -10,6 +10,7 @@ use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Provider\DoctrineOrmDataProvider;
+use Zhortein\DatatableBundle\Provider\HttpDataProvider;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
 use Zhortein\DatatableBundle\Tests\Functional\Kernel\TestKernel;
 
@@ -41,6 +42,17 @@ final class DataProviderRegistryFunctionalTest extends FunctionalTestCase
         self::assertInstanceOf(DataProviderRegistry::class, $registry);
         self::assertTrue($registry->has(DoctrineOrmDataProvider::PROVIDER_NAME));
         self::assertInstanceOf(DoctrineOrmDataProvider::class, $registry->get(DoctrineOrmDataProvider::PROVIDER_NAME));
+    }
+
+    public function test_it_registers_http_data_provider_without_changing_the_default(): void
+    {
+        self::bootKernel();
+
+        $registry = self::getContainer()->get('test.'.DataProviderRegistry::class);
+
+        self::assertInstanceOf(DataProviderRegistry::class, $registry);
+        self::assertTrue($registry->has(HttpDataProvider::PROVIDER_NAME));
+        self::assertInstanceOf(HttpDataProvider::class, $registry->get(HttpDataProvider::PROVIDER_NAME));
     }
 
     public function test_it_resolves_array_provider_for_supported_definition(): void

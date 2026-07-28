@@ -209,7 +209,7 @@ final class ZhorteinDatatableBundle extends AbstractBundle
                         ->end()
                     ->end()
                     ->enumNode('default_provider')
-                        ->values(['array', 'doctrine'])
+                        ->values(['array', 'doctrine', 'http'])
                         ->defaultValue('doctrine')
                     ->end()
                     ->enumNode('default_theme')

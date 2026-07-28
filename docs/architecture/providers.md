@@ -48,6 +48,24 @@ implicit lazy association traversal and N+1 queries in Twig.
 Custom providers may attach one source array/object per normalized row. The
 provider owns batching and eager-loading responsibilities.
 
+## HTTP/API provider
+
+The optional remote provider keeps four concerns separate:
+
+1. `HttpDataProvider` participates in the normal provider registry;
+2. `HttpRequestMapperInterface` translates canonical datatable state into a
+   transport request;
+3. `HttpTransportInterface` owns network I/O and authentication;
+4. `HttpResponseMapperInterface` normalizes remote payloads into `HttpDataPage`.
+
+`HttpProviderCapabilities` is checked before mapping. Unsupported search,
+sorting, filtering, advanced filtering and export operations fail explicitly.
+This keeps URL state, saved views and exports honest across APIs with different
+feature sets.
+
+The Symfony HttpClient adapter is registered only as an optional integration.
+Array and Doctrine services do not depend on it.
+
 For exports, `StreamingDataProviderInterface` is an optional capability layered
 on top of the unchanged provider contract. It yields one `ExportRow` at a time
 and receives the controller-created `ExportStreamContext` containing the
@@ -57,3 +75,5 @@ scalar batch queries; Array stays on the compatible materialized fallback.
 See [Doctrine Architecture](doctrine.md).
 
 See [Cell Context and Computed Values](../cell-context.md).
+
+See [HTTP/API Provider](../http-provider.md).
