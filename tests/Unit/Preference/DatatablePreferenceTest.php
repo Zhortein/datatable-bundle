@@ -88,4 +88,43 @@ final class DatatablePreferenceTest extends TestCase
         self::assertSame('e.displayName', $preference->getSortField());
         self::assertSame(SortDirection::Asc, $preference->getSortDirection());
     }
+
+    public function test_it_round_trips_the_cache_storage_payload(): void
+    {
+        $preference = DatatablePreference::create(
+            pageSize: 100,
+            visibleColumns: ['email'],
+            hiddenColumns: ['phone'],
+            sorts: [
+                SortCriterion::create('email', SortDirection::Desc),
+            ],
+            filters: [
+                'status' => ['active', 'pending'],
+            ],
+        );
+
+        $restored = DatatablePreference::fromStorageArray($preference->toStorageArray());
+
+        self::assertSame($preference->toStorageArray(), $restored->toStorageArray());
+        self::assertSame(
+            ['status' => ['active', 'pending']],
+            $restored->getFilters(),
+        );
+        self::assertSame(
+            ['status' => ['active', 'pending']],
+            $restored->toRenderOptions()['filters'],
+        );
+    }
+
+    public function test_it_rejects_malformed_cache_storage_payloads(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The stored datatable preference sort payload is invalid.');
+
+        DatatablePreference::fromStorageArray([
+            'sorts' => [
+                ['field' => 'email'],
+            ],
+        ]);
+    }
 }

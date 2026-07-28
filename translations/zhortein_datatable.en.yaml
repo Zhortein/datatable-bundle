@@ -90,6 +90,12 @@ zhortein_datatable:
         success: 'The saved view was updated.'
         error: 'The saved view operation failed.'
         conflict: 'The saved view changed in another request. Reload it and try again.'
+    preferences:
+        save: 'Save preferences'
+        reset: 'Reset preferences'
+        success: 'Your datatable preferences were saved.'
+        reset_success: 'Your datatable preferences were reset. Current values remain until the next page load.'
+        error: 'The datatable preference operation failed.'
     sort:
         label: 'Sort by %column%'
         multiple_hint: 'Hold Shift while activating columns to build a multi-column sort.'

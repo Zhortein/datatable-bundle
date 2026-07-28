@@ -46,6 +46,7 @@ And values for synchronization:
 - `sortDirectionValue`: Current sort direction.
 - `sortsValue`: Ordered sort criteria; the first criterion mirrors the legacy values.
 - `savedViewsUrlValue`: Optional named-view endpoint with its server-generated scope.
+- `preferencesUrlValue`: Optional scoped save/reset preference endpoint.
 
 ## Interaction Model
 

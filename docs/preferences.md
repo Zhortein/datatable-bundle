@@ -1,334 +1,262 @@
-# Column visibility and datatable preferences
+# Persistent datatable preferences
 
-This document explains runtime column visibility and the datatable preference extension point.
+The bundle can persist user-specific datatable defaults through a PSR-6 cache
+pool without depending on an application `User` entity, Symfony Security or a
+session.
 
-The bundle supports column visibility controls and a preference abstraction without imposing a specific user model or persistence layer.
+Persistent preferences and [named saved views](saved-views.md) are deliberately
+different:
 
-## Status
+- preferences are one implicit default per user and scoped datatable;
+- named views are explicit, named snapshots that users can create and select;
+- a named default view takes precedence over implicit preferences;
+- a valid URL state takes precedence over both.
 
-Implemented:
+## Stored values
 
-- runtime column visibility state;
-- column visibility toolbar controls;
-- Stimulus refresh on visibility changes;
-- HTTP request normalization for visible/hidden columns;
-- `DatatablePreference` value object;
-- `DatatablePreferenceProviderInterface`;
-- default `NullDatatablePreferenceProvider`;
-- applying preferences to initial rendering defaults;
-- shareable URL state for search, filters, sorting, pagination, page size and column visibility.
-
-Not implemented yet:
-
-- built-in persistence;
-- user entity integration;
-- database preference storage;
-- save preferences action;
-- reset preferences action;
-- column ordering;
-- drag-and-drop;
-- per-user security integration.
-
-## Runtime column visibility
-
-Columns can be controlled at render time with Twig options.
-
-Render only selected columns:
-
-```twig
-{{ zhortein_datatable('users', {
-    visibleColumns: ['e.email', 'e.displayName']
-}) }}
-```
-
-Hide selected columns:
-
-```twig
-{{ zhortein_datatable('users', {
-    hiddenColumns: ['e.createdAt']
-}) }}
-```
-
-You can also combine both:
-
-```twig
-{{ zhortein_datatable('users', {
-    visibleColumns: ['e.email', 'e.displayName', 'e.createdAt'],
-    hiddenColumns: ['e.createdAt']
-}) }}
-```
-
-Rules:
-
-- definition-level hidden columns remain hidden;
-- `visibleColumns` acts as a whitelist;
-- `hiddenColumns` excludes matching columns;
-- runtime column names must match declared column names.
-
-## Definition-level visibility
-
-A column can be hidden by default:
-
-```php
-$definition->addColumn(
-    name: 'e.id',
-    label: 'Id',
-    visible: false,
-    sortable: false,
-    searchable: false,
-);
-```
-
-Definition-hidden columns remain hidden even if the frontend sends them as visible.
-
-## Column visibility controls
-
-The toolbar can render a column visibility dropdown.
-
-It is enabled by default.
-
-Disable it at runtime:
-
-```twig
-{{ zhortein_datatable('users', {
-    columnVisibility: false
-}) }}
-```
-
-The rendered controls expose:
-
-```html
-data-zhortein--datatable-bundle--datatable-column-visibility-control="true"
-data-zhortein--datatable-bundle--datatable-column-name="e.email"
-```
-
-Definition-hidden columns are marked with:
-
-```html
-data-zhortein--datatable-bundle--datatable-definition-hidden="true"
-```
-
-## Stimulus behavior
-
-Changing a column visibility checkbox calls:
-
-```text
-zhortein--datatable-bundle--datatable#changeColumnVisibility
-```
-
-The controller:
-
-1. resets the current page to 1;
-2. serializes column visibility state;
-3. refreshes datatable fragments.
-
-Sent parameters:
-
-```text
-visibleColumns[]=e.email
-hiddenColumns[]=e.createdAt
-```
-
-Definition-hidden columns are not serialized by the controller.
-
-## Request normalization
-
-`DatatableRequestFactory` reads column visibility state from query parameters or request payloads.
-
-Examples:
-
-```text
-visibleColumns[]=e.email
-visibleColumns[]=e.displayName
-hiddenColumns[]=e.createdAt
-```
-
-The normalized state is available through:
-
-```php
-$request->getVisibleColumns();
-$request->getHiddenColumns();
-$request->hasColumnVisibilityState();
-$request->getColumnVisibilityOptions();
-```
-
-## DatatablePreference
-
-`DatatablePreference` represents optional rendering defaults for a datatable.
-
-It can store:
+The built-in adapter stores only:
 
 - page size;
-- sort field;
-- sort direction;
 - ordered sort criteria;
 - visible columns;
-- hidden columns.
+- hidden columns;
+- simple filters explicitly declared as safe for preference storage.
 
-Example:
+It never stores:
 
-```php
-use Zhortein\DatatableBundle\Enum\SortDirection;
-use Zhortein\DatatableBundle\Preference\DatatablePreference;
+- global search;
+- Search Builder expressions;
+- permanent filters;
+- server-only context;
+- filters that are not explicitly preference-safe;
+- the current page.
 
-$preference = DatatablePreference::create(
-    pageSize: 50,
-    sortField: 'e.email',
-    sortDirection: SortDirection::Desc,
-    visibleColumns: ['e.email', 'e.displayName'],
-    hiddenColumns: ['e.createdAt'],
-);
+Permanent filters continue to apply in the provider after preferences are
+resolved. A stored preference therefore cannot weaken tenant, ownership,
+soft-delete or other business constraints.
+
+## Install the Cache adapter
+
+Enable the adapter and select a PSR-6 pool:
+
+```yaml
+# config/packages/zhortein_datatable.yaml
+zhortein_datatable:
+    preferences:
+        enabled: true
+        cache_pool: cache.app
+        ttl: 31536000
+        schema_version: '1'
 ```
 
-Use typed criteria for a multi-column default:
+`cache_pool` must reference a service implementing
+`Psr\Cache\CacheItemPoolInterface`. Symfony cache pools, including `cache.app`,
+implement this contract.
+
+The null provider remains the default when `preferences.enabled` is false.
+
+## Resolve an opaque user identity
+
+The bundle never reads the security token or session implicitly. The host
+application must implement:
 
 ```php
-use Zhortein\DatatableBundle\Sorting\SortCriterion;
+<?php
 
-$preference = DatatablePreference::create(sorts: [
-    SortCriterion::create('e.enabled', SortDirection::Desc),
-    SortCriterion::create('e.displayName'),
-]);
-```
+declare(strict_types=1);
 
-The first criterion remains available through `getSortField()` and
-`getSortDirection()`. See [multi-column sorting](sorting.md).
+namespace App\Datatable;
 
-Preferences can be converted to render options:
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
+use Zhortein\DatatableBundle\Contract\DatatablePreferenceIdentityResolverInterface;
 
-```php
-$options = $preference->toRenderOptions();
-```
-
-## Preference provider
-
-Applications can provide datatable preferences by implementing:
-
-```php
-use Zhortein\DatatableBundle\Preference\DatatablePreference;
-use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
-
-final class UserDatatablePreferenceProvider implements DatatablePreferenceProviderInterface
+final readonly class DatatablePreferenceIdentityResolver implements DatatablePreferenceIdentityResolverInterface
 {
-    public function getPreference(string $datatableName): DatatablePreference
+    public function __construct(
+        private Security $security,
+    ) {
+    }
+
+    public function resolvePreferenceOwnerIdentifier(Request $request): ?string
     {
-        // Load preferences from the host application storage.
+        $user = $this->security->getUser();
+
+        if (null === $user) {
+            return null;
+        }
+
+        // Return a stable opaque identifier. Do not return an email address.
+        return (string) $user->getId();
     }
 }
 ```
 
-The default implementation is:
-
-```php
-NullDatatablePreferenceProvider
-```
-
-It always returns an empty preference.
-
-## Replacing the preference provider
-
-Host applications can replace or decorate:
-
-```php
-Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface
-```
-
-Example direction with service decoration:
+Alias the contract:
 
 ```yaml
 services:
-    App\Datatable\UserDatatablePreferenceProvider:
-        decorates: Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface
+    App\Datatable\DatatablePreferenceIdentityResolver: ~
+
+    Zhortein\DatatableBundle\Contract\DatatablePreferenceIdentityResolverInterface:
+        alias: App\Datatable\DatatablePreferenceIdentityResolver
 ```
 
-The exact integration depends on the host application.
+Returning `null` disables preference access for that request. Enabling the
+preference controls without a resolved owner fails explicitly instead of
+falling back to shared or anonymous storage.
 
-The bundle does not assume:
+## Enable the controls
 
-- a specific User entity;
-- Symfony Security user storage;
-- database tables;
-- session storage;
-- Redis/cache storage.
-
-## Rendering precedence
-
-When rendering a datatable, options are merged with this precedence:
-
-```text
-URL state > named default view > runtime Twig options > datatable preferences > bundle defaults
-```
-
-Example:
-
-```php
-$preference = DatatablePreference::create(
-    pageSize: 50,
-);
-```
-
-If Twig renders:
+Enable save/reset controls on a rendered datatable:
 
 ```twig
 {{ zhortein_datatable('users', {
-    pageSize: 10
+    instance: 'admin-users',
+    preferences: true,
+    preferencesScope: 'tenant-a'
 }) }}
 ```
 
-the effective page size is:
+Runtime options:
 
-```text
-10
+| Option | Type | Purpose |
+|---|---:|---|
+| `preferences` | boolean | Renders the save/reset controls and endpoint metadata |
+| `preferencesUrl` | string | Overrides the generated save/reset endpoint |
+| `preferencesScope` | string | Adds an application namespace, for example a tenant identifier |
+| `preferencesLocale` | string | Overrides the current request locale in the storage scope |
+
+The controller emits:
+
+- `zhortein-datatable:preference:save`;
+- `zhortein-datatable:preference:reset`;
+- `zhortein-datatable:preference:error`.
+
+Reset removes the persisted defaults. It does not mutate the currently
+displayed table; bundle/runtime defaults apply on the next page load unless a
+URL state or named default view takes precedence.
+
+## Declare preference-safe filters
+
+Filters are excluded unless the definition explicitly opts in:
+
+```php
+$definition->addFilter(
+    name: 'status',
+    field: 'e.status',
+    type: FilterType::Choice,
+    choices: [
+        'Enabled' => 'enabled',
+        'Disabled' => 'disabled',
+    ],
+    preferenceSafe: true,
+);
 ```
 
-because runtime options are explicit and take precedence.
+Use `preferenceSafe: true` only for values that are appropriate for long-lived
+per-user storage. Do not enable it for secrets, personal data, temporary
+authorization tokens or filters whose value reveals a protected business
+scope.
 
-A valid namespaced URL state takes precedence over all initial values. See
-[URL state and browser history](url-state.md).
+Advanced filters are not persisted by the built-in adapter.
 
-When [named saved views](saved-views.md) are enabled, their default is applied
-only in the absence of valid URL state.
+## Collision-free cache keys
 
-## Current limitations
+Cache keys are opaque hashes partitioned by:
 
-### No built-in preference persistence
+- owner identifier;
+- datatable name;
+- rendered instance;
+- original route/path scope;
+- application namespace;
+- locale;
+- signed browser-context fingerprint;
+- schema version.
 
-The bundle does not store `DatatablePreference` objects itself.
+The raw user identifier and context values are not embedded in cache keys.
+This prevents collisions between users, tenants, routes, locales and multiple
+instances of the same datatable.
 
-Applications must provide their own preference provider if they want persistence.
-Named views use a separate opt-in provider and JSON contract.
+## Schema invalidation
 
-### No save/reset UI
+The schema version includes a deterministic fingerprint of:
 
-The column visibility UI updates the shareable URL state but does not write to
-the application preference provider.
+- declared column names;
+- column visibility and sorting capabilities;
+- preference-safe filter names, fields and types;
+- `preferences.schema_version`.
 
-### No user identity integration
+Changing a column or safe-filter definition automatically moves reads to a new
+cache namespace. Increment `schema_version` when application semantics change
+without changing those declarations:
 
-The bundle does not know about application users.
+```yaml
+zhortein_datatable:
+    preferences:
+        schema_version: '2'
+```
 
-This is intentional to avoid coupling the bundle to a specific security model.
+Old entries become unreachable and expire according to `ttl`. Malformed or
+stale payloads are ignored and deleted.
 
-### No column ordering
+## Precedence
 
-Column order customization is not implemented.
+The complete precedence is:
 
-### No drag-and-drop
+```text
+URL state
+> selected/default named view
+> runtime Twig options
+> stored preference
+> bundle defaults
+```
 
-Column reordering through drag-and-drop is not implemented.
+An explicit runtime `sorts: []` clears stored sorting. Runtime page size,
+column visibility and filter values similarly override stored values. URL
+state is restored by Stimulus after the initial HTML is rendered and therefore
+remains authoritative.
 
-### No implicit preference synchronization
+## Cache failure behavior
 
-The bundle does not synchronize application preferences across browser tabs or
-devices. A copied URL does carry its explicit shareable table state.
+Read failures degrade to an empty preference so a cache outage does not prevent
+the datatable from rendering. Save/reset failures return HTTP `503` with the
+stable JSON error code `storage_unavailable` and trigger the frontend error
+event.
 
-## Recommended integration strategy
+## Existing custom providers
 
-For applications that need persisted preferences:
+`DatatablePreferenceProviderInterface` remains backward-compatible:
 
-1. Create an application-level persistence model.
-2. Implement `DatatablePreferenceProviderInterface`.
-3. Return a `DatatablePreference` for the current user and datatable name.
-4. Add application-specific endpoints later to save/reset preferences.
+```php
+interface DatatablePreferenceProviderInterface
+{
+    public function getPreference(string $datatableName): DatatablePreference;
+}
+```
 
-The bundle provides the read-side extension point first. The write-side preference API will be designed later.
+Existing application providers continue to work for read-side defaults.
+Scoped persistence extends this contract through:
+
+- `ScopedDatatablePreferenceProviderInterface`;
+- `WritableDatatablePreferenceProviderInterface`.
+
+This preserves 1.x implementations while allowing the built-in cache adapter
+to support collision-free reads, save and reset operations.
+
+## Column visibility
+
+Runtime column visibility remains available independently of persistence:
+
+```twig
+{{ zhortein_datatable('users', {
+    visibleColumns: ['e.email', 'e.displayName'],
+    hiddenColumns: ['e.createdAt']
+}) }}
+```
+
+Definition-hidden columns always remain hidden. The frontend transports
+visible and hidden column names through the canonical state model and never
+serializes definition-hidden columns.
+
+Column ordering and drag-and-drop reordering are not implemented.

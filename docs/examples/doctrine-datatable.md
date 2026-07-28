@@ -474,7 +474,7 @@ Current limitations:
 - no deep joins;
 - no collection joins;
 - named saved views require a host storage, owner resolver and authorization checker;
-- no persisted column preferences;
+- persistent preferences require a PSR-6 pool and an opaque host identity resolver;
 - no built-in action controllers;
 - no built-in voters;
 - asynchronous exports require host persistence, storage and owner adapters.

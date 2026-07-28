@@ -366,6 +366,29 @@ All integer values must be at least `1`; `max_attempts` is capped at `100`.
 Enabling the endpoints also requires persistent repository/storage services and
 an owner resolver. See [asynchronous export jobs](async-exports.md).
 
+## `preferences`
+
+Persistent user preferences are disabled by default:
+
+```yaml
+zhortein_datatable:
+    preferences:
+        enabled: false
+        cache_pool: cache.app
+        ttl: 31536000
+        schema_version: '1'
+```
+
+- `enabled` selects the built-in PSR-6 cache provider;
+- `cache_pool` references a `Psr\Cache\CacheItemPoolInterface` service;
+- `ttl` controls entry lifetime in seconds;
+- `schema_version` provides explicit application-level invalidation.
+
+The host must also implement
+`DatatablePreferenceIdentityResolverInterface`. No security service, user
+entity or session is inspected implicitly. See
+[persistent datatable preferences](preferences.md).
+
 ## `export.csv`
 
 The CSV writer uses the following defaults:
@@ -408,6 +431,10 @@ Current options:
 | `savedViewsScope` | string | Defines an application namespace such as a route name |
 | `savedViewsLocale` | string | Defines the named-view locale scope |
 | `savedViewsIncludePage` | boolean | Explicitly persists the current page instead of resetting it to 1 |
+| `preferences` | boolean | Enables save/reset controls for the configured scoped preference provider |
+| `preferencesUrl` | string | Overrides the preference save/reset JSON endpoint |
+| `preferencesScope` | string | Adds an application or tenant namespace to the preference key |
+| `preferencesLocale` | string | Overrides the current request locale in the preference key |
 
 ## `booleanDisplayMode`
 
@@ -810,6 +837,4 @@ Not configurable yet:
 - date/time styles;
 - timezone strategy;
 - action defaults;
-- user preferences;
-- column visibility persistence;
 - export options.

@@ -7,6 +7,7 @@ namespace Zhortein\DatatableBundle\Twig;
 use Twig\Attribute\AsTwigFunction;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
+use Zhortein\DatatableBundle\Preference\ScopedDatatablePreferenceProviderInterface;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 
 final readonly class DatatableTwigExtension
@@ -24,9 +25,11 @@ final readonly class DatatableTwigExtension
     #[AsTwigFunction('zhortein_datatable', isSafe: ['html'])]
     public function renderDatatable(string $name, array $options = []): string
     {
-        $preferenceOptions = $this->preferenceProvider
-            ->getPreference($name)
-            ->toRenderOptions()
+        $preferenceOptions = $this->preferenceProvider instanceof ScopedDatatablePreferenceProviderInterface
+            ? []
+            : $this->preferenceProvider
+                ->getPreference($name)
+                ->toRenderOptions()
         ;
 
         if (array_key_exists('sorts', $options)) {
