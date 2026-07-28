@@ -53,7 +53,7 @@ final class CacheDatatablePreferenceProviderTest extends TestCase
 
     public function test_read_failures_degrade_to_an_empty_preference(): void
     {
-        $cache = $this->createStub(CacheItemPoolInterface::class);
+        $cache = self::createStub(CacheItemPoolInterface::class);
         $cache
             ->method('getItem')
             ->willThrowException(new \RuntimeException('cache unavailable'))
@@ -67,7 +67,7 @@ final class CacheDatatablePreferenceProviderTest extends TestCase
 
     public function test_write_failures_are_normalized(): void
     {
-        $cache = $this->createStub(CacheItemPoolInterface::class);
+        $cache = self::createStub(CacheItemPoolInterface::class);
         $cache
             ->method('getItem')
             ->willThrowException(new \RuntimeException('cache unavailable'))
