@@ -94,7 +94,7 @@ final readonly class SymfonyUxIconRenderer implements IconRendererInterface
 
         return [
             sprintf('bi:%s', $matches[1]),
-            isset($matches[2]) && '' !== $matches[2] ? $matches[2] : null,
+            $matches[2] ?? null,
         ];
     }
 
