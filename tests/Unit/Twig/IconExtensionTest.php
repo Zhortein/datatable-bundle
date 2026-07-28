@@ -19,7 +19,7 @@ final class IconExtensionTest extends TestCase
 
         self::assertSame(
             '<span class="fa fa-eye" aria-hidden="true"></span>',
-            $extension->render('fa fa-eye'),
+            (string) $extension->render('fa fa-eye'),
         );
     }
 
@@ -29,9 +29,9 @@ final class IconExtensionTest extends TestCase
 
         self::assertSame(
             '<span class="bi bi-eye" aria-hidden="true"></span>',
-            $extension->renderKey('action_view'),
+            (string) $extension->renderKey('action_view'),
         );
-        self::assertSame('', $extension->renderKey('missing'));
+        self::assertSame('', (string) $extension->renderKey('missing'));
     }
 
     public function test_a_custom_template_can_render_a_labelled_french_icon(): void

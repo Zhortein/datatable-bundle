@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zhortein\DatatableBundle\Twig;
 
 use Twig\Extension\AbstractExtension;
+use Twig\Markup;
 use Twig\TwigFunction;
 use Zhortein\DatatableBundle\Contract\IconRendererInterface;
 use Zhortein\DatatableBundle\Contract\IconResolverInterface;
@@ -31,15 +32,18 @@ final class IconExtension extends AbstractExtension
     /**
      * @param array<string, string|bool|int|float|null> $attributes
      */
-    public function render(?string $icon, array $attributes = [], ?string $label = null): string
+    public function render(?string $icon, array $attributes = [], ?string $label = null): Markup
     {
-        return null === $icon ? '' : $this->renderer->render($icon, $attributes, $label);
+        return new Markup(
+            null === $icon ? '' : $this->renderer->render($icon, $attributes, $label),
+            'UTF-8',
+        );
     }
 
     /**
      * @param array<string, string|bool|int|float|null> $attributes
      */
-    public function renderKey(string $key, array $attributes = [], ?string $label = null): string
+    public function renderKey(string $key, array $attributes = [], ?string $label = null): Markup
     {
         return $this->render($this->resolver->resolve($key), $attributes, $label);
     }
