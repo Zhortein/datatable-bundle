@@ -1449,12 +1449,40 @@ Datatables can consume heterogeneous remote APIs through explicit capabilities a
 
 ---
 
+## 1.15 - Persistent user preferences ✅
+
+Delivered:
+
+- backward-compatible scoped and writable extensions of the existing
+  preference provider contract;
+- optional PSR-6 cache adapter with bounded TTL;
+- explicit opaque host identity resolver without implicit Security or session
+  coupling;
+- collision-free user, table, instance, route, namespace, locale, context and
+  schema keys;
+- automatic definition fingerprinting and explicit schema invalidation;
+- persisted page size, ordered sorts, column visibility and explicitly safe
+  simple filters;
+- CSRF-protected save/reset endpoints and Bootstrap-first controls;
+- deterministic URL, named-view, runtime, preference and bundle precedence;
+- cache-failure degradation and stable frontend events;
+- unit, frontend, rendering, controller and compatibility coverage;
+- complete preference, configuration, routes, security and public API
+  documentation.
+
+Main outcome:
+
+```text
+Applications can provide safe per-user datatable defaults across devices without coupling the bundle to their user model or weakening server-side filters.
+```
+
+---
+
 ## Later ideas 🔭
 
 Potential future work:
 
 - additional export formats;
-- user preference persistence adapters;
 - Elasticsearch provider;
 - UX Icons integration;
 - Symfony Flex recipe if external demand justifies it;

@@ -17,6 +17,8 @@ This document describes the bundle routes imported from `@ZhorteinDatatableBundl
 | `zhortein_datatable_views_load` | `/_zhortein/datatable/{name}/views/{viewIdentifier}` | `GET` | Load a named view |
 | `zhortein_datatable_views_mutate` | `/_zhortein/datatable/{name}/views/{viewIdentifier}` | `PATCH` | Rename, update or set a default view |
 | `zhortein_datatable_views_delete` | `/_zhortein/datatable/{name}/views/{viewIdentifier}` | `DELETE` | Delete a named view |
+| `zhortein_datatable_preferences_save` | `/_zhortein/datatable/{name}/preferences` | `POST` | Save the current scoped user preference |
+| `zhortein_datatable_preferences_reset` | `/_zhortein/datatable/{name}/preferences` | `DELETE` | Reset the current scoped user preference |
 
 The export `format` requirement accepts `csv` and `xlsx`. CSV is the default, so Symfony can generate a URL without the final `/csv` segment.
 
@@ -53,7 +55,7 @@ zhortein_datatable:
         fr: /fr
 ```
 
-Default fragments, child, export and saved-view URLs are generated from the
+Default fragments, child, export, saved-view and preference URLs are generated from the
 named routes. They therefore retain the active locale, import prefix, base URL
 and router context. Explicit endpoint URLs configured through render options
 remain authoritative.
@@ -66,6 +68,7 @@ php bin/console debug:router zhortein_datatable_child
 php bin/console debug:router zhortein_datatable_export
 php bin/console debug:router zhortein_datatable_export_job_submit
 php bin/console debug:router zhortein_datatable_views_list
+php bin/console debug:router zhortein_datatable_preferences_save
 ```
 
 ## Generated URLs
@@ -81,6 +84,7 @@ For a datatable named `users`, the default URLs are:
 /_zhortein/datatable/export-jobs/{opaque-identifier}
 /_zhortein/datatable/export-jobs/{opaque-identifier}/download
 /_zhortein/datatable/users/views
+/_zhortein/datatable/users/preferences
 ```
 
 The Stimulus controller generates fragments and export requests from the URLs rendered into the datatable HTML.
@@ -126,6 +130,13 @@ applications must install their own checker and permanent provider filters.
 Named-view mutations add CSRF validation. Their ownership and authorization
 remain delegated to the host through the documented contracts. All named-view
 operations are denied by default. See [named saved views](saved-views.md).
+
+Preference mutations also require CSRF validation and an opaque owner resolved
+by `DatatablePreferenceIdentityResolverInterface`. Their cache scope includes
+the original route, locale, datatable instance, application namespace, signed
+context fingerprint and schema version. Only filters explicitly declared
+`preferenceSafe` may be stored. See
+[persistent datatable preferences](preferences.md).
 
 When importing the route set more than once for separate application areas,
 use distinct route-name prefixes and configure explicit endpoint URLs for each

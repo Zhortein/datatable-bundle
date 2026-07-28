@@ -21,6 +21,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 - [Hierarchical Datatables](hierarchical-datatables.md): Lazy, signed and provider-independent parent/child tables.
 - [URL State and Browser History](url-state.md): Shareable per-instance state, Back/Forward and Turbo restoration.
 - [Named Saved Views](saved-views.md): Opt-in user views with generic storage and authorization contracts.
+- [Persistent Preferences](preferences.md): PSR-6-backed per-user defaults with explicit identity and safe filter storage.
 - [Bulk Actions and Selection](bulk-actions.md): Managing multiple rows at once.
 - [UI/UX and Controls](ui-ux.md): Search, pagination, sorting, and UI customization.
 - [Icon System](icons.md): Unified icon strategy and configuration.

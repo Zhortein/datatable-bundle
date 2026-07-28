@@ -31,6 +31,13 @@ use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 use Zhortein\DatatableBundle\Exception\ChildDatatableAccessDeniedException;
 use Zhortein\DatatableBundle\Hierarchy\ChildDatatableResolver;
 use Zhortein\DatatableBundle\Hierarchy\ResolvedChildDatatable;
+use Zhortein\DatatableBundle\Preference\DatatablePreferenceCsrfTokenIdGenerator;
+use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
+use Zhortein\DatatableBundle\Preference\DatatablePreferenceSchema;
+use Zhortein\DatatableBundle\Preference\DatatablePreferenceScope;
+use Zhortein\DatatableBundle\Preference\DatatablePreferenceScopeResolver;
+use Zhortein\DatatableBundle\Preference\ScopedDatatablePreferenceProviderInterface;
+use Zhortein\DatatableBundle\Preference\WritableDatatablePreferenceProviderInterface;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 use Zhortein\DatatableBundle\Sorting\SortCriterion;
 use Zhortein\DatatableBundle\State\DatatableStateUrlSerializer;
@@ -63,6 +70,9 @@ final readonly class DatatableRenderer
         ?CellContextFactory $cellContextFactory = null,
         private ?ChildDatatableResolver $childDatatableResolver = null,
         ?EnumPresentationResolverInterface $enumPresentationResolver = null,
+        private ?DatatablePreferenceProviderInterface $preferenceProvider = null,
+        private ?DatatablePreferenceScopeResolver $preferenceScopeResolver = null,
+        private string $preferenceSchemaVersion = '1',
     ) {
         $this->cellContextFactory = $cellContextFactory ?? new CellContextFactory();
         $this->enumPresentationResolver = $enumPresentationResolver ?? new DefaultEnumPresentationResolver();
@@ -73,10 +83,12 @@ final readonly class DatatableRenderer
      */
     public function render(DatatableDefinition $definition, array $options = []): string
     {
+        $runtimeOptions = $options;
         $options = $this->prepareContextOptions(
             $definition,
             $this->resolveOptions($options),
             prepareEndpoints: true,
+            runtimeOptions: $runtimeOptions,
         );
 
         $options['filterLayout'] = $this->resolveFilterLayout($options)->value;
@@ -281,6 +293,7 @@ final readonly class DatatableRenderer
 
     /**
      * @param array<string, mixed> $options
+     * @param array<string, mixed> $runtimeOptions
      *
      * @return array<string, mixed>
      */
@@ -288,6 +301,7 @@ final readonly class DatatableRenderer
         DatatableDefinition $definition,
         array $options,
         bool $prepareEndpoints = false,
+        array $runtimeOptions = [],
     ): array {
         if (array_key_exists('context', $options)) {
             $renderContext = $options['context'];
@@ -349,6 +363,15 @@ final readonly class DatatableRenderer
         }
 
         if ($prepareEndpoints) {
+            $options = $this->applyScopedPreferenceOptions(
+                definition: $definition,
+                options: $options,
+                runtimeOptions: $runtimeOptions,
+                contextToken: $token,
+            );
+        }
+
+        if ($prepareEndpoints) {
             $options = $this->prepareEndpointOptions(
                 $definition,
                 $options,
@@ -359,9 +382,61 @@ final readonly class DatatableRenderer
 
         $options = $this->prepareStateOptions($definition, $options, $token);
 
-        return $prepareEndpoints
-            ? $this->prepareSavedViewOptions($definition, $options, $token)
-            : $options;
+        if (!$prepareEndpoints) {
+            return $options;
+        }
+
+        $options = $this->prepareSavedViewOptions($definition, $options, $token);
+
+        return $this->preparePreferenceOptions($definition, $options, $token);
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     * @param array<string, mixed> $runtimeOptions
+     *
+     * @return array<string, mixed>
+     */
+    private function applyScopedPreferenceOptions(
+        DatatableDefinition $definition,
+        array $options,
+        array $runtimeOptions,
+        ?string $contextToken,
+    ): array {
+        if (
+            !$this->preferenceProvider instanceof ScopedDatatablePreferenceProviderInterface
+            || null === $this->preferenceScopeResolver
+        ) {
+            return $options;
+        }
+
+        $scope = $this->resolvePreferenceScope($definition, $options, $contextToken);
+
+        if (null === $scope) {
+            return $options;
+        }
+
+        $preferenceOptions = $this->preferenceProvider
+            ->getPreferenceForScope($scope)
+            ->toRenderOptions()
+        ;
+
+        unset($runtimeOptions['context'], $runtimeOptions['instance']);
+
+        if (array_key_exists('sorts', $runtimeOptions)) {
+            unset($preferenceOptions['sortField'], $preferenceOptions['sortDirection']);
+        } elseif (
+            array_key_exists('sortField', $runtimeOptions)
+            || array_key_exists('sortDirection', $runtimeOptions)
+        ) {
+            unset($preferenceOptions['sorts']);
+        }
+
+        return $this->normalizeSortOptions(array_replace(
+            $options,
+            $preferenceOptions,
+            $runtimeOptions,
+        ));
     }
 
     /**
@@ -567,6 +642,102 @@ final readonly class DatatableRenderer
         ;
 
         return $options;
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return array<string, mixed>
+     */
+    private function preparePreferenceOptions(
+        DatatableDefinition $definition,
+        array $options,
+        ?string $contextToken,
+    ): array {
+        $enabled = $options['preferences'] ?? false;
+
+        if (!is_bool($enabled)) {
+            throw new \InvalidArgumentException('The datatable render option "preferences" must be a boolean.');
+        }
+
+        if (!$enabled) {
+            return $options;
+        }
+
+        if (
+            null === $this->csrfTokenManager
+            || !$this->preferenceProvider instanceof WritableDatatablePreferenceProviderInterface
+            || null === $this->preferenceScopeResolver
+        ) {
+            throw new \LogicException('A writable scoped preference provider, scope resolver and CSRF token manager are required when datatable preferences are enabled.');
+        }
+
+        $scope = $this->resolvePreferenceScope($definition, $options, $contextToken);
+
+        if (null === $scope) {
+            throw new \LogicException('A datatable preference owner must be resolved when datatable preferences are enabled.');
+        }
+
+        /** @var string $instance */
+        $instance = $options['instance'];
+        $parameters = [
+            DatatableContextTransport::INSTANCE_QUERY_PARAMETER => $instance,
+            DatatablePreferenceScope::SCOPE_QUERY_PARAMETER => $scope->getNamespace(),
+            DatatablePreferenceScope::ROUTE_QUERY_PARAMETER => $scope->getRouteScope(),
+            DatatablePreferenceScope::LOCALE_QUERY_PARAMETER => $scope->getLocale(),
+        ];
+
+        if (null !== $contextToken) {
+            $parameters[DatatableContextTransport::CONTEXT_QUERY_PARAMETER] = $contextToken;
+        }
+
+        $options['preferencesUrl'] = $this->appendQueryParameters(
+            $this->resolveEndpointOption(
+                options: $options,
+                optionName: 'preferencesUrl',
+                routeName: 'zhortein_datatable_preferences_save',
+                routeParameters: ['name' => $definition->getName()],
+                fallbackUrl: sprintf('/_zhortein/datatable/%s/preferences', $definition->getName()),
+            ),
+            $parameters,
+        );
+        $options['preferencesCsrfToken'] = $this->csrfTokenManager
+            ->getToken(DatatablePreferenceCsrfTokenIdGenerator::generate(
+                $definition->getName(),
+                $instance,
+            ))
+            ->getValue()
+        ;
+
+        return $options;
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function resolvePreferenceScope(
+        DatatableDefinition $definition,
+        array $options,
+        ?string $contextToken,
+    ): ?DatatablePreferenceScope {
+        if (null === $this->preferenceScopeResolver) {
+            return null;
+        }
+
+        /** @var string $instance */
+        $instance = $options['instance'];
+
+        return $this->preferenceScopeResolver->resolveCurrent(
+            definition: $definition,
+            instance: $instance,
+            namespace: $this->resolveStringOption($options, 'preferencesScope', 'default'),
+            locale: $this->resolveStringOption($options, 'preferencesLocale', ''),
+            schemaVersion: DatatablePreferenceSchema::version(
+                $definition,
+                $this->preferenceSchemaVersion,
+            ),
+            contextFingerprint: null === $contextToken ? null : hash('sha256', $contextToken),
+        );
     }
 
     /**

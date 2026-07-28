@@ -8,11 +8,14 @@ use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 use Zhortein\DatatableBundle\Attribute\AsDatatable;
 use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
 use Zhortein\DatatableBundle\Contract\CellValueResolverInterface;
 use Zhortein\DatatableBundle\DependencyInjection\Compiler\DatatableCompilerPass;
+use Zhortein\DatatableBundle\Preference\CacheDatatablePreferenceProvider;
+use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
 
 final class ZhorteinDatatableBundle extends AbstractBundle
 {
@@ -50,6 +53,19 @@ final class ZhorteinDatatableBundle extends AbstractBundle
         if (!is_array($asyncConfig)) {
             throw new \LogicException('The asynchronous export configuration must be an array.');
         }
+
+        $preferencesConfig = $config['preferences'] ?? [];
+
+        if (!is_array($preferencesConfig)) {
+            throw new \LogicException('The datatable preferences configuration must be an array.');
+        }
+
+        /** @var array{
+         *     enabled: bool,
+         *     cache_pool: string,
+         *     ttl: int,
+         *     schema_version: string
+         * } $preferencesConfig */
 
         /** @var array{
          *     max_rows: int,
@@ -112,9 +128,23 @@ final class ZhorteinDatatableBundle extends AbstractBundle
             ->set('zhortein_datatable.export.async.ttl', $asyncConfig['ttl'])
             ->set('zhortein_datatable.export.async.max_attempts', $asyncConfig['max_attempts'])
             ->set('zhortein_datatable.export.async.format_limits', $asyncConfig['format_limits'])
+            ->set('zhortein_datatable.preferences.enabled', $preferencesConfig['enabled'])
+            ->set('zhortein_datatable.preferences.ttl', $preferencesConfig['ttl'])
+            ->set('zhortein_datatable.preferences.schema_version', $preferencesConfig['schema_version'])
         ;
 
         $configurator->import('../config/services.php');
+
+        if ($preferencesConfig['enabled']) {
+            $container
+                ->getDefinition(CacheDatatablePreferenceProvider::class)
+                ->setArgument('$cachePool', new Reference($preferencesConfig['cache_pool']))
+            ;
+            $container->setAlias(
+                DatatablePreferenceProviderInterface::class,
+                CacheDatatablePreferenceProvider::class,
+            );
+        }
     }
 
     public function configure(DefinitionConfigurator $definition): void
@@ -130,6 +160,26 @@ final class ZhorteinDatatableBundle extends AbstractBundle
         $definition
             ->rootNode()
                 ->children()
+                    ->arrayNode('preferences')
+                        ->addDefaultsIfNotSet()
+                        ->children()
+                            ->booleanNode('enabled')
+                                ->defaultFalse()
+                            ->end()
+                            ->scalarNode('cache_pool')
+                                ->defaultValue('cache.app')
+                                ->cannotBeEmpty()
+                            ->end()
+                            ->integerNode('ttl')
+                                ->min(1)
+                                ->defaultValue(31536000)
+                            ->end()
+                            ->scalarNode('schema_version')
+                                ->defaultValue('1')
+                                ->cannotBeEmpty()
+                            ->end()
+                        ->end()
+                    ->end()
                     ->arrayNode('export')
                         ->addDefaultsIfNotSet()
                         ->children()

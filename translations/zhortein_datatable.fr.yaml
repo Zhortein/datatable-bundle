@@ -90,6 +90,12 @@ zhortein_datatable:
         success: 'La vue enregistrée a été mise à jour.'
         error: 'L’opération sur la vue enregistrée a échoué.'
         conflict: 'La vue enregistrée a été modifiée par une autre requête. Rechargez-la puis réessayez.'
+    preferences:
+        save: 'Enregistrer les préférences'
+        reset: 'Réinitialiser les préférences'
+        success: 'Vos préférences de tableau ont été enregistrées.'
+        reset_success: 'Vos préférences ont été réinitialisées. Les valeurs actuelles restent affichées jusqu’au prochain chargement.'
+        error: 'L’opération sur les préférences du tableau a échoué.'
     sort:
         label: 'Trier par %column%'
         multiple_hint: 'Maintenez Maj en activant les colonnes pour composer un tri multi-colonnes.'

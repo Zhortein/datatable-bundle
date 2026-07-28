@@ -42,6 +42,7 @@ export default class extends Controller {
         'savedViewName',
         'savedViewAction',
         'savedViewStatus',
+        'preferenceStatus',
     ];
 
     static values = {
@@ -73,6 +74,11 @@ export default class extends Controller {
         savedViewSuccessMessage: { type: String, default: 'The saved view was updated.' },
         savedViewErrorMessage: { type: String, default: 'The saved view operation failed.' },
         savedViewConflictMessage: { type: String, default: 'The saved view changed in another request. Reload it and try again.' },
+        preferencesUrl: String,
+        preferencesCsrfToken: String,
+        preferenceSuccessMessage: { type: String, default: 'Your datatable preferences were saved.' },
+        preferenceResetMessage: { type: String, default: 'Your datatable preferences were reset.' },
+        preferenceErrorMessage: { type: String, default: 'The datatable preference operation failed.' },
     };
 
     connect() {
@@ -87,6 +93,7 @@ export default class extends Controller {
         this.ajaxActionAbortControllers = new Map();
         this.childDatatableManager = new ChildDatatableManager(this);
         this.savedViewsAbortController = null;
+        this.preferencesAbortController = null;
         this.savedViews = [];
         this.initializeSortState();
         this.defaultState = this.collectState();
@@ -132,6 +139,8 @@ export default class extends Controller {
         this.childDatatableManager.abortAll(true);
         this.savedViewsAbortController?.abort();
         this.savedViewsAbortController = null;
+        this.preferencesAbortController?.abort();
+        this.preferencesAbortController = null;
 
         if (this.searchDebounceTimeout !== null) {
             window.clearTimeout(this.searchDebounceTimeout);
@@ -999,6 +1008,117 @@ export default class extends Controller {
             visibleColumns: columns.visibleColumns,
             hiddenColumns: columns.hiddenColumns,
         };
+    }
+
+    savePreference(event) {
+        event.preventDefault();
+
+        this.requestPreference('POST', {
+            state: this.collectState(),
+        })
+            .then((payload) => {
+                if (
+                    !this.isStateMap(payload)
+                    || payload.version !== 1
+                    || !this.isStateMap(payload.preference)
+                ) {
+                    throw new TypeError('Invalid datatable preference response.');
+                }
+
+                this.showPreferenceStatus(this.preferenceSuccessMessageValue);
+                this.dispatchPreferenceEvent('preference:save', payload.preference);
+            })
+            .catch((error) => this.handlePreferenceError(error));
+    }
+
+    resetPreference(event) {
+        event.preventDefault();
+
+        this.requestPreference('DELETE')
+            .then(() => {
+                this.showPreferenceStatus(this.preferenceResetMessageValue);
+                this.dispatchPreferenceEvent('preference:reset');
+            })
+            .catch((error) => this.handlePreferenceError(error));
+    }
+
+    requestPreference(method, payload = null) {
+        if (!this.hasPreferencesUrlValue || this.preferencesUrlValue === '') {
+            return Promise.reject(new Error(this.preferenceErrorMessageValue));
+        }
+
+        this.preferencesAbortController?.abort();
+        const abortController = new AbortController();
+        this.preferencesAbortController = abortController;
+        const headers = {
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-Token': this.preferencesCsrfTokenValue,
+        };
+        const options = {
+            method,
+            headers,
+            signal: abortController.signal,
+        };
+
+        if (payload !== null) {
+            headers['Content-Type'] = 'application/json';
+            options.body = JSON.stringify(payload);
+        }
+
+        return fetch(this.preferencesUrlValue, options)
+            .then(async (response) => {
+                if (response.status === 204) {
+                    return null;
+                }
+
+                const responsePayload = await response.json();
+
+                if (!response.ok) {
+                    const error = new Error(responsePayload?.error?.message ?? this.preferenceErrorMessageValue);
+                    error.code = responsePayload?.error?.code ?? 'unknown';
+                    throw error;
+                }
+
+                return responsePayload;
+            })
+            .finally(() => {
+                if (this.preferencesAbortController === abortController) {
+                    this.preferencesAbortController = null;
+                }
+            });
+    }
+
+    handlePreferenceError(error) {
+        if (error?.name === 'AbortError') {
+            return;
+        }
+
+        const message = this.preferenceErrorMessageValue;
+
+        this.showPreferenceStatus(message, true);
+        this.dispatchPreferenceEvent('preference:error', null, {
+            code: error?.code ?? 'unknown',
+            message: error?.message ?? message,
+        });
+    }
+
+    showPreferenceStatus(message, error = false) {
+        if (!this.hasPreferenceStatusTarget) {
+            return;
+        }
+
+        this.preferenceStatusTarget.textContent = message;
+        this.preferenceStatusTarget.classList.toggle('text-danger', error);
+        this.preferenceStatusTarget.classList.toggle('text-success', !error);
+        this.preferenceStatusTarget.classList.toggle('text-body-secondary', message === '');
+    }
+
+    dispatchPreferenceEvent(name, preference = null, extra = {}) {
+        this.dispatch(name, {
+            detail: { preference, ...extra },
+            prefix: 'zhortein-datatable',
+        });
     }
 
     refreshSavedViewList(restoreDefault = false, preferredIdentifier = null) {
