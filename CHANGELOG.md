@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.16.1] - 2026-07-28
+
+### Fixed
+
+- Prevented HTTP payloads from disabling pagination, allowlisted declared filters, sorts and columns before provider execution, bounded search/filter/Search Builder inputs, and neutralized spreadsheet formulas in CSV string cells.
+
 ## [1.16.0] - 2026-07-28
 
 ### Added
