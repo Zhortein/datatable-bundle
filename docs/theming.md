@@ -14,7 +14,9 @@ Currently implemented:
 -   **Boolean Display Modes**: Configurable rendering for boolean columns (`badge`, `icon`, `switch`, `text`).
 -   **Boolean Negation**: Per-column inversion of rendered boolean values.
 -   **Enum Presentation**: Localized labels with optional Bootstrap badges, custom colors and icons.
--   **Icons**: Extensible `IconResolver` for common UI elements (sort, filter, export, actions).
+-   **Icons**: Separate resolver and renderer contracts for common UI elements
+    (sort, filter, export, actions), with dependency-free CSS and optional
+    Symfony UX Icons providers.
 
 Not implemented yet:
 -   Tailwind or other built-in themes.

@@ -15,12 +15,15 @@ use Zhortein\DatatableBundle\Action\ActionVisibilityCheckerInterface;
 use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
 use Zhortein\DatatableBundle\Contract\ChildDatatableAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Contract\HttpTransportInterface;
+use Zhortein\DatatableBundle\Contract\IconRendererInterface;
 use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldTypeGuesser;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Icon\IconResolver;
+use Zhortein\DatatableBundle\Icon\ConfiguredIconRenderer;
+use Zhortein\DatatableBundle\Icon\CssClassIconRenderer;
 use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
@@ -151,6 +154,21 @@ class TestKernel extends Kernel
 
         $services
             ->alias('test.'.IconResolverInterface::class, IconResolverInterface::class)
+            ->public()
+        ;
+
+        $services
+            ->alias('test.'.CssClassIconRenderer::class, CssClassIconRenderer::class)
+            ->public()
+        ;
+
+        $services
+            ->alias('test.'.ConfiguredIconRenderer::class, ConfiguredIconRenderer::class)
+            ->public()
+        ;
+
+        $services
+            ->alias('test.'.IconRendererInterface::class, IconRendererInterface::class)
             ->public()
         ;
 

@@ -20,9 +20,9 @@
         }, 'zhortein_datatable') }}"
     >
         {% if is_active and filter_active_icon %}
-            <i class="{{ filter_active_icon }}" aria-hidden="true"></i>
+            {{ zhortein_datatable_icon(filter_active_icon) }}
         {% elseif filter_icon %}
-            <i class="{{ filter_icon }}" aria-hidden="true"></i>
+            {{ zhortein_datatable_icon(filter_icon) }}
         {% else %}
             <span aria-hidden="true">⌕</span>
         {% endif %}

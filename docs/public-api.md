@@ -74,6 +74,7 @@ Applications may implement or decorate these contracts:
 - `Contract\ExportJobOwnerResolverInterface`;
 - `Contract\ExportJobDispatcherInterface`;
 - `Contract\EnumPresentationResolverInterface`;
+- `Contract\IconRendererInterface`;
 - `Contract\IconResolverInterface`;
 - `Contract\HttpRequestCancellationInterface`;
 - `Contract\HttpRequestMapperInterface`;

@@ -253,9 +253,17 @@ The test verifies:
 - bundle asset discovery and production asset compilation;
 - datatable service autoconfiguration;
 - Twig shell rendering;
+- default CSS icon rendering without Symfony UX Icons;
+- real server-side SVG rendering in a second host with Symfony UX Icons;
 - a real fragments request using the array provider.
 
 This job deliberately installs the bundle as a copied Composer path dependency. It therefore exercises the package as a host application receives it instead of relying on the bundle test kernel.
+
+The optional adapter variant is equivalent to:
+
+```bash
+SMOKE_UX_ICONS=1 tools/smoke-test/fresh-symfony-app.sh
+```
 
 ## Frontend tests
 

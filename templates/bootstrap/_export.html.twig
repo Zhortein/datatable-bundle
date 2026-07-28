@@ -8,7 +8,7 @@
         data-bs-toggle="dropdown"
         aria-expanded="false"
     >
-        {% if export_icon %}<i class="{{ export_icon }}" aria-hidden="true"></i> {% endif %}
+        {{ zhortein_datatable_icon(export_icon) }}
         {{ 'zhortein_datatable.export.label'|trans({}, 'zhortein_datatable') }}
     </button>
 
@@ -30,7 +30,7 @@
                     data-zhortein--datatable-bundle--datatable-export-url-param="{{ format_export_url }}"
                     data-zhortein--datatable-bundle--datatable-export-mode="current"
                 >
-                    {% if item_icon %}<i class="{{ item_icon }}" aria-hidden="true"></i> {% endif %}
+                    {{ zhortein_datatable_icon(item_icon) }}
                     {{ ('zhortein_datatable.export.' ~ export_format ~ '_current')|trans({}, 'zhortein_datatable') }}
                 </a>
                 <a
@@ -44,7 +44,7 @@
                     data-zhortein--datatable-bundle--datatable-export-url-param="{{ format_export_url }}"
                     data-zhortein--datatable-bundle--datatable-export-mode="full"
                 >
-                    {% if item_icon %}<i class="{{ item_icon }}" aria-hidden="true"></i> {% endif %}
+                    {{ zhortein_datatable_icon(item_icon) }}
                     {{ ('zhortein_datatable.export.' ~ export_format ~ '_full')|trans({}, 'zhortein_datatable') }}
                 </a>
             {% endif %}

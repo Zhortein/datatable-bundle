@@ -18,6 +18,7 @@ zhortein_datatable:
     max_page_size: 500
     search_enabled: false
     search_builder_enabled: false
+    icon_provider: css
     icons: { }
     bootstrap:
         table:
@@ -253,11 +254,33 @@ When enabled, datatables render the Search Builder controls by default. A runtim
 }) }}
 ```
 
+## `icon_provider`
+
+Type: `css|ux_icons`
+
+Default: `css`
+
+The dependency-free `css` provider renders the configured icon value as escaped
+CSS classes. Set `ux_icons` to render the same values as server-side SVG icon
+names through the optional `symfony/ux-icons` package. If the adapter is not
+installed or an icon cannot be rendered, the bundle falls back to the CSS
+renderer.
+
+```yaml
+zhortein_datatable:
+    icon_provider: ux_icons
+    icons:
+        action_view: 'bi:eye'
+        action_edit: 'bi:pencil'
+```
+
 ## `icons`
 
 Type: `array<string, string>`
 
-The bundle uses a lightweight icon resolver to map internal icon keys to CSS classes. By default, it uses [Bootstrap Icons](https://icons.getbootstrap.com/) class names.
+The bundle uses a lightweight icon resolver to map internal icon keys to
+provider-specific strings. The default values remain Bootstrap Icons CSS
+classes for backward compatibility.
 
 See [Icon System documentation](icons.md) for the full list of available keys and detailed strategy.
 
