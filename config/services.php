@@ -9,6 +9,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Zhortein\DatatableBundle\Contract\ChildDatatableAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Contract\DatatableExportAuthorizationCheckerInterface;
+use Zhortein\DatatableBundle\Contract\DatatablePreferenceIdentityResolverInterface;
 use Zhortein\DatatableBundle\Contract\ExportCancellationInterface;
 use Zhortein\DatatableBundle\Contract\ExportJobClockInterface;
 use Zhortein\DatatableBundle\Contract\ExportJobDispatcherInterface;
@@ -48,6 +49,7 @@ use Zhortein\DatatableBundle\Cell\CellContextFactory;
 use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
 use Zhortein\DatatableBundle\Controller\DatatableController;
 use Zhortein\DatatableBundle\Controller\DatatableExportJobController;
+use Zhortein\DatatableBundle\Controller\DatatablePreferenceController;
 use Zhortein\DatatableBundle\Controller\DatatableViewController;
 use Zhortein\DatatableBundle\DateTime\DateTimeFormatterInterface;
 use Zhortein\DatatableBundle\DateTime\DefaultDateTimeFormatter;
@@ -81,6 +83,10 @@ use Zhortein\DatatableBundle\Hierarchy\ChildDatatableRequestResolver;
 use Zhortein\DatatableBundle\Hierarchy\DenyAllChildDatatableAuthorizationChecker;
 use Zhortein\DatatableBundle\Hierarchy\RowValueAccessor;
 use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
+use Zhortein\DatatableBundle\Preference\CacheDatatablePreferenceProvider;
+use Zhortein\DatatableBundle\Preference\DatatablePreferenceSanitizer;
+use Zhortein\DatatableBundle\Preference\DatatablePreferenceScopeResolver;
+use Zhortein\DatatableBundle\Preference\NullDatatablePreferenceIdentityResolver;
 use Zhortein\DatatableBundle\Preference\NullDatatablePreferenceProvider;
 use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
@@ -171,6 +177,25 @@ return static function (ContainerConfigurator $container): void {
     $services->set(NullDatatablePreferenceProvider::class);
 
     $services->alias(DatatablePreferenceProviderInterface::class, NullDatatablePreferenceProvider::class);
+
+    $services->set(NullDatatablePreferenceIdentityResolver::class);
+    $services->alias(
+        DatatablePreferenceIdentityResolverInterface::class,
+        NullDatatablePreferenceIdentityResolver::class,
+    );
+
+    $services->set(DatatablePreferenceScopeResolver::class);
+
+    $services
+        ->set(DatatablePreferenceSanitizer::class)
+        ->arg('$maximumPageSize', param('zhortein_datatable.max_page_size'))
+    ;
+
+    $services
+        ->set(CacheDatatablePreferenceProvider::class)
+        ->arg('$cachePool', null)
+        ->arg('$ttl', param('zhortein_datatable.preferences.ttl'))
+    ;
 
     $services->set(NullDatatableViewProvider::class);
     $services->set(InMemoryDatatableViewProvider::class);
@@ -359,6 +384,9 @@ return static function (ContainerConfigurator $container): void {
         ->arg('$actionVisibilityChecker', service(ActionVisibilityCheckerInterface::class))
         ->arg('$contextTransport', service(DatatableContextTransport::class))
         ->arg('$stateUrlSerializer', service(DatatableStateUrlSerializer::class))
+        ->arg('$preferenceProvider', service(DatatablePreferenceProviderInterface::class))
+        ->arg('$preferenceScopeResolver', service(DatatablePreferenceScopeResolver::class))
+        ->arg('$preferenceSchemaVersion', param('zhortein_datatable.preferences.schema_version'))
         ->arg('$defaultTableOptions', [
             'tableStriped' => param('zhortein_datatable.bootstrap.table_striped'),
             'tableHover' => param('zhortein_datatable.bootstrap.table_hover'),
@@ -396,6 +424,13 @@ return static function (ContainerConfigurator $container): void {
 
     $services
         ->set(DatatableViewController::class)
+        ->tag('controller.service_arguments')
+    ;
+
+    $services
+        ->set(DatatablePreferenceController::class)
+        ->arg('$preferenceProvider', service(DatatablePreferenceProviderInterface::class))
+        ->arg('$schemaVersion', param('zhortein_datatable.preferences.schema_version'))
         ->tag('controller.service_arguments')
     ;
 };

@@ -1,0 +1,22 @@
+<div class="zhortein-datatable__preferences d-flex align-items-center gap-1">
+    <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary"
+        data-action="zhortein--datatable-bundle--datatable#savePreference"
+    >
+        {{ 'zhortein_datatable.preferences.save'|trans({}, 'zhortein_datatable') }}
+    </button>
+    <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary"
+        data-action="zhortein--datatable-bundle--datatable#resetPreference"
+    >
+        {{ 'zhortein_datatable.preferences.reset'|trans({}, 'zhortein_datatable') }}
+    </button>
+    <span
+        class="small text-body-secondary"
+        role="status"
+        aria-live="polite"
+        data-zhortein--datatable-bundle--datatable-target="preferenceStatus"
+    ></span>
+</div>

@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Zhortein\DatatableBundle\Contract\DatatableExportAuthorizationCheckerInterface;
+use Zhortein\DatatableBundle\Contract\DatatablePreferenceIdentityResolverInterface;
 use Zhortein\DatatableBundle\Contract\ExportCancellationInterface;
 use Zhortein\DatatableBundle\Contract\ExportJobClockInterface;
 use Zhortein\DatatableBundle\Contract\ExportJobDispatcherInterface;
@@ -22,6 +23,10 @@ use Zhortein\DatatableBundle\Export\Job\InMemoryExportJobRepository;
 use Zhortein\DatatableBundle\Export\Job\InMemoryExportJobResultStorage;
 use Zhortein\DatatableBundle\Export\Job\NullExportJobOwnerResolver;
 use Zhortein\DatatableBundle\Export\Job\UnavailableExportJobDispatcher;
+use Zhortein\DatatableBundle\Preference\CacheDatatablePreferenceProvider;
+use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
+use Zhortein\DatatableBundle\Preference\NullDatatablePreferenceIdentityResolver;
+use Zhortein\DatatableBundle\Preference\NullDatatablePreferenceProvider;
 use Zhortein\DatatableBundle\ZhorteinDatatableBundle;
 
 final class BundleConfigurationTest extends TestCase
@@ -54,6 +59,17 @@ final class BundleConfigurationTest extends TestCase
         self::assertSame(
             ['csv' => null, 'xlsx' => null],
             $container->getParameter('zhortein_datatable.export.async.format_limits'),
+        );
+        self::assertFalse($container->getParameter('zhortein_datatable.preferences.enabled'));
+        self::assertSame(31536000, $container->getParameter('zhortein_datatable.preferences.ttl'));
+        self::assertSame('1', $container->getParameter('zhortein_datatable.preferences.schema_version'));
+        self::assertSame(
+            NullDatatablePreferenceProvider::class,
+            (string) $container->getAlias(DatatablePreferenceProviderInterface::class),
+        );
+        self::assertSame(
+            NullDatatablePreferenceIdentityResolver::class,
+            (string) $container->getAlias(DatatablePreferenceIdentityResolverInterface::class),
         );
     }
 
@@ -120,6 +136,12 @@ final class BundleConfigurationTest extends TestCase
             'icons' => [
                 'action_view' => 'smoke-icon-view',
             ],
+            'preferences' => [
+                'enabled' => true,
+                'cache_pool' => 'cache.custom',
+                'ttl' => 7200,
+                'schema_version' => '2026-07',
+            ],
             'export' => [
                 'max_rows' => 5000,
                 'batch_size' => 250,
@@ -174,6 +196,19 @@ final class BundleConfigurationTest extends TestCase
             ['csv' => 400000, 'xlsx' => 100000],
             $container->getParameter('zhortein_datatable.export.async.format_limits'),
         );
+        self::assertTrue($container->getParameter('zhortein_datatable.preferences.enabled'));
+        self::assertSame(7200, $container->getParameter('zhortein_datatable.preferences.ttl'));
+        self::assertSame('2026-07', $container->getParameter('zhortein_datatable.preferences.schema_version'));
+        self::assertSame(
+            CacheDatatablePreferenceProvider::class,
+            (string) $container->getAlias(DatatablePreferenceProviderInterface::class),
+        );
+        self::assertSame(
+            'cache.custom',
+            (string) $container
+                ->getDefinition(CacheDatatablePreferenceProvider::class)
+                ->getArgument('$cachePool'),
+        );
     }
 
     public function test_it_rejects_invalid_default_provider(): void
@@ -218,6 +253,17 @@ final class BundleConfigurationTest extends TestCase
 
         $this->loadBundleConfiguration([
             'max_page_size' => 0,
+        ]);
+    }
+
+    public function test_it_rejects_invalid_preference_ttl(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->loadBundleConfiguration([
+            'preferences' => [
+                'ttl' => 0,
+            ],
         ]);
     }
 

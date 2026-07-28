@@ -279,6 +279,7 @@ final class DatatableDefinition
         array $options = [],
         ?string $enumClass = null,
         array $enumPresentations = [],
+        bool $preferenceSafe = false,
     ): self {
         if (null !== $enumClass && FilterType::Text === $type) {
             $type = FilterType::Enum;
@@ -295,6 +296,7 @@ final class DatatableDefinition
             options: $options,
             enumClass: $enumClass,
             enumPresentations: $enumPresentations,
+            preferenceSafe: $preferenceSafe,
         );
 
         return $this;

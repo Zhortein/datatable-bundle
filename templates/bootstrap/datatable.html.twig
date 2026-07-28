@@ -75,6 +75,13 @@
         data-zhortein--datatable-bundle--datatable-saved-view-error-message-value="{{ 'zhortein_datatable.saved_views.error'|trans({}, 'zhortein_datatable') }}"
         data-zhortein--datatable-bundle--datatable-saved-view-conflict-message-value="{{ 'zhortein_datatable.saved_views.conflict'|trans({}, 'zhortein_datatable') }}"
     {% endif %}
+    {% if options.preferencesUrl is defined %}
+        data-zhortein--datatable-bundle--datatable-preferences-url-value="{{ options.preferencesUrl }}"
+        data-zhortein--datatable-bundle--datatable-preferences-csrf-token-value="{{ options.preferencesCsrfToken }}"
+        data-zhortein--datatable-bundle--datatable-preference-success-message-value="{{ 'zhortein_datatable.preferences.success'|trans({}, 'zhortein_datatable') }}"
+        data-zhortein--datatable-bundle--datatable-preference-reset-message-value="{{ 'zhortein_datatable.preferences.reset_success'|trans({}, 'zhortein_datatable') }}"
+        data-zhortein--datatable-bundle--datatable-preference-error-message-value="{{ 'zhortein_datatable.preferences.error'|trans({}, 'zhortein_datatable') }}"
+    {% endif %}
     data-zhortein--datatable-bundle--datatable-fragments-url-value="{{ fragments_url }}"
     data-zhortein--datatable-bundle--datatable-export-url-value="{{ export_url }}"
     data-zhortein--datatable-bundle--datatable-page-value="1"

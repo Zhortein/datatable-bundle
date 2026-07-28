@@ -79,9 +79,12 @@ Applications may implement or decorate these contracts:
 - `Contract\HttpRequestMapperInterface`;
 - `Contract\HttpResponseMapperInterface`;
 - `Contract\HttpTransportInterface`;
+- `Contract\DatatablePreferenceIdentityResolverInterface`;
 - `DateTime\DateTimeFormatterInterface`;
 - `Action\ActionVisibilityCheckerInterface`;
 - `Preference\DatatablePreferenceProviderInterface`;
+- `Preference\ScopedDatatablePreferenceProviderInterface`;
+- `Preference\WritableDatatablePreferenceProviderInterface`;
 - `Contract\DatatableViewProviderInterface`;
 - `Contract\DatatableViewOwnerResolverInterface`;
 - `Contract\DatatableViewAuthorizationCheckerInterface`.
@@ -102,6 +105,7 @@ Objects appearing in those signatures are part of the supported API:
 - `Export\Job\RunExportJobMessage`;
 - `EnumPresentation\EnumPresentation`;
 - `Preference\DatatablePreference`;
+- `Preference\DatatablePreferenceScope`;
 - `Request\DatatableRequest`;
 - `Result\DatatableResult`;
 - `Provider\Http\HttpDataPage`;

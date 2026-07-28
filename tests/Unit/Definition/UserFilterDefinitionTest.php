@@ -26,6 +26,7 @@ final class UserFilterDefinitionTest extends TestCase
             options: [
                 'foo' => 'bar',
             ],
+            preferenceSafe: true,
         );
 
         self::assertSame('status', $filter->getName());
@@ -41,6 +42,7 @@ final class UserFilterDefinitionTest extends TestCase
         self::assertSame(['foo' => 'bar'], $filter->getOptions());
         self::assertSame('bar', $filter->getOption('foo'));
         self::assertSame('fallback', $filter->getOption('missing', 'fallback'));
+        self::assertTrue($filter->isPreferenceSafe());
     }
 
     public function test_it_uses_text_filter_by_default(): void
@@ -55,6 +57,7 @@ final class UserFilterDefinitionTest extends TestCase
         self::assertSame([], $filter->getChoices());
         self::assertNull($filter->getPlaceholder());
         self::assertFalse($filter->isRequired());
+        self::assertFalse($filter->isPreferenceSafe());
     }
 
     public function test_it_rejects_empty_name(): void

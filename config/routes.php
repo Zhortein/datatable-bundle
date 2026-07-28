@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Zhortein\DatatableBundle\Controller\DatatableController;
 use Zhortein\DatatableBundle\Controller\DatatableExportJobController;
+use Zhortein\DatatableBundle\Controller\DatatablePreferenceController;
 use Zhortein\DatatableBundle\Controller\DatatableViewController;
 
 return static function (RoutingConfigurator $routes): void {
@@ -99,5 +100,17 @@ return static function (RoutingConfigurator $routes): void {
         ->requirements([
             'viewIdentifier' => '[^/]+',
         ])
+    ;
+
+    $routes
+        ->add('zhortein_datatable_preferences_save', '/_zhortein/datatable/{name}/preferences')
+        ->controller([DatatablePreferenceController::class, 'save'])
+        ->methods(['POST'])
+    ;
+
+    $routes
+        ->add('zhortein_datatable_preferences_reset', '/_zhortein/datatable/{name}/preferences')
+        ->controller([DatatablePreferenceController::class, 'reset'])
+        ->methods(['DELETE'])
     ;
 };

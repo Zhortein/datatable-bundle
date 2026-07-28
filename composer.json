@@ -27,6 +27,7 @@
   ],
   "require": {
     "php": ">=8.4",
+    "psr/cache": "^3.0",
     "symfony/config": "^8.0",
     "symfony/dependency-injection": "^8.0",
     "symfony/http-foundation": "^8.0",
@@ -66,6 +67,7 @@
     "symfony/stimulus-bundle": "Recommended to integrate the provided vanilla Stimulus controller.",
     "openspout/openspout": "Required to enable XLSX export support.",
     "symfony/http-client": "Recommended to use the built-in Symfony adapter for HTTP/API backed datatables.",
+    "symfony/cache": "Recommended to provide a PSR-6 cache pool for persistent datatable preferences.",
     "ext-intl": "Recommended for locale-aware datetime formatting through IntlDateFormatter."
   },
   "autoload": {

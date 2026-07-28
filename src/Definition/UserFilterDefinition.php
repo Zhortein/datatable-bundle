@@ -26,6 +26,7 @@ final readonly class UserFilterDefinition
         private array $options = [],
         private ?string $enumClass = null,
         private array $enumPresentations = [],
+        private bool $preferenceSafe = false,
     ) {
         if ('' === trim($this->name)) {
             throw new \InvalidArgumentException('The datatable filter name cannot be empty.');
@@ -105,5 +106,10 @@ final readonly class UserFilterDefinition
     public function getEnumPresentations(): array
     {
         return $this->enumPresentations;
+    }
+
+    public function isPreferenceSafe(): bool
+    {
+        return $this->preferenceSafe;
     }
 }
