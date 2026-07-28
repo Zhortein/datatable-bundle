@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.14.0] - 2026-07-28
+
+### Added
+
+- Added a generic HTTP/API data provider foundation with explicit capabilities, page/offset/cursor pagination, replaceable transport and mapping contracts, an optional Symfony HttpClient adapter, normalized remote failures and guarded streaming exports.
+
 ## [1.13.0] - 2026-07-28
 
 ### Added
