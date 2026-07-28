@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.16.0] - 2026-07-28
+
+### Added
+
+- Added a dependency-free icon renderer abstraction with safe CSS-class output, consistent control and cell rendering, and an optional Symfony UX Icons adapter with deterministic fallback behavior.
+
 ## [1.15.0] - 2026-07-28
 
 ### Added
