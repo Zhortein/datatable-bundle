@@ -83,9 +83,12 @@ php bin/console debug:router zhortein_datatable_export
 
 Both commands should display their route. See the [route reference](routes.md) for their paths and methods.
 
-## 4. Install Bootstrap and Bootstrap Icons
+## 4. Install Bootstrap and, optionally, an icon provider
 
-The bundle uses Bootstrap CSS, Bootstrap JavaScript and Bootstrap Icons, but does not ship them.
+The Bootstrap theme uses Bootstrap CSS and JavaScript but does not ship them.
+Bootstrap Icons remain the default icon mapping for backward compatibility,
+but the icon font is optional: applications can override the mappings, use
+textual fallbacks or select the Symfony UX Icons provider.
 
 Add the packages to the application import map:
 
@@ -106,7 +109,9 @@ import './styles/app.css';
 
 Import application styles after Bootstrap when they are intended to override Bootstrap defaults.
 
-Bootstrap JavaScript is required for dropdown controls. Bootstrap Icons provide the default icons used for sorting, filters, actions and exports.
+Bootstrap JavaScript is required for dropdown controls. Bootstrap Icons provide
+the default CSS icons used for sorting, filters, actions and exports when the
+default provider is retained.
 
 ## 5. Enable the Stimulus controller
 
@@ -218,7 +223,11 @@ Verify that `bootstrap/dist/css/bootstrap.min.css` is present in `importmap.php`
 
 ### Icons are missing
 
-Verify that `bootstrap-icons/font/bootstrap-icons.min.css` is present in `importmap.php` and imported by `assets/app.js`.
+With `icon_provider: css`, verify that the stylesheet matching the configured
+classes is imported. With `icon_provider: ux_icons`, verify that
+`symfony/ux-icons` is installed and that the configured values are valid UX
+Icons names such as `bi:eye`. The bundle falls back to CSS-class markup when the
+UX adapter is unavailable.
 
 ### Dropdowns do not open
 

@@ -42,6 +42,7 @@ final class BundleConfigurationTest extends TestCase
         self::assertSame(500, $container->getParameter('zhortein_datatable.max_page_size'));
         self::assertFalse($container->getParameter('zhortein_datatable.search_enabled'));
         self::assertFalse($container->getParameter('zhortein_datatable.search_builder_enabled'));
+        self::assertSame('css', $container->getParameter('zhortein_datatable.icon_provider'));
         self::assertSame([], $container->getParameter('zhortein_datatable.icons'));
         self::assertSame(10000, $container->getParameter('zhortein_datatable.export.max_rows'));
         self::assertSame(500, $container->getParameter('zhortein_datatable.export.batch_size'));
@@ -134,6 +135,7 @@ final class BundleConfigurationTest extends TestCase
             'max_page_size' => 250,
             'search_enabled' => true,
             'search_builder_enabled' => true,
+            'icon_provider' => 'ux_icons',
             'icons' => [
                 'action_view' => 'smoke-icon-view',
             ],
@@ -175,6 +177,7 @@ final class BundleConfigurationTest extends TestCase
         self::assertSame(250, $container->getParameter('zhortein_datatable.max_page_size'));
         self::assertTrue($container->getParameter('zhortein_datatable.search_enabled'));
         self::assertTrue($container->getParameter('zhortein_datatable.search_builder_enabled'));
+        self::assertSame('ux_icons', $container->getParameter('zhortein_datatable.icon_provider'));
         self::assertSame(
             ['action_view' => 'smoke-icon-view'],
             $container->getParameter('zhortein_datatable.icons'),
@@ -236,6 +239,15 @@ final class BundleConfigurationTest extends TestCase
 
         $this->loadBundleConfiguration([
             'default_theme' => 'tailwind',
+        ]);
+    }
+
+    public function test_it_rejects_invalid_icon_provider(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->loadBundleConfiguration([
+            'icon_provider' => 'font_awesome',
         ]);
     }
 

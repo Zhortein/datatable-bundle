@@ -41,7 +41,10 @@ function createDatatableHtml() {
                                 <span
                                     aria-hidden="true"
                                     data-${CONTROLLER_IDENTIFIER}-child-indicator="true"
-                                >▸</span>
+                                >
+                                    <span data-${CONTROLLER_IDENTIFIER}-child-expand-icon="true">▸</span>
+                                    <span data-${CONTROLLER_IDENTIFIER}-child-collapse-icon="true" hidden>▾</span>
+                                </span>
                             </button>
                         </td>
                         <td>Order 42</td>
@@ -170,12 +173,16 @@ describe('datatable_controller hierarchical child loading', () => {
         expect(toggle.getAttribute('aria-expanded')).toBe('false');
         expect(toggle.getAttribute('aria-label')).toBe('Expand row 42');
         expect(toggle.textContent).toContain('▸');
+        expect(toggle.querySelector(`[data-${CONTROLLER_IDENTIFIER}-child-expand-icon="true"]`).hidden).toBe(false);
+        expect(toggle.querySelector(`[data-${CONTROLLER_IDENTIFIER}-child-collapse-icon="true"]`).hidden).toBe(true);
 
         toggle.click();
         await flushPromises();
 
         expect(childRow.hidden).toBe(false);
         expect(toggle.textContent).toContain('▾');
+        expect(toggle.querySelector(`[data-${CONTROLLER_IDENTIFIER}-child-expand-icon="true"]`).hidden).toBe(true);
+        expect(toggle.querySelector(`[data-${CONTROLLER_IDENTIFIER}-child-collapse-icon="true"]`).hidden).toBe(false);
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(childRow.textContent).toContain('Loaded order lines');
     });

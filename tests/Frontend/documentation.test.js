@@ -90,6 +90,24 @@ describe('Documentation', () => {
         expect(installation).not.toContain('php bin/console asset-mapper:compile');
     });
 
+    it('documents both icon providers and the accessibility contract', () => {
+        const icons = readFileSync(
+            resolve(documentationRoot, 'icons.md'),
+            'utf8',
+        );
+        const configuration = readFileSync(
+            resolve(documentationRoot, 'configuration.md'),
+            'utf8',
+        );
+
+        expect(configuration).toContain('icon_provider: css');
+        expect(icons).toContain('icon_provider: ux_icons');
+        expect(icons).toContain('composer require symfony/ux-icons');
+        expect(icons).toContain('IconRendererInterface');
+        expect(icons).toContain('aria-hidden="true"');
+        expect(icons).toContain('aria-label');
+    });
+
     it('runs the documented integration in a fresh Symfony application', () => {
         const ciWorkflow = readFileSync(
             resolve(projectRoot, '.github/workflows/ci.yaml'),

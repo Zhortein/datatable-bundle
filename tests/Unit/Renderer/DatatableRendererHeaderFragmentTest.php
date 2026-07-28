@@ -54,8 +54,8 @@ final class DatatableRendererHeaderFragmentTest extends TestCase
             'sortDirection' => 'desc',
         ]);
 
-        self::assertStringContainsString('<i class="desc-icon"></i>', $html);
-        self::assertStringContainsString('<i class="neutral-icon"></i>', $html);
+        self::assertStringContainsString('<span class="desc-icon" aria-hidden="true"></span>', $html);
+        self::assertStringContainsString('<span class="neutral-icon" aria-hidden="true"></span>', $html);
     }
 
     private function createDefinition(): DatatableDefinition

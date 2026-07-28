@@ -1,5 +1,9 @@
 # 0008 - Icon strategy and configuration model
 
+> Updated in 1.16: the original CSS-class strategy remains the compatible
+> default and now sits behind a renderer contract. Symfony UX Icons is
+> available through an optional server-side adapter.
+
 ## Status
 
 Accepted
@@ -24,7 +28,8 @@ The bundle will adopt a **CSS-class based icon strategy**.
 
 - No mandatory icon library dependency will be introduced.
 - Support for icon libraries like **Bootstrap Icons** or **FontAwesome** will be documented but optional.
-- **Symfony UX Icons** integration is considered out of scope for the first implementation but may be added later as an optional provider.
+- **Symfony UX Icons** integration is optional and selected through the renderer
+  provider configuration.
 - If no icon classes are configured, the bundle should fall back to text-only or native-like indicators where appropriate (especially for sorting).
 
 ### CSS-Class Based Implementation

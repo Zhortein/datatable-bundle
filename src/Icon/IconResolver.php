@@ -32,6 +32,14 @@ final readonly class IconResolver implements IconResolverInterface
         'boolean_true' => 'bi bi-check-lg',
         'boolean_false' => 'bi bi-x-lg',
         'search_builder' => 'bi bi-sliders',
+        'search_builder_add_condition' => 'bi bi-plus-lg',
+        'search_builder_add_group' => 'bi bi-folder-plus',
+        'search_builder_remove' => 'bi bi-trash',
+        'column_visibility' => 'bi bi-layout-three-columns',
+        'hierarchy_expand' => 'bi bi-chevron-right',
+        'hierarchy_collapse' => 'bi bi-chevron-down',
+        'pagination_previous' => 'bi bi-chevron-left',
+        'pagination_next' => 'bi bi-chevron-right',
     ];
 
     /**

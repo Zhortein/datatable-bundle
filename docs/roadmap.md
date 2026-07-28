@@ -1478,16 +1478,39 @@ Applications can provide safe per-user datatable defaults across devices without
 
 ---
 
+## 1.16 - Icon provider abstraction ✅
+
+Delivered:
+
+- additive `IconRendererInterface` beside the existing resolver contract;
+- dependency-free, escaped CSS-class renderer preserving 1.x icon strings;
+- optional Symfony UX Icons server-side SVG adapter;
+- deterministic CSS fallback when the optional adapter is unavailable or an
+  icon cannot be rendered;
+- unified rendering for actions, bulk actions, sorting, filters, exports,
+  Search Builder, column visibility, hierarchy, pagination, booleans and enums;
+- decorative and explicitly labelled accessible icon modes;
+- Twig helpers for explicit identifiers and semantic keys;
+- custom renderer and template override support without catalog coupling;
+- unit, functional, frontend, rendering and accessibility coverage;
+- configuration, theming, installation, enum and public API documentation.
+
+Main outcome:
+
+```text
+Applications can switch icon technologies without changing datatable definitions while retaining safe server-side markup and accessible controls.
+```
+
+---
+
 ## Later ideas 🔭
 
 Potential future work:
 
 - additional export formats;
 - Elasticsearch provider;
-- UX Icons integration;
 - Symfony Flex recipe if external demand justifies it;
 - Tailwind or custom theme support;
-- icon provider abstraction;
 - broader cross-browser coverage when concrete compatibility risks justify it;
 
 ---

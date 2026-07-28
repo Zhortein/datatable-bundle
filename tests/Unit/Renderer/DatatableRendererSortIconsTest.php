@@ -40,8 +40,8 @@ final class DatatableRendererSortIconsTest extends TestCase
             'sortDirection' => 'asc',
         ]);
 
-        self::assertStringContainsString('<i class="bi bi-arrow-up"></i>', $html);
-        self::assertStringContainsString('<i class="bi bi-arrow-down-up"></i>', $html);
+        self::assertStringContainsString('<span class="bi bi-arrow-up" aria-hidden="true"></span>', $html);
+        self::assertStringContainsString('<span class="bi bi-arrow-down-up" aria-hidden="true"></span>', $html);
     }
 
     public function test_it_renders_overridden_icons(): void
@@ -60,8 +60,8 @@ final class DatatableRendererSortIconsTest extends TestCase
             'sortDirection' => 'desc',
         ]);
 
-        self::assertStringContainsString('<i class="fa fa-sort-down"></i>', $html);
-        self::assertStringContainsString('<i class="fa fa-sort"></i>', $html);
+        self::assertStringContainsString('<span class="fa fa-sort-down" aria-hidden="true"></span>', $html);
+        self::assertStringContainsString('<span class="fa fa-sort" aria-hidden="true"></span>', $html);
     }
 
     private function createDefinition(): DatatableDefinition

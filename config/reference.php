@@ -898,12 +898,13 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *     },
  * }
  * @psalm-type ZhorteinDatatableConfig = array{
- *     default_provider?: "array"|"doctrine", // Default: "doctrine"
+ *     default_provider?: "array"|"doctrine"|"http", // Default: "doctrine"
  *     default_theme?: "bootstrap", // Default: "bootstrap"
  *     default_page_size?: int, // Default: 25
  *     max_page_size?: int, // Default: 500
  *     search_enabled?: bool, // Default: false
  *     search_builder_enabled?: bool, // Default: false
+ *     icon_provider?: "css"|"ux_icons", // Default: "css"
  *     icons?: array<string, scalar|null>,
  *     export?: array{
  *         max_rows?: int, // Default: 10000
