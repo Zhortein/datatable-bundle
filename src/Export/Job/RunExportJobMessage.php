@@ -11,7 +11,7 @@ final readonly class RunExportJobMessage
     public function __construct(
         string $jobIdentifier,
     ) {
-        $this->jobIdentifier = (new ExportJobIdentifier($jobIdentifier))->toString();
+        $this->jobIdentifier = new ExportJobIdentifier($jobIdentifier)->toString();
     }
 
     public static function fromIdentifier(ExportJobIdentifier $identifier): self

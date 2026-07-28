@@ -16,9 +16,9 @@ use Zhortein\DatatableBundle\Exception\ExportException;
 use Zhortein\DatatableBundle\Exception\RetryableExportJobException;
 use Zhortein\DatatableBundle\Export\ExportRow;
 use Zhortein\DatatableBundle\Export\ExportStreamContext;
+use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
-use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
 
 final readonly class ExportJobRunner
 {
@@ -141,7 +141,7 @@ final readonly class ExportJobRunner
                 }
             }
 
-            if (null !== $previousLocale) {
+            if (null !== $previousLocale && null !== $this->localeAware) {
                 $this->localeAware->setLocale($previousLocale);
             }
         }
