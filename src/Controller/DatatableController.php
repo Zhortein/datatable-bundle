@@ -10,13 +10,19 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Zhortein\DatatableBundle\Context\DatatableContextRequestResolver;
 use Zhortein\DatatableBundle\Contract\DatatableExportAuthorizationCheckerInterface;
+use Zhortein\DatatableBundle\Contract\ExportCancellationInterface;
 use Zhortein\DatatableBundle\Contract\ExportRowCountProviderInterface;
+use Zhortein\DatatableBundle\Contract\StreamingDataProviderInterface;
+use Zhortein\DatatableBundle\Contract\StreamingExportWriterInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
+use Zhortein\DatatableBundle\Exception\ExportException;
 use Zhortein\DatatableBundle\Export\AllowAllDatatableExportAuthorizationChecker;
+use Zhortein\DatatableBundle\Export\ConnectionAbortedExportCancellation;
 use Zhortein\DatatableBundle\Export\DatatableExportAuthorizationContext;
 use Zhortein\DatatableBundle\Export\DatatableExportRequest;
 use Zhortein\DatatableBundle\Export\ExportLimitResolver;
+use Zhortein\DatatableBundle\Export\ExportStreamContext;
 use Zhortein\DatatableBundle\Export\ExportWriterRegistry;
 use Zhortein\DatatableBundle\Factory\DatatableDefinitionFactory;
 use Zhortein\DatatableBundle\Factory\DatatableRequestFactory;
@@ -40,7 +46,12 @@ final readonly class DatatableController
         private ?DatatableExportAuthorizationCheckerInterface $exportAuthorizationChecker = null,
         private ?ExportLimitResolver $exportLimitResolver = null,
         private ?TranslatorInterface $translator = null,
+        private int $exportBatchSize = 500,
+        private ?ExportCancellationInterface $exportCancellation = null,
     ) {
+        if ($this->exportBatchSize < 1) {
+            throw new \InvalidArgumentException('The export batch size must be greater than or equal to 1.');
+        }
     }
 
     public function fragments(Request $request, string $name): JsonResponse
@@ -155,6 +166,31 @@ final readonly class DatatableController
             );
         }
 
+        if (
+            $provider instanceof StreamingDataProviderInterface
+            && $writer instanceof StreamingExportWriterInterface
+        ) {
+            $streamContext = new ExportStreamContext(
+                batchSize: $this->exportBatchSize,
+                expectedRowCount: $exportRowCount,
+                cancellation: $this->exportCancellation ?? new ConnectionAbortedExportCancellation(),
+            );
+
+            return $writer->writeStream(
+                request: $exportRequest,
+                definition: $definition,
+                rows: $this->guardStreamedRows(
+                    $provider->streamExportRows(
+                        definition: $definition,
+                        request: $effectiveDatatableRequest,
+                        context: $streamContext,
+                    ),
+                    $exportLimit,
+                ),
+                context: $streamContext,
+            );
+        }
+
         $result = $provider->getData($definition, $effectiveDatatableRequest);
 
         if (count($result->getRows()) > $exportLimit) {
@@ -167,6 +203,26 @@ final readonly class DatatableController
         }
 
         return $writer->write($exportRequest, $definition, $result);
+    }
+
+    /**
+     * @param iterable<\Zhortein\DatatableBundle\Export\ExportRow> $rows
+     *
+     * @return iterable<\Zhortein\DatatableBundle\Export\ExportRow>
+     */
+    private function guardStreamedRows(iterable $rows, int $limit): iterable
+    {
+        $rowCount = 0;
+
+        foreach ($rows as $row) {
+            ++$rowCount;
+
+            if ($rowCount > $limit) {
+                throw new ExportException(sprintf('The streaming provider yielded more than the configured %d-row export limit.', $limit));
+            }
+
+            yield $row;
+        }
     }
 
     public function child(Request $request, string $name): Response

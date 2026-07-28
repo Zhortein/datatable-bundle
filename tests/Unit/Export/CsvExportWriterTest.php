@@ -6,12 +6,14 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Export;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\Translator;
 use Zhortein\DatatableBundle\Cell\CellContext;
 use Zhortein\DatatableBundle\Cell\CellContextFactory;
 use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
 use Zhortein\DatatableBundle\Contract\CellValueResolverInterface;
+use Zhortein\DatatableBundle\Contract\ExportCancellationInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ExportFormat;
 use Zhortein\DatatableBundle\EnumPresentation\DefaultEnumPresentationResolver;
@@ -19,6 +21,8 @@ use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 use Zhortein\DatatableBundle\Export\CsvExportWriter;
 use Zhortein\DatatableBundle\Export\DatatableExportRequest;
 use Zhortein\DatatableBundle\Export\ExportColumnLabelResolver;
+use Zhortein\DatatableBundle\Export\ExportRow;
+use Zhortein\DatatableBundle\Export\ExportStreamContext;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
 use Zhortein\DatatableBundle\Result\DatatableResult;
 
@@ -342,6 +346,117 @@ final class CsvExportWriterTest extends TestCase
         self::assertStringNotContainsString('bi-check-circle', $response->getContent());
     }
 
+    public function test_it_streams_rows_without_materializing_a_datatable_result(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition
+            ->addColumn('e.email', label: 'Email')
+            ->addColumn('e.displayName', label: 'Display name')
+        ;
+        $consumption = new CsvStreamConsumptionCounter();
+        $rows = (static function () use ($consumption): \Generator {
+            ++$consumption->rows;
+            yield new ExportRow([
+                'e_email' => 'alice@example.test',
+                'e_displayName' => 'Alice',
+            ]);
+
+            ++$consumption->rows;
+            yield new ExportRow([
+                'e_email' => 'bob@example.test',
+                'e_displayName' => 'Bob',
+            ]);
+        })();
+        $response = new CsvExportWriter()->writeStream(
+            request: new DatatableExportRequest('users'),
+            definition: $definition,
+            rows: $rows,
+            context: $this->createStreamContext(2),
+        );
+
+        self::assertInstanceOf(StreamedResponse::class, $response);
+        self::assertSame(0, $consumption->rows);
+        self::assertSame(
+            "Email,\"Display name\"\nalice@example.test,Alice\nbob@example.test,Bob\n",
+            $this->captureStreamedResponse($response),
+        );
+        self::assertSame(2, $consumption->rows);
+    }
+
+    public function test_it_stops_streaming_cleanly_when_cancelled(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition->addColumn('email', label: 'Email');
+        $response = new CsvExportWriter()->writeStream(
+            request: new DatatableExportRequest('users'),
+            definition: $definition,
+            rows: [
+                new ExportRow(['email' => 'alice@example.test']),
+                new ExportRow(['email' => 'bob@example.test']),
+            ],
+            context: new ExportStreamContext(
+                batchSize: 10,
+                expectedRowCount: 2,
+                cancellation: new CancelAfterChecks(2),
+            ),
+        );
+
+        self::assertSame(
+            "Email\nalice@example.test\n",
+            $this->captureStreamedResponse($response),
+        );
+    }
+
+    public function test_late_provider_errors_propagate_from_the_stream_callback(): void
+    {
+        $definition = new DatatableDefinition('users');
+        $definition->addColumn('email', label: 'Email');
+        $rows = (static function (): \Generator {
+            yield new ExportRow(['email' => 'alice@example.test']);
+
+            throw new \RuntimeException('Provider failed after streaming started.');
+        })();
+        $response = new CsvExportWriter()->writeStream(
+            request: new DatatableExportRequest('users'),
+            definition: $definition,
+            rows: $rows,
+            context: $this->createStreamContext(2),
+        );
+
+        ob_start();
+
+        try {
+            $response->sendContent();
+            self::fail('The late provider exception should propagate.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('Provider failed after streaming started.', $exception->getMessage());
+        } finally {
+            ob_end_clean();
+        }
+    }
+
+    private function createStreamContext(int $expectedRowCount): ExportStreamContext
+    {
+        return new ExportStreamContext(
+            batchSize: 100,
+            expectedRowCount: $expectedRowCount,
+            cancellation: new CancelAfterChecks(PHP_INT_MAX),
+        );
+    }
+
+    private function captureStreamedResponse(Response $response): string
+    {
+        self::assertInstanceOf(StreamedResponse::class, $response);
+
+        ob_start();
+        $response->sendContent();
+        $content = ob_get_clean();
+
+        self::assertIsString($content);
+
+        return $content;
+    }
+
     private function createDefinition(): DatatableDefinition
     {
         $definition = new DatatableDefinition('users');
@@ -384,4 +499,24 @@ final class CsvExportWriterTest extends TestCase
 enum ExportStatus: string
 {
     case Active = 'active';
+}
+
+final class CancelAfterChecks implements ExportCancellationInterface
+{
+    private int $checks = 0;
+
+    public function __construct(
+        private readonly int $allowedChecks,
+    ) {
+    }
+
+    public function isCancelled(): bool
+    {
+        return ++$this->checks > $this->allowedChecks;
+    }
+}
+
+final class CsvStreamConsumptionCounter
+{
+    public int $rows = 0;
 }

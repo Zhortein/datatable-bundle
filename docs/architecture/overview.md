@@ -90,6 +90,20 @@ The Ajax controller (`zhortein_datatable_fragments`) connects the server-side pi
 
 The endpoint returns rendered `body`, `pagination`, and `summary` fragments plus metadata in a JSON response.
 
+The export endpoint has a parallel capability flow:
+
+```text
+authorization and count preflight
+→ StreamingDataProviderInterface
+→ iterable<ExportRow>
+→ StreamingExportWriterInterface
+→ streamed CSV or XLSX response
+```
+
+When either additive streaming capability is unavailable, the unchanged
+`DataProviderInterface` → `DatatableResult` → `ExportWriterInterface` flow is
+used for 1.x compatibility.
+
 ## Test and quality architecture
 
 The project adheres to strict quality gates: PHPUnit, PHPStan (max level), PHP-CS-Fixer, and twigcs.

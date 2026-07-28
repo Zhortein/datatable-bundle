@@ -216,6 +216,7 @@ The provider automatically uses `COUNT(DISTINCT e.id)` when joins or aggregates 
 - **Deep Nesting**: Complex deep association paths may require multiple explicit joins.
 - **Collection Aggregations**: ManyToMany or OneToMany collections are not fully supported for direct column display.
 - **Async Exports**: Large exports are currently synchronous.
+- **Streaming exports**: Synchronous exports use bounded scalar batches; configure `export.batch_size` according to row width and query cost.
 - **Source objects**: Doctrine uses scalar projections and never exposes root entities to cell templates implicitly.
 - **Computed filtering/sorting**: PHP-resolved columns cannot participate in DQL filtering or sorting.
 

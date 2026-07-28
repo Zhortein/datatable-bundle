@@ -65,5 +65,11 @@ Custom providers that expose source objects must fetch every value needed by
 cell resolvers in batches. Sources are available only to server-side cell
 templates and exports; they are never serialized automatically.
 
+Large synchronous exports may opt into `StreamingDataProviderInterface`.
+The provider then yields normalized `ExportRow` objects under a bounded
+`ExportStreamContext`, while its normal table requests continue to use
+`DataProviderInterface::getData()`. See [server-side exports](exports.md) for
+the count, cancellation and fallback contracts.
+
 See [Cell Context and Computed Values](cell-context.md) for the result contract
 and provider capability matrix.

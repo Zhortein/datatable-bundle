@@ -907,6 +907,7 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *     icons?: array<string, scalar|null>,
  *     export?: array{
  *         max_rows?: int, // Default: 10000
+ *         batch_size?: int, // Default: 500
  *         format_limits?: array{
  *             csv?: int|null, // Default: null
  *             xlsx?: int|null, // Default: null

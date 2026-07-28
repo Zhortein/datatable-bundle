@@ -10,6 +10,8 @@ use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Zhortein\DatatableBundle\Controller\DatatableController;
 use Zhortein\DatatableBundle\Tests\Functional\Doctrine\DoctrineSchemaMetadataTrait;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineOrganization;
@@ -53,7 +55,7 @@ final class AdvancedFilterExportFunctionalTest extends FunctionalTestCase
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('text/csv; charset=UTF-8', $response->headers->get('Content-Type'));
 
-        $content = (string) $response->getContent();
+        $content = $this->getResponseContent($response);
         self::assertStringContainsString('alice@example.test', $content);
         self::assertStringNotContainsString('bob@example.test', $content);
         self::assertStringNotContainsString('charlie@example.test', $content);
@@ -87,7 +89,7 @@ final class AdvancedFilterExportFunctionalTest extends FunctionalTestCase
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', $response->headers->get('Content-Type'));
 
-        self::assertNotEmpty($response->getContent());
+        self::assertNotEmpty($this->getResponseContent($response));
     }
 
     public function test_array_export_respects_advanced_filters(): void
@@ -116,7 +118,7 @@ final class AdvancedFilterExportFunctionalTest extends FunctionalTestCase
 
         self::assertSame(200, $response->getStatusCode());
 
-        $content = (string) $response->getContent();
+        $content = $this->getResponseContent($response);
         self::assertStringContainsString('alice@example.test', $content);
         self::assertStringNotContainsString('bob@example.test', $content);
     }
@@ -149,7 +151,7 @@ final class AdvancedFilterExportFunctionalTest extends FunctionalTestCase
 
         self::assertSame(200, $response->getStatusCode());
 
-        $content = (string) $response->getContent();
+        $content = $this->getResponseContent($response);
         self::assertStringContainsString('bob@example.test', $content);
         self::assertStringNotContainsString('alice@example.test', $content);
         self::assertStringNotContainsString('charlie@example.test', $content);
@@ -243,5 +245,24 @@ final class AdvancedFilterExportFunctionalTest extends FunctionalTestCase
         }
 
         return $this->entityManager;
+    }
+
+    private function getResponseContent(Response $response): string
+    {
+        if (!$response instanceof StreamedResponse) {
+            $content = $response->getContent();
+
+            self::assertIsString($content);
+
+            return $content;
+        }
+
+        ob_start();
+        $response->sendContent();
+        $content = ob_get_clean();
+
+        self::assertIsString($content);
+
+        return $content;
     }
 }

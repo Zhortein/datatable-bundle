@@ -7,6 +7,7 @@ use OpenSpout\Writer\XLSX\Writer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Zhortein\DatatableBundle\Contract\ChildDatatableAuthorizationCheckerInterface;
 use Zhortein\DatatableBundle\Contract\DatatableExportAuthorizationCheckerInterface;
+use Zhortein\DatatableBundle\Contract\ExportCancellationInterface;
 use Zhortein\DatatableBundle\Doctrine\DoctrineCountExpressionFactory;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldMetadataResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
@@ -14,6 +15,7 @@ use Zhortein\DatatableBundle\Doctrine\DoctrineJoinApplier;
 use Zhortein\DatatableBundle\Doctrine\DoctrinePaginationApplier;
 use Zhortein\DatatableBundle\Export\XlsxExportWriter;
 use Zhortein\DatatableBundle\Export\AllowAllDatatableExportAuthorizationChecker;
+use Zhortein\DatatableBundle\Export\ConnectionAbortedExportCancellation;
 use Zhortein\DatatableBundle\Icon\IconResolver;
 use Zhortein\DatatableBundle\Contract\IconResolverInterface;
 use Zhortein\DatatableBundle\Contract\DatatableViewAuthorizationCheckerInterface;
@@ -238,6 +240,12 @@ return static function (ContainerConfigurator $container): void {
         ->arg('$formatLimits', param('zhortein_datatable.export.format_limits'))
     ;
 
+    $services->set(ConnectionAbortedExportCancellation::class);
+    $services->alias(
+        ExportCancellationInterface::class,
+        ConnectionAbortedExportCancellation::class,
+    );
+
     $services
         ->set(DatatableRenderer::class)
         ->arg('$theme', param('zhortein_datatable.default_theme'))
@@ -270,6 +278,8 @@ return static function (ContainerConfigurator $container): void {
         ->arg('$exportAuthorizationChecker', service(DatatableExportAuthorizationCheckerInterface::class))
         ->arg('$exportLimitResolver', service(ExportLimitResolver::class))
         ->arg('$translator', service('translator'))
+        ->arg('$exportBatchSize', param('zhortein_datatable.export.batch_size'))
+        ->arg('$exportCancellation', service(ExportCancellationInterface::class))
         ->tag('controller.service_arguments')
     ;
 

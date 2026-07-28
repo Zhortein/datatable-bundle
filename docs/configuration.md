@@ -29,6 +29,7 @@ zhortein_datatable:
             responsive: true
     export:
         max_rows: 10000
+        batch_size: 500
         format_limits:
             csv: null
             xlsx: null
@@ -273,7 +274,7 @@ zhortein_datatable:
 
 Each value can still be overridden through the corresponding runtime rendering option.
 
-## `export.max_rows` and `export.format_limits`
+## `export.max_rows`, `export.format_limits` and `export.batch_size`
 
 Synchronous exports are guarded before the provider loads their rows:
 
@@ -281,6 +282,7 @@ Synchronous exports are guarded before the provider loads their rows:
 zhortein_datatable:
     export:
         max_rows: 10000
+        batch_size: 500
         format_limits:
             csv: 10000
             xlsx: 5000
@@ -310,6 +312,11 @@ Resolution order:
 
 These values are server-side configuration. Query parameters named `limit`,
 `maxRows` or similar never influence the safeguard.
+
+`batch_size` controls how many scalar rows a streaming provider may fetch at
+once. It defaults to `500` and accepts values from `1` through `10000`.
+Providers remain free to use a smaller internal batch, but must never treat a
+client query parameter as the batch size.
 
 The display-oriented `max_page_size` remains independent. It caps request page
 sizes, while export limits cap the number of rows a synchronous writer may
