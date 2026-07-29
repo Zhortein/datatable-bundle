@@ -3,6 +3,10 @@
 This guide covers the theme-boundary changes introduced in the 2.0 beta. Data providers,
 definitions, filters, actions and exports are unaffected by this migration.
 
+Applications replacing an older, application-specific DatatableNet or
+DataTables.net layer should use the separate
+[DatatableNet-style application migration guide](legacy-datatablenet-migration.md).
+
 ## Default Bootstrap applications
 
 Bootstrap remains the default theme. Keep Bootstrap 5 CSS and JavaScript in the
