@@ -7,6 +7,7 @@ namespace App\Datatable;
 use Zhortein\DatatableBundle\Attribute\AsDatatable;
 use Zhortein\DatatableBundle\Contract\DatatableInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\CellType;
 use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 
@@ -33,7 +34,7 @@ final class SmokeUserDatatable implements DatatableInterface
             ->setOption('rowActionDisplayMode', 'dropdown')
             ->addColumn('id', visible: false, sortable: false, searchable: false, exportable: false)
             ->addColumn('email', label: 'Email')
-            ->addColumn('enabled', label: 'Enabled')
+            ->addColumn('enabled', label: 'Enabled', type: CellType::Boolean->value)
             ->addFilter(
                 name: 'enabled',
                 field: 'enabled',

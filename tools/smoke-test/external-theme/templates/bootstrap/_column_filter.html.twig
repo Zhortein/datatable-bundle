@@ -1,0 +1,6 @@
+{% include theme.template('_filter.html.twig') with {
+    filter: filter,
+    htmlId: htmlId,
+    value: filters[filter.name]|default(null),
+    translationDomain: translationDomain
+} %}

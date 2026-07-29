@@ -1,0 +1,2 @@
+{% set colspan = visibleColumns|length + (hasRowActions|default(false) ? 1 : 0) + (hasBulkActions|default(false) ? 1 : 0) + (hasChildDatatable|default(false) ? 1 : 0) %}
+<tr><td colspan="{{ colspan > 0 ? colspan : 1 }}">{{ 'zhortein_datatable.empty'|trans({}, 'zhortein_datatable') }}</td></tr>

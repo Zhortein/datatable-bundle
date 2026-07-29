@@ -1,0 +1,62 @@
+{% set search_builder_enabled = options.searchBuilder is defined and options.searchBuilder %}
+
+<div
+    id="{{ htmlId }}"
+    class="acme-datatable"
+    data-controller="zhortein--datatable-bundle--datatable"
+    data-zhortein-datatable-theme="acme"
+    data-zhortein-datatable-template-owner="external-package"
+    data-zhortein--datatable-bundle--datatable-name-value="{{ definition.name }}"
+    data-zhortein--datatable-bundle--datatable-instance-value="{{ options.instance }}"
+    data-zhortein--datatable-bundle--datatable-fragments-url-value="{{ options.fragmentsUrl }}"
+    data-zhortein--datatable-bundle--datatable-export-url-value="{{ options.exportUrl }}"
+    data-zhortein--datatable-bundle--datatable-page-value="1"
+    data-zhortein--datatable-bundle--datatable-page-size-value="{{ options.pageSize|default(25) }}"
+    data-zhortein--datatable-bundle--datatable-sort-field-value="{{ options.sortField|default('') }}"
+    data-zhortein--datatable-bundle--datatable-sort-direction-value="{{ options.sortDirection|default('asc') }}"
+    data-zhortein--datatable-bundle--datatable-sorts-value="{{ options.sorts|default([])|json_encode|e('html_attr') }}"
+    data-zhortein--datatable-bundle--datatable-auto-load-value="{{ options.autoLoad is defined ? (options.autoLoad ? 'true' : 'false') : 'true' }}"
+    data-zhortein--datatable-bundle--datatable-filter-layout-value="{{ options.filterLayout|default('toolbar') }}"
+    data-zhortein--datatable-bundle--datatable-search-builder-value="{{ search_builder_enabled ? 'true' : 'false' }}"
+    data-zhortein--datatable-bundle--datatable-boolean-display-mode-value="{{ options.booleanDisplayMode|default('badge') }}"
+    data-zhortein--datatable-bundle--datatable-pagination-size-value="{{ options.paginationSize|default('default') }}"
+    data-zhortein--datatable-bundle--datatable-table-small-value="false"
+    data-zhortein--datatable-bundle--datatable-dropdown-overflow-class-value="acme-overflow-visible"
+    data-zhortein--datatable-bundle--datatable-hidden-class-value="acme-hidden"
+    data-zhortein--datatable-bundle--datatable-visible-class-value="acme-visible"
+    data-zhortein--datatable-bundle--datatable-status-error-class-value="acme-status--error"
+    data-zhortein--datatable-bundle--datatable-status-success-class-value="acme-status--success"
+    data-zhortein--datatable-bundle--datatable-status-muted-class-value="acme-status--muted"
+    data-zhortein--datatable-bundle--datatable-action-disabled-class-value="acme-action--disabled"
+    data-zhortein--datatable-bundle--datatable-action-success-message-value="{{ 'zhortein_datatable.ajax_action.success'|trans({}, 'zhortein_datatable') }}"
+    data-zhortein--datatable-bundle--datatable-action-error-message-value="{{ 'zhortein_datatable.ajax_action.error'|trans({}, 'zhortein_datatable') }}"
+    data-zhortein--datatable-bundle--datatable-invalid-action-response-message-value="{{ 'zhortein_datatable.ajax_action.invalid_response'|trans({}, 'zhortein_datatable') }}"
+    aria-busy="false"
+>
+    {% include theme.template('_toolbar.html.twig') %}
+
+    {% if search_builder_enabled %}
+        {% include theme.template('_search_builder.html.twig') %}
+    {% endif %}
+
+    {% include theme.template('_bulk_actions.html.twig') %}
+
+    <div role="status" aria-live="polite" aria-hidden="true" hidden data-zhortein--datatable-bundle--datatable-target="feedback"></div>
+    <div role="alert" aria-live="polite" aria-hidden="true" hidden data-zhortein--datatable-bundle--datatable-target="error"></div>
+    <div role="status" aria-live="polite" aria-hidden="true" hidden data-zhortein--datatable-bundle--datatable-target="loading">
+        {{ 'zhortein_datatable.loading'|trans({}, 'zhortein_datatable') }}
+    </div>
+
+    <div data-zhortein--datatable-bundle--datatable-dropdown-overflow-wrapper>
+        <table class="acme-table">
+            {% include theme.template('_header.html.twig') %}
+            <tbody data-zhortein--datatable-bundle--datatable-target="body">
+                {% include theme.template('_empty.html.twig') %}
+            </tbody>
+        </table>
+    </div>
+
+    <div aria-live="polite" data-zhortein--datatable-bundle--datatable-target="summary"></div>
+    {% include theme.template('_pagination.html.twig') %}
+    {% include theme.template('_confirmation_modal.html.twig') %}
+</div>

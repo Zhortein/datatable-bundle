@@ -1,0 +1,19 @@
+<td{% if class_name is not null %} class="{{ class_name }}"{% endif %}>
+    {% include template with {
+        theme: theme,
+        cell: cell,
+        column: column,
+        column_label: zhortein_datatable_translate(column.label, translation_domain, column.name),
+        translation_domain: translation_domain,
+        value: value,
+        row: cell.row,
+        source: cell.source,
+        row_identifier: cell.rowIdentifier,
+        datatable: cell.definition,
+        datatable_context: cell.datatableContext,
+        boolean_display_mode: boolean_display_mode,
+        boolean_true_icon: boolean_true_icon,
+        boolean_false_icon: boolean_false_icon,
+        enum_presentation: enum_presentation|default(null)
+    } only %}
+</td>

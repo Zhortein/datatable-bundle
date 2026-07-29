@@ -141,3 +141,25 @@ templates/bundles/ZhorteinDatatableBundle/bootstrap/
 
 Theme packages should publish their own Twig namespace instead of copying files
 into the bundle override directory.
+
+## External package validation
+
+The CI installs the independent
+`tools/smoke-test/external-theme` Composer package into a fresh Symfony
+application. The smoke host enables its bundle, selects `default_theme: acme`
+and verifies both the initial shell and Ajax fragments.
+
+This test protects the complete integration boundary:
+
+- Composer autoloading outside the core bundle namespace;
+- Symfony bundle registration and service autoconfiguration;
+- `ThemeInterface` discovery through the public service tag;
+- package-owned Twig namespace and complete template surface;
+- theme-specific default cell presentation;
+- shell and fragment rendering without cross-theme template fallback.
+
+Run it locally with:
+
+```bash
+SMOKE_EXTERNAL_THEME=1 tools/smoke-test/fresh-symfony-app.sh
+```

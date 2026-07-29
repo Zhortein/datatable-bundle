@@ -1519,11 +1519,12 @@ Delivered on the 2.0 development branch:
   evaluation;
 - architecture decision, compatibility matrix and 1.x migration guide;
 - Bootstrap regression, custom-theme resolution and frontend coverage.
+- fresh-host validation of an independently installed, complete external theme
+  package.
 
 Before the 2.0 release:
 
 - validate the complete PHP and browser matrix in CI;
-- validate one external theme adapter against the published contract;
 - prepare final release notes and major-version upgrade communication.
 
 Main outcome:

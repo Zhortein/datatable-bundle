@@ -1,0 +1,12 @@
+{% if bulkActions is not empty %}
+    <div data-zhortein--datatable-bundle--datatable-target="bulkToolbar" hidden>
+        <span data-zhortein--datatable-bundle--datatable-target="selectedCount">0</span>
+        {% for action in bulkActions %}
+            <form method="post" action="{{ action.url }}" data-action="submit->zhortein--datatable-bundle--datatable#submitBulkAction">
+                <button type="submit" disabled data-zhortein--datatable-bundle--datatable-target="bulkAction">
+                    {{ zhortein_datatable_translate(action.label, action.translationDomain|default(null), action.name) }}
+                </button>
+            </form>
+        {% endfor %}
+    </div>
+{% endif %}
