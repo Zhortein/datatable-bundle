@@ -1,0 +1,17 @@
+{
+  "name": "zhortein/acme-datatable-theme",
+  "description": "External datatable theme fixture used to validate the public theme contract.",
+  "type": "symfony-bundle",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.4",
+    "symfony/dependency-injection": "^8.0",
+    "symfony/http-kernel": "^8.0",
+    "zhortein/datatable-bundle": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Zhortein\\AcmeDatatableTheme\\": "src/"
+    }
+  }
+}

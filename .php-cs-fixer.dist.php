@@ -9,9 +9,11 @@ $finder = Finder::create()
     ->in([
         __DIR__.'/src',
         __DIR__.'/tests',
+        __DIR__.'/tools/smoke-test/external-theme/src',
     ])
     ->append([
         __FILE__,
+        __DIR__.'/tools/smoke-test/external-theme/validate.php',
     ])
 ;
 

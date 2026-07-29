@@ -1,0 +1,28 @@
+{% set search_enabled = options.search is defined and options.search %}
+
+<div class="zhortein-datatable__toolbar acme-toolbar">
+    {% if search_enabled %}
+        <label for="{{ htmlId }}_search">{{ 'zhortein_datatable.search.label'|trans({}, 'zhortein_datatable') }}</label>
+        <input
+            id="{{ htmlId }}_search"
+            type="search"
+            placeholder="{{ 'zhortein_datatable.search.placeholder'|trans({}, 'zhortein_datatable') }}"
+            data-zhortein--datatable-bundle--datatable-target="searchInput"
+            data-action="input->zhortein--datatable-bundle--datatable#search"
+        >
+    {% endif %}
+
+    {% include theme.template('_filters.html.twig') %}
+    {% include theme.template('_export.html.twig') %}
+
+    <label for="{{ htmlId }}_page_size">{{ 'zhortein_datatable.page_size.label'|trans({}, 'zhortein_datatable') }}</label>
+    <select
+        id="{{ htmlId }}_page_size"
+        data-zhortein--datatable-bundle--datatable-target="pageSizeInput"
+        data-action="change->zhortein--datatable-bundle--datatable#changePageSize"
+    >
+        {% for page_size in options.allowedPageSizes|default([10, 25, 50, 100]) %}
+            <option value="{{ page_size }}"{% if page_size == options.pageSize|default(25) %} selected{% endif %}>{{ page_size }}</option>
+        {% endfor %}
+    </select>
+</div>

@@ -1,0 +1,5 @@
+<ul class="acme-actions">
+    {% for action in actions %}
+        <li>{% include theme.template('_list_action.html.twig') with {theme: theme, action: action} only %}</li>
+    {% endfor %}
+</ul>

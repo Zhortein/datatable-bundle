@@ -1,0 +1,13 @@
+<template data-zhortein-datatable-template-owner="external-package"></template>
+{% for row in rows %}
+    {% include theme.template('_row.html.twig') with {
+        theme: theme,
+        row: row,
+        htmlId: htmlId,
+        rowIndex: loop.index,
+        rowActionDisplayMode: rowActionDisplayMode,
+        hasBulkActions: hasBulkActions|default(false),
+        hasChildDatatable: hasChildDatatable|default(false),
+        childColspan: childColspan|default(1)
+    } only %}
+{% endfor %}

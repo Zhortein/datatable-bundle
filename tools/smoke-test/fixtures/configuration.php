@@ -56,7 +56,7 @@ $profiles = [
     'complete' => [
         'patterns' => [
             'default_provider:\s+array',
-            'default_theme:\s+bootstrap',
+            'default_theme:\s+'.('1' === getenv('SMOKE_EXTERNAL_THEME') ? 'acme' : 'bootstrap'),
             'default_page_size:\s+15',
             'max_page_size:\s+120',
             'search_enabled:\s+true',
@@ -76,7 +76,7 @@ $profiles = [
         ],
         'parameters' => [
             'zhortein_datatable.default_provider' => 'array',
-            'zhortein_datatable.default_theme' => 'bootstrap',
+            'zhortein_datatable.default_theme' => '1' === getenv('SMOKE_EXTERNAL_THEME') ? 'acme' : 'bootstrap',
             'zhortein_datatable.default_page_size' => 15,
             'zhortein_datatable.max_page_size' => 120,
             'zhortein_datatable.search_enabled' => true,

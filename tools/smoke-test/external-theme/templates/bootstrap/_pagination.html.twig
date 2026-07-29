@@ -1,0 +1,14 @@
+<div data-zhortein--datatable-bundle--datatable-target="pagination">
+    {% if result is defined and result is not null and result.totalPages > 1 %}
+        <nav aria-label="{{ 'zhortein_datatable.pagination.label'|trans({}, 'zhortein_datatable') }}">
+            {% for page in 1..result.totalPages %}
+                <button
+                    type="button"
+                    data-action="zhortein--datatable-bundle--datatable#goToPage"
+                    data-zhortein--datatable-bundle--datatable-page-param="{{ page }}"
+                    {% if page == result.page %}aria-current="page"{% endif %}
+                >{{ page }}</button>
+            {% endfor %}
+        </nav>
+    {% endif %}
+</div>

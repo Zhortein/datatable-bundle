@@ -8,6 +8,14 @@ app_root="${smoke_root}/app"
 server_pid=""
 bundle_version="${SMOKE_BUNDLE_VERSION:-current}"
 
+if [[ "${SMOKE_EXTERNAL_THEME:-0}" == "1" ]]; then
+    composer \
+        --working-dir="${bundle_root}/tools/smoke-test/external-theme" \
+        validate \
+        --strict
+    php "${bundle_root}/tools/smoke-test/external-theme/validate.php"
+fi
+
 cleanup() {
     if [[ -n "${server_pid}" ]]; then
         kill "${server_pid}" 2>/dev/null || true
@@ -62,6 +70,22 @@ if [[ "${bundle_version}" == "current" ]]; then
 
     composer config repositories.zhortein-datatable "${repository_config}"
     bundle_constraint="1.1.x-dev"
+
+    if [[ "${SMOKE_EXTERNAL_THEME:-0}" == "1" ]]; then
+        external_theme_repository_config="$(
+            php -r '
+                echo json_encode([
+                    "type" => "path",
+                    "url" => $argv[1],
+                    "options" => [
+                        "symlink" => false,
+                    ],
+                ], JSON_THROW_ON_ERROR);
+            ' "${bundle_root}/tools/smoke-test/external-theme"
+        )"
+
+        composer config repositories.zhortein-acme-datatable-theme "${external_theme_repository_config}"
+    fi
 fi
 
 composer require \
@@ -72,6 +96,13 @@ composer require \
     symfony/twig-bundle \
     --no-interaction \
     --no-progress
+
+if [[ "${bundle_version}" == "current" && "${SMOKE_EXTERNAL_THEME:-0}" == "1" ]]; then
+    composer require \
+        "zhortein/acme-datatable-theme:@dev" \
+        --no-interaction \
+        --no-progress
+fi
 
 if [[ "${bundle_version}" == "current" ]]; then
     composer require \
@@ -118,6 +149,11 @@ php -r '
     $path = "config/bundles.php";
     $bundles = require $path;
     $bundles[\Zhortein\DatatableBundle\ZhorteinDatatableBundle::class] = ["all" => true];
+
+    if (class_exists(\Zhortein\AcmeDatatableTheme\AcmeDatatableThemeBundle::class)) {
+        $bundles[\Zhortein\AcmeDatatableTheme\AcmeDatatableThemeBundle::class] = ["all" => true];
+    }
+
     file_put_contents(
         $path,
         "<?php\n\nreturn ".var_export($bundles, true).";\n",
@@ -153,6 +189,10 @@ php configuration.php minimal "${minimal_environment}" "${minimal_config_dump}"
 install \
     "${bundle_root}/tools/smoke-test/fixtures/zhortein_datatable_complete.yaml" \
     config/packages/zhortein_datatable.yaml
+
+if [[ "${SMOKE_EXTERNAL_THEME:-0}" == "1" ]]; then
+    sed -i 's/default_theme: bootstrap/default_theme: acme/' config/packages/zhortein_datatable.yaml
+fi
 
 if [[ "${SMOKE_UX_ICONS:-0}" == "1" ]]; then
     php -r '
@@ -190,6 +230,10 @@ if [[ "${bundle_version}" == "current" ]]; then
     php bin/console debug:container 'App\Datatable\SmokeOrderLineDatatable'
     php bin/console debug:container 'App\Datatable\SmokeLineEventDatatable'
     php seed.php
+fi
+
+if [[ "${SMOKE_EXTERNAL_THEME:-0}" == "1" ]]; then
+    php bin/console debug:container 'Zhortein\AcmeDatatableTheme\Theme\AcmeTheme'
 fi
 
 php bin/console debug:asset-map '@zhortein/datatable-bundle'
