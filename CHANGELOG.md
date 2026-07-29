@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [1.16.2] - 2026-07-29
+
+### Changed
+
+- Updated GitHub Actions to Node.js 24 runtimes and configured ordinary Composer, npm and GitHub Actions Dependabot version updates to target `develop`.
+
 ## [1.16.1] - 2026-07-28
 
 ### Fixed
