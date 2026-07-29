@@ -22,10 +22,12 @@ final class DatatableRendererConfirmationModalTest extends TestCase
         ]);
 
         self::assertStringContainsString('zhortein-datatable__confirmation-modal', $html);
+        self::assertStringContainsString('<dialog', $html);
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="confirmationModal"', $html);
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="confirmationMessage"', $html);
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="confirmationConfirmButton"', $html);
         self::assertStringContainsString('zhortein--datatable-bundle--datatable#confirmPendingAction', $html);
+        self::assertStringNotContainsString('data-bs-dismiss="modal"', $html);
     }
 
     public function test_it_can_disable_confirmation_modal_rendering(): void

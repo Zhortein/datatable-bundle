@@ -117,7 +117,7 @@
                     {% endif %}
 
                     {% if column_filter %}
-                        {% include '@ZhorteinDatatable/bootstrap/_column_filter.html.twig' with {
+                        {% include theme.template('_column_filter.html.twig') with {
                             column: column,
                             filter: column_filter,
                             columnLabel: column_label,

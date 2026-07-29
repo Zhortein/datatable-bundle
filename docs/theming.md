@@ -1,11 +1,16 @@
 # Theming and Templates
 
-`zhortein/datatable-bundle` uses a Twig-first rendering strategy, making it easy to customize and override the UI. The bundle is currently **Bootstrap-first**.
+`zhortein/datatable-bundle` uses a Twig-first rendering strategy. Bootstrap 5
+is the default maintained theme, while the 2.0 registry exposes an explicit
+service contract for optional themes.
 
 ## Status
 
 Currently implemented:
 -   **Theme**: Bootstrap 5.
+-   **Registry**: Autoconfigured `ThemeInterface` services with immutable metadata.
+-   **Resolution**: Theme-aware nested partial and typed-cell templates.
+-   **Frontend boundary**: Framework-neutral Stimulus behavior with presentation classes supplied by Twig.
 -   **Overrides**: Standard Symfony bundle template overrides.
 -   **Cells**: Typed cell templates (string, numeric, boolean, datetime, array, enum).
 -   **Context**: Stable `CellContext` with normalized rows, optional provider sources, identifiers, definitions and explicit application context.
@@ -19,9 +24,13 @@ Currently implemented:
     Symfony UX Icons providers.
 
 Not implemented yet:
--   Tailwind or other built-in themes.
+-   A maintained Tailwind theme. The architecture decision assigns it to an
+    optional package instead of the core bundle.
 
-## Template Override Strategy
+See the [theme extension contract](theme-contract.md) for registration,
+capabilities, asset ownership and the complete compatibility matrix.
+
+## Bootstrap template override strategy
 
 To customize the look and feel, use Symfony's bundle override mechanism. Place your custom templates in:
 
@@ -32,6 +41,15 @@ To customize the look and feel, use Symfony's bundle override mechanism. Place y
 2.  **Cell Templates**: Override `cell/*.html.twig` to change how specific types are rendered globally.
 3.  **Partial Templates**: Override `_toolbar.html.twig`, `_header.html.twig`, etc., for layout changes.
 4.  **Full Shell**: Override `datatable.html.twig` only if you need to restructure the entire component.
+
+Nested overrides must resolve the current theme dynamically:
+
+```twig
+{% include theme.template('_pagination.html.twig') %}
+```
+
+This keeps an override usable when the application selects another complete
+theme. There is no implicit fallback from an optional theme to Bootstrap.
 
 ## Typed Cell Rendering
 
@@ -65,7 +83,9 @@ In your Twig template:
 ## Template Context Reference
 
 ### Global Context (`datatable.html.twig`)
-Available variables: `definition`, `visibleColumns`, `rowActions`, `globalActions`, `htmlId`, `options`.
+Available variables: `theme`, `definition`, `visibleColumns`,
+`columnClassNames`, `rowActions`, `globalActions`, `bulkActions`, `htmlId`,
+`options` and `filters`.
 
 ### Cell Context (`_cell.html.twig` and `cell/*.html.twig`)
 -   `cell`: Canonical server-side `CellContext` DTO.
@@ -128,6 +148,9 @@ Or override them at runtime:
 
 ## Related documentation
 
+- [Theme extension contract](theme-contract.md)
+- [Migrating from 1.x to 2.0](migration-2.0.md)
+- [Theme registry architecture decision](decisions/0010-theme-registry-and-tailwind-boundary.md)
 - [Icon System](icons.md)
 - [UI/UX Rendering](ui-ux.md)
 - [Actions and Security](actions.md)

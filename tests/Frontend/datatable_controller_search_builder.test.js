@@ -12,6 +12,11 @@ function createDatatableHtml() {
             data-${CONTROLLER_IDENTIFIER}-name-value="users"
             data-${CONTROLLER_IDENTIFIER}-fragments-url-value="/_zhortein/datatable/users/fragments"
             data-${CONTROLLER_IDENTIFIER}-auto-load-value="false"
+            data-${CONTROLLER_IDENTIFIER}-hidden-class-value="d-none"
+            data-${CONTROLLER_IDENTIFIER}-visible-class-value="d-flex"
+            data-${CONTROLLER_IDENTIFIER}-status-error-class-value="text-danger"
+            data-${CONTROLLER_IDENTIFIER}-status-success-class-value="text-success"
+            data-${CONTROLLER_IDENTIFIER}-status-muted-class-value="text-body-secondary"
             data-${CONTROLLER_IDENTIFIER}-search-builder-value="true"
         >
             <div
@@ -19,6 +24,9 @@ function createDatatableHtml() {
                 data-${CONTROLLER_IDENTIFIER}-operators-value='{"text":["eq","neq","contains"],"choice":["eq","neq","in"],"number":["eq","gt","between"],"boolean":["eq"]}'
                 data-${CONTROLLER_IDENTIFIER}-operator-labels-value='{"eq":"Equals","neq":"Not Equals","contains":"Contains","in":"In","gt":"Greater than","between":"Between"}'
                 data-${CONTROLLER_IDENTIFIER}-i18n-value='{"select_operator":"Select operator","boolean_yes":"Yes","boolean_no":"No","between_from":"From","between_to":"To"}'
+                data-${CONTROLLER_IDENTIFIER}-input-class="theme-input"
+                data-${CONTROLLER_IDENTIFIER}-select-class="theme-select"
+                data-${CONTROLLER_IDENTIFIER}-between-class="theme-between"
             >
                 <div class="zhortein-datatable__search-builder-group zhortein-datatable__search-builder-group--root">
                     <div class="zhortein-datatable__search-builder-header">
@@ -204,6 +212,7 @@ describe('datatable_controller search builder interactions', () => {
         fieldSelect.value = 'status';
         controller.onSearchBuilderFieldChange({ target: fieldSelect });
         expect(valueContainer.querySelector('select')).not.toBeNull();
+        expect(valueContainer.querySelector('select').classList.contains('theme-select')).toBe(true);
         expect(valueContainer.querySelector('select').options.length).toBe(2);
 
         // Boolean field
@@ -222,7 +231,32 @@ describe('datatable_controller search builder interactions', () => {
         controller.updateSearchBuilderValueInput(condition, 'number', null);
 
         expect(valueContainer.querySelectorAll('input').length).toBe(2);
+        expect(valueContainer.firstElementChild.classList.contains('theme-between')).toBe(true);
+        expect(valueContainer.querySelectorAll('input')[0].classList.contains('theme-input')).toBe(true);
         expect(valueContainer.querySelectorAll('input')[0].placeholder).toBe('From');
+    });
+
+    it('renders dynamic labels as text instead of HTML', async () => {
+        document.body.innerHTML = createDatatableHtml();
+        application = startApplication();
+
+        const { element, controller } = await getController(application);
+        clickWithCurrentTarget(controller, 'addSearchBuilderCondition', getRootAddConditionButton(element));
+
+        const condition = element.querySelector('.zhortein-datatable__search-builder-condition');
+        const fieldSelect = condition.querySelector('select[data-action$="#onSearchBuilderFieldChange"]');
+        const statusOption = fieldSelect.querySelector('option[value="status"]');
+        statusOption.dataset.choices = JSON.stringify({
+            '<img src=x onerror="window.__themeXss = true">': 'unsafe-label',
+        });
+        fieldSelect.value = 'status';
+
+        controller.onSearchBuilderFieldChange({ target: fieldSelect });
+
+        const valueContainer = condition.querySelector('.zhortein-datatable__search-builder-value-container');
+        expect(valueContainer.querySelector('img')).toBeNull();
+        expect(valueContainer.querySelector('option').textContent).toBe('<img src=x onerror="window.__themeXss = true">');
+        expect(window.__themeXss).toBeUndefined();
     });
 
     it('serializes search builder payload in ajax request', async () => {

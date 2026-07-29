@@ -1,5 +1,6 @@
 <td{% if class_name is not null %} class="{{ class_name }}"{% endif %}>
     {% include template with {
+        theme: theme,
         cell: cell|default(null),
         column: column,
         column_label: zhortein_datatable_translate(column.label, translation_domain, column.name),

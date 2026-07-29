@@ -10,6 +10,11 @@ function createDatatableHtml(attributes = '') {
             id="zhortein-datatable-users"
             data-controller="${CONTROLLER_IDENTIFIER}"
             data-${CONTROLLER_IDENTIFIER}-name-value="users"
+            data-${CONTROLLER_IDENTIFIER}-hidden-class-value="d-none"
+            data-${CONTROLLER_IDENTIFIER}-visible-class-value="d-flex"
+            data-${CONTROLLER_IDENTIFIER}-status-error-class-value="text-danger"
+            data-${CONTROLLER_IDENTIFIER}-status-success-class-value="text-success"
+            data-${CONTROLLER_IDENTIFIER}-status-muted-class-value="text-body-secondary"
             ${attributes}
         >
             <table>

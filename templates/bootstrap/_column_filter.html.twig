@@ -33,7 +33,8 @@
         aria-labelledby="{{ filter_button_id }}"
         style="min-width: 200px;"
     >
-        {% include '@ZhorteinDatatable/bootstrap/_filter.html.twig' with {
+        {% include theme.template('_filter.html.twig') with {
+            theme: theme,
             filter: filter,
             htmlId: htmlId,
             value: filters[filter.name]|default(null),

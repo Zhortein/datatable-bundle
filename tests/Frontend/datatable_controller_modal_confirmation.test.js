@@ -1,37 +1,8 @@
 import { Application } from '@hotwired/stimulus';
-import { Modal as FakeBootstrapModal } from 'bootstrap';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import DatatableController from '../../assets/controllers/datatable_controller.js';
 
 const CONTROLLER_IDENTIFIER = 'zhortein--datatable-bundle--datatable';
-
-vi.mock('bootstrap', () => {
-    class Modal {
-        static instances = new Map();
-
-        constructor(element) {
-            this.element = element;
-            this.show = vi.fn();
-            this.hide = vi.fn();
-
-            Modal.instances.set(element, this);
-        }
-
-        static getOrCreateInstance(element) {
-            if (!Modal.instances.has(element)) {
-                return new Modal(element);
-            }
-
-            return Modal.instances.get(element);
-        }
-
-        static reset() {
-            Modal.instances.clear();
-        }
-    }
-
-    return { Modal };
-});
 
 function createDatatableHtml() {
     return `
@@ -41,6 +12,11 @@ function createDatatableHtml() {
             data-${CONTROLLER_IDENTIFIER}-name-value="users"
             data-${CONTROLLER_IDENTIFIER}-fragments-url-value="/_zhortein/datatable/users/fragments"
             data-${CONTROLLER_IDENTIFIER}-auto-load-value="false"
+            data-${CONTROLLER_IDENTIFIER}-hidden-class-value="d-none"
+            data-${CONTROLLER_IDENTIFIER}-visible-class-value="d-flex"
+            data-${CONTROLLER_IDENTIFIER}-status-error-class-value="text-danger"
+            data-${CONTROLLER_IDENTIFIER}-status-success-class-value="text-success"
+            data-${CONTROLLER_IDENTIFIER}-status-muted-class-value="text-body-secondary"
         >
             <a
                 id="confirmed-link"
@@ -59,7 +35,7 @@ function createDatatableHtml() {
                 <button type="submit">Delete</button>
             </form>
 
-            <div
+            <dialog
                 id="confirmation-modal"
                 data-${CONTROLLER_IDENTIFIER}-target="confirmationModal"
             >
@@ -69,7 +45,7 @@ function createDatatableHtml() {
                     data-${CONTROLLER_IDENTIFIER}-target="confirmationConfirmButton"
                     data-action="${CONTROLLER_IDENTIFIER}#confirmPendingAction"
                 >Confirm</button>
-            </div>
+            </dialog>
 
             <table>
                 <thead data-${CONTROLLER_IDENTIFIER}-target="header"><tr><th>Email</th></tr></thead>
@@ -80,6 +56,15 @@ function createDatatableHtml() {
             <div data-${CONTROLLER_IDENTIFIER}-target="summary"></div>
         </div>
     `;
+}
+
+function installDialogSpies() {
+    const dialog = document.querySelector('#confirmation-modal');
+
+    dialog.showModal = vi.fn(() => dialog.setAttribute('open', ''));
+    dialog.close = vi.fn(() => dialog.removeAttribute('open'));
+
+    return dialog;
 }
 
 async function flushPromises() {
@@ -113,7 +98,7 @@ function createPreventableEvent(target) {
     };
 }
 
-describe('datatable_controller Bootstrap modal confirmation behavior', () => {
+describe('datatable_controller native dialog confirmation behavior', () => {
     let application = null;
 
     afterEach(() => {
@@ -124,12 +109,12 @@ describe('datatable_controller Bootstrap modal confirmation behavior', () => {
 
         vi.unstubAllGlobals();
         vi.restoreAllMocks();
-        FakeBootstrapModal.reset();
         document.body.innerHTML = '';
     });
 
     it('opens modal and stores pending GET link action', async () => {
         document.body.innerHTML = createDatatableHtml();
+        const dialog = installDialogSpies();
         application = startApplication();
 
         const controller = await getController(application);
@@ -137,12 +122,10 @@ describe('datatable_controller Bootstrap modal confirmation behavior', () => {
 
         controller.confirmAction(event);
 
-        const modal = FakeBootstrapModal.getOrCreateInstance(document.querySelector('#confirmation-modal'));
-
         expect(event.preventDefault).toHaveBeenCalledTimes(1);
         expect(event.stopPropagation).toHaveBeenCalledTimes(1);
         expect(document.querySelector(`[data-${CONTROLLER_IDENTIFIER}-target="confirmationMessage"]`).textContent).toBe('Open this user?');
-        expect(modal.show).toHaveBeenCalledTimes(1);
+        expect(dialog.showModal).toHaveBeenCalledTimes(1);
     });
 
     it('navigates to pending link when modal confirmation is accepted', async () => {
@@ -158,15 +141,14 @@ describe('datatable_controller Bootstrap modal confirmation behavior', () => {
         });
 
         document.body.innerHTML = createDatatableHtml();
+        const dialog = installDialogSpies();
         application = startApplication();
 
         const controller = await getController(application);
         controller.confirmAction(createPreventableEvent(document.querySelector('#confirmed-link')));
         controller.confirmPendingAction({ preventDefault: vi.fn() });
 
-        const modal = FakeBootstrapModal.getOrCreateInstance(document.querySelector('#confirmation-modal'));
-
-        expect(modal.hide).toHaveBeenCalledTimes(1);
+        expect(dialog.close).toHaveBeenCalledTimes(1);
         const assignedUrl = new URL(assignSpy.mock.calls[0][0]);
 
         expect(assignedUrl.pathname).toBe('/users/42');
@@ -174,6 +156,7 @@ describe('datatable_controller Bootstrap modal confirmation behavior', () => {
 
     it('submits pending form when modal confirmation is accepted', async () => {
         document.body.innerHTML = createDatatableHtml();
+        const dialog = installDialogSpies();
         application = startApplication();
 
         const controller = await getController(application);
@@ -183,9 +166,7 @@ describe('datatable_controller Bootstrap modal confirmation behavior', () => {
         controller.confirmAction(createPreventableEvent(form));
         controller.confirmPendingAction({ preventDefault: vi.fn() });
 
-        const modal = FakeBootstrapModal.getOrCreateInstance(document.querySelector('#confirmation-modal'));
-
-        expect(modal.hide).toHaveBeenCalledTimes(1);
+        expect(dialog.close).toHaveBeenCalledTimes(1);
         expect(submitSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -203,6 +184,7 @@ describe('datatable_controller Bootstrap modal confirmation behavior', () => {
         vi.stubGlobal('fetch', fetchMock);
 
         document.body.innerHTML = createDatatableHtml();
+        const dialog = installDialogSpies();
         const form = document.querySelector('#confirmed-form');
         form.setAttribute(`data-${CONTROLLER_IDENTIFIER}-ajax-action`, 'true');
         form.setAttribute(`data-${CONTROLLER_IDENTIFIER}-ajax-action-name`, 'delete');
@@ -214,9 +196,7 @@ describe('datatable_controller Bootstrap modal confirmation behavior', () => {
         controller.confirmPendingAction({ preventDefault: vi.fn() });
         await flushPromises();
 
-        const modal = FakeBootstrapModal.getOrCreateInstance(document.querySelector('#confirmation-modal'));
-
-        expect(modal.hide).toHaveBeenCalledTimes(1);
+        expect(dialog.close).toHaveBeenCalledTimes(1);
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(new URL(fetchMock.mock.calls[0][0]).pathname).toBe('/users/42/delete');
     });
@@ -241,6 +221,7 @@ describe('datatable_controller Bootstrap modal confirmation behavior', () => {
 
     it('does nothing when there is no pending action to confirm', async () => {
         document.body.innerHTML = createDatatableHtml();
+        installDialogSpies();
         application = startApplication();
 
         const controller = await getController(application);

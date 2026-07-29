@@ -27,6 +27,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 - [UI/UX and Controls](ui-ux.md): Search, pagination, sorting, and UI customization.
 - [Icon System](icons.md): Unified icon strategy and configuration.
 - [Theming and Templates](theming.md): Customizing the look, icon strategies, and template overrides.
+- [Theme extension contract](theme-contract.md): Registering complete framework themes for 2.0.
 - [Cell Context and Computed Values](cell-context.md): Rich server-side cells, provider sources and export-safe resolvers.
 - [Enum Presentation](enum-presentation.md): Localized labels, badges, filter choices and export-safe enum metadata.
 - [Server-side Exports](exports.md): CSV and XLSX data exports.
@@ -47,6 +48,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 ## Development and Reference
 
 - [Public API and compatibility policy](public-api.md)
+- [Migrating from 1.x to 2.0](migration-2.0.md)
 - [Roadmap](roadmap.md)
 - [Changelog](changelog.md)
 - [Routes](routes.md)

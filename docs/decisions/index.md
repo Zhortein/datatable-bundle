@@ -11,3 +11,4 @@ This directory contains records of significant architectural decisions made duri
 - [0007 - XLSX export strategy](0007-xlsx-export-strategy.md)
 - [0008 - Icon strategy and configuration model](0008-icon-strategy-and-configuration-model.md)
 - [0009 - Advanced filter expressions model](0009-advanced-filter-expressions-model.md)
+- [0010 - Theme registry and Tailwind boundary](0010-theme-registry-and-tailwind-boundary.md)

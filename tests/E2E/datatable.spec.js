@@ -161,7 +161,7 @@ test('supports keyboard row selection and modal confirmation', async ({ page }) 
 
     await expect(modal).toBeVisible();
     await expect(modal).toContainText('Archive selected users?');
-    await expect(modal).toBeFocused();
+    await expect(modal.locator(':focus')).toHaveCount(1);
 
     await page.keyboard.press('Escape');
     await expect(modal).toBeHidden();

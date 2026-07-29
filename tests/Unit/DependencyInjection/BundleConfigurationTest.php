@@ -17,6 +17,7 @@ use Zhortein\DatatableBundle\Contract\ExportJobExpiryPolicyInterface;
 use Zhortein\DatatableBundle\Contract\ExportJobOwnerResolverInterface;
 use Zhortein\DatatableBundle\Contract\ExportJobRepositoryInterface;
 use Zhortein\DatatableBundle\Contract\ExportJobResultStorageInterface;
+use Zhortein\DatatableBundle\Contract\ThemeInterface;
 use Zhortein\DatatableBundle\Export\AllowAllDatatableExportAuthorizationChecker;
 use Zhortein\DatatableBundle\Export\ConnectionAbortedExportCancellation;
 use Zhortein\DatatableBundle\Export\ExportLimitResolver;
@@ -28,6 +29,8 @@ use Zhortein\DatatableBundle\Preference\CacheDatatablePreferenceProvider;
 use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
 use Zhortein\DatatableBundle\Preference\NullDatatablePreferenceIdentityResolver;
 use Zhortein\DatatableBundle\Preference\NullDatatablePreferenceProvider;
+use Zhortein\DatatableBundle\Theme\BootstrapTheme;
+use Zhortein\DatatableBundle\Theme\ThemeRegistry;
 use Zhortein\DatatableBundle\ZhorteinDatatableBundle;
 
 final class BundleConfigurationTest extends TestCase
@@ -73,6 +76,26 @@ final class BundleConfigurationTest extends TestCase
             NullDatatablePreferenceIdentityResolver::class,
             (string) $container->getAlias(DatatablePreferenceIdentityResolverInterface::class),
         );
+    }
+
+    public function test_it_registers_the_bootstrap_theme_and_theme_registry(): void
+    {
+        $container = $this->loadBundleConfiguration([]);
+
+        self::assertTrue($container->hasDefinition(BootstrapTheme::class));
+        self::assertTrue($container->getDefinition(BootstrapTheme::class)->hasTag(ThemeRegistry::SERVICE_TAG));
+        self::assertTrue($container->hasDefinition(ThemeRegistry::class));
+    }
+
+    public function test_it_autoconfigures_theme_services(): void
+    {
+        $container = new ContainerBuilder();
+        (new ZhorteinDatatableBundle())->build($container);
+
+        $autoconfiguration = $container->getAutoconfiguredInstanceof();
+
+        self::assertArrayHasKey(ThemeInterface::class, $autoconfiguration);
+        self::assertTrue($autoconfiguration[ThemeInterface::class]->hasTag(ThemeRegistry::SERVICE_TAG));
     }
 
     public function test_it_accepts_custom_icons(): void
@@ -233,12 +256,30 @@ final class BundleConfigurationTest extends TestCase
         self::assertSame('http', $container->getParameter('zhortein_datatable.default_provider'));
     }
 
-    public function test_it_rejects_invalid_default_theme(): void
+    public function test_it_accepts_a_custom_default_theme_name(): void
+    {
+        $container = $this->loadBundleConfiguration([
+            'default_theme' => 'tailwind',
+        ]);
+
+        self::assertSame('tailwind', $container->getParameter('zhortein_datatable.default_theme'));
+    }
+
+    public function test_it_rejects_an_empty_default_theme_name(): void
     {
         $this->expectException(InvalidConfigurationException::class);
 
         $this->loadBundleConfiguration([
-            'default_theme' => 'tailwind',
+            'default_theme' => '',
+        ]);
+    }
+
+    public function test_it_rejects_a_non_string_default_theme_name(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->loadBundleConfiguration([
+            'default_theme' => 42,
         ]);
     }
 

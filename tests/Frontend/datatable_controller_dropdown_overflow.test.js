@@ -12,8 +12,14 @@ function createDatatableHtml() {
             data-${CONTROLLER_IDENTIFIER}-name-value="users"
             data-${CONTROLLER_IDENTIFIER}-fragments-url-value="/_zhortein/datatable/users/fragments"
             data-${CONTROLLER_IDENTIFIER}-auto-load-value="false"
+            data-${CONTROLLER_IDENTIFIER}-hidden-class-value="d-none"
+            data-${CONTROLLER_IDENTIFIER}-visible-class-value="d-flex"
+            data-${CONTROLLER_IDENTIFIER}-status-error-class-value="text-danger"
+            data-${CONTROLLER_IDENTIFIER}-status-success-class-value="text-success"
+            data-${CONTROLLER_IDENTIFIER}-status-muted-class-value="text-body-secondary"
+            data-${CONTROLLER_IDENTIFIER}-dropdown-overflow-class-value="overflow-visible"
         >
-            <div class="table-responsive">
+            <div class="table-responsive" data-${CONTROLLER_IDENTIFIER}-dropdown-overflow-wrapper>
                 <table>
                     <tbody data-${CONTROLLER_IDENTIFIER}-target="body">
                         <tr>
@@ -118,6 +124,11 @@ describe('datatable_controller dropdown overflow handling', () => {
                 data-controller="${CONTROLLER_IDENTIFIER}"
                 data-${CONTROLLER_IDENTIFIER}-name-value="users"
                 data-${CONTROLLER_IDENTIFIER}-auto-load-value="false"
+            data-${CONTROLLER_IDENTIFIER}-hidden-class-value="d-none"
+            data-${CONTROLLER_IDENTIFIER}-visible-class-value="d-flex"
+            data-${CONTROLLER_IDENTIFIER}-status-error-class-value="text-danger"
+            data-${CONTROLLER_IDENTIFIER}-status-success-class-value="text-success"
+            data-${CONTROLLER_IDENTIFIER}-status-muted-class-value="text-body-secondary"
             >
                 <div id="dropdown-without-wrapper"></div>
                 <tbody data-${CONTROLLER_IDENTIFIER}-target="body"></tbody>

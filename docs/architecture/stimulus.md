@@ -1,6 +1,8 @@
 # Stimulus Architecture
 
-The frontend interaction model is powered by a vanilla Stimulus controller. It does not depend on jQuery or DataTables.net.
+The frontend interaction model is powered by a vanilla, theme-neutral Stimulus
+controller. It does not depend on jQuery, DataTables.net or a UI framework
+module.
 
 ## Controller Responsibilities
 
@@ -16,7 +18,7 @@ The `datatable_controller.js` is responsible for:
     - **Page Size**: Handling changes to items-per-page.
     - **Column Visibility**: Toggling and serializing visibility state.
 - **Actions**:
-    - **Confirmations**: Handling `window.confirm` or Bootstrap modal confirmations before proceeding with an action.
+    - **Confirmations**: Handling `window.confirm` or a native theme-rendered `<dialog>` before proceeding with an action.
     - **Ajax execution**: Executing explicitly enabled row/global/bulk actions, validating the response contract and applying the declared success strategy.
     - **Lifecycle events**: Dispatching cancellable before, success, error and complete events without requiring a notification library.
 - **Exports**: Building the export URL based on the current table state (filters, search, sorting).
@@ -47,6 +49,8 @@ And values for synchronization:
 - `sortsValue`: Ordered sort criteria; the first criterion mirrors the legacy values.
 - `savedViewsUrlValue`: Optional named-view endpoint with its server-generated scope.
 - `preferencesUrlValue`: Optional scoped save/reset preference endpoint.
+- presentation class values: Theme-owned hidden/visible, status, disabled and
+  dropdown-overflow classes used when the controller changes state.
 
 ## Interaction Model
 
@@ -66,6 +70,10 @@ not change or serialize that state. See [Actions and Security](../actions.md).
 ## Integration
 
 Designed for **AssetMapper** and **Symfony UX Stimulus**. The bundle ships a vanilla JS controller, avoiding the need for a complex Node build pipeline in the host application.
+
+Theme templates provide class names for dynamic Search Builder controls and
+hierarchy loading/error states. The controller creates safe DOM nodes and
+applies those declared classes; it never generates framework-specific markup.
 
 See [URL state and browser history](../url-state.md) for precedence, events,
 payload versioning and privacy boundaries.

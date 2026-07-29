@@ -8,7 +8,7 @@ The bundle is designed as a Symfony 8+ reusable datatable system with:
 - Symfony service discovery;
 - provider-based data loading;
 - Twig-first rendering;
-- Bootstrap-first templates;
+- a theme registry with Bootstrap-first templates;
 - Ajax fragment updates;
 - vanilla Stimulus interactions;
 - extensibility toward multiple data sources.
@@ -26,6 +26,7 @@ Datatable class
 → DataProviderInterface
 → DatatableResult
 → DatatableRenderer
+→ ThemeRegistry
 → Twig fragments
 → Ajax JSON response
 → Stimulus DOM update
@@ -36,6 +37,7 @@ Datatable class
 The bundle exposes configuration under the `zhortein_datatable` root key. Runtime services consume these bundle configuration values.
 
 - `DatatableRenderer` receives defaults for theme, page size, and search enabled flags.
+- `ThemeRegistry` resolves the selected `ThemeInterface` and immutable metadata.
 - `DatatableRequestFactory` receives defaults for page size and maximum page size.
 
 ## Datatable declaration layer

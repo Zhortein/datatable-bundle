@@ -1,10 +1,9 @@
-<div
-    class="modal fade zhortein-datatable__confirmation-modal"
+<dialog
+    class="zhortein-datatable__confirmation-modal border-0 bg-transparent p-0"
     id="{{ htmlId }}_confirmation_modal"
-    tabindex="-1"
     aria-labelledby="{{ htmlId }}_confirmation_modal_label"
-    aria-hidden="true"
     data-zhortein--datatable-bundle--datatable-target="confirmationModal"
+    data-action="cancel->zhortein--datatable-bundle--datatable#cancelPendingAction"
 >
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -15,7 +14,7 @@
                 <button
                     type="button"
                     class="btn-close"
-                    data-bs-dismiss="modal"
+                    data-action="zhortein--datatable-bundle--datatable#cancelPendingAction"
                     aria-label="{{ 'zhortein_datatable.confirmation.cancel'|trans({}, 'zhortein_datatable') }}"
                 ></button>
             </div>
@@ -28,7 +27,7 @@
                 <button
                     type="button"
                     class="btn btn-outline-secondary"
-                    data-bs-dismiss="modal"
+                    data-action="zhortein--datatable-bundle--datatable#cancelPendingAction"
                 >
                     {{ 'zhortein_datatable.confirmation.cancel'|trans({}, 'zhortein_datatable') }}
                 </button>
@@ -44,4 +43,4 @@
             </div>
         </div>
     </div>
-</div>
+</dialog>
