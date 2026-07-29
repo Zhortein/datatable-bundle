@@ -250,4 +250,22 @@ describe('Documentation', () => {
         expect(sorting).toContain('aria-sort');
         expect(sorting).toContain('Hold `Shift`');
     });
+
+    it('documents migration from an application-specific datatable engine', () => {
+        const migration = readFileSync(
+            resolve(documentationRoot, 'legacy-datatablenet-migration.md'),
+            'utf8',
+        );
+        const versionMigration = readFileSync(
+            resolve(documentationRoot, 'migration-2.0.md'),
+            'utf8',
+        );
+
+        expect(migration).toContain('addCustomJoin()');
+        expect(migration).toContain('ContextFilterValue');
+        expect(migration).toContain('fieldValue');
+        expect(migration).toContain('selectedRowsParameterName');
+        expect(migration).toContain('integrity, not authorization or secrecy');
+        expect(versionMigration).toContain('legacy-datatablenet-migration.md');
+    });
 });
