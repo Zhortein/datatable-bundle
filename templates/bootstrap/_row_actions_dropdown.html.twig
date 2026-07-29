@@ -18,7 +18,7 @@
 
         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="{{ dropdown_id }}">
             {% for action in actions %}
-                {{ include('@ZhorteinDatatable/bootstrap/_dropdown_action.html.twig', {action: action}, with_context=false) }}
+                {{ include(theme.template('_dropdown_action.html.twig'), {theme: theme, action: action}, with_context=false) }}
             {% endfor %}
         </div>
     </div>

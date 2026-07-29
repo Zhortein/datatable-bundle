@@ -95,12 +95,19 @@
     data-zhortein--datatable-bundle--datatable-boolean-display-mode-value="{{ boolean_display_mode }}"
     data-zhortein--datatable-bundle--datatable-pagination-size-value="{{ pagination_size }}"
     data-zhortein--datatable-bundle--datatable-table-small-value="{{ table_small ? 'true' : 'false' }}"
+    data-zhortein--datatable-bundle--datatable-dropdown-overflow-class-value="overflow-visible"
+    data-zhortein--datatable-bundle--datatable-hidden-class-value="d-none"
+    data-zhortein--datatable-bundle--datatable-visible-class-value="d-flex"
+    data-zhortein--datatable-bundle--datatable-status-error-class-value="text-danger"
+    data-zhortein--datatable-bundle--datatable-status-success-class-value="text-success"
+    data-zhortein--datatable-bundle--datatable-status-muted-class-value="text-body-secondary"
+    data-zhortein--datatable-bundle--datatable-action-disabled-class-value="disabled"
     data-zhortein--datatable-bundle--datatable-action-success-message-value="{{ 'zhortein_datatable.ajax_action.success'|trans({}, 'zhortein_datatable') }}"
     data-zhortein--datatable-bundle--datatable-action-error-message-value="{{ 'zhortein_datatable.ajax_action.error'|trans({}, 'zhortein_datatable') }}"
     data-zhortein--datatable-bundle--datatable-invalid-action-response-message-value="{{ 'zhortein_datatable.ajax_action.invalid_response'|trans({}, 'zhortein_datatable') }}"
     aria-busy="false"
 >
-    {% include '@ZhorteinDatatable/bootstrap/_toolbar.html.twig' with {
+    {% include theme.template('_toolbar.html.twig') with {
         definition: definition,
         htmlId: htmlId,
         globalActions: globalActions,
@@ -110,10 +117,10 @@
     } %}
 
     {% if search_builder %}
-        {% include '@ZhorteinDatatable/bootstrap/_search_builder.html.twig' %}
+        {% include theme.template('_search_builder.html.twig') %}
     {% endif %}
 
-    {% include '@ZhorteinDatatable/bootstrap/_bulk_actions.html.twig' with {
+    {% include theme.template('_bulk_actions.html.twig') with {
         bulkActions: bulkActions|default([])
     } %}
 
@@ -144,18 +151,22 @@
         <span>{{ 'zhortein_datatable.loading'|trans({}, 'zhortein_datatable') }}</span>
     </div>
 
-    <div{% if table_wrapper_classes is not empty %} class="{{ table_wrapper_classes|join(' ') }}"{% endif %}>
+    <div
+        {% if table_wrapper_classes is not empty %}class="{{ table_wrapper_classes|join(' ') }}"{% endif %}
+        data-zhortein--datatable-bundle--datatable-dropdown-overflow-wrapper
+    >
         <table class="{{ table_classes|join(' ') }}">
-            {% include '@ZhorteinDatatable/bootstrap/_header.html.twig' %}
+            {% include theme.template('_header.html.twig') %}
 
             <tbody data-zhortein--datatable-bundle--datatable-target="body">
-                {% include '@ZhorteinDatatable/bootstrap/_empty.html.twig' %}
+                {% include theme.template('_empty.html.twig') %}
             </tbody>
         </table>
     </div>
 
     {% if controls_layout == 'split' %}
-        {% include '@ZhorteinDatatable/bootstrap/_bottom_controls.html.twig' with {
+        {% include theme.template('_bottom_controls.html.twig') with {
+            theme: theme,
             definition: definition,
             htmlId: htmlId,
             options: options,
@@ -168,12 +179,13 @@
                 aria-live="polite"
                 data-zhortein--datatable-bundle--datatable-target="summary"
             ></div>
-            {% include '@ZhorteinDatatable/bootstrap/_pagination.html.twig' %}
+            {% include theme.template('_pagination.html.twig') %}
         </div>
     {% endif %}
 
     {% if confirmation_modal_enabled %}
-        {% include '@ZhorteinDatatable/bootstrap/_confirmation_modal.html.twig' with {
+        {% include theme.template('_confirmation_modal.html.twig') with {
+            theme: theme,
             htmlId: htmlId
         } only %}
     {% endif %}

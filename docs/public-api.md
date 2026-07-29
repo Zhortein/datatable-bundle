@@ -80,6 +80,7 @@ Applications may implement or decorate these contracts:
 - `Contract\HttpRequestMapperInterface`;
 - `Contract\HttpResponseMapperInterface`;
 - `Contract\HttpTransportInterface`;
+- `Contract\ThemeInterface` (2.0);
 - `Contract\DatatablePreferenceIdentityResolverInterface`;
 - `DateTime\DateTimeFormatterInterface`;
 - `Action\ActionVisibilityCheckerInterface`;
@@ -121,7 +122,15 @@ Objects appearing in those signatures are part of the supported API:
 - `View\DatatableViewMetadata`;
 - `View\DatatableViewState`;
 - `View\DatatableViewScope`;
-- `View\DatatableViewAuthorizationContext`.
+- `View\DatatableViewAuthorizationContext`;
+- `Theme\ThemeAssetRequirement` (2.0);
+- `Theme\ThemeMetadata` (2.0).
+
+The 2.0 theme contract also exposes `ThemeCapability`, `ThemeAssetOwner` and
+`ThemeAssetType`. Theme registration uses the
+`zhortein_datatable.theme` service tag. `ThemeRegistry` and the renderer remain
+internal orchestration services; applications should register a
+`ThemeInterface` service instead of decorating either implementation.
 
 The canonical URL and future saved-view state model is public:
 
@@ -218,6 +227,9 @@ Enums accepted by documented definition methods and runtime objects are public:
 - `RouteParameterSource`;
 - `SortDirection`;
 - `DatatableViewOperation`.
+- `ThemeAssetOwner` (2.0);
+- `ThemeAssetType` (2.0);
+- `ThemeCapability` (2.0).
 
 Exceptions under `Zhortein\DatatableBundle\Exception` may be caught by applications. The base exceptions `DatatableException`, `DataProviderException`, `ExportException` and `CellValueResolverException`, together with their current specialized subclasses, are covered by the 1.x compatibility policy.
 
@@ -229,7 +241,7 @@ The following names are stable in 1.x:
 |---|---|
 | Providers | `array`, `doctrine`, `http` |
 | Writers | `csv`, `xlsx` |
-| Service tags | `zhortein_datatable.datatable`, `zhortein_datatable.data_provider`, `zhortein_datatable.export_writer`, `zhortein_datatable.cell_value_resolver` |
+| Service tags | `zhortein_datatable.datatable`, `zhortein_datatable.data_provider`, `zhortein_datatable.export_writer`, `zhortein_datatable.cell_value_resolver`, `zhortein_datatable.theme` (2.0) |
 | Routes | `zhortein_datatable_fragments`, `zhortein_datatable_child`, `zhortein_datatable_export` |
 | Background export routes | `zhortein_datatable_export_job_submit`, `zhortein_datatable_export_job_status`, `zhortein_datatable_export_job_download` |
 | Named-view routes | `zhortein_datatable_views_list`, `zhortein_datatable_views_create`, `zhortein_datatable_views_load`, `zhortein_datatable_views_mutate`, `zhortein_datatable_views_delete` |

@@ -15,6 +15,7 @@ use Zhortein\DatatableBundle\Cell\CellContextFactory;
 use Zhortein\DatatableBundle\Context\DatatableContextTransport;
 use Zhortein\DatatableBundle\Contract\EnumPresentationResolverInterface;
 use Zhortein\DatatableBundle\Contract\IconResolverInterface;
+use Zhortein\DatatableBundle\Contract\ThemeInterface;
 use Zhortein\DatatableBundle\Definition\ActionDefinition;
 use Zhortein\DatatableBundle\Definition\BulkActionDefinition;
 use Zhortein\DatatableBundle\Definition\ChildDatatableDefinition;
@@ -41,6 +42,8 @@ use Zhortein\DatatableBundle\Preference\WritableDatatablePreferenceProviderInter
 use Zhortein\DatatableBundle\Result\DatatableResult;
 use Zhortein\DatatableBundle\Sorting\SortCriterion;
 use Zhortein\DatatableBundle\State\DatatableStateUrlSerializer;
+use Zhortein\DatatableBundle\Theme\BootstrapTheme;
+use Zhortein\DatatableBundle\Theme\ThemeRegistry;
 use Zhortein\DatatableBundle\View\DatatableViewCsrfTokenIdGenerator;
 use Zhortein\DatatableBundle\View\DatatableViewScope;
 
@@ -49,6 +52,8 @@ final readonly class DatatableRenderer
     private CellContextFactory $cellContextFactory;
 
     private EnumPresentationResolverInterface $enumPresentationResolver;
+
+    private ThemeInterface $resolvedTheme;
 
     /**
      * @param array<string, bool> $defaultTableOptions
@@ -61,7 +66,7 @@ final readonly class DatatableRenderer
         private ?ActionVisibilityCheckerInterface $actionVisibilityChecker = null,
         private ?CsrfTokenManagerInterface $csrfTokenManager = null,
         private ?DatatableContextTransport $contextTransport = null,
-        private string $theme = 'bootstrap',
+        string $theme = 'bootstrap',
         private int $defaultPageSize = 25,
         private bool $searchEnabled = false,
         private bool $searchBuilderEnabled = false,
@@ -73,9 +78,11 @@ final readonly class DatatableRenderer
         private ?DatatablePreferenceProviderInterface $preferenceProvider = null,
         private ?DatatablePreferenceScopeResolver $preferenceScopeResolver = null,
         private string $preferenceSchemaVersion = '1',
+        ?ThemeRegistry $themeRegistry = null,
     ) {
         $this->cellContextFactory = $cellContextFactory ?? new CellContextFactory();
         $this->enumPresentationResolver = $enumPresentationResolver ?? new DefaultEnumPresentationResolver();
+        $this->resolvedTheme = ($themeRegistry ?? new ThemeRegistry([new BootstrapTheme()]))->get($theme);
     }
 
     /**
@@ -97,9 +104,11 @@ final readonly class DatatableRenderer
         $visibleColumns = $this->getVisibleColumns($definition, $options);
 
         $bulkActions = $this->normalizeBulkActions($definition, $options);
+        $theme = $this->resolvedTheme;
 
-        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/datatable.html.twig', $this->theme), array_merge([
+        return $this->twig->render($theme->getMetadata()->template('datatable.html.twig'), array_merge([
             'definition' => $definition,
+            'theme' => $theme->getMetadata(),
             'visibleColumns' => $visibleColumns,
             'columnClassNames' => $this->resolveColumnClassNames($visibleColumns),
             'rowActions' => $definition->getRowActions(),
@@ -122,9 +131,11 @@ final readonly class DatatableRenderer
     {
         $options = $this->prepareContextOptions($definition, $this->resolveOptions($options));
         $visibleColumns = $this->getVisibleColumns($definition, $options);
+        $theme = $this->resolvedTheme;
 
-        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_header.html.twig', $this->theme), array_merge([
+        return $this->twig->render($theme->getMetadata()->template('_header.html.twig'), array_merge([
             'definition' => $definition,
+            'theme' => $theme->getMetadata(),
             'visibleColumns' => $visibleColumns,
             'columnClassNames' => $this->resolveColumnClassNames($visibleColumns),
             'hasRowActions' => [] !== $definition->getRowActions(),
@@ -148,8 +159,10 @@ final readonly class DatatableRenderer
         $options = $this->prepareContextOptions($definition, $this->resolveOptions($options));
         $hasChildDatatable = $this->canExpandChildDatatable($definition, $options);
         $visibleColumns = $this->getVisibleColumns($definition, $options);
+        $theme = $this->resolvedTheme;
 
-        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_body.html.twig', $this->theme), [
+        return $this->twig->render($theme->getMetadata()->template('_body.html.twig'), [
+            'theme' => $theme->getMetadata(),
             'rows' => $this->normalizeRows($definition, $result, $options),
             'hasBulkActions' => $this->hasBulkActions($definition),
             'hasChildDatatable' => $hasChildDatatable,
@@ -168,8 +181,10 @@ final readonly class DatatableRenderer
     public function renderEmptyBody(DatatableDefinition $definition, array $options = []): string
     {
         $options = $this->prepareContextOptions($definition, $this->resolveOptions($options));
+        $theme = $this->resolvedTheme;
 
-        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_empty.html.twig', $this->theme), [
+        return $this->twig->render($theme->getMetadata()->template('_empty.html.twig'), [
+            'theme' => $theme->getMetadata(),
             'visibleColumns' => $this->getVisibleColumns($definition, $options),
             'hasRowActions' => [] !== $definition->getRowActions(),
             'hasBulkActions' => $this->hasBulkActions($definition),
@@ -184,8 +199,10 @@ final readonly class DatatableRenderer
     {
         $options = $this->prepareContextOptions($definition, $this->resolveOptions($options));
         $options['paginationSize'] = $this->resolvePaginationSize($options)->value;
+        $theme = $this->resolvedTheme;
 
-        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_pagination.html.twig', $this->theme), [
+        return $this->twig->render($theme->getMetadata()->template('_pagination.html.twig'), [
+            'theme' => $theme->getMetadata(),
             'htmlId' => $this->createHtmlId($definition, $options),
             'result' => $result,
             'options' => $options,
@@ -199,8 +216,10 @@ final readonly class DatatableRenderer
     {
         $options = $this->prepareContextOptions($definition, $this->resolveOptions($options));
         $options['paginationSize'] = $this->resolvePaginationSize($options)->value;
+        $theme = $this->resolvedTheme;
 
-        return $this->twig->render(sprintf('@ZhorteinDatatable/%s/_pagination.html.twig', $this->theme), [
+        return $this->twig->render($theme->getMetadata()->template('_pagination.html.twig'), [
+            'theme' => $theme->getMetadata(),
             'htmlId' => $this->createHtmlId($definition, $options),
             'options' => $options,
         ]);
@@ -1309,11 +1328,10 @@ final readonly class DatatableRenderer
 
         $cellType = CellType::fromNullableString($column->getType());
 
-        return sprintf(
-            '@ZhorteinDatatable/%s/cell/%s.html.twig',
-            $this->theme,
-            $cellType->getTemplateName(),
-        );
+        return $this->resolvedTheme
+            ->getMetadata()
+            ->template(sprintf('cell/%s.html.twig', $cellType->getTemplateName()))
+        ;
     }
 
     private function resolveCellClassName(ColumnDefinition $column): ?string
@@ -1322,11 +1340,9 @@ final readonly class DatatableRenderer
             return $column->getClassName();
         }
 
-        return match (CellType::fromNullableString($column->getType())) {
-            CellType::Numeric => 'text-end align-middle',
-            CellType::Boolean, CellType::Enum => 'text-center align-middle',
-            default => null,
-        };
+        return $this->resolvedTheme
+            ->getDefaultCellClassName(CellType::fromNullableString($column->getType()))
+        ;
     }
 
     /**

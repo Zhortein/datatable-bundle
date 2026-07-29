@@ -1,5 +1,4 @@
 import { Controller } from '@hotwired/stimulus';
-import { Modal } from 'bootstrap';
 import ChildDatatableManager from './child_datatable_manager.js';
 
 const DATATABLE_STATE_VERSION = 1;
@@ -63,6 +62,13 @@ export default class extends Controller {
         booleanDisplayMode: String,
         paginationSize: { type: String, default: 'default' },
         tableSmall: { type: Boolean, default: false },
+        dropdownOverflowClass: { type: String, default: 'zhortein-datatable__dropdown-overflow-visible' },
+        hiddenClass: { type: String, default: 'zhortein-datatable__hidden' },
+        visibleClass: { type: String, default: 'zhortein-datatable__visible' },
+        statusErrorClass: { type: String, default: 'zhortein-datatable__status-error' },
+        statusSuccessClass: { type: String, default: 'zhortein-datatable__status-success' },
+        statusMutedClass: { type: String, default: 'zhortein-datatable__status-muted' },
+        actionDisabledClass: { type: String, default: 'zhortein-datatable__action-disabled' },
         actionSuccessMessage: { type: String, default: 'The action completed successfully.' },
         actionErrorMessage: { type: String, default: 'The action could not be completed.' },
         invalidActionResponseMessage: { type: String, default: 'The action returned an invalid response.' },
@@ -87,8 +93,6 @@ export default class extends Controller {
         this.filterDebounceTimeout = null;
         this.columnVisibilityDebounceTimeout = null;
         this.pendingConfirmationTarget = null;
-        this.pendingConfirmationType = null;
-        this.confirmationModalInstance = null;
         this.selectedIds = new Set();
         this.ajaxActionAbortControllers = new Map();
         this.childDatatableManager = new ChildDatatableManager(this);
@@ -240,15 +244,18 @@ export default class extends Controller {
     }
 
     openConfirmationModal(target, message) {
-        if (!this.hasConfirmationModalTarget || !this.hasConfirmationMessageTarget) {
+        if (
+            !this.hasConfirmationModalTarget
+            || !this.hasConfirmationMessageTarget
+            || !(this.confirmationModalTarget instanceof HTMLDialogElement)
+            || typeof this.confirmationModalTarget.showModal !== 'function'
+        ) {
             return false;
         }
 
         this.pendingConfirmationTarget = target;
-        this.pendingConfirmationType = target instanceof HTMLFormElement ? 'form' : 'link';
         this.confirmationMessageTarget.textContent = message;
-        this.confirmationModalInstance = Modal.getOrCreateInstance(this.confirmationModalTarget);
-        this.confirmationModalInstance.show();
+        this.confirmationModalTarget.showModal();
 
         return true;
     }
@@ -258,10 +265,6 @@ export default class extends Controller {
             event.preventDefault();
         }
 
-        if (this.confirmationModalInstance !== null) {
-            this.confirmationModalInstance.hide();
-        }
-
         if (this.pendingConfirmationTarget === null) {
             return;
         }
@@ -269,9 +272,29 @@ export default class extends Controller {
         const target = this.pendingConfirmationTarget;
 
         this.pendingConfirmationTarget = null;
-        this.pendingConfirmationType = null;
+        this.closeConfirmationDialog();
 
         this.executeConfirmedTarget(target);
+    }
+
+    cancelPendingAction(event = null) {
+        if (event !== null && typeof event.preventDefault === 'function') {
+            event.preventDefault();
+        }
+
+        this.pendingConfirmationTarget = null;
+        this.closeConfirmationDialog();
+    }
+
+    closeConfirmationDialog() {
+        if (
+            this.hasConfirmationModalTarget
+            && this.confirmationModalTarget instanceof HTMLDialogElement
+            && this.confirmationModalTarget.open
+            && typeof this.confirmationModalTarget.close === 'function'
+        ) {
+            this.confirmationModalTarget.close();
+        }
     }
 
     executeConfirmedTarget(target) {
@@ -624,7 +647,7 @@ export default class extends Controller {
         target.classList.toggle('is-loading', isLoading);
 
         if (target instanceof HTMLAnchorElement) {
-            target.classList.toggle('disabled', isLoading);
+            target.classList.toggle(this.actionDisabledClassValue, isLoading);
             target.setAttribute('aria-disabled', String(isLoading));
 
             return;
@@ -1109,9 +1132,9 @@ export default class extends Controller {
         }
 
         this.preferenceStatusTarget.textContent = message;
-        this.preferenceStatusTarget.classList.toggle('text-danger', error);
-        this.preferenceStatusTarget.classList.toggle('text-success', !error);
-        this.preferenceStatusTarget.classList.toggle('text-body-secondary', message === '');
+        this.preferenceStatusTarget.classList.toggle(this.statusErrorClassValue, error);
+        this.preferenceStatusTarget.classList.toggle(this.statusSuccessClassValue, !error);
+        this.preferenceStatusTarget.classList.toggle(this.statusMutedClassValue, message === '');
     }
 
     dispatchPreferenceEvent(name, preference = null, extra = {}) {
@@ -1486,9 +1509,9 @@ export default class extends Controller {
         }
 
         this.savedViewStatusTarget.textContent = message;
-        this.savedViewStatusTarget.classList.toggle('text-danger', error);
-        this.savedViewStatusTarget.classList.toggle('text-success', !error);
-        this.savedViewStatusTarget.classList.toggle('text-body-secondary', message === '');
+        this.savedViewStatusTarget.classList.toggle(this.statusErrorClassValue, error);
+        this.savedViewStatusTarget.classList.toggle(this.statusSuccessClassValue, !error);
+        this.savedViewStatusTarget.classList.toggle(this.statusMutedClassValue, message === '');
     }
 
     dispatchSavedViewEvent(name, view = null, extra = {}) {
@@ -2240,8 +2263,13 @@ export default class extends Controller {
 
         if (!type) {
             operatorSelect.disabled = true;
-            operatorSelect.innerHTML = `<option value="">${i18n.select_operator}</option>`;
-            valueContainer.innerHTML = '<input type="text" class="form-control form-control-sm" disabled>';
+            operatorSelect.replaceChildren(this.createOption('', i18n.select_operator));
+
+            const input = this.createSearchBuilderElement('input', 'input');
+            input.type = 'text';
+            input.disabled = true;
+            valueContainer.replaceChildren(input);
+
             return;
         }
 
@@ -2266,8 +2294,10 @@ export default class extends Controller {
             ? typeOperators
             : typeOperators.filter((op) => allowedOperators.includes(op));
 
-        operatorSelect.innerHTML = `<option value="">${i18n.select_operator}</option>` +
-            operators.map((op) => `<option value="${op}">${operatorLabels[op] || op}</option>`).join('');
+        operatorSelect.replaceChildren(
+            this.createOption('', i18n.select_operator),
+            ...operators.map((operator) => this.createOption(operator, operatorLabels[operator] || operator)),
+        );
 
         this.updateSearchBuilderValueInput(condition, type, selectedOption.dataset.choices, shouldRefresh);
     }
@@ -2283,7 +2313,7 @@ export default class extends Controller {
         const i18n = JSON.parse(this.searchBuilderTarget.getAttribute('data-zhortein--datatable-bundle--datatable-i18n-value'));
 
         if (operator === 'is_null' || operator === 'is_not_null') {
-            valueContainer.innerHTML = '';
+            valueContainer.replaceChildren();
             if (shouldRefresh) {
                 this.refresh();
             }
@@ -2291,35 +2321,72 @@ export default class extends Controller {
             return;
         }
 
-        let html = '';
         if (type === 'choice' && choicesJson) {
             const choices = JSON.parse(choicesJson);
             const isMultiple = operator === 'in' || operator === 'not_in';
-            html = `<select class="form-select form-select-sm" ${isMultiple ? 'multiple' : ''} data-action="change->zhortein--datatable-bundle--datatable#refresh">`;
+            const select = this.createSearchBuilderElement('select', 'select');
+            select.multiple = isMultiple;
+            select.setAttribute('data-action', 'change->zhortein--datatable-bundle--datatable#refresh');
+
             for (const [label, value] of Object.entries(choices)) {
-                html += `<option value="${value}">${label}</option>`;
+                select.append(this.createOption(String(value), label));
             }
-            html += '</select>';
+
+            valueContainer.replaceChildren(select);
         } else if (type === 'boolean') {
-            html = `<select class="form-select form-select-sm" data-action="change->zhortein--datatable-bundle--datatable#refresh">
-                <option value="1">${i18n.boolean_yes}</option>
-                <option value="0">${i18n.boolean_no}</option>
-            </select>`;
+            const select = this.createSearchBuilderElement('select', 'select');
+            select.setAttribute('data-action', 'change->zhortein--datatable-bundle--datatable#refresh');
+            select.append(
+                this.createOption('1', i18n.boolean_yes),
+                this.createOption('0', i18n.boolean_no),
+            );
+            valueContainer.replaceChildren(select);
         } else if (operator === 'between') {
             const inputType = (type === 'date' || type === 'date_range') ? 'date' : 'number';
-            html = `<div class="d-flex gap-2">
-                <input type="${inputType}" class="form-control form-control-sm" placeholder="${i18n.between_from}" data-action="input->zhortein--datatable-bundle--datatable#refresh">
-                <input type="${inputType}" class="form-control form-control-sm" placeholder="${i18n.between_to}" data-action="input->zhortein--datatable-bundle--datatable#refresh">
-            </div>`;
+            const wrapper = this.createSearchBuilderElement('div', 'between');
+            const from = this.createSearchBuilderElement('input', 'input');
+            const to = this.createSearchBuilderElement('input', 'input');
+
+            from.type = inputType;
+            from.placeholder = i18n.between_from;
+            from.setAttribute('data-action', 'input->zhortein--datatable-bundle--datatable#refresh');
+            to.type = inputType;
+            to.placeholder = i18n.between_to;
+            to.setAttribute('data-action', 'input->zhortein--datatable-bundle--datatable#refresh');
+            wrapper.append(from, to);
+            valueContainer.replaceChildren(wrapper);
         } else {
             const inputType = (type === 'date' || type === 'date_range') ? 'date' : (type === 'number' ? 'number' : 'text');
-            html = `<input type="${inputType}" class="form-control form-control-sm" data-action="input->zhortein--datatable-bundle--datatable#refresh">`;
+            const input = this.createSearchBuilderElement('input', 'input');
+            input.type = inputType;
+            input.setAttribute('data-action', 'input->zhortein--datatable-bundle--datatable#refresh');
+            valueContainer.replaceChildren(input);
         }
 
-        valueContainer.innerHTML = html;
         if (shouldRefresh) {
             this.refresh();
         }
+    }
+
+    createSearchBuilderElement(tagName, presentationKey) {
+        const element = document.createElement(tagName);
+        const className = this.searchBuilderTarget.getAttribute(
+            `data-zhortein--datatable-bundle--datatable-${presentationKey}-class`,
+        );
+
+        if (className !== null && className.trim() !== '') {
+            element.className = className;
+        }
+
+        return element;
+    }
+
+    createOption(value, label) {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = String(label);
+
+        return option;
     }
 
     appendAdvancedFilterParameters(searchParams) {
@@ -2497,8 +2564,8 @@ export default class extends Controller {
         this.element.classList.toggle('is-loading', isLoading);
 
         if (this.hasLoadingTarget) {
-            this.loadingTarget.classList.toggle('d-none', !isLoading);
-            this.loadingTarget.classList.toggle('d-flex', isLoading);
+            this.loadingTarget.classList.toggle(this.hiddenClassValue, !isLoading);
+            this.loadingTarget.classList.toggle(this.visibleClassValue, isLoading);
             this.loadingTarget.setAttribute('aria-hidden', String(!isLoading));
         }
     }
@@ -2506,8 +2573,8 @@ export default class extends Controller {
     showError(message) {
         if (this.hasErrorTarget) {
             this.errorTarget.textContent = message;
-            this.errorTarget.classList.remove('d-none');
-            this.errorTarget.classList.add('d-flex');
+            this.errorTarget.classList.remove(this.hiddenClassValue);
+            this.errorTarget.classList.add(this.visibleClassValue);
             this.errorTarget.removeAttribute('aria-hidden');
 
             return;
@@ -2523,8 +2590,8 @@ export default class extends Controller {
         }
 
         this.errorTarget.textContent = '';
-        this.errorTarget.classList.add('d-none');
-        this.errorTarget.classList.remove('d-flex');
+        this.errorTarget.classList.add(this.hiddenClassValue);
+        this.errorTarget.classList.remove(this.visibleClassValue);
         this.errorTarget.setAttribute('aria-hidden', 'true');
     }
 
@@ -2534,8 +2601,8 @@ export default class extends Controller {
         }
 
         this.feedbackTarget.textContent = message;
-        this.feedbackTarget.classList.remove('d-none');
-        this.feedbackTarget.classList.add('d-flex');
+        this.feedbackTarget.classList.remove(this.hiddenClassValue);
+        this.feedbackTarget.classList.add(this.visibleClassValue);
         this.feedbackTarget.removeAttribute('aria-hidden');
     }
 
@@ -2545,8 +2612,8 @@ export default class extends Controller {
         }
 
         this.feedbackTarget.textContent = '';
-        this.feedbackTarget.classList.add('d-none');
-        this.feedbackTarget.classList.remove('d-flex');
+        this.feedbackTarget.classList.add(this.hiddenClassValue);
+        this.feedbackTarget.classList.remove(this.visibleClassValue);
         this.feedbackTarget.setAttribute('aria-hidden', 'true');
     }
 
@@ -2622,12 +2689,12 @@ export default class extends Controller {
             return;
         }
 
-        const wasAlreadyVisible = wrapper.classList.contains('overflow-visible');
+        const wasAlreadyVisible = wrapper.classList.contains(this.dropdownOverflowClassValue);
 
         wrapper.dataset.zhorteinDatatableDropdownOverflowAdded = wasAlreadyVisible ? 'false' : 'true';
 
         if (!wasAlreadyVisible) {
-            wrapper.classList.add('overflow-visible');
+            wrapper.classList.add(this.dropdownOverflowClassValue);
         }
     }
 
@@ -2639,7 +2706,7 @@ export default class extends Controller {
         }
 
         if (wrapper.dataset.zhorteinDatatableDropdownOverflowAdded === 'true') {
-            wrapper.classList.remove('overflow-visible');
+            wrapper.classList.remove(this.dropdownOverflowClassValue);
         }
 
         delete wrapper.dataset.zhorteinDatatableDropdownOverflowAdded;
@@ -2650,7 +2717,7 @@ export default class extends Controller {
             return null;
         }
 
-        const wrapper = target.closest('.table-responsive');
+        const wrapper = target.closest('[data-zhortein--datatable-bundle--datatable-dropdown-overflow-wrapper]');
 
         return wrapper instanceof HTMLElement ? wrapper : null;
     }

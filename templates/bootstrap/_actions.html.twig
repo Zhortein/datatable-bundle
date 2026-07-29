@@ -2,17 +2,20 @@
 
 <td class="text-end">
     {% if resolved_row_action_display_mode == 'dropdown' %}
-        {% include '@ZhorteinDatatable/bootstrap/_row_actions_dropdown.html.twig' with {
+        {% include theme.template('_row_actions_dropdown.html.twig') with {
+            theme: theme,
             actions: actions,
             htmlId: htmlId,
             rowIndex: rowIndex
         } only %}
     {% elseif resolved_row_action_display_mode == 'list' %}
-        {% include '@ZhorteinDatatable/bootstrap/_row_actions_list.html.twig' with {
+        {% include theme.template('_row_actions_list.html.twig') with {
+            theme: theme,
             actions: actions
         } only %}
     {% else %}
-        {% include '@ZhorteinDatatable/bootstrap/_row_actions_inline.html.twig' with {
+        {% include theme.template('_row_actions_inline.html.twig') with {
+            theme: theme,
             actions: actions
         } only %}
     {% endif %}

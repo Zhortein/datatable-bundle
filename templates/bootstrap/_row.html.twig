@@ -22,6 +22,10 @@
                     data-zhortein--datatable-bundle--datatable-child-loading-label="{{ 'zhortein_datatable.hierarchy.loading'|trans({}, 'zhortein_datatable') }}"
                     data-zhortein--datatable-bundle--datatable-child-error-label="{{ 'zhortein_datatable.hierarchy.error'|trans({}, 'zhortein_datatable') }}"
                     data-zhortein--datatable-bundle--datatable-child-retry-label="{{ 'zhortein_datatable.hierarchy.retry'|trans({}, 'zhortein_datatable') }}"
+                    data-zhortein--datatable-bundle--datatable-child-loading-class="d-flex align-items-center gap-2 text-body-secondary small"
+                    data-zhortein--datatable-bundle--datatable-child-loading-spinner-class="spinner-border spinner-border-sm"
+                    data-zhortein--datatable-bundle--datatable-child-error-class="alert alert-danger d-flex flex-wrap align-items-center gap-2 m-0"
+                    data-zhortein--datatable-bundle--datatable-child-retry-class="btn btn-sm btn-outline-danger"
                 >
                     <span
                         aria-hidden="true"
@@ -56,7 +60,8 @@
     {% endif %}
 
     {% for cell in row.cells %}
-        {% include '@ZhorteinDatatable/bootstrap/_cell.html.twig' with {
+        {% include theme.template('_cell.html.twig') with {
+            theme: theme,
             cell: cell.context,
             column: cell.column,
             value: cell.value,
@@ -71,7 +76,8 @@
     {% endfor %}
 
     {% if row.actions is not empty %}
-        {% include '@ZhorteinDatatable/bootstrap/_actions.html.twig' with {
+        {% include theme.template('_actions.html.twig') with {
+            theme: theme,
             actions: row.actions,
             htmlId: htmlId,
             rowIndex: rowIndex,
