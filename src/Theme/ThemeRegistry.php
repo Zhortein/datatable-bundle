@@ -39,11 +39,7 @@ final readonly class ThemeRegistry
 
     public function get(string $name): ThemeInterface
     {
-        return $this->themes[$name] ?? throw new ThemeNotFoundException(sprintf(
-            'The datatable theme "%s" is not registered. Available themes: %s.',
-            $name,
-            implode(', ', array_keys($this->themes)),
-        ));
+        return $this->themes[$name] ?? throw new ThemeNotFoundException(sprintf('The datatable theme "%s" is not registered. Available themes: %s.', $name, implode(', ', array_keys($this->themes))));
     }
 
     public function has(string $name): bool

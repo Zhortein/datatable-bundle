@@ -90,7 +90,7 @@ final class BundleConfigurationTest extends TestCase
     public function test_it_autoconfigures_theme_services(): void
     {
         $container = new ContainerBuilder();
-        (new ZhorteinDatatableBundle())->build($container);
+        new ZhorteinDatatableBundle()->build($container);
 
         $autoconfiguration = $container->getAutoconfiguredInstanceof();
 
