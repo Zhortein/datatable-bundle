@@ -1,6 +1,6 @@
 # Migrating from 1.x to 2.0
 
-This guide covers the theme-boundary changes planned for 2.0. Data providers,
+This guide covers the theme-boundary changes introduced in the 2.0 beta. Data providers,
 definitions, filters, actions and exports are unaffected by this migration.
 
 ## Default Bootstrap applications

@@ -1,1 +1,0 @@
-- Added a fresh Symfony application smoke test that installs and renders a complete external theme package against the 2.0 public theme contract.

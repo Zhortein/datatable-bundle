@@ -1503,9 +1503,9 @@ Applications can switch icon technologies without changing datatable definitions
 
 ---
 
-## 2.0 - Theme registry and presentation boundary 🚧
+## 2.0 - Theme registry and presentation boundary 🧪
 
-Delivered on the 2.0 development branch:
+Included in the `2.0.0-beta.1` prerelease:
 
 - autoconfigured `ThemeInterface` services and duplicate-safe registry;
 - immutable theme metadata, capabilities and asset ownership;
@@ -1518,14 +1518,15 @@ Delivered on the 2.0 development branch:
 - Tailwind assigned to an optional package after build-pipeline and maintenance
   evaluation;
 - architecture decision, compatibility matrix and 1.x migration guide;
-- Bootstrap regression, custom-theme resolution and frontend coverage.
+- Bootstrap regression, custom-theme resolution and frontend coverage;
 - fresh-host validation of an independently installed, complete external theme
   package.
 
-Before the 2.0 release:
+Before stable `2.0.0`:
 
-- validate the complete PHP and browser matrix in CI;
-- prepare final release notes and major-version upgrade communication.
+- exercise the migration guide against representative 1.x template overrides;
+- collect beta feedback on the external theme contract;
+- resolve any release-blocking regressions without expanding the stable scope.
 
 Main outcome:
 

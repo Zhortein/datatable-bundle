@@ -1,1 +1,0 @@
-- Added the 2.0 theme registry and immutable theme metadata contract, made nested Twig template resolution theme-aware, removed Bootstrap-specific presentation logic from the core Stimulus controller, and switched dynamic Search Builder controls to safe DOM construction.
