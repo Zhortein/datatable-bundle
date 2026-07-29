@@ -4,7 +4,7 @@ This document records documentation reviews for `zhortein/datatable-bundle`. It 
 
 ## Stable 1.0 review (2026-07-23)
 
-- The README and documentation index present the stable 1.x status.
+- The README and documentation index distinguish stable 1.x from the 2.0 beta.
 - The active [public API policy](public-api.md) defines the compatibility promise and implementation boundary.
 - The installation and quick-start flow are exercised by the fresh Symfony application CI job.
 - The `1.0.0` changelog section reflects every consumed release fragment.

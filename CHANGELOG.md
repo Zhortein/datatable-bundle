@@ -8,6 +8,20 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [2.0.0-beta.1] - 2026-07-29
+
+### Added
+
+- Added a public theme registry with immutable metadata, explicit capabilities and asset ownership, plus fresh-host validation of a complete external theme package.
+
+### Changed
+
+- Made every shell, partial and typed-cell template resolve through the selected theme, and moved default cell presentation into `BootstrapTheme`.
+- Decoupled the vanilla Stimulus controller from Bootstrap-specific imports and generated classes; confirmation now uses native `<dialog>` and dynamic controls use theme-supplied classes.
+- Hardened dynamic Search Builder construction by using DOM nodes and `textContent` instead of HTML interpolation.
+
+See [Migrating from 1.x to 2.0](docs/migration-2.0.md) for template override, asset and confirmation-dialog changes. Bootstrap remains the default maintained theme.
+
 ## [1.16.2] - 2026-07-29
 
 ### Changed

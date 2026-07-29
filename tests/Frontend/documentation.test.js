@@ -176,7 +176,9 @@ describe('Documentation', () => {
         expect(publicApi).toContain('Implementation boundary');
         expect(publicApi).toContain('zhortein--datatable-bundle--datatable');
         expect(publicApi).toContain('zhortein_datatable.cell_value_resolver');
-        expect(publicApi).toContain('compatibility contract for `zhortein/datatable-bundle` 1.x');
+        expect(publicApi).toContain('The 1.x surface is stable');
+        expect(publicApi).toContain('2.0 prerelease contract');
+        expect(publicApi).toContain('Migrating from 1.x to 2.0');
         expect(releaseChecklist).toContain('# Release checklist');
         expect(releaseChecklist).not.toContain('# First pre-release checklist');
     });

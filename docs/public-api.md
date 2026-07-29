@@ -1,6 +1,9 @@
 # Public API and compatibility policy
 
-This document defines the compatibility contract for `zhortein/datatable-bundle` 1.x, starting with `1.0.0`.
+This document defines the compatibility contract for
+`zhortein/datatable-bundle`. The 1.x surface is stable starting with `1.0.0`.
+Entries explicitly marked `(2.0)` belong to the 2.0 prerelease contract and may
+still receive documented adjustments before the stable `2.0.0` release.
 
 ## Compatibility promise
 
@@ -12,6 +15,11 @@ Within the 1.x series:
 - removals or incompatible signature changes require a deprecation path and a new major version, except for security fixes that cannot safely preserve the old behavior.
 
 Code being autoloadable under the bundle namespace does not by itself make it part of this promise. The supported surface is listed below or documented in the linked feature guides.
+
+The 2.0 beta preserves the definition, provider, filtering, action and export
+contracts. Its intentional migration surface is limited to theme registration,
+Twig template composition and frontend presentation ownership. See
+[Migrating from 1.x to 2.0](migration-2.0.md).
 
 ## Datatable declaration API
 
