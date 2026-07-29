@@ -18,6 +18,28 @@ release/<version> -> develop -> main -> v<version>
 
 Release-specific changes must reach `develop` before the promotion pull request to `main`. This keeps both long-lived branches consistent.
 
+## Dependabot branch synchronization
+
+Ordinary Composer, npm and GitHub Actions version updates are configured in
+`.github/dependabot.yml` to target `develop`.
+
+Dependabot security updates are different: GitHub always opens them against the
+default branch, which is `main` for this repository. After merging one of these
+security pull requests, synchronize it back into `develop` before preparing
+another release:
+
+```bash
+git fetch origin
+git switch -c chore/sync-main-after-dependabot origin/develop
+git merge --no-ff origin/main
+# Resolve conflicts if needed, then run the complete QA suite.
+git push -u origin chore/sync-main-after-dependabot
+```
+
+Open a pull request from `chore/sync-main-after-dependabot` to `develop` and
+merge it only after CI is green. Do not bypass this synchronization by promoting
+a divergent `develop` directly to `main`.
+
 ## Version format
 
 Tags must use:
