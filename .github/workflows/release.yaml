@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -88,7 +88,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -131,7 +131,7 @@ jobs:
         run: vendor/bin/php-cs-fixer fix --dry-run --diff --config=.php-cs-fixer.dist.php
 
       - name: Run twigcs
-        run: vendor/bin/twigcs templates --config=.twig-cs-fixer.php
+        run: vendor/bin/twigcs templates tools/smoke-test/external-theme/templates --config=.twig-cs-fixer.php
 
   release:
     name: Create GitHub release

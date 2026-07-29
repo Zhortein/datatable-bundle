@@ -26,6 +26,7 @@ describe('Release workflow', () => {
         expect(releaseWorkflow).toContain('needs: quality');
         expect(releaseWorkflow).toContain('Run PHPUnit');
         expect(releaseWorkflow).toContain('Run frontend tests');
+        expect(releaseWorkflow).toContain('tools/smoke-test/external-theme/templates');
         expect(releaseWorkflow).toContain('--prerelease');
         expect(releaseWorkflow).toContain('--verify-tag');
     });

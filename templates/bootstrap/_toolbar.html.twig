@@ -39,7 +39,7 @@
 
     <div class="zhortein-datatable__filter-area{% if not filter_area_visible %} d-none{% endif %}">
         {% if toolbar_filters_enabled %}
-            {% include '@ZhorteinDatatable/bootstrap/_filters.html.twig' with {
+            {% include theme.template('_filters.html.twig') with {
                 definition: definition,
                 htmlId: htmlId,
                 filters: filters|default({})
@@ -71,17 +71,18 @@
 
     <div class="zhortein-datatable__controls d-flex flex-wrap align-items-center gap-2{% if not controls_visible %} d-none{% endif %}">
         {% if saved_views_enabled %}
-            {% include '@ZhorteinDatatable/bootstrap/_saved_views.html.twig' with {
+            {% include theme.template('_saved_views.html.twig') with {
+                theme: theme,
                 htmlId: htmlId
             } only %}
         {% endif %}
 
         {% if preferences_enabled %}
-            {% include '@ZhorteinDatatable/bootstrap/_preferences.html.twig' %}
+            {% include theme.template('_preferences.html.twig') %}
         {% endif %}
 
         {% if not is_split_layout and column_visibility_enabled %}
-            {% include '@ZhorteinDatatable/bootstrap/_column_visibility.html.twig' with {
+            {% include theme.template('_column_visibility.html.twig') with {
                 definition: definition,
                 htmlId: htmlId,
                 runtime_visible_columns: runtime_visible_columns,
@@ -90,7 +91,7 @@
         {% endif %}
 
         {% if export_enabled %}
-            {% include '@ZhorteinDatatable/bootstrap/_export.html.twig' with {
+            {% include theme.template('_export.html.twig') with {
                 definition: definition,
                 options: options
             } %}
@@ -137,7 +138,8 @@
         {% if globalActions is defined and globalActions is not empty %}
             <div class="btn-group btn-group-sm" role="group">
                 {% for action in globalActions %}
-                    {% include '@ZhorteinDatatable/bootstrap/_action.html.twig' with {
+                    {% include theme.template('_action.html.twig') with {
+                        theme: theme,
                         action: action
                     } only %}
                 {% endfor %}

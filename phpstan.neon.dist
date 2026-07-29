@@ -4,6 +4,8 @@ parameters:
     paths:
         - src
         - tests
+        - tools/smoke-test/external-theme/src
+        - tools/smoke-test/external-theme/validate.php
 
     treatPhpDocTypesAsCertain: true
     ignoreErrors:

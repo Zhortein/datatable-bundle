@@ -1,10 +1,14 @@
 # Rendering Architecture
 
-The rendering layer is Twig-first and Bootstrap-first. It follows a server-side fragment rendering model.
+The rendering layer is Twig-first and follows a server-side fragment rendering
+model. Bootstrap is the default maintained presentation adapter.
 
 ## Rendering Layer
 
 The main rendering service is `DatatableRenderer`. It orchestrates the rendering of the datatable shell, rows, pagination, and various table controls.
+
+`ThemeRegistry` resolves an autoconfigured `ThemeInterface`. Its immutable
+metadata supplies the Twig prefix, capabilities and asset requirements.
 
 ### Twig Extension
 
@@ -36,11 +40,15 @@ HTML data attributes.
 
 ### Pagination
 
-Rendered as Bootstrap pagination with Stimulus-compatible attributes for Ajax updates.
+Rendered by the selected theme with Stimulus-compatible attributes for Ajax updates.
 
 ## Bootstrap Theme
 
 The bundle is **Bootstrap 5-first**. It supports runtime display variants (striped, hover, bordered, etc.) and global configuration for these defaults.
+
+Bootstrap-specific classes and nested partials remain inside `BootstrapTheme`
+and `templates/bootstrap`. The renderer and Stimulus controller do not select
+Bootstrap presentation classes.
 
 ## Accessibility
 
@@ -54,5 +62,6 @@ The renderer provides:
 ## Related documentation
 
 - [Theming and Templates](../theming.md)
+- [Theme extension contract](../theme-contract.md)
 - [UI/UX Rendering](../ui-ux.md)
 - [Cell Context and Computed Values](../cell-context.md)

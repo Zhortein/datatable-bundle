@@ -20,16 +20,33 @@ if (!str_contains($shell, '/_zhortein/datatable/smoke-users/fragments')) {
     throw new RuntimeException('The datatable shell does not expose the fragments URL.');
 }
 
-foreach ([
+$externalThemeEnabled = '1' === getenv('SMOKE_EXTERNAL_THEME');
+$expectedShellContents = [
     'data-zhortein--datatable-bundle--datatable-page-size-value="15"',
     'data-zhortein--datatable-bundle--datatable-search-builder-value="true"',
     'data-zhortein--datatable-bundle--datatable-target="searchInput"',
     'data-zhortein--datatable-bundle--datatable-target="searchBuilder"',
-    'table-bordered',
-    'table-sm',
-] as $expectedShellContent) {
+];
+
+if (!$externalThemeEnabled) {
+    $expectedShellContents[] = 'table-bordered';
+    $expectedShellContents[] = 'table-sm';
+}
+
+foreach ($expectedShellContents as $expectedShellContent) {
     if (!str_contains($shell, $expectedShellContent)) {
         throw new RuntimeException(sprintf('The datatable shell does not contain "%s".', $expectedShellContent));
+    }
+}
+
+if ($externalThemeEnabled) {
+    foreach ([
+        'data-zhortein-datatable-theme="acme"',
+        'data-zhortein-datatable-template-owner="external-package"',
+    ] as $expectedExternalThemeContent) {
+        if (!str_contains($shell, $expectedExternalThemeContent)) {
+            throw new RuntimeException(sprintf('The external theme shell does not contain "%s".', $expectedExternalThemeContent));
+        }
     }
 }
 
@@ -63,16 +80,37 @@ if (20 !== ($payload['totalItems'] ?? null)) {
 
 $body = $payload['body'] ?? null;
 
-if (
-    !is_string($body)
-    || !str_contains($body, 'alice@example.test')
-    || !str_contains($body, 'bob@example.test')
-    || !str_contains($body, 'smoke-icon-view')
-    || !str_contains($body, '/smoke/users/1')
-    || !str_contains($body, 'data-bs-toggle="dropdown"')
-    || !str_contains($body, 'name="selected_rows[]"')
-) {
+if (!is_string($body)) {
+    throw new RuntimeException('The fragments response body is invalid.');
+}
+
+$expectedBodyContents = [
+    'alice@example.test',
+    'bob@example.test',
+    'smoke-icon-view',
+    '/smoke/users/1',
+    'name="selected_rows[]"',
+];
+
+if (!$externalThemeEnabled) {
+    $expectedBodyContents[] = 'data-bs-toggle="dropdown"';
+}
+
+foreach ($expectedBodyContents as $expectedBodyContent) {
+    if (str_contains($body, $expectedBodyContent)) {
+        continue;
+    }
+
     throw new RuntimeException('The fragments response does not contain the expected rows and row action.');
+}
+
+if ($externalThemeEnabled) {
+    if (
+        !str_contains($body, 'data-zhortein-datatable-template-owner="external-package"')
+        || !str_contains($body, 'acme-cell--centered')
+    ) {
+        throw new RuntimeException('The fragments response was not rendered by the external theme package.');
+    }
 }
 
 $csv = file_get_contents($argv[3]);

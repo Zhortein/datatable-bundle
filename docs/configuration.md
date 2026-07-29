@@ -101,21 +101,17 @@ Type:
 string
 ```
 
-Allowed values:
-
-```text
-bootstrap
-```
-
 Default:
 
 ```yaml
 default_theme: bootstrap
 ```
 
-The bundle currently supports Bootstrap-first rendering only.
+The name must be non-empty and match a registered `ThemeInterface` service.
+`bootstrap` is provided by the bundle. Optional themes register their own
+names through the `zhortein_datatable.theme` service tag.
 
-Tailwind support is intentionally out of scope for the first releases.
+Selecting an unregistered name fails when the renderer resolves the theme.
 
 ## `default_page_size`
 
@@ -722,7 +718,9 @@ Templates live under:
 templates/bootstrap
 ```
 
-Host applications can override bundle templates through Symfony bundle template override mechanisms.
+Host applications can override bundle templates through Symfony bundle
+template override mechanisms. Complete optional themes are registered as
+services and own their Twig prefix.
 
 Expected override path:
 
@@ -796,7 +794,9 @@ zhortein_datatable:
 
 Runtime Twig options can override these defaults.
 
-More details are available in [`theming.md`](theming.md).
+Other registered theme names may be selected with `default_theme`. More details
+are available in [`theming.md`](theming.md) and
+[`theme-contract.md`](theme-contract.md).
 
 ## Configuration validation
 
@@ -807,11 +807,6 @@ Examples of invalid values:
 ```yaml
 zhortein_datatable:
     default_provider: invalid
-```
-
-```yaml
-zhortein_datatable:
-    default_theme: tailwind
 ```
 
 ```yaml
@@ -856,7 +851,7 @@ Not configurable yet:
 - route prefix;
 - route names;
 - per-provider defaults;
-- per-theme template paths;
+- runtime selection of different themes per datatable;
 - date/time styles;
 - timezone strategy;
 - action defaults;

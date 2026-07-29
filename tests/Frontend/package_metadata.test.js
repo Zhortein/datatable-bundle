@@ -14,6 +14,10 @@ const readme = readFileSync(
     resolve(process.cwd(), 'README.md'),
     'utf8',
 );
+const controller = readFileSync(
+    resolve(process.cwd(), 'assets/controllers/datatable_controller.js'),
+    'utf8',
+);
 
 describe('Stimulus package metadata', () => {
     it('loads the datatable controller lazily by default', () => {
@@ -24,21 +28,22 @@ describe('Stimulus package metadata', () => {
         });
     });
 
-    it('declares its Stimulus and Bootstrap module dependencies', () => {
-        expect(packageMetadata.peerDependencies).toMatchObject({
+    it('declares only its framework-neutral Stimulus module dependency', () => {
+        expect(packageMetadata.peerDependencies).toEqual({
             '@hotwired/stimulus': '^3.0',
-            bootstrap: '^5.3',
         });
-        expect(packageMetadata.importmap).toMatchObject({
+        expect(packageMetadata.importmap).toEqual({
             '@hotwired/stimulus': '^3.0',
-            bootstrap: '^5.3',
         });
+        expect(controller).not.toContain("from 'bootstrap'");
     });
 
-    it('matches the documented stable release', () => {
-        expect(packageMetadata.version).toMatch(/^\d+\.\d+\.\d+$/);
+    it('matches the documented stable or prerelease version', () => {
+        expect(packageMetadata.version).toMatch(
+            /^\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$/,
+        );
         expect(changelog).toContain(`## [${packageMetadata.version}]`);
-        expect(readme).toContain('**Stable 1.x**');
+        expect(readme).toContain('**Stable 1.x; 2.0 beta available.**');
         expect(readme).not.toContain('**Alpha Stage**');
     });
 });

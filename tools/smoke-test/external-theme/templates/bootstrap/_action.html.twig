@@ -1,0 +1,12 @@
+{% set label = zhortein_datatable_translate(action.label, action.translationDomain|default(null), action.name) %}
+{% if action.httpMethod == 'GET' %}
+    <a href="{{ action.url }}" data-turbo-prefetch="false">
+        {% if action.icon is not empty %}{{ zhortein_datatable_icon(action.icon) }}{% endif %}
+        {{ label }}
+    </a>
+{% else %}
+    <form method="post" action="{{ action.url }}">
+        <input type="hidden" name="_method" value="{{ action.httpMethod }}">
+        <button type="submit">{{ label }}</button>
+    </form>
+{% endif %}

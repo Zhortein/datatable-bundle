@@ -43,6 +43,8 @@ use Zhortein\DatatableBundle\Context\DatatableContextRequestResolver;
 use Zhortein\DatatableBundle\Context\DatatableContextTransport;
 use Zhortein\DatatableBundle\Renderer\DatatableSummaryRenderer;
 use Zhortein\DatatableBundle\State\DatatableStateUrlSerializer;
+use Zhortein\DatatableBundle\Theme\BootstrapTheme;
+use Zhortein\DatatableBundle\Theme\ThemeRegistry;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -247,6 +249,17 @@ return static function (ContainerConfigurator $container): void {
     $services->alias(IconRendererInterface::class, ConfiguredIconRenderer::class);
     $services->set(IconExtension::class);
 
+    $services
+        ->set(BootstrapTheme::class)
+        ->autoconfigure(false)
+        ->tag(ThemeRegistry::SERVICE_TAG)
+    ;
+
+    $services
+        ->set(ThemeRegistry::class)
+        ->arg('$themes', tagged_iterator(ThemeRegistry::SERVICE_TAG))
+    ;
+
     if (interface_exists(ManagerRegistry::class)) {
         $services->set(DoctrineFieldTypeGuesser::class);
 
@@ -414,6 +427,7 @@ return static function (ContainerConfigurator $container): void {
         ->arg('$preferenceProvider', service(DatatablePreferenceProviderInterface::class))
         ->arg('$preferenceScopeResolver', service(DatatablePreferenceScopeResolver::class))
         ->arg('$preferenceSchemaVersion', param('zhortein_datatable.preferences.schema_version'))
+        ->arg('$themeRegistry', service(ThemeRegistry::class))
         ->arg('$defaultTableOptions', [
             'tableStriped' => param('zhortein_datatable.bootstrap.table_striped'),
             'tableHover' => param('zhortein_datatable.bootstrap.table_hover'),

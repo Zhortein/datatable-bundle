@@ -10,6 +10,10 @@ const CHILD_COLLAPSE_LABEL_ATTRIBUTE = 'data-zhortein--datatable-bundle--datatab
 const CHILD_LOADING_LABEL_ATTRIBUTE = 'data-zhortein--datatable-bundle--datatable-child-loading-label';
 const CHILD_ERROR_LABEL_ATTRIBUTE = 'data-zhortein--datatable-bundle--datatable-child-error-label';
 const CHILD_RETRY_LABEL_ATTRIBUTE = 'data-zhortein--datatable-bundle--datatable-child-retry-label';
+const CHILD_LOADING_CLASS_ATTRIBUTE = 'data-zhortein--datatable-bundle--datatable-child-loading-class';
+const CHILD_LOADING_SPINNER_CLASS_ATTRIBUTE = 'data-zhortein--datatable-bundle--datatable-child-loading-spinner-class';
+const CHILD_ERROR_CLASS_ATTRIBUTE = 'data-zhortein--datatable-bundle--datatable-child-error-class';
+const CHILD_RETRY_CLASS_ATTRIBUTE = 'data-zhortein--datatable-bundle--datatable-child-retry-class';
 
 export default class ChildDatatableManager {
     constructor(controller) {
@@ -242,9 +246,11 @@ export default class ChildDatatableManager {
         const spinner = document.createElement('span');
         const label = document.createElement('span');
 
-        status.className = 'd-flex align-items-center gap-2 text-body-secondary small';
+        status.className = toggle.getAttribute(CHILD_LOADING_CLASS_ATTRIBUTE)
+            || 'zhortein-datatable__child-loading';
         status.setAttribute('role', 'status');
-        spinner.className = 'spinner-border spinner-border-sm';
+        spinner.className = toggle.getAttribute(CHILD_LOADING_SPINNER_CLASS_ATTRIBUTE)
+            || 'zhortein-datatable__child-loading-spinner';
         spinner.setAttribute('aria-hidden', 'true');
         label.textContent = toggle.getAttribute(CHILD_LOADING_LABEL_ATTRIBUTE) || 'Loading child rows…';
         status.append(spinner, label);
@@ -257,11 +263,13 @@ export default class ChildDatatableManager {
         const retryButton = document.createElement('button');
         const targetId = toggle.getAttribute(CHILD_TARGET_ID_ATTRIBUTE) || '';
 
-        alert.className = 'alert alert-danger d-flex flex-wrap align-items-center gap-2 m-0';
+        alert.className = toggle.getAttribute(CHILD_ERROR_CLASS_ATTRIBUTE)
+            || 'zhortein-datatable__child-error';
         alert.setAttribute('role', 'alert');
         message.textContent = toggle.getAttribute(CHILD_ERROR_LABEL_ATTRIBUTE) || 'Unable to load child rows.';
         retryButton.type = 'button';
-        retryButton.className = 'btn btn-sm btn-outline-danger';
+        retryButton.className = toggle.getAttribute(CHILD_RETRY_CLASS_ATTRIBUTE)
+            || 'zhortein-datatable__child-retry';
         retryButton.textContent = toggle.getAttribute(CHILD_RETRY_LABEL_ATTRIBUTE) || 'Retry';
         retryButton.setAttribute(CHILD_TARGET_ID_ATTRIBUTE, targetId);
         retryButton.setAttribute('data-action', `click->${this.controller.identifier}#retryChildDatatable`);

@@ -12,6 +12,11 @@ function createDatatableHtml() {
             data-${CONTROLLER_IDENTIFIER}-name-value="users"
             data-${CONTROLLER_IDENTIFIER}-fragments-url-value="/_zhortein/datatable/users/fragments"
             data-${CONTROLLER_IDENTIFIER}-auto-load-value="false"
+            data-${CONTROLLER_IDENTIFIER}-hidden-class-value="d-none"
+            data-${CONTROLLER_IDENTIFIER}-visible-class-value="d-flex"
+            data-${CONTROLLER_IDENTIFIER}-status-error-class-value="text-danger"
+            data-${CONTROLLER_IDENTIFIER}-status-success-class-value="text-success"
+            data-${CONTROLLER_IDENTIFIER}-status-muted-class-value="text-body-secondary"
         >
             <a
                 id="confirmed-link"

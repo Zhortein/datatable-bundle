@@ -155,10 +155,11 @@ The fixer must not modify files in CI.
 The workflow should run:
 
 ```bash
-vendor/bin/twigcs templates --config=.twig-cs-fixer.php
+vendor/bin/twigcs templates tools/smoke-test/external-theme/templates --config=.twig-cs-fixer.php
 ```
 
-The Composer script may skip twigcs when no Twig templates exist, but this bundle now contains templates, so twigcs should run.
+The command validates both the maintained Bootstrap templates and the external
+theme package used by the 2.0 contract smoke test.
 
 ## Required PHP extensions
 

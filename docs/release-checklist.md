@@ -8,8 +8,8 @@ This is the go/no-go checklist for every stable or prerelease version of
 
 - [ ] Every issue and pull request selected for the release is resolved.
 - [ ] The release follows Semantic Versioning.
-- [ ] Public 1.x contracts remain backward compatible, or an approved
-  deprecation path is documented.
+- [ ] Public contracts remain backward compatible within the target major, or
+  the approved major-version migration is documented.
 - [ ] Security, authorization, CSRF and tenant-scope implications were reviewed.
 - [ ] Doctrine ORM 3 and 4 compatibility is preserved.
 - [ ] JavaScript remains vanilla, with Stimulus used only as the Symfony UX

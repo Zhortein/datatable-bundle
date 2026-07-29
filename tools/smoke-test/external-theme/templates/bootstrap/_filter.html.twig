@@ -1,0 +1,13 @@
+<label for="{{ htmlId }}_filter_{{ filter.name }}">
+    {{ zhortein_datatable_translate(filter.label, translationDomain, filter.name) }}
+</label>
+<select
+    id="{{ htmlId }}_filter_{{ filter.name }}"
+    data-zhortein--datatable-bundle--datatable-target="filter"
+    data-action="change->zhortein--datatable-bundle--datatable#filter"
+    data-zhortein--datatable-bundle--datatable-filter-name-param="{{ filter.name }}"
+>
+    <option value=""></option>
+    <option value="1">{{ 'zhortein_datatable.boolean.yes'|trans({}, 'zhortein_datatable') }}</option>
+    <option value="0">{{ 'zhortein_datatable.boolean.no'|trans({}, 'zhortein_datatable') }}</option>
+</select>

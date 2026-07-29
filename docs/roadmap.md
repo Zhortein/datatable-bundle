@@ -1503,6 +1503,39 @@ Applications can switch icon technologies without changing datatable definitions
 
 ---
 
+## 2.0 - Theme registry and presentation boundary 🧪
+
+Included in the `2.0.0-beta.1` prerelease:
+
+- autoconfigured `ThemeInterface` services and duplicate-safe registry;
+- immutable theme metadata, capabilities and asset ownership;
+- theme-aware shell, partial and typed-cell template resolution;
+- explicit no-cross-theme-fallback rule;
+- default cell presentation moved from the renderer to `BootstrapTheme`;
+- framework-neutral Stimulus controller with theme-supplied dynamic classes;
+- native `<dialog>` confirmation without a Bootstrap JavaScript import;
+- Bootstrap retained as the default and only core-maintained theme;
+- Tailwind assigned to an optional package after build-pipeline and maintenance
+  evaluation;
+- architecture decision, compatibility matrix and 1.x migration guide;
+- Bootstrap regression, custom-theme resolution and frontend coverage;
+- fresh-host validation of an independently installed, complete external theme
+  package.
+
+Before stable `2.0.0`:
+
+- exercise the migration guide against representative 1.x template overrides;
+- collect beta feedback on the external theme contract;
+- resolve any release-blocking regressions without expanding the stable scope.
+
+Main outcome:
+
+```text
+Presentation frameworks can be implemented as complete, explicit adapters without forking datatable state, provider or Stimulus behavior.
+```
+
+---
+
 ## Later ideas 🔭
 
 Potential future work:
@@ -1510,7 +1543,8 @@ Potential future work:
 - additional export formats;
 - Elasticsearch provider;
 - Symfony Flex recipe if external demand justifies it;
-- Tailwind or custom theme support;
+- a maintained optional Tailwind theme package after validating the 2.0 theme
+  contract against a complete external adapter;
 - broader cross-browser coverage when concrete compatibility risks justify it;
 
 ---

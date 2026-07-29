@@ -13,9 +13,11 @@ use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 use Zhortein\DatatableBundle\Attribute\AsDatatable;
 use Zhortein\DatatableBundle\Cell\CellValueResolverRegistry;
 use Zhortein\DatatableBundle\Contract\CellValueResolverInterface;
+use Zhortein\DatatableBundle\Contract\ThemeInterface;
 use Zhortein\DatatableBundle\DependencyInjection\Compiler\DatatableCompilerPass;
 use Zhortein\DatatableBundle\Preference\CacheDatatablePreferenceProvider;
 use Zhortein\DatatableBundle\Preference\DatatablePreferenceProviderInterface;
+use Zhortein\DatatableBundle\Theme\ThemeRegistry;
 
 final class ZhorteinDatatableBundle extends AbstractBundle
 {
@@ -263,9 +265,13 @@ final class ZhorteinDatatableBundle extends AbstractBundle
                         ->values(['array', 'doctrine', 'http'])
                         ->defaultValue('doctrine')
                     ->end()
-                    ->enumNode('default_theme')
-                        ->values(['bootstrap'])
+                    ->scalarNode('default_theme')
                         ->defaultValue('bootstrap')
+                        ->cannotBeEmpty()
+                        ->validate()
+                            ->ifTrue(static fn (mixed $value): bool => !is_string($value))
+                            ->thenInvalid('The default theme must be a string.')
+                        ->end()
                     ->end()
                         ->integerNode('default_page_size')
                         ->min(1)
@@ -329,6 +335,11 @@ final class ZhorteinDatatableBundle extends AbstractBundle
         $container
             ->registerForAutoconfiguration(CellValueResolverInterface::class)
             ->addTag(CellValueResolverRegistry::SERVICE_TAG)
+        ;
+
+        $container
+            ->registerForAutoconfiguration(ThemeInterface::class)
+            ->addTag(ThemeRegistry::SERVICE_TAG)
         ;
 
         $container->registerAttributeForAutoconfiguration(

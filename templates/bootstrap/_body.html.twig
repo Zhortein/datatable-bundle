@@ -1,5 +1,6 @@
 {% for row in rows %}
-    {% include '@ZhorteinDatatable/bootstrap/_row.html.twig' with {
+    {% include theme.template('_row.html.twig') with {
+        theme: theme,
         row: row,
         htmlId: htmlId,
         rowIndex: loop.index,
