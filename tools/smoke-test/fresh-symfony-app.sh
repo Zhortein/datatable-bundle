@@ -61,7 +61,7 @@ if [[ "${bundle_version}" == "current" ]]; then
                 "options" => [
                     "symlink" => false,
                     "versions" => [
-                        "zhortein/datatable-bundle" => "1.1.x-dev",
+                        "zhortein/datatable-bundle" => "2.0.x-dev",
                     ],
                 ],
             ], JSON_THROW_ON_ERROR);
@@ -69,7 +69,7 @@ if [[ "${bundle_version}" == "current" ]]; then
     )"
 
     composer config repositories.zhortein-datatable "${repository_config}"
-    bundle_constraint="1.1.x-dev"
+    bundle_constraint="2.0.x-dev"
 
     if [[ "${SMOKE_EXTERNAL_THEME:-0}" == "1" ]]; then
         external_theme_repository_config="$(
