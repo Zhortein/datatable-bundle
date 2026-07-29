@@ -220,6 +220,17 @@ shivammathur/setup-php
 
 When GitHub emits deprecation warnings, the action version should be reviewed.
 
+The maintained workflows currently use the Node.js 24 action generations:
+
+```text
+actions/setup-node@v7
+actions/upload-artifact@v7
+actions/download-artifact@v8
+```
+
+The configured test runtime remains Node.js 22; this is independent from the
+runtime embedded in the GitHub Actions themselves.
+
 ## Local parity
 
 The local `make qa` command should run the same quality gates as CI.
@@ -275,7 +286,7 @@ Expected CI steps:
 
 ```yaml
 - name: Setup Node.js
-  uses: actions/setup-node@v4
+  uses: actions/setup-node@v7
   with:
     node-version: '22'
     cache: 'npm'
