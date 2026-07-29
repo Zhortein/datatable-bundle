@@ -1,0 +1,1 @@
+- Updated GitHub Actions to Node.js 24 runtimes and configured ordinary Composer, npm and GitHub Actions Dependabot version updates to target `develop`.
