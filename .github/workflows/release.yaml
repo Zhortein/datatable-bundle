@@ -64,7 +64,7 @@ jobs:
         run: php tools/changelog/extract-release-notes.php "${GITHUB_REF_NAME}" > release-notes.md
 
       - name: Upload release notes
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-notes
           path: release-notes.md
@@ -99,7 +99,7 @@ jobs:
           extensions: mbstring, intl, pdo_sqlite
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: 'npm'
@@ -142,7 +142,7 @@ jobs:
 
     steps:
       - name: Download release notes
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: release-notes
 
