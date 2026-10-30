@@ -69,6 +69,13 @@ final class DatatableRendererFilterLayoutTest extends TestCase
         );
     }
 
+    public function test_it_hands_no_filter_to_the_controller_as_an_empty_object(): void
+    {
+        $html = $this->createRenderer()->render($this->createDefinition(), ['columnVisibility' => false, 'export' => false]);
+
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-filters-value="&#x7B;&#x7D;"', $html);
+    }
+
     public function test_unknown_filter_layout_falls_back_to_toolbar_in_renderer_options(): void
     {
         $html = $this->createRenderer()->render($this->createDefinition(), [
