@@ -117,6 +117,14 @@ $definition->addJoin(
 $definition->addColumn('org.name', label: 'Organization');
 ```
 
+A join may follow a collection, so that a filter reaches its related rows; each entity is still listed and counted once:
+
+```php
+$definition
+    ->addJoin(alias: 'role', join: 'e.roles', type: JoinType::Left)
+    ->addFilter('role', 'role.id', type: FilterType::Choice, choices: $roleChoices);
+```
+
 ### Chained Joins
 You can chain joins by referencing previous aliases.
 ```php
@@ -210,7 +218,7 @@ Every query then sorts on the main entity's identifier, ascending, unless a crit
 The Doctrine provider handles pagination and filtering at the database level. For detailed tuning, see **[Doctrine Performance Guidance](doctrine-performance.md)**.
 
 ### Count and Distinct Strategy
-The provider automatically uses `COUNT(DISTINCT e.id)` when joins or aggregates are present to ensure accurate row counts even if joins would otherwise duplicate root entity rows.
+The provider counts with `COUNT(DISTINCT e.id)` when custom joins, aggregates or a join following a collection are present, so that a join repeating the main entity does not inflate the count. A join following a collection also makes the row query distinct, its identifier selected but hidden, so that each entity takes one row.
 
 ## Current Limitations
 

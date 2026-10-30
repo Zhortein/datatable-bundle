@@ -36,6 +36,7 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
 {
     public const string PROVIDER_NAME = 'doctrine';
     public const string MAIN_ALIAS = 'e';
+    private const string IDENTIFIER_ALIAS = 'datatable_identifier_';
 
     private DoctrineFieldReferenceResolver $fieldReferenceResolver;
 
@@ -286,11 +287,23 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
             $queryBuilder->select(sprintf('%s.id AS id', self::MAIN_ALIAS));
         }
 
+        $identifierFields = $this->getIdentifierFields($entityManager, $entityClass);
+        $joinsCollection = $this->fieldMetadataResolver->joinsCollection($entityManager, $entityClass, $definition);
+
+        if ($joinsCollection && !$hasAggregateColumns) {
+            // The identifier, selected but hidden, keeps two entities showing the same values apart and lets a
+            // distinct query sort on it
+            $queryBuilder->distinct();
+
+            foreach ($identifierFields as $index => $identifierField) {
+                $queryBuilder->addSelect(sprintf('%s AS HIDDEN %s', $identifierField, self::IDENTIFIER_ALIAS.$index));
+            }
+        }
+
         $this->applyPermanentFilters($queryBuilder, $definition);
         $this->applyUserFilters($queryBuilder, $entityManager, $entityClass, $definition, $request);
         $this->applyAdvancedFilters($queryBuilder, $entityManager, $entityClass, $definition, $request);
         $this->applySearch($queryBuilder, $entityManager, $entityClass, $definition, $request);
-        $identifierFields = $this->getIdentifierFields($entityManager, $entityClass);
         $this->applySorting($queryBuilder, $entityManager, $entityClass, $definition, $request, $identifierFields);
 
         if ($hasAggregateColumns) {
@@ -315,9 +328,10 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
         ?DatatableRequest $request = null,
     ): int {
         $metadata = $entityManager->getClassMetadata($entityClass);
+        $joinsCollection = $this->fieldMetadataResolver->joinsCollection($entityManager, $entityClass, $definition);
 
         $queryBuilder = $entityManager->createQueryBuilder()
-            ->select($this->countExpressionFactory->create($definition, $metadata))
+            ->select($this->countExpressionFactory->create($definition, $metadata, $joinsCollection))
             ->from($entityClass, self::MAIN_ALIAS)
         ;
 

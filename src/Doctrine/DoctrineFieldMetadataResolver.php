@@ -89,6 +89,33 @@ final readonly class DoctrineFieldMetadataResolver
     }
 
     /**
+     * Whether a join of the definition follows a collection, which repeats the main entity once per related row.
+     *
+     * @param class-string $mainEntityClass
+     */
+    public function joinsCollection(
+        EntityManagerInterface $entityManager,
+        string $mainEntityClass,
+        DatatableDefinition $definition,
+    ): bool {
+        foreach ($definition->getJoins() as $join) {
+            $association = DoctrineFieldReference::fromString($join->getJoin());
+            $source = $this->resolveMetadataForAlias(
+                entityManager: $entityManager,
+                mainEntityClass: $mainEntityClass,
+                definition: $definition,
+                alias: $association->getAlias(),
+            );
+
+            if ($source->isCollectionValuedAssociation($association->getField())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @param class-string $mainEntityClass
      */
     public function hasField(

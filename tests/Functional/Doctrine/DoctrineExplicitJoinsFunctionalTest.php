@@ -10,7 +10,14 @@ use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\FilterOperator;
+use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Enum\JoinType;
+use Zhortein\DatatableBundle\Filter\Expression\AdvancedFilterExpression;
+use Zhortein\DatatableBundle\Filter\Expression\ComparisonOperator;
+use Zhortein\DatatableBundle\Filter\Expression\Condition;
+use Zhortein\DatatableBundle\Filter\Expression\Group;
+use Zhortein\DatatableBundle\Filter\Expression\LogicOperator;
 use Zhortein\DatatableBundle\Provider\DoctrineOrmDataProvider;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineOrganization;
@@ -54,6 +61,51 @@ final class DoctrineExplicitJoinsFunctionalTest extends FunctionalTestCase
 
         self::assertSame(2, $result->getTotalItems());
         self::assertCount(2, $result->getRows());
+    }
+
+    public function test_a_filter_through_a_to_many_join_lists_each_entity_once(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+        $entityManager = $this->getStoredEntityManager();
+        $organizations = $entityManager->getRepository(DoctrineOrganization::class);
+        $enabledOrganization = $organizations->findOneBy(['name' => 'Enabled Org']);
+        $entityManager->persist(new DoctrineUser('dave@example.test', 'Dave', organization: $enabledOrganization));
+        $entityManager->persist(new DoctrineUser('erin@example.test', 'Erin', organization: $enabledOrganization));
+        $entityManager->flush();
+        $everyUser = new AdvancedFilterExpression(new Group(LogicOperator::And, [
+            new Condition('user', ComparisonOperator::EndsWith, '@example.test'),
+        ]));
+        $cases = [
+            'user filter' => [
+                $this->createOrganizationDefinition()->addFilter('user', 'users.email', type: FilterType::Text),
+                ['filters' => ['user' => '@example.test']],
+            ],
+            'advanced filter' => [
+                $this->createOrganizationDefinition()->addAdvancedFilterField('user', 'users.email'),
+                ['advancedFilterExpression' => $everyUser],
+            ],
+            'permanent filter' => [
+                $this->createOrganizationDefinition()
+                    ->addPermanentFilter('users.email', FilterOperator::Like, '%@example.test'),
+                [],
+            ],
+        ];
+
+        $distinctSortedOnIdentifier = '/^SELECT DISTINCT .*\b\w+\.id AS \w+ FROM .* ORDER BY \w+\.id ASC/';
+
+        foreach ($cases as $case => [$definition, $filtering]) {
+            $provider = $this->createProvider();
+            $firstPage = $provider->getData($definition, DatatableRequest::create(...$filtering, pageSize: 1));
+            self::assertQueryExecuted($distinctSortedOnIdentifier, $case);
+            $secondPageRequest = DatatableRequest::create(...$filtering, page: 2, pageSize: 1);
+            $secondPage = $provider->getData($definition, $secondPageRequest);
+            self::assertQueryExecuted($distinctSortedOnIdentifier, $case);
+
+            self::assertSame(2, $firstPage->getTotalItems(), $case);
+            self::assertSame(2, $firstPage->getFilteredItems(), $case);
+            self::assertSame(['Enabled Org'], array_column($firstPage->getRows(), 'e_name'), $case);
+            self::assertSame(['Disabled Org'], array_column($secondPage->getRows(), 'e_name'), $case);
+        }
     }
 
     public function test_it_rejects_columns_using_undeclared_alias(): void
@@ -112,6 +164,15 @@ final class DoctrineExplicitJoinsFunctionalTest extends FunctionalTestCase
         ;
 
         return $definition;
+    }
+
+    private function createOrganizationDefinition(): DatatableDefinition
+    {
+        return new DatatableDefinition('doctrine-organizations')
+            ->setEntityClass(DoctrineOrganization::class)
+            ->addJoin('users', 'e.users', JoinType::Inner)
+            ->addColumn('e.name', label: 'Name')
+        ;
     }
 
     private function bootDoctrineAndLoadFixtures(): void

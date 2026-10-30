@@ -252,4 +252,4 @@ boundaries.
 - **Saved Presets**: There is currently no support for saving or sharing filter presets.
 - **User Persistence**: Advanced filters are not persisted between sessions or page reloads.
 - **Third-party Widgets**: The current implementation uses standard Bootstrap inputs; custom widgets like Select2 or specialized datepickers are not yet supported.
-- **Collection-valued Associations**: Filtering on collection-valued associations (e.g., "Users having at least one Role with name X") is not supported.
+- **Collection-valued Associations**: A field of a collection (e.g., "Users having at least one Role with name X") is reached through a declared join, such as `addJoin('role', 'e.roles')` then `addAdvancedFilterField('role', 'role.name')`; the Doctrine provider still lists each user once.
