@@ -28,7 +28,7 @@ The primary application-facing API is stable:
 - `Attribute\AsDatatable`;
 - `Contract\DatatableInterface`;
 - `Definition\DatatableDefinition`;
-- the `zhortein_datatable()` Twig function.
+- the `zhortein_datatable()` and `zhortein_datatable_path()` Twig functions.
 
 The builder methods documented in the feature guides are part of the contract, including regular and computed columns, simple and advanced filters, joins, aggregate columns, row/global/bulk actions, child datatable declarations, permanent filters and options.
 
@@ -144,6 +144,7 @@ internal orchestration services; applications should register a
 The canonical URL and future saved-view state model is public:
 
 - `State\DatatableState`;
+- `State\DatatableStateUrlGenerator`;
 - `State\DatatableStateUrlSerializer`;
 - URL state payload version `1`.
 
