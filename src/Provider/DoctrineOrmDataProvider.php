@@ -15,6 +15,7 @@ use Zhortein\DatatableBundle\Definition\AggregateColumnDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\ContextFilterValue;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Definition\FieldFilterValue;
 use Zhortein\DatatableBundle\Definition\FilterDefinition;
 use Zhortein\DatatableBundle\Definition\UserFilterDefinition;
 use Zhortein\DatatableBundle\Doctrine\DoctrineCountExpressionFactory;
@@ -371,61 +372,52 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
             ->normalize($filter->getField(), $definition)
             ->toString();
         $parameterName = sprintf('permanent_filter_%d', $index);
-        $value = $this->resolvePermanentFilterValue($filter->getValue(), $definition);
-        $secondValue = $this->resolvePermanentFilterValue($filter->getSecondValue(), $definition);
+        $operand = fn (mixed $value, string $name = ''): string => $this->bindPermanentFilterOperand(
+            $queryBuilder,
+            $definition,
+            $value,
+            $parameterName.$name,
+        );
 
-        match ($filter->getOperator()) {
-            FilterOperator::Equals => $queryBuilder
-                ->andWhere(sprintf('%s = :%s', $field, $parameterName))
-                ->setParameter($parameterName, $value),
+        $queryBuilder->andWhere(match ($filter->getOperator()) {
+            FilterOperator::Equals => sprintf('%s = %s', $field, $operand($filter->getValue())),
+            FilterOperator::NotEquals => sprintf('%s != %s', $field, $operand($filter->getValue())),
+            FilterOperator::GreaterThan => sprintf('%s > %s', $field, $operand($filter->getValue())),
+            FilterOperator::GreaterThanOrEquals => sprintf('%s >= %s', $field, $operand($filter->getValue())),
+            FilterOperator::LessThan => sprintf('%s < %s', $field, $operand($filter->getValue())),
+            FilterOperator::LessThanOrEquals => sprintf('%s <= %s', $field, $operand($filter->getValue())),
+            FilterOperator::In => sprintf('%s IN (%s)', $field, $operand($filter->getValue())),
+            FilterOperator::NotIn => sprintf('%s NOT IN (%s)', $field, $operand($filter->getValue())),
+            FilterOperator::IsNull => sprintf('%s IS NULL', $field),
+            FilterOperator::IsNotNull => sprintf('%s IS NOT NULL', $field),
+            FilterOperator::Between => sprintf(
+                '%s BETWEEN %s AND %s',
+                $field,
+                $operand($filter->getValue(), '_start'),
+                $operand($filter->getSecondValue(), '_end'),
+            ),
+            FilterOperator::Like => sprintf('%s LIKE %s', $field, $operand($filter->getValue())),
+            FilterOperator::NotLike => sprintf('%s NOT LIKE %s', $field, $operand($filter->getValue())),
+        });
+    }
 
-            FilterOperator::NotEquals => $queryBuilder
-                ->andWhere(sprintf('%s != :%s', $field, $parameterName))
-                ->setParameter($parameterName, $value),
+    /**
+     * The right-hand side of a permanent filter: the DQL path of the field it names, or the placeholder of its value,
+     * bound under the name given.
+     */
+    private function bindPermanentFilterOperand(
+        QueryBuilder $queryBuilder,
+        DatatableDefinition $definition,
+        mixed $value,
+        string $parameterName,
+    ): string {
+        if ($value instanceof FieldFilterValue) {
+            return $this->fieldReferenceResolver->normalize($value->getField(), $definition)->toString();
+        }
 
-            FilterOperator::GreaterThan => $queryBuilder
-                ->andWhere(sprintf('%s > :%s', $field, $parameterName))
-                ->setParameter($parameterName, $value),
+        $queryBuilder->setParameter($parameterName, $this->resolvePermanentFilterValue($value, $definition));
 
-            FilterOperator::GreaterThanOrEquals => $queryBuilder
-                ->andWhere(sprintf('%s >= :%s', $field, $parameterName))
-                ->setParameter($parameterName, $value),
-
-            FilterOperator::LessThan => $queryBuilder
-                ->andWhere(sprintf('%s < :%s', $field, $parameterName))
-                ->setParameter($parameterName, $value),
-
-            FilterOperator::LessThanOrEquals => $queryBuilder
-                ->andWhere(sprintf('%s <= :%s', $field, $parameterName))
-                ->setParameter($parameterName, $value),
-
-            FilterOperator::In => $queryBuilder
-                ->andWhere(sprintf('%s IN (:%s)', $field, $parameterName))
-                ->setParameter($parameterName, $value),
-
-            FilterOperator::NotIn => $queryBuilder
-                ->andWhere(sprintf('%s NOT IN (:%s)', $field, $parameterName))
-                ->setParameter($parameterName, $value),
-
-            FilterOperator::IsNull => $queryBuilder
-                ->andWhere(sprintf('%s IS NULL', $field)),
-
-            FilterOperator::IsNotNull => $queryBuilder
-                ->andWhere(sprintf('%s IS NOT NULL', $field)),
-
-            FilterOperator::Between => $queryBuilder
-                ->andWhere(sprintf('%s BETWEEN :%s_start AND :%s_end', $field, $parameterName, $parameterName))
-                ->setParameter(sprintf('%s_start', $parameterName), $value)
-                ->setParameter(sprintf('%s_end', $parameterName), $secondValue),
-
-            FilterOperator::Like => $queryBuilder
-                ->andWhere(sprintf('%s LIKE :%s', $field, $parameterName))
-                ->setParameter($parameterName, $value),
-
-            FilterOperator::NotLike => $queryBuilder
-                ->andWhere(sprintf('%s NOT LIKE :%s', $field, $parameterName))
-                ->setParameter($parameterName, $value),
-        };
+        return ':'.$parameterName;
     }
 
     private function resolvePermanentFilterValue(mixed $value, DatatableDefinition $definition): mixed

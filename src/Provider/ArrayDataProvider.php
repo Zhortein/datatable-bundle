@@ -10,6 +10,7 @@ use Zhortein\DatatableBundle\Definition\AdvancedFilterFieldDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\ContextFilterValue;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Definition\FieldFilterValue;
 use Zhortein\DatatableBundle\Definition\FilterDefinition;
 use Zhortein\DatatableBundle\Definition\UserFilterDefinition;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
@@ -110,8 +111,8 @@ final readonly class ArrayDataProvider implements DataProviderInterface, ExportR
         DatatableDefinition $definition,
         ArrayExpressionEvaluator $evaluator,
     ): bool {
-        $value = $this->resolvePermanentFilterValue($filter->getValue(), $definition);
-        $secondValue = $this->resolvePermanentFilterValue($filter->getSecondValue(), $definition);
+        $value = $this->resolvePermanentFilterValue($filter->getValue(), $definition, $row);
+        $secondValue = $this->resolvePermanentFilterValue($filter->getSecondValue(), $definition, $row);
 
         if (FilterOperator::Like === $filter->getOperator() || FilterOperator::NotLike === $filter->getOperator()) {
             $matches = $this->matchesLikePattern(
@@ -140,8 +141,15 @@ final readonly class ArrayDataProvider implements DataProviderInterface, ExportR
         );
     }
 
-    private function resolvePermanentFilterValue(mixed $value, DatatableDefinition $definition): mixed
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function resolvePermanentFilterValue(mixed $value, DatatableDefinition $definition, array $row): mixed
     {
+        if ($value instanceof FieldFilterValue) {
+            return $this->readFieldValue($row, $value->getField());
+        }
+
         if (!$value instanceof ContextFilterValue) {
             return $value;
         }

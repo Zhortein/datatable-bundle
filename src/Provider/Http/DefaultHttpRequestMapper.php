@@ -7,6 +7,8 @@ namespace Zhortein\DatatableBundle\Provider\Http;
 use Zhortein\DatatableBundle\Contract\HttpRequestMapperInterface;
 use Zhortein\DatatableBundle\Definition\ContextFilterValue;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Definition\FieldFilterValue;
+use Zhortein\DatatableBundle\Definition\FilterDefinition;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Exception\HttpDataProviderException;
 use Zhortein\DatatableBundle\Filter\Expression\Condition;
@@ -145,10 +147,10 @@ final readonly class DefaultHttpRequestMapper implements HttpRequestMapperInterf
         $filters = [];
 
         foreach ($definition->getPermanentFilters() as $filter) {
-            $value = $this->resolveValue($filter->getValue(), $definition);
+            $value = $this->resolveValue($filter, $filter->getValue(), $definition);
 
             if (FilterOperator::Between === $filter->getOperator()) {
-                $value = [$value, $this->resolveValue($filter->getSecondValue(), $definition)];
+                $value = [$value, $this->resolveValue($filter, $filter->getSecondValue(), $definition)];
             }
 
             $filters[] = [
@@ -192,8 +194,18 @@ final readonly class DefaultHttpRequestMapper implements HttpRequestMapperInterf
         };
     }
 
-    private function resolveValue(mixed $value, DatatableDefinition $definition): mixed
+    private function resolveValue(FilterDefinition $filter, mixed $value, DatatableDefinition $definition): mixed
     {
+        if ($value instanceof FieldFilterValue) {
+            $message = sprintf(
+                'The HTTP provider cannot compare the field "%s" with the field "%s".',
+                $filter->getField(),
+                $value->getField(),
+            );
+
+            throw new HttpDataProviderException($message);
+        }
+
         if (!$value instanceof ContextFilterValue) {
             return $value;
         }

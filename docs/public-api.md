@@ -44,6 +44,7 @@ The definition value objects returned by `DatatableDefinition` are also public:
 - `ColumnDefinition`;
 - `ContextFilterValue`;
 - `CustomJoinDefinition`;
+- `FieldFilterValue`;
 - `FilterDefinition`;
 - `JoinDefinition`;
 - `RouteParameter`;

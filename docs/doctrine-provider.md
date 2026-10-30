@@ -193,6 +193,16 @@ $definition->addPermanentFilter(
 See [hierarchical datatables](hierarchical-datatables.md) for the required
 context allowlist and authorization boundary.
 
+To compare two fields of the same row, name the second one with `FieldFilterValue`; it may belong to a declared join:
+
+```php
+use Zhortein\DatatableBundle\Definition\FieldFilterValue;
+
+$definition->addPermanentFilter('e.stock', FilterOperator::LessThanOrEquals, FieldFilterValue::from('e.stockAlert'));
+```
+
+The Array provider compares the two values of each row; the HTTP provider rejects such a filter, which a remote API cannot receive.
+
 ### User-facing Filters
 Filters rendered in the UI for user interaction.
 ```php
