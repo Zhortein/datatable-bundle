@@ -242,7 +242,7 @@ Default:
 search_builder_enabled: false
 ```
 
-When enabled, datatables render the Search Builder controls by default. A runtime option can still override it:
+A datatable whose definition declares advanced filter fields renders the Search Builder in any case. When enabled, every other datatable renders it too. A runtime option can still override it:
 
 ```twig
 {{ zhortein_datatable('users', {

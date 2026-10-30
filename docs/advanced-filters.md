@@ -4,25 +4,19 @@ The "Advanced Filter Expressions" system (also referred to as **Search Builder**
 
 ## Enabling Advanced Filters
 
-Advanced filters are disabled by default. You can enable them globally or per-datatable.
+A datatable shows the Search Builder as soon as its definition declares an advanced filter field (see below). The `searchBuilder` Twig option overrides that, for instance to hide it on a compact list whose fields only serve links:
 
-### Global Enablement
+```twig
+{{ zhortein_datatable('users', {
+    searchBuilder: false
+}) }}
+```
 
-In your `zhortein_datatable.yaml` configuration:
+The `search_builder_enabled` configuration shows it on every datatable, those without fields included:
 
 ```yaml
 zhortein_datatable:
     search_builder_enabled: true
-```
-
-### Per-Datatable Enablement
-
-When rendering the datatable in Twig:
-
-```twig
-{{ zhortein_datatable('users', {
-    searchBuilder: true
-}) }}
 ```
 
 ## Declaring Filterable Fields

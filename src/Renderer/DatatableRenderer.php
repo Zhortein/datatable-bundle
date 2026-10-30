@@ -93,7 +93,7 @@ final readonly class DatatableRenderer
         $runtimeOptions = $options;
         $options = $this->prepareContextOptions(
             $definition,
-            $this->resolveOptions($this->withDefaultSorts($definition, $options)),
+            $this->resolveOptions($this->withDefinitionDefaults($definition, $options)),
             prepareEndpoints: true,
             runtimeOptions: $runtimeOptions,
         );
@@ -226,16 +226,21 @@ final readonly class DatatableRenderer
     }
 
     /**
-     * The options of a datatable's first rendering, sorted as its definition declares unless they set a sort.
+     * The options of a datatable's first rendering, completed with what its definition declares and they leave unset:
+     * its Search Builder, shown when it declares fields for it, and its default sort.
      *
-     * User preferences, merged later from the runtime options, still replace that order.
+     * User preferences, merged later from the runtime options, still replace that sort.
      *
      * @param array<string, mixed> $options
      *
      * @return array<string, mixed>
      */
-    private function withDefaultSorts(DatatableDefinition $definition, array $options): array
+    private function withDefinitionDefaults(DatatableDefinition $definition, array $options): array
     {
+        if ([] !== $definition->getAdvancedFilterFields() && !array_key_exists('searchBuilder', $options)) {
+            $options['searchBuilder'] = true;
+        }
+
         if ([] === $definition->getDefaultSorts()
             || array_key_exists('sorts', $options)
             || array_key_exists('sortField', $options)
