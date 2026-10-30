@@ -237,6 +237,10 @@ Security is a core design principle of the Advanced Filters system:
 6.  **Breadth and Value Limits**: A request accepts at most 50 conditions,
     100 values per condition and 2,048 characters per string value. Invalid or
     oversized expressions are ignored before reaching a provider.
+7.  **Typed Values**: A condition whose value is blank, such as one whose value
+    is not typed yet, or does not match its field (a number field given text, a
+    date field given no calendar day) is ignored, so that it never reaches the
+    database.
 
 See the [security model](security.md) for the complete transport and provider
 boundaries.

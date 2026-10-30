@@ -6,6 +6,7 @@ namespace Zhortein\DatatableBundle\Factory;
 
 use Zhortein\DatatableBundle\Definition\AdvancedFilterFieldDefinition;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Exception\InvalidExpressionException;
 use Zhortein\DatatableBundle\Filter\Expression\AdvancedFilterExpression;
 use Zhortein\DatatableBundle\Filter\Expression\ComparisonOperator;
@@ -135,7 +136,7 @@ final readonly class AdvancedFilterExpressionFactory
 
         $value = $this->normalizeValue($value, $operator, $fieldDefinition);
 
-        if (!$this->isValueWithinLimits($value)) {
+        if (!$this->isValueWithinLimits($value) || !$this->canFilter($value, $fieldDefinition)) {
             return null;
         }
 
@@ -186,6 +187,54 @@ final readonly class AdvancedFilterExpressionFactory
         }
 
         return $value;
+    }
+
+    /**
+     * Whether a value can filter its field: a blank one is a condition still being written, and one of the wrong type
+     * would reach the database as a value its column refuses.
+     */
+    private function canFilter(mixed $value, ?AdvancedFilterFieldDefinition $fieldDefinition): bool
+    {
+        if (null === $value) {
+            return true;
+        }
+
+        if (is_array($value)) {
+            if ([] === $value) {
+                return false;
+            }
+
+            foreach ($value as $item) {
+                if (!$this->canFilter($item, $fieldDefinition)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        if (is_string($value) && '' === trim($value)) {
+            return false;
+        }
+
+        return match ($fieldDefinition?->getType()) {
+            FilterType::Number, FilterType::NumberRange => is_numeric($value),
+            FilterType::Date, FilterType::DateRange => is_string($value) && $this->namesCalendarDate($value),
+            default => true,
+        };
+    }
+
+    /**
+     * Whether a string names a calendar day, alone or with a time; a relative word such as "tomorrow" names none.
+     */
+    private function namesCalendarDate(string $value): bool
+    {
+        $date = date_parse($value);
+
+        return 0 === $date['error_count']
+            && false !== $date['year']
+            && false !== $date['month']
+            && false !== $date['day'];
     }
 
     private function isValueWithinLimits(mixed $value): bool
