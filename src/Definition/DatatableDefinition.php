@@ -13,6 +13,7 @@ use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Enum\JoinType;
 use Zhortein\DatatableBundle\EnumPresentation\EnumPresentation;
 use Zhortein\DatatableBundle\Filter\Expression\ComparisonOperator;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 
 final class DatatableDefinition
 {
@@ -87,6 +88,11 @@ final class DatatableDefinition
      */
     private array $exportLimits = [];
 
+    /**
+     * @var list<SortCriterion>
+     */
+    private array $defaultSorts = [];
+
     public function __construct(
         private readonly string $name,
     ) {
@@ -96,6 +102,24 @@ final class DatatableDefinition
     public function getName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * The order the datatable renders in when neither the render options nor the user's preferences sort it.
+     */
+    public function setDefaultSorts(SortCriterion ...$sorts): self
+    {
+        $this->defaultSorts = SortCriterion::normalizeList(array_values($sorts));
+
+        return $this;
+    }
+
+    /**
+     * @return list<SortCriterion>
+     */
+    public function getDefaultSorts(): array
+    {
+        return $this->defaultSorts;
     }
 
     /**
@@ -584,12 +608,13 @@ final class DatatableDefinition
         bool $visible = true,
         ?string $className = null,
         bool $distinct = false,
+        bool $sortable = true,
     ): self {
         $this->columns[$name] = new ColumnDefinition(
             name: $name,
             label: $label,
             visible: $visible,
-            sortable: false,
+            sortable: $sortable,
             searchable: false,
             className: $className,
             template: null,

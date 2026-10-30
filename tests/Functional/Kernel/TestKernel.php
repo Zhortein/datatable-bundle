@@ -78,6 +78,8 @@ class TestKernel extends Kernel
             'dbal' => [
                 'driver' => 'pdo_sqlite',
                 'memory' => true,
+                // Collects the executed SQL, which tests read where SQLite's results cannot show a clause
+                'profiling' => true,
             ],
             'orm' => [
                 'auto_mapping' => false,

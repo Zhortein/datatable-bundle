@@ -43,7 +43,7 @@ describe('Stimulus package metadata', () => {
             /^\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$/,
         );
         expect(changelog).toContain(`## [${packageMetadata.version}]`);
-        expect(readme).toContain('**Stable 1.x; 2.0 beta available.**');
+        expect(readme).toContain('**Stable 2.x.**');
         expect(readme).not.toContain('**Alpha Stage**');
     });
 });

@@ -7,6 +7,14 @@ namespace Zhortein\DatatableBundle\Filter\Expression;
 final readonly class ArrayExpressionEvaluator
 {
     /**
+     * @param array<string, string> $fields the row field each condition field name reads, the name itself otherwise
+     */
+    public function __construct(
+        private array $fields = [],
+    ) {
+    }
+
+    /**
      * @param array<string, mixed> $row
      */
     public function evaluate(AdvancedFilterExpression $expression, array $row): bool
@@ -59,7 +67,7 @@ final readonly class ArrayExpressionEvaluator
      */
     private function evaluateCondition(Condition $condition, array $row): bool
     {
-        $rowValue = $this->readFieldValue($row, $condition->field);
+        $rowValue = $this->readFieldValue($row, $this->fields[$condition->field] ?? $condition->field);
 
         return match ($condition->operator) {
             ComparisonOperator::Equals => $this->compareEquals($rowValue, $condition->value),

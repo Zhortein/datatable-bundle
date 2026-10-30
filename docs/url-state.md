@@ -56,7 +56,7 @@ See [explicit context](context.md) for tenant and business-scope propagation.
 When named saved views are enabled, state is resolved in this order:
 
 ```text
-URL state > named default view > runtime Twig options > datatable preferences > bundle defaults
+URL state > named default view > runtime Twig options > datatable preferences > definition default sort > bundle defaults
 ```
 
 Twig options and `DatatablePreferenceProviderInterface` provide initial values.
@@ -110,6 +110,19 @@ The controller translates restored state into those parameters. Custom fragment
 and export routes therefore remain compatible. Both `current` and `full`
 exports include the restored search, filters, advanced expression, sort and
 column visibility; only `current` includes pagination.
+
+## Linking to a state
+
+`zhortein_datatable_path()` builds the address of a page whose datatable opens with the filters and advanced filters given, in its definition's default sort and at the configured page size:
+
+```twig
+<a href="{{ zhortein_datatable_path('admin_orders', {}, 'orders', {
+    filters: {paid: '0'},
+    advancedFilters: {logic: 'and', conditions: [{field: 'status', operator: 'neq', value: 'cancelled'}]}
+}, {context: {customer: customer.id}}) }}">Unpaid orders</a>
+```
+
+The last argument repeats the `context` and `instance` render options the page gives the datatable, so that the link names the state parameter that page reads. The state replaces the datatable's whole state: a filter the page sets by default holds only if the link repeats it. In PHP, `State\DatatableStateUrlGenerator::generate()` takes the same values.
 
 ## PHP state API
 

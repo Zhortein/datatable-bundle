@@ -41,8 +41,9 @@
     "twig/twig": "^3.21"
   },
   "require-dev": {
+    "doctrine/dbal": "^4.5",
     "doctrine/doctrine-bundle": "^3.2",
-    "doctrine/orm": "^3.4.4 || ^4.0",
+    "doctrine/orm": "^3.7 || ^4.0",
     "friendsofphp/php-cs-fixer": "^3.95",
     "friendsoftwig/twigcs": "^6.0",
     "openspout/openspout": "^5.0",
@@ -59,6 +60,9 @@
     "symfony/http-client": "^8.0",
     "symfony/translation-contracts": "^3.6",
     "symfony/var-dumper": "^8.0"
+  },
+  "conflict": {
+    "doctrine/orm": "<3.7"
   },
   "suggest": {
     "doctrine/orm": "Required to use Doctrine ORM backed datatables.",

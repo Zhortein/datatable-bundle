@@ -6,9 +6,14 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Twig;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ServiceLocator;
+use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollection;
 use Twig\Attribute\AsTwigFunction;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
+use Zhortein\DatatableBundle\Context\DatatableContextTransport;
 use Zhortein\DatatableBundle\Contract\DatatableInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\SortDirection;
@@ -19,6 +24,8 @@ use Zhortein\DatatableBundle\Preference\NullDatatablePreferenceProvider;
 use Zhortein\DatatableBundle\Registry\DatatableRegistry;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
 use Zhortein\DatatableBundle\Sorting\SortCriterion;
+use Zhortein\DatatableBundle\State\DatatableStateUrlGenerator;
+use Zhortein\DatatableBundle\State\DatatableStateUrlSerializer;
 use Zhortein\DatatableBundle\Tests\Unit\Renderer\TranslatableRendererTestTrait;
 use Zhortein\DatatableBundle\Twig\DatatableTwigExtension;
 
@@ -150,6 +157,34 @@ final class DatatableTwigExtensionTest extends TestCase
         self::assertStringNotContainsString('aria-sort=', $html);
     }
 
+    public function test_it_exposes_the_address_of_a_datatable_state_as_a_twig_function(): void
+    {
+        $attribute = new \ReflectionMethod(DatatableTwigExtension::class, 'datatablePath')
+            ->getAttributes(AsTwigFunction::class)[0]
+            ->newInstance()
+        ;
+
+        $url = $this->createExtension()->datatablePath('users', [], 'users', ['filters' => ['email' => 'alice']]);
+        parse_str((string) parse_url($url, \PHP_URL_QUERY), $query);
+        $states = $query[DatatableStateUrlSerializer::QUERY_PARAMETER] ?? null;
+
+        self::assertSame('zhortein_datatable_path', $attribute->name);
+        self::assertSame('/users', parse_url($url, \PHP_URL_PATH));
+        self::assertIsArray($states);
+        self::assertCount(1, $states);
+        $payload = current($states);
+        self::assertIsString($payload);
+        self::assertStringContainsString('"filters":{"email":"alice"}', $payload);
+    }
+
+    public function test_it_rejects_a_datatable_path_option_that_is_not_a_map(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The datatable path option "filters" must be a map.');
+
+        $this->createExtension()->datatablePath('users', [], 'users', ['filters' => 'alice']);
+    }
+
     private function createExtension(
         ?Environment $twig = null,
         ?DatatablePreferenceProviderInterface $preferenceProvider = null,
@@ -170,6 +205,21 @@ final class DatatableTwigExtensionTest extends TestCase
             definitionFactory: new DatatableDefinitionFactory($registry),
             renderer: new DatatableRenderer($twig),
             preferenceProvider: $preferenceProvider,
+            stateUrlGenerator: $this->createStateUrlGenerator(new DatatableDefinitionFactory($registry)),
+        );
+    }
+
+    private function createStateUrlGenerator(DatatableDefinitionFactory $definitionFactory): DatatableStateUrlGenerator
+    {
+        $routes = new RouteCollection();
+        $routes->add('users', new Route('/users'));
+
+        return new DatatableStateUrlGenerator(
+            definitionFactory: $definitionFactory,
+            contextTransport: new DatatableContextTransport('twig-extension-test-secret'),
+            serializer: new DatatableStateUrlSerializer(),
+            urlGenerator: new UrlGenerator($routes, new RequestContext()),
+            defaultPageSize: 25,
         );
     }
 

@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Zhortein\DatatableBundle\Context\DatatableContext;
 use Zhortein\DatatableBundle\Definition\ContextFilterValue;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Definition\FieldFilterValue;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Provider\ArrayDataProvider;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
@@ -64,13 +65,24 @@ final class ArrayDataProviderPermanentFiltersTest extends TestCase
         new ArrayDataProvider()->getData($definition, DatatableRequest::create(pageSize: 10));
     }
 
+    public function test_it_compares_a_field_with_another_field_of_the_row(): void
+    {
+        $definition = $this->createDefinition()
+            ->addPermanentFilter('quantity', FilterOperator::LessThanOrEquals, FieldFilterValue::from('delivered'))
+        ;
+
+        $result = new ArrayDataProvider()->getData($definition, DatatableRequest::create(pageSize: 10));
+
+        self::assertSame(['Mechanical keyboard', 'External SSD'], array_column($result->getRows(), 'product'));
+    }
+
     private function createDefinition(): DatatableDefinition
     {
         return new DatatableDefinition('order-lines')
             ->setOption(ArrayDataProvider::OPTION_ROWS, [
-                ['id' => 1, 'orderId' => 101, 'product' => 'Mechanical keyboard', 'quantity' => 2],
-                ['id' => 2, 'orderId' => 101, 'product' => 'Wireless mouse', 'quantity' => 1],
-                ['id' => 3, 'orderId' => 102, 'product' => 'External SSD', 'quantity' => 3],
+                ['id' => 1, 'orderId' => 101, 'product' => 'Mechanical keyboard', 'quantity' => 2, 'delivered' => 2],
+                ['id' => 2, 'orderId' => 101, 'product' => 'Wireless mouse', 'quantity' => 1, 'delivered' => 0],
+                ['id' => 3, 'orderId' => 102, 'product' => 'External SSD', 'quantity' => 3, 'delivered' => 3],
             ])
             ->addColumn('product', label: 'Product')
             ->addColumn('quantity', label: 'Quantity')

@@ -7,6 +7,7 @@ namespace Zhortein\DatatableBundle\Doctrine;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Filter\Expression\AdvancedFilterExpression;
 use Zhortein\DatatableBundle\Filter\Expression\ComparisonOperator;
 use Zhortein\DatatableBundle\Filter\Expression\Condition;
@@ -16,6 +17,9 @@ use Zhortein\DatatableBundle\Filter\Expression\LogicOperator;
 
 final class DoctrineExpressionApplier
 {
+    /** The field types whose date-only values name a whole day. */
+    private const array DATE_TYPES = [FilterType::Date, FilterType::DateRange];
+
     private int $parameterIndex = 0;
 
     public function __construct(
@@ -115,8 +119,11 @@ final class DoctrineExpressionApplier
         EntityManagerInterface $entityManager,
         string $entityClass,
     ): string|object|null {
+        $fieldDefinition = $definition->getAdvancedFilterFields()[$condition->field] ?? null;
+        $declaredField = $fieldDefinition?->getField() ?? $condition->field;
+
         try {
-            $reference = $this->fieldReferenceResolver->normalize($condition->field, $definition);
+            $reference = $this->fieldReferenceResolver->normalize($declaredField, $definition);
         } catch (\InvalidArgumentException) {
             return null;
         }
@@ -127,6 +134,20 @@ final class DoctrineExpressionApplier
 
         $field = $reference->toString();
         $parameterName = sprintf('advanced_filter_%d', $this->parameterIndex++);
+
+        if (in_array($fieldDefinition?->getType(), self::DATE_TYPES, true)) {
+            $columnType = $this->fieldMetadataResolver->getTypeOfField(
+                entityManager: $entityManager,
+                mainEntityClass: $entityClass,
+                definition: $definition,
+                reference: $reference,
+            );
+            $dayExpression = $this->createDayExpression($queryBuilder, $condition, $field, $parameterName, $columnType);
+
+            if (null !== $dayExpression) {
+                return $dayExpression;
+            }
+        }
 
         return match ($condition->operator) {
             ComparisonOperator::Equals => $this->createEqExpression($queryBuilder, $field, $parameterName, $condition->value),
@@ -205,23 +226,13 @@ final class DoctrineExpressionApplier
 
     private function createBetweenExpression(QueryBuilder $queryBuilder, string $field, string $parameterName, mixed $value): ?string
     {
-        if (!is_array($value)) {
+        $bounds = $this->betweenBounds($value);
+
+        if (null === $bounds) {
             return null;
         }
 
-        if (isset($value['from'], $value['to'])) {
-            $start = $value['from'];
-            $end = $value['to'];
-        } else {
-            $values = array_values($value);
-
-            if (2 !== count($values)) {
-                return null;
-            }
-
-            [$start, $end] = $values;
-        }
-
+        [$start, $end] = $bounds;
         $startParam = $parameterName.'_start';
         $endParam = $parameterName.'_end';
 
@@ -229,6 +240,92 @@ final class DoctrineExpressionApplier
         $queryBuilder->setParameter($endParam, $end);
 
         return $queryBuilder->expr()->between($field, ':'.$startParam, ':'.$endParam);
+    }
+
+    /**
+     * A comparison of the field with the whole day a date-only value names, or null when the condition names no day.
+     */
+    private function createDayExpression(
+        QueryBuilder $queryBuilder,
+        Condition $condition,
+        string $field,
+        string $parameterName,
+        ?string $columnType,
+    ): ?object {
+        if (ComparisonOperator::Between === $condition->operator) {
+            [$start, $end] = $this->betweenBounds($condition->value) ?? [null, null];
+
+            return $this->createDayBetweenExpression($queryBuilder, $field, $parameterName, $start, $end, $columnType);
+        }
+
+        $day = DoctrineDayRange::fromValue($condition->value, $columnType);
+
+        if (null === $day) {
+            return null;
+        }
+
+        $expr = $queryBuilder->expr();
+        $start = $parameterName.'_start';
+        $end = $parameterName.'_end';
+
+        return match ($condition->operator) {
+            ComparisonOperator::Equals => $expr->andX(
+                $expr->gte($field, $day->bindStart($queryBuilder, $start)),
+                $expr->lt($field, $day->bindNextDay($queryBuilder, $end)),
+            ),
+            ComparisonOperator::NotEquals => $expr->orX(
+                $expr->lt($field, $day->bindStart($queryBuilder, $start)),
+                $expr->gte($field, $day->bindNextDay($queryBuilder, $end)),
+            ),
+            ComparisonOperator::GreaterThan => $expr->gte($field, $day->bindNextDay($queryBuilder, $end)),
+            ComparisonOperator::GreaterThanOrEquals => $expr->gte($field, $day->bindStart($queryBuilder, $start)),
+            ComparisonOperator::LessThan => $expr->lt($field, $day->bindStart($queryBuilder, $start)),
+            ComparisonOperator::LessThanOrEquals => $expr->lt($field, $day->bindNextDay($queryBuilder, $end)),
+            default => null,
+        };
+    }
+
+    private function createDayBetweenExpression(
+        QueryBuilder $queryBuilder,
+        string $field,
+        string $parameterName,
+        mixed $start,
+        mixed $end,
+        ?string $columnType,
+    ): ?object {
+        $firstDay = DoctrineDayRange::fromValue($start, $columnType);
+        $lastDay = DoctrineDayRange::fromValue($end, $columnType);
+
+        if (null === $firstDay || null === $lastDay) {
+            return null;
+        }
+
+        $expr = $queryBuilder->expr();
+
+        return $expr->andX(
+            $expr->gte($field, $firstDay->bindStart($queryBuilder, $parameterName.'_start')),
+            $expr->lt($field, $lastDay->bindNextDay($queryBuilder, $parameterName.'_end')),
+        );
+    }
+
+    /**
+     * The two bounds of a between value, given as a from and to map or as a list of two values.
+     *
+     * @return array{mixed, mixed}|null
+     */
+    private function betweenBounds(mixed $value): ?array
+    {
+        if (!is_array($value)) {
+            return null;
+        }
+
+        if (isset($value['from'], $value['to'])) {
+            return [$value['from'], $value['to']];
+        }
+
+        $values = array_values($value);
+
+        return 2 === count($values) ? [$values[0], $values[1]] : null;
     }
 
     private function createLikeExpression(QueryBuilder $queryBuilder, string $field, string $parameterName, string $pattern): object

@@ -1503,9 +1503,9 @@ Applications can switch icon technologies without changing datatable definitions
 
 ---
 
-## 2.0 - Theme registry and presentation boundary 🧪
+## 2.0 - Theme registry and presentation boundary ✅
 
-Included in the `2.0.0-beta.1` prerelease:
+Delivered in `2.0.0-beta.1`:
 
 - autoconfigured `ThemeInterface` services and duplicate-safe registry;
 - immutable theme metadata, capabilities and asset ownership;
@@ -1522,11 +1522,18 @@ Included in the `2.0.0-beta.1` prerelease:
 - fresh-host validation of an independently installed, complete external theme
   package.
 
-Before stable `2.0.0`:
+Delivered in `2.0.0`, after migrating a real host application that overrides
+the shell and most partials:
 
-- exercise the migration guide against representative 1.x template overrides;
-- collect beta feedback on the external theme contract;
-- resolve any release-blocking regressions without expanding the stable scope.
+- default order declared in the definition;
+- permanent filters comparing two fields of a row;
+- links opening a datatable in a given filter state;
+- Search Builder shown from the definition, rebuilding its value input per
+  operator;
+- sortable aggregate columns;
+- Doctrine ORM 3.7 without deprecations, identifier tie-breaks and one row per
+  entity through collection joins;
+- whole-day date bounds and filters kept without a rendered control.
 
 Main outcome:
 

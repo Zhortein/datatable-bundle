@@ -30,7 +30,7 @@ class DoctrineUser
     #[ORM\Column(type: 'string', enumType: DoctrineUserStatus::class)]
     private DoctrineUserStatus $status;
 
-    #[ORM\ManyToOne(targetEntity: DoctrineOrganization::class)]
+    #[ORM\ManyToOne(targetEntity: DoctrineOrganization::class, inversedBy: 'users')]
     #[ORM\JoinColumn(name: 'organization_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?DoctrineOrganization $organization;
 

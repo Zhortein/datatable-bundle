@@ -68,8 +68,8 @@ See [enum presentation](enum-presentation.md) for rich labels, badges and custom
 resolvers.
 
 ### Date / Date Range
-Date interprets a single date as a full-day range. Date range provides `from` and `to` inputs.
-Expected format: `Y-m-d`.
+Date interprets a single date as a full-day range. Date range provides `from` and `to` inputs, both included as whole days, so a time of day on the `to` date still matches.
+Expected format: `Y-m-d`; any other value is ignored.
 
 ### Number / Number Range
 Applies equality or range comparisons. Non-numeric values are ignored.
@@ -89,6 +89,8 @@ You can control where filters are rendered using the `filterLayout` option:
 | `toolbar` | (Default) Render filters in a dedicated toolbar section. |
 | `header` | Render filters as Bootstrap dropdowns in column headers. |
 | `none` | Hide filter controls entirely. |
+
+A filter without a rendered control, under `none` or in `header` when no column matches its field, still applies the value given by the `filters` option or by a URL state, on every refresh and export, until the filters are cleared.
 
 ### Column Header Filters
 When `filterLayout: 'header'` is used, filters are matched to columns by their `field` name. The column header will display a small button to open the filter dropdown.

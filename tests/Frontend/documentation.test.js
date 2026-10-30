@@ -176,8 +176,7 @@ describe('Documentation', () => {
         expect(publicApi).toContain('Implementation boundary');
         expect(publicApi).toContain('zhortein--datatable-bundle--datatable');
         expect(publicApi).toContain('zhortein_datatable.cell_value_resolver');
-        expect(publicApi).toContain('The 1.x surface is stable');
-        expect(publicApi).toContain('2.0 prerelease contract');
+        expect(publicApi).toContain('The 2.x surface is stable');
         expect(publicApi).toContain('Migrating from 1.x to 2.0');
         expect(releaseChecklist).toContain('# Release checklist');
         expect(releaseChecklist).not.toContain('# First pre-release checklist');
@@ -249,5 +248,23 @@ describe('Documentation', () => {
         expect(sorting).toContain('Version 1 URLs and saved views');
         expect(sorting).toContain('aria-sort');
         expect(sorting).toContain('Hold `Shift`');
+    });
+
+    it('documents migration from an application-specific datatable engine', () => {
+        const migration = readFileSync(
+            resolve(documentationRoot, 'legacy-datatablenet-migration.md'),
+            'utf8',
+        );
+        const versionMigration = readFileSync(
+            resolve(documentationRoot, 'migration-2.0.md'),
+            'utf8',
+        );
+
+        expect(migration).toContain('addCustomJoin()');
+        expect(migration).toContain('ContextFilterValue');
+        expect(migration).toContain('fieldValue');
+        expect(migration).toContain('selectedRowsParameterName');
+        expect(migration).toContain('integrity, not authorization or secrecy');
+        expect(versionMigration).toContain('legacy-datatablenet-migration.md');
     });
 });

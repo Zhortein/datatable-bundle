@@ -117,6 +117,16 @@ $definition->addJoin(
 $definition->addColumn('org.name', label: 'Organization');
 ```
 
+A join may follow a collection, so that a filter reaches its related rows; each entity is still listed and counted once:
+
+```php
+$definition
+    ->addJoin(alias: 'role', join: 'e.roles', type: JoinType::Left)
+    ->addFilter('role', 'role.id', type: FilterType::Choice, choices: $roleChoices);
+```
+
+A column of such a join, or of a join chained to it, asks for the related rows instead: the list then shows and counts one row per related entity.
+
 ### Chained Joins
 You can chain joins by referencing previous aliases.
 ```php
@@ -159,6 +169,8 @@ $definition->addAggregateColumn(
 );
 ```
 
+An aggregate column sorts on its result like any column; pass `sortable: false` to keep its header fixed.
+
 ## Filtering
 
 ### Permanent Filters
@@ -185,6 +197,16 @@ $definition->addPermanentFilter(
 See [hierarchical datatables](hierarchical-datatables.md) for the required
 context allowlist and authorization boundary.
 
+To compare two fields of the same row, name the second one with `FieldFilterValue`; it may belong to a declared join:
+
+```php
+use Zhortein\DatatableBundle\Definition\FieldFilterValue;
+
+$definition->addPermanentFilter('e.stock', FilterOperator::LessThanOrEquals, FieldFilterValue::from('e.stockAlert'));
+```
+
+The Array provider compares the two values of each row; the HTTP provider rejects such a filter, which a remote API cannot receive.
+
 ### User-facing Filters
 Filters rendered in the UI for user interaction.
 ```php
@@ -203,12 +225,14 @@ Ordered multi-column sorting works across main-entity and explicitly joined
 fields. Unsupported criteria are skipped independently instead of disabling
 later valid criteria. See [multi-column sorting](sorting.md).
 
+Every query then sorts on the main entity's identifier, ascending, unless a criterion already does: rows tied on the sorted values keep the same order from one page or export batch to the next. A query with aggregate columns groups by that identifier too, so each row stays one entity.
+
 ## Performance
 
 The Doctrine provider handles pagination and filtering at the database level. For detailed tuning, see **[Doctrine Performance Guidance](doctrine-performance.md)**.
 
 ### Count and Distinct Strategy
-The provider automatically uses `COUNT(DISTINCT e.id)` when joins or aggregates are present to ensure accurate row counts even if joins would otherwise duplicate root entity rows.
+The provider counts with `COUNT(DISTINCT e.id)` when custom joins, aggregates or a join following a collection that no column shows are present, so that a join repeating the main entity does not inflate the count. Such a join also makes the row query distinct, its identifier selected but hidden, so that each entity takes one row.
 
 ## Current Limitations
 

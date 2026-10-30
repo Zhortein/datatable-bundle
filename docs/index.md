@@ -49,6 +49,7 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 
 - [Public API and compatibility policy](public-api.md)
 - [Migrating from 1.x to 2.0](migration-2.0.md)
+- [Migrating a DatatableNet-style application](legacy-datatablenet-migration.md)
 - [Roadmap](roadmap.md)
 - [Changelog](changelog.md)
 - [Routes](routes.md)
@@ -62,5 +63,4 @@ This bundle is a Symfony 8+ datatable bundle for Bootstrap-first business tables
 
 ---
 
-*The [compatibility policy](public-api.md) distinguishes the stable 1.x API
-from the 2.0 prerelease contract.*
+*The [compatibility policy](public-api.md) defines the stable 2.x API.*

@@ -7,6 +7,7 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Provider\Http;
 use PHPUnit\Framework\TestCase;
 use Zhortein\DatatableBundle\Context\DatatableContext;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Definition\FieldFilterValue;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Enum\HttpPaginationStrategy;
@@ -115,6 +116,22 @@ final class DefaultHttpRequestMapperTest extends TestCase
 
         self::assertSame(['offset' => 20, 'limit' => 10], $offsetRequest->getQuery());
         self::assertSame(['cursor' => 'next-42', 'limit' => 10], $cursorRequest->getQuery());
+    }
+
+    public function test_it_rejects_a_permanent_filter_comparing_two_fields(): void
+    {
+        $this->expectException(HttpDataProviderException::class);
+        $this->expectExceptionMessage('The HTTP provider cannot compare the field "stock" with the field "threshold".');
+
+        new DefaultHttpRequestMapper()->mapRequest(
+            new DatatableDefinition('remote-products')
+                ->addPermanentFilter('stock', FilterOperator::LessThanOrEquals, FieldFilterValue::from('threshold')),
+            DatatableRequest::create(),
+            new HttpProviderConfiguration(
+                endpoint: 'https://api.example.test/products',
+                capabilities: new HttpProviderCapabilities(simpleFilters: true),
+            ),
+        );
     }
 
     public function test_it_rejects_operations_not_declared_by_the_remote_api(): void

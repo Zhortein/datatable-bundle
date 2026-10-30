@@ -11,7 +11,7 @@ Complete every numbered step before following the [Quick Start](quick-start.md).
 - Twig;
 - Bootstrap 5;
 - AssetMapper and StimulusBundle;
-- Doctrine ORM only for Doctrine-backed datatables.
+- Doctrine ORM 3.7 or newer, only for Doctrine-backed datatables.
 
 The bundle does not currently provide a Symfony Flex recipe, so its bundle registration, routes and Stimulus controller must be configured manually.
 

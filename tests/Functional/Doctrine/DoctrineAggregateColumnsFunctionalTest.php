@@ -13,6 +13,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\AggregateFunction;
 use Zhortein\DatatableBundle\Enum\JoinType;
+use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Provider\DoctrineOrmDataProvider;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineAuditLog;
@@ -60,6 +61,33 @@ final class DoctrineAggregateColumnsFunctionalTest extends FunctionalTestCase
         self::assertSame(2, $result->getTotalItems());
         self::assertCount(1, $result->getRows());
         self::assertSame('alice@example.test', $result->getRows()[0]['e_email']);
+    }
+
+    public function test_it_groups_by_the_identifier_it_sorts_on(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+
+        $this->createProvider()->getData($this->createDefinitionWithAggregateColumn(), DatatableRequest::create());
+
+        self::assertQueryExecuted('/GROUP BY \w+\.email, \w+\.id ORDER BY \w+\.id ASC/');
+    }
+
+    public function test_it_sorts_on_an_aggregate_column(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+        $cases = [
+            'ascending' => [SortDirection::Asc, ['bob@example.test', 'alice@example.test']],
+            'descending' => [SortDirection::Desc, ['alice@example.test', 'bob@example.test']],
+        ];
+
+        foreach ($cases as $case => [$direction, $emails]) {
+            $result = $this->createProvider()->getData(
+                $this->createDefinitionWithAggregateColumn(),
+                DatatableRequest::create(sortField: 'auditCount', sortDirection: $direction),
+            );
+
+            self::assertSame($emails, array_column($result->getRows(), 'e_email'), $case);
+        }
     }
 
     #[After]

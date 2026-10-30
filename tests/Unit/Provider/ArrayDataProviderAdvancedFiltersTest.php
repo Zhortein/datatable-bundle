@@ -6,6 +6,7 @@ namespace Zhortein\DatatableBundle\Tests\Unit\Provider;
 
 use PHPUnit\Framework\TestCase;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Filter\Expression\AdvancedFilterExpression;
 use Zhortein\DatatableBundle\Filter\Expression\ComparisonOperator;
 use Zhortein\DatatableBundle\Filter\Expression\Condition;
@@ -95,6 +96,23 @@ final class ArrayDataProviderAdvancedFiltersTest extends TestCase
                 'age' => 22,
             ],
         ], $result->getRows());
+    }
+
+    public function test_it_reads_the_field_an_advanced_filter_field_declares(): void
+    {
+        $definition = $this->createDefinition()->addAdvancedFilterField('years', 'age', type: FilterType::Number);
+        $expression = new AdvancedFilterExpression(
+            new Group(LogicOperator::And, [
+                new Condition('years', ComparisonOperator::GreaterThan, 23),
+            ])
+        );
+
+        $result = new ArrayDataProvider()->getData(
+            $definition,
+            DatatableRequest::create(advancedFilterExpression: $expression),
+        );
+
+        self::assertSame([2, 3], array_column($result->getRows(), 'id'));
     }
 
     private function createDefinition(): DatatableDefinition

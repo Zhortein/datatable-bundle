@@ -31,10 +31,17 @@ final class DatatableDefinitionAggregateColumnTest extends TestCase
         self::assertSame('Audit count', $column->getLabel());
         self::assertSame('numeric', $column->getType());
         self::assertFalse($column->isSearchable());
-        self::assertFalse($column->isSortable());
+        self::assertTrue($column->isSortable());
 
         self::assertSame('audit.id', $aggregate->getField());
         self::assertSame(AggregateFunction::Count, $aggregate->getFunction());
         self::assertTrue($aggregate->isDistinct());
+    }
+
+    public function test_it_leaves_an_aggregate_column_unsortable_when_asked(): void
+    {
+        $definition = new DatatableDefinition('users')->addAggregateColumn('auditCount', 'audit.id', sortable: false);
+
+        self::assertFalse($definition->getColumns()['auditCount']->isSortable());
     }
 }

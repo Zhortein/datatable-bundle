@@ -63,13 +63,13 @@ final readonly class DoctrineJoinApplier
                 JoinType::Inner => $queryBuilder->join(
                     $join->getTargetEntityClass(),
                     $join->getAlias(),
-                    Join::WITH,
+                    Join::ON,
                     $join->getCondition(),
                 ),
                 JoinType::Left => $queryBuilder->leftJoin(
                     $join->getTargetEntityClass(),
                     $join->getAlias(),
-                    Join::WITH,
+                    Join::ON,
                     $join->getCondition(),
                 ),
             };

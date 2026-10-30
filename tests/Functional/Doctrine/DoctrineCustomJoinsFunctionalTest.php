@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Tests\Functional\Doctrine;
 
+use Doctrine\Deprecations\Deprecation;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\Attributes\After;
@@ -42,6 +43,20 @@ final class DoctrineCustomJoinsFunctionalTest extends FunctionalTestCase
         self::assertNull($result->getRows()[1]['audit_eventName']);
     }
 
+    public function test_it_joins_without_triggering_a_doctrine_deprecation(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+        Deprecation::enableTrackingDeprecations();
+        $triggeredBefore = Deprecation::getTriggeredDeprecations();
+
+        $this->createProvider()->getData(
+            $this->createDefinitionWithCustomJoin(),
+            DatatableRequest::create(pageSize: 10),
+        );
+
+        self::assertSame($triggeredBefore, Deprecation::getTriggeredDeprecations());
+    }
+
     public function test_it_searches_field_from_custom_join(): void
     {
         $this->bootDoctrineAndLoadFixtures();
@@ -53,6 +68,31 @@ final class DoctrineCustomJoinsFunctionalTest extends FunctionalTestCase
 
         self::assertSame(1, $result->getFilteredItems());
         self::assertSame(['alice@example.test'], array_column($result->getRows(), 'e_email'));
+    }
+
+    public function test_it_selects_a_field_from_a_custom_join_referencing_an_earlier_custom_alias(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+
+        $definition = $this->createDefinitionWithCustomJoin();
+        $definition
+            ->addCustomJoin(
+                alias: 'matchingAudit',
+                targetEntityClass: DoctrineAuditLog::class,
+                condition: 'matchingAudit.objectId = audit.objectId AND matchingAudit.className = audit.className AND matchingAudit.eventName = audit.eventName',
+                type: JoinType::Left,
+            )
+            ->addColumn('matchingAudit.eventName', label: 'Matching audit event')
+        ;
+
+        $result = $this->createProvider()->getData(
+            $definition,
+            DatatableRequest::create(pageSize: 10),
+        );
+
+        self::assertSame(2, $result->getTotalItems());
+        self::assertSame('created', $result->getRows()[0]['matchingAudit_eventName']);
+        self::assertNull($result->getRows()[1]['matchingAudit_eventName']);
     }
 
     #[After]

@@ -15,9 +15,11 @@ use Zhortein\DatatableBundle\Definition\AggregateColumnDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\ContextFilterValue;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Definition\FieldFilterValue;
 use Zhortein\DatatableBundle\Definition\FilterDefinition;
 use Zhortein\DatatableBundle\Definition\UserFilterDefinition;
 use Zhortein\DatatableBundle\Doctrine\DoctrineCountExpressionFactory;
+use Zhortein\DatatableBundle\Doctrine\DoctrineDayRange;
 use Zhortein\DatatableBundle\Doctrine\DoctrineExpressionApplier;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldMetadataResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
@@ -25,6 +27,7 @@ use Zhortein\DatatableBundle\Doctrine\DoctrineJoinApplier;
 use Zhortein\DatatableBundle\Doctrine\DoctrinePaginationApplier;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Enum\FilterType;
+use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Export\ExportRow;
 use Zhortein\DatatableBundle\Export\ExportStreamContext;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
@@ -34,6 +37,7 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
 {
     public const string PROVIDER_NAME = 'doctrine';
     public const string MAIN_ALIAS = 'e';
+    private const string IDENTIFIER_ALIAS = 'datatable_identifier_';
 
     private DoctrineFieldReferenceResolver $fieldReferenceResolver;
 
@@ -206,6 +210,38 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
     }
 
     /**
+     * Whether a join follows a collection that no column shows: it repeats each entity once per related row, which only
+     * a column of that collection asks for, so the list keeps one row per entity.
+     *
+     * @param class-string $entityClass
+     */
+    private function joinsUnshownCollection(
+        EntityManagerInterface $entityManager,
+        string $entityClass,
+        DatatableDefinition $definition,
+    ): bool {
+        $collectionAliases = $this->fieldMetadataResolver->collectionAliases($entityManager, $entityClass, $definition);
+
+        if ([] === $collectionAliases) {
+            return false;
+        }
+
+        foreach ($this->getSelectableColumns($definition) as $name => $column) {
+            if (isset($definition->getAggregateColumns()[$name])) {
+                continue;
+            }
+
+            $alias = $this->fieldReferenceResolver->normalize($column->getName(), $definition)->getAlias();
+
+            if (in_array($alias, $collectionAliases, true)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * @param class-string                    $entityClass
      * @param array<string, ColumnDefinition> $columns
      *
@@ -284,11 +320,28 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
             $queryBuilder->select(sprintf('%s.id AS id', self::MAIN_ALIAS));
         }
 
+        $identifierFields = $this->getIdentifierFields($entityManager, $entityClass);
+
+        if (!$hasAggregateColumns && $this->joinsUnshownCollection($entityManager, $entityClass, $definition)) {
+            // The identifier, selected but hidden, keeps two entities showing the same values apart and lets a
+            // distinct query sort on it
+            $queryBuilder->distinct();
+
+            foreach ($identifierFields as $index => $identifierField) {
+                $queryBuilder->addSelect(sprintf('%s AS HIDDEN %s', $identifierField, self::IDENTIFIER_ALIAS.$index));
+            }
+        }
+
         $this->applyPermanentFilters($queryBuilder, $definition);
         $this->applyUserFilters($queryBuilder, $entityManager, $entityClass, $definition, $request);
         $this->applyAdvancedFilters($queryBuilder, $entityManager, $entityClass, $definition, $request);
         $this->applySearch($queryBuilder, $entityManager, $entityClass, $definition, $request);
-        $this->applySorting($queryBuilder, $entityManager, $entityClass, $definition, $request);
+        $this->applySorting($queryBuilder, $entityManager, $entityClass, $definition, $request, $identifierFields);
+
+        if ($hasAggregateColumns) {
+            // A grouped query can only sort on a grouped field, and each row stays one entity
+            $groupByFields = [...$groupByFields, ...$identifierFields];
+        }
 
         foreach (array_values(array_unique($groupByFields)) as $groupByField) {
             $queryBuilder->addGroupBy($groupByField);
@@ -307,9 +360,10 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
         ?DatatableRequest $request = null,
     ): int {
         $metadata = $entityManager->getClassMetadata($entityClass);
+        $joinsUnshownCollection = $this->joinsUnshownCollection($entityManager, $entityClass, $definition);
 
         $queryBuilder = $entityManager->createQueryBuilder()
-            ->select($this->countExpressionFactory->create($definition, $metadata))
+            ->select($this->countExpressionFactory->create($definition, $metadata, $joinsUnshownCollection))
             ->from($entityClass, self::MAIN_ALIAS)
         ;
 
@@ -349,61 +403,52 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
             ->normalize($filter->getField(), $definition)
             ->toString();
         $parameterName = sprintf('permanent_filter_%d', $index);
-        $value = $this->resolvePermanentFilterValue($filter->getValue(), $definition);
-        $secondValue = $this->resolvePermanentFilterValue($filter->getSecondValue(), $definition);
+        $operand = fn (mixed $value, string $name = ''): string => $this->bindPermanentFilterOperand(
+            $queryBuilder,
+            $definition,
+            $value,
+            $parameterName.$name,
+        );
 
-        match ($filter->getOperator()) {
-            FilterOperator::Equals => $queryBuilder
-                ->andWhere(sprintf('%s = :%s', $field, $parameterName))
-                ->setParameter($parameterName, $value),
+        $queryBuilder->andWhere(match ($filter->getOperator()) {
+            FilterOperator::Equals => sprintf('%s = %s', $field, $operand($filter->getValue())),
+            FilterOperator::NotEquals => sprintf('%s != %s', $field, $operand($filter->getValue())),
+            FilterOperator::GreaterThan => sprintf('%s > %s', $field, $operand($filter->getValue())),
+            FilterOperator::GreaterThanOrEquals => sprintf('%s >= %s', $field, $operand($filter->getValue())),
+            FilterOperator::LessThan => sprintf('%s < %s', $field, $operand($filter->getValue())),
+            FilterOperator::LessThanOrEquals => sprintf('%s <= %s', $field, $operand($filter->getValue())),
+            FilterOperator::In => sprintf('%s IN (%s)', $field, $operand($filter->getValue())),
+            FilterOperator::NotIn => sprintf('%s NOT IN (%s)', $field, $operand($filter->getValue())),
+            FilterOperator::IsNull => sprintf('%s IS NULL', $field),
+            FilterOperator::IsNotNull => sprintf('%s IS NOT NULL', $field),
+            FilterOperator::Between => sprintf(
+                '%s BETWEEN %s AND %s',
+                $field,
+                $operand($filter->getValue(), '_start'),
+                $operand($filter->getSecondValue(), '_end'),
+            ),
+            FilterOperator::Like => sprintf('%s LIKE %s', $field, $operand($filter->getValue())),
+            FilterOperator::NotLike => sprintf('%s NOT LIKE %s', $field, $operand($filter->getValue())),
+        });
+    }
 
-            FilterOperator::NotEquals => $queryBuilder
-                ->andWhere(sprintf('%s != :%s', $field, $parameterName))
-                ->setParameter($parameterName, $value),
+    /**
+     * The right-hand side of a permanent filter: the DQL path of the field it names, or the placeholder of its value,
+     * bound under the name given.
+     */
+    private function bindPermanentFilterOperand(
+        QueryBuilder $queryBuilder,
+        DatatableDefinition $definition,
+        mixed $value,
+        string $parameterName,
+    ): string {
+        if ($value instanceof FieldFilterValue) {
+            return $this->fieldReferenceResolver->normalize($value->getField(), $definition)->toString();
+        }
 
-            FilterOperator::GreaterThan => $queryBuilder
-                ->andWhere(sprintf('%s > :%s', $field, $parameterName))
-                ->setParameter($parameterName, $value),
+        $queryBuilder->setParameter($parameterName, $this->resolvePermanentFilterValue($value, $definition));
 
-            FilterOperator::GreaterThanOrEquals => $queryBuilder
-                ->andWhere(sprintf('%s >= :%s', $field, $parameterName))
-                ->setParameter($parameterName, $value),
-
-            FilterOperator::LessThan => $queryBuilder
-                ->andWhere(sprintf('%s < :%s', $field, $parameterName))
-                ->setParameter($parameterName, $value),
-
-            FilterOperator::LessThanOrEquals => $queryBuilder
-                ->andWhere(sprintf('%s <= :%s', $field, $parameterName))
-                ->setParameter($parameterName, $value),
-
-            FilterOperator::In => $queryBuilder
-                ->andWhere(sprintf('%s IN (:%s)', $field, $parameterName))
-                ->setParameter($parameterName, $value),
-
-            FilterOperator::NotIn => $queryBuilder
-                ->andWhere(sprintf('%s NOT IN (:%s)', $field, $parameterName))
-                ->setParameter($parameterName, $value),
-
-            FilterOperator::IsNull => $queryBuilder
-                ->andWhere(sprintf('%s IS NULL', $field)),
-
-            FilterOperator::IsNotNull => $queryBuilder
-                ->andWhere(sprintf('%s IS NOT NULL', $field)),
-
-            FilterOperator::Between => $queryBuilder
-                ->andWhere(sprintf('%s BETWEEN :%s_start AND :%s_end', $field, $parameterName, $parameterName))
-                ->setParameter(sprintf('%s_start', $parameterName), $value)
-                ->setParameter(sprintf('%s_end', $parameterName), $secondValue),
-
-            FilterOperator::Like => $queryBuilder
-                ->andWhere(sprintf('%s LIKE :%s', $field, $parameterName))
-                ->setParameter($parameterName, $value),
-
-            FilterOperator::NotLike => $queryBuilder
-                ->andWhere(sprintf('%s NOT LIKE :%s', $field, $parameterName))
-                ->setParameter($parameterName, $value),
-        };
+        return ':'.$parameterName;
     }
 
     private function resolvePermanentFilterValue(mixed $value, DatatableDefinition $definition): mixed
@@ -506,15 +551,48 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
         }
 
         $parameterName = sprintf('datatable_filter_%s', preg_replace('/[^a-zA-Z0-9_]+/', '_', $filter->getName()));
+        $columnType = $this->fieldMetadataResolver->getTypeOfField(
+            entityManager: $entityManager,
+            mainEntityClass: $entityClass,
+            definition: $definition,
+            reference: $reference,
+        );
 
         match ($filter->getType()) {
             FilterType::Text => $this->applyTextUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
-            FilterType::Choice, FilterType::Enum => $this->applyChoiceUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
-            FilterType::Boolean => $this->applyBooleanUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
-            FilterType::Date => $this->applyDateUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
-            FilterType::DateRange => $this->applyRangeUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
+            FilterType::Choice, FilterType::Enum => $this->applyChoiceUserFilter(
+                $queryBuilder,
+                $fieldReference,
+                $parameterName,
+                $value,
+            ),
+            FilterType::Boolean => $this->applyBooleanUserFilter(
+                $queryBuilder,
+                $fieldReference,
+                $parameterName,
+                $value,
+            ),
+            FilterType::Date => $this->applyDateUserFilter(
+                $queryBuilder,
+                $fieldReference,
+                $parameterName,
+                $value,
+                $columnType,
+            ),
+            FilterType::DateRange => $this->applyDateRangeUserFilter(
+                $queryBuilder,
+                $fieldReference,
+                $parameterName,
+                $value,
+                $columnType,
+            ),
             FilterType::Number => $this->applyNumberUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
-            FilterType::NumberRange => $this->applyRangeUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
+            FilterType::NumberRange => $this->applyNumberRangeUserFilter(
+                $queryBuilder,
+                $fieldReference,
+                $parameterName,
+                $value,
+            ),
         };
     }
 
@@ -565,24 +643,48 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
         ;
     }
 
-    private function applyDateUserFilter(QueryBuilder $queryBuilder, string $field, string $parameterName, mixed $value): void
-    {
-        if (!is_scalar($value)) {
-            return;
-        }
+    private function applyDateUserFilter(
+        QueryBuilder $queryBuilder,
+        string $field,
+        string $parameterName,
+        mixed $value,
+        ?string $columnType,
+    ): void {
+        $day = DoctrineDayRange::fromValue($value, $columnType);
 
-        $date = \DateTimeImmutable::createFromFormat('Y-m-d', (string) $value);
-
-        if (!$date instanceof \DateTimeImmutable) {
+        if (null === $day) {
             return;
         }
 
         $queryBuilder
-            ->andWhere(sprintf('%s >= :%s_start', $field, $parameterName))
-            ->andWhere(sprintf('%s < :%s_end', $field, $parameterName))
-            ->setParameter(sprintf('%s_start', $parameterName), $date->setTime(0, 0))
-            ->setParameter(sprintf('%s_end', $parameterName), $date->modify('+1 day')->setTime(0, 0))
+            ->andWhere(sprintf('%s >= %s', $field, $day->bindStart($queryBuilder, $parameterName.'_start')))
+            ->andWhere(sprintf('%s < %s', $field, $day->bindNextDay($queryBuilder, $parameterName.'_end')))
         ;
+    }
+
+    private function applyDateRangeUserFilter(
+        QueryBuilder $queryBuilder,
+        string $field,
+        string $parameterName,
+        mixed $value,
+        ?string $columnType,
+    ): void {
+        if (!is_array($value)) {
+            return;
+        }
+
+        $from = DoctrineDayRange::fromValue($value['from'] ?? null, $columnType);
+        $to = DoctrineDayRange::fromValue($value['to'] ?? null, $columnType);
+
+        if (null !== $from) {
+            $start = $from->bindStart($queryBuilder, $parameterName.'_from');
+            $queryBuilder->andWhere(sprintf('%s >= %s', $field, $start));
+        }
+
+        if (null !== $to) {
+            $end = $to->bindNextDay($queryBuilder, $parameterName.'_to');
+            $queryBuilder->andWhere(sprintf('%s < %s', $field, $end));
+        }
     }
 
     private function applyNumberUserFilter(QueryBuilder $queryBuilder, string $field, string $parameterName, mixed $value): void
@@ -597,8 +699,12 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
         ;
     }
 
-    private function applyRangeUserFilter(QueryBuilder $queryBuilder, string $field, string $parameterName, mixed $value): void
-    {
+    private function applyNumberRangeUserFilter(
+        QueryBuilder $queryBuilder,
+        string $field,
+        string $parameterName,
+        mixed $value,
+    ): void {
         if (!is_array($value)) {
             return;
         }
@@ -704,7 +810,11 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
     }
 
     /**
+     * Sorts as the request asks, then on the identifier: rows tied on the sorted values keep one order from a page, or
+     * an export batch, to the next.
+     *
      * @param class-string $entityClass
+     * @param list<string> $identifierFields
      */
     private function applySorting(
         QueryBuilder $queryBuilder,
@@ -712,29 +822,72 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
         string $entityClass,
         DatatableDefinition $definition,
         DatatableRequest $request,
+        array $identifierFields,
     ): void {
-        if (!$request->hasSort()) {
-            return;
-        }
+        $sortedFields = [];
 
         foreach ($request->getSorts() as $criterion) {
-            $column = $definition->getColumns()[$criterion->getField()] ?? null;
+            $field = $this->resolveSortField($entityManager, $entityClass, $definition, $criterion->getField());
 
-            if (!$column instanceof ColumnDefinition || !$column->isSortable()) {
+            if (null === $field) {
                 continue;
             }
 
-            $reference = $this->fieldReferenceResolver->normalize($column->getName(), $definition);
-
-            if (!$this->fieldMetadataResolver->hasField($entityManager, $entityClass, $definition, $reference)) {
-                continue;
-            }
-
-            $queryBuilder->addOrderBy(
-                $reference->toString(),
-                strtoupper($criterion->getDirection()->value),
-            );
+            $sortedFields[] = $field;
+            $queryBuilder->addOrderBy($field, match ($criterion->getDirection()) {
+                SortDirection::Asc => \SortDirection::Ascending,
+                SortDirection::Desc => \SortDirection::Descending,
+            });
         }
+
+        foreach (array_diff($identifierFields, $sortedFields) as $identifierField) {
+            $queryBuilder->addOrderBy($identifierField, \SortDirection::Ascending);
+        }
+    }
+
+    /**
+     * What a sortable column sorts on: the result alias of its aggregate or its mapped field, or null when it has none.
+     *
+     * @param class-string $entityClass
+     */
+    private function resolveSortField(
+        EntityManagerInterface $entityManager,
+        string $entityClass,
+        DatatableDefinition $definition,
+        string $columnName,
+    ): ?string {
+        $column = $definition->getColumns()[$columnName] ?? null;
+
+        if (!$column instanceof ColumnDefinition || !$column->isSortable()) {
+            return null;
+        }
+
+        if (isset($definition->getAggregateColumns()[$columnName])) {
+            return $columnName;
+        }
+
+        $reference = $this->fieldReferenceResolver->normalize($columnName, $definition);
+
+        if (!$this->fieldMetadataResolver->hasField($entityManager, $entityClass, $definition, $reference)) {
+            return null;
+        }
+
+        return $reference->toString();
+    }
+
+    /**
+     * The identifier fields of the main entity, those an ORDER BY or a GROUP BY accepts.
+     *
+     * @param class-string $entityClass
+     *
+     * @return list<string>
+     */
+    private function getIdentifierFields(EntityManagerInterface $entityManager, string $entityClass): array
+    {
+        $metadata = $entityManager->getClassMetadata($entityClass);
+        $fields = array_filter($metadata->getIdentifierFieldNames(), $metadata->hasField(...));
+
+        return array_values(array_map(static fn (string $field): string => self::MAIN_ALIAS.'.'.$field, $fields));
     }
 
     private function isStringSearchableType(string $doctrineType): bool

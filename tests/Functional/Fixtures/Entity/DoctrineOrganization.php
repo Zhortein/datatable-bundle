@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -27,6 +29,10 @@ class DoctrineOrganization
     #[ORM\ManyToOne(targetEntity: DoctrineOrganizationGroup::class)]
     private ?DoctrineOrganizationGroup $group = null;
 
+    /** @var Collection<int, DoctrineUser> */
+    #[ORM\OneToMany(targetEntity: DoctrineUser::class, mappedBy: 'organization')]
+    private Collection $users;
+
     public function __construct(
         string $name,
         bool $enabled = true,
@@ -37,6 +43,7 @@ class DoctrineOrganization
         $this->enabled = $enabled;
         $this->group = $group;
         $this->status = $status;
+        $this->users = new ArrayCollection();
     }
 
     public function getId(): ?int
