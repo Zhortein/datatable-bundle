@@ -18,6 +18,7 @@ use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Definition\FilterDefinition;
 use Zhortein\DatatableBundle\Definition\UserFilterDefinition;
 use Zhortein\DatatableBundle\Doctrine\DoctrineCountExpressionFactory;
+use Zhortein\DatatableBundle\Doctrine\DoctrineDayRange;
 use Zhortein\DatatableBundle\Doctrine\DoctrineExpressionApplier;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldMetadataResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReferenceResolver;
@@ -506,15 +507,48 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
         }
 
         $parameterName = sprintf('datatable_filter_%s', preg_replace('/[^a-zA-Z0-9_]+/', '_', $filter->getName()));
+        $columnType = $this->fieldMetadataResolver->getTypeOfField(
+            entityManager: $entityManager,
+            mainEntityClass: $entityClass,
+            definition: $definition,
+            reference: $reference,
+        );
 
         match ($filter->getType()) {
             FilterType::Text => $this->applyTextUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
-            FilterType::Choice, FilterType::Enum => $this->applyChoiceUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
-            FilterType::Boolean => $this->applyBooleanUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
-            FilterType::Date => $this->applyDateUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
-            FilterType::DateRange => $this->applyRangeUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
+            FilterType::Choice, FilterType::Enum => $this->applyChoiceUserFilter(
+                $queryBuilder,
+                $fieldReference,
+                $parameterName,
+                $value,
+            ),
+            FilterType::Boolean => $this->applyBooleanUserFilter(
+                $queryBuilder,
+                $fieldReference,
+                $parameterName,
+                $value,
+            ),
+            FilterType::Date => $this->applyDateUserFilter(
+                $queryBuilder,
+                $fieldReference,
+                $parameterName,
+                $value,
+                $columnType,
+            ),
+            FilterType::DateRange => $this->applyDateRangeUserFilter(
+                $queryBuilder,
+                $fieldReference,
+                $parameterName,
+                $value,
+                $columnType,
+            ),
             FilterType::Number => $this->applyNumberUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
-            FilterType::NumberRange => $this->applyRangeUserFilter($queryBuilder, $fieldReference, $parameterName, $value),
+            FilterType::NumberRange => $this->applyNumberRangeUserFilter(
+                $queryBuilder,
+                $fieldReference,
+                $parameterName,
+                $value,
+            ),
         };
     }
 
@@ -565,24 +599,48 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
         ;
     }
 
-    private function applyDateUserFilter(QueryBuilder $queryBuilder, string $field, string $parameterName, mixed $value): void
-    {
-        if (!is_scalar($value)) {
-            return;
-        }
+    private function applyDateUserFilter(
+        QueryBuilder $queryBuilder,
+        string $field,
+        string $parameterName,
+        mixed $value,
+        ?string $columnType,
+    ): void {
+        $day = DoctrineDayRange::fromValue($value, $columnType);
 
-        $date = \DateTimeImmutable::createFromFormat('Y-m-d', (string) $value);
-
-        if (!$date instanceof \DateTimeImmutable) {
+        if (null === $day) {
             return;
         }
 
         $queryBuilder
-            ->andWhere(sprintf('%s >= :%s_start', $field, $parameterName))
-            ->andWhere(sprintf('%s < :%s_end', $field, $parameterName))
-            ->setParameter(sprintf('%s_start', $parameterName), $date->setTime(0, 0))
-            ->setParameter(sprintf('%s_end', $parameterName), $date->modify('+1 day')->setTime(0, 0))
+            ->andWhere(sprintf('%s >= %s', $field, $day->bindStart($queryBuilder, $parameterName.'_start')))
+            ->andWhere(sprintf('%s < %s', $field, $day->bindNextDay($queryBuilder, $parameterName.'_end')))
         ;
+    }
+
+    private function applyDateRangeUserFilter(
+        QueryBuilder $queryBuilder,
+        string $field,
+        string $parameterName,
+        mixed $value,
+        ?string $columnType,
+    ): void {
+        if (!is_array($value)) {
+            return;
+        }
+
+        $from = DoctrineDayRange::fromValue($value['from'] ?? null, $columnType);
+        $to = DoctrineDayRange::fromValue($value['to'] ?? null, $columnType);
+
+        if (null !== $from) {
+            $start = $from->bindStart($queryBuilder, $parameterName.'_from');
+            $queryBuilder->andWhere(sprintf('%s >= %s', $field, $start));
+        }
+
+        if (null !== $to) {
+            $end = $to->bindNextDay($queryBuilder, $parameterName.'_to');
+            $queryBuilder->andWhere(sprintf('%s < %s', $field, $end));
+        }
     }
 
     private function applyNumberUserFilter(QueryBuilder $queryBuilder, string $field, string $parameterName, mixed $value): void
@@ -597,8 +655,12 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
         ;
     }
 
-    private function applyRangeUserFilter(QueryBuilder $queryBuilder, string $field, string $parameterName, mixed $value): void
-    {
+    private function applyNumberRangeUserFilter(
+        QueryBuilder $queryBuilder,
+        string $field,
+        string $parameterName,
+        mixed $value,
+    ): void {
         if (!is_array($value)) {
             return;
         }

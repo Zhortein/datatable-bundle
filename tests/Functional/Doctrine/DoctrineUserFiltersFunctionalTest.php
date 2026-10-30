@@ -75,6 +75,20 @@ final class DoctrineUserFiltersFunctionalTest extends FunctionalTestCase
         ], array_column($result->getRows(), 'e_email'));
     }
 
+    public function test_it_includes_the_whole_last_day_of_a_date_range(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+
+        $result = $this->createProvider()->getData(
+            $this->createDefinition(),
+            DatatableRequest::create(filters: [
+                'created' => ['from' => '2026-06-10', 'to' => '2026-06-11'],
+            ]),
+        );
+
+        self::assertSame(['alice@example.test', 'bob@example.test'], array_column($result->getRows(), 'e_email'));
+    }
+
     public function test_it_ignores_unknown_filter_input(): void
     {
         $this->bootDoctrineAndLoadFixtures();
@@ -130,6 +144,7 @@ final class DoctrineUserFiltersFunctionalTest extends FunctionalTestCase
             ->addFilter('email', 'e.email', type: FilterType::Text)
             ->addFilter('email_choice', 'e.email', type: FilterType::Choice)
             ->addFilter('enabled', 'e.enabled', type: FilterType::Boolean)
+            ->addFilter('created', 'e.createdAt', type: FilterType::DateRange)
         ;
 
         return $definition;
@@ -153,18 +168,21 @@ final class DoctrineUserFiltersFunctionalTest extends FunctionalTestCase
             email: 'alice@example.test',
             displayName: 'Alice',
             enabled: true,
+            createdAt: new \DateTimeImmutable('2026-06-10 09:30'),
             organization: $organization,
         ));
         $entityManager->persist(new DoctrineUser(
             email: 'bob@example.test',
             displayName: 'Bob',
             enabled: false,
+            createdAt: new \DateTimeImmutable('2026-06-11 18:00'),
             organization: $organization,
         ));
         $entityManager->persist(new DoctrineUser(
             email: 'charlie@example.test',
             displayName: 'Charlie',
             enabled: true,
+            createdAt: new \DateTimeImmutable('2026-06-12 08:00'),
             organization: $organization,
         ));
 

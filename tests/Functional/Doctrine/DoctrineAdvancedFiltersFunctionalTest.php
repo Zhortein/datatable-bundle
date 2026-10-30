@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\FilterType;
 use Zhortein\DatatableBundle\Filter\Expression\AdvancedFilterExpression;
 use Zhortein\DatatableBundle\Filter\Expression\ComparisonOperator;
 use Zhortein\DatatableBundle\Filter\Expression\Condition;
@@ -206,6 +207,34 @@ final class DoctrineAdvancedFiltersFunctionalTest extends FunctionalTestCase
         }
     }
 
+    public function test_it_compares_a_date_with_the_whole_day_of_a_date_time_field(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+        $definition = $this->createDefinition();
+        $definition->addAdvancedFilterField('created', 'e.createdAt', type: FilterType::Date);
+        $cases = [
+            [ComparisonOperator::Equals, '2026-06-11', ['bob@example.test']],
+            [ComparisonOperator::NotEquals, '2026-06-11', ['alice@example.test', 'charlie@example.test']],
+            [ComparisonOperator::GreaterThan, '2026-06-10', ['bob@example.test', 'charlie@example.test']],
+            [ComparisonOperator::GreaterThanOrEquals, '2026-06-11', ['bob@example.test', 'charlie@example.test']],
+            [ComparisonOperator::LessThan, '2026-06-11', ['alice@example.test']],
+            [ComparisonOperator::LessThanOrEquals, '2026-06-11', ['alice@example.test', 'bob@example.test']],
+            [ComparisonOperator::Between, ['2026-06-10', '2026-06-11'], ['alice@example.test', 'bob@example.test']],
+        ];
+
+        foreach ($cases as [$operator, $value, $expectedEmails]) {
+            $result = $this->createProvider()->getData(
+                $definition,
+                DatatableRequest::create(advancedFilterExpression: new AdvancedFilterExpression(
+                    new Group(LogicOperator::And, [new Condition('created', $operator, $value)]),
+                )),
+            );
+
+            $emails = array_column($result->getRows(), 'e_email');
+            self::assertSame($expectedEmails, $emails, sprintf('Failed for operator %s', $operator->value));
+        }
+    }
+
     #[After]
     protected function cleanupDoctrine(): void
     {
@@ -269,18 +298,21 @@ final class DoctrineAdvancedFiltersFunctionalTest extends FunctionalTestCase
             email: 'alice@example.test',
             displayName: 'Alice',
             enabled: true,
+            createdAt: new \DateTimeImmutable('2026-06-10 09:30'),
             organization: $organization,
         ));
         $entityManager->persist(new DoctrineUser(
             email: 'bob@example.test',
             displayName: 'Bob',
             enabled: false,
+            createdAt: new \DateTimeImmutable('2026-06-11 18:00'),
             organization: $organization,
         ));
         $entityManager->persist(new DoctrineUser(
             email: 'charlie@example.test',
             displayName: 'Charlie',
             enabled: true,
+            createdAt: new \DateTimeImmutable('2026-06-12 08:00'),
             organization: $organization,
         ));
 

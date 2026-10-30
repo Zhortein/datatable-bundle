@@ -119,6 +119,8 @@ The Search Builder supports the following types from the `FilterType` enum:
 - `NumberRange`
 - `DateRange`
 
+A `Date` or `DateRange` field compares a `Y-m-d` value with the whole day it names, whatever the time of day the Doctrine column holds: `eq` matches any time of that day, `lte` and `between` include their last day, and `gt` starts on the next day.
+
 ### Enum / Choice fields
 
 `Choice` fields use a static `choices` map (`label => value`).

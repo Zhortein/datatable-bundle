@@ -68,8 +68,8 @@ See [enum presentation](enum-presentation.md) for rich labels, badges and custom
 resolvers.
 
 ### Date / Date Range
-Date interprets a single date as a full-day range. Date range provides `from` and `to` inputs.
-Expected format: `Y-m-d`.
+Date interprets a single date as a full-day range. Date range provides `from` and `to` inputs, both included as whole days, so a time of day on the `to` date still matches.
+Expected format: `Y-m-d`; any other value is ignored.
 
 ### Number / Number Range
 Applies equality or range comparisons. Non-numeric values are ignored.
