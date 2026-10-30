@@ -8,6 +8,35 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [2.0.0] - 2026-10-30
+
+### Added
+
+- Added `DatatableDefinition::setDefaultSorts()` to declare a datatable's default order once, checked against its sortable columns when the datatable is built.
+- Added `FieldFilterValue` so that a permanent filter compares two fields of the same row, in the Doctrine and array providers.
+- Added the `zhortein_datatable_path()` Twig function and `State\DatatableStateUrlGenerator` to link to a page whose datatable opens in a given filter state, with its default order and signed context.
+- Added a real-world legacy migration guide and Doctrine regression coverage for association-based user scopes and signed context-scoped history tables.
+
+### Changed
+
+- Stabilized the theme extension contract introduced in `2.0.0-beta.1`.
+- Required Doctrine ORM 3.7 or later: sorts pass `\SortDirection` and custom joins use `ON`, without deprecations.
+- Made aggregate columns sortable by default; `sortable: false` keeps one fixed.
+- Showed the Search Builder whenever a definition declares advanced filter fields; the `searchBuilder: false` option hides it.
+- Passed the initial filters to the Stimulus controller through the shell's `filters-value` attribute, which an overridden shell must render.
+
+### Fixed
+
+- Applied Search Builder conditions through their declared field instead of their public name.
+- Ignored a Search Builder condition whose value is blank or does not match its field type, instead of failing the refresh with a database error.
+- Made a date-only bound cover its whole day in range filters and the Search Builder, so an end date includes its own day.
+- Rebuilt the Search Builder value input when its operator changes, with several choices for `in` and `not in`.
+- Kept filters that have no rendered control until the filters are cleared.
+- Ended every Doctrine sort on the identifier, so that tied rows no longer repeat or go missing across pages and export batches.
+- Listed and counted each entity once through a join following a collection, unless a column of that collection asks for a row per related entity.
+
+See [Migrating from 1.x to 2.0](docs/migration-2.0.md) for the changes an application may need to make.
+
 ## [2.0.0-beta.1] - 2026-07-29
 
 ### Added

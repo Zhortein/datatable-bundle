@@ -1,1 +1,0 @@
-- Added a real-world legacy migration guide and Doctrine regression coverage for association-based user scopes and signed context-scoped history tables.

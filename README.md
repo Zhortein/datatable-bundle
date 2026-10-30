@@ -4,10 +4,9 @@ A Symfony 8+ bundle for Bootstrap-first business datatables driven by PHP defini
 
 ## Status
 
-**Stable 1.x; 2.0 beta available.** The stable public API follows Semantic
-Versioning. The 2.0 prerelease introduces the documented
-[theme extension contract](docs/theme-contract.md); review the
-[migration guide](docs/migration-2.0.md) before upgrading.
+**Stable 2.x.** The public API follows Semantic Versioning. The 2.0 release
+introduces the documented [theme extension contract](docs/theme-contract.md);
+review the [migration guide](docs/migration-2.0.md) before upgrading from 1.x.
 
 ## Requirements
 
@@ -44,12 +43,6 @@ Install the PHP dependencies:
 ```bash
 composer require zhortein/datatable-bundle
 composer require symfony/asset-mapper symfony/asset symfony/stimulus-bundle
-```
-
-To evaluate the 2.0 prerelease explicitly:
-
-```bash
-composer require zhortein/datatable-bundle:^2.0@beta
 ```
 
 The bundle does not currently provide a Symfony Flex recipe. The host application must:

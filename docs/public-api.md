@@ -1,13 +1,12 @@
 # Public API and compatibility policy
 
 This document defines the compatibility contract for
-`zhortein/datatable-bundle`. The 1.x surface is stable starting with `1.0.0`.
-Entries explicitly marked `(2.0)` belong to the 2.0 prerelease contract and may
-still receive documented adjustments before the stable `2.0.0` release.
+`zhortein/datatable-bundle`. The 2.x surface is stable starting with `2.0.0`;
+entries marked `(2.0)` were introduced by that release.
 
 ## Compatibility promise
 
-Within the 1.x series:
+Within a major series:
 
 - documented public PHP classes, interfaces, methods, constructor parameters and enum cases remain backward compatible;
 - documented configuration keys, service tags, routes, Twig functions and frontend identifiers remain available;
@@ -16,9 +15,10 @@ Within the 1.x series:
 
 Code being autoloadable under the bundle namespace does not by itself make it part of this promise. The supported surface is listed below or documented in the linked feature guides.
 
-The 2.0 beta preserves the definition, provider, filtering, action and export
-contracts. Its intentional migration surface is limited to theme registration,
-Twig template composition and frontend presentation ownership. See
+2.0 preserves the definition, provider, filtering, action and export
+contracts of 1.x. Its intentional migration surface is limited to theme
+registration, Twig template composition, frontend presentation ownership, the
+Doctrine ORM 3.7 minimum and a few default behaviours. See
 [Migrating from 1.x to 2.0](migration-2.0.md).
 
 ## Datatable declaration API
@@ -293,7 +293,7 @@ The pre-1.0 review resolved the earlier compatibility risks:
 - the existing provider and export writer contracts are retained, with future large-export work reserved for additive interfaces;
 - Doctrine joins remain part of `DatatableDefinition` for 1.x because they are already documented and used by real applications.
 
-The historical prerelease review remains available in the [archive](archive/milestones/public-api-review.md), but this document is authoritative for 1.x.
+The historical prerelease review remains available in the [archive](archive/milestones/public-api-review.md), but this document is authoritative for the current major version.
 
 ## Reporting compatibility problems
 
