@@ -90,6 +90,8 @@ You can control where filters are rendered using the `filterLayout` option:
 | `header` | Render filters as Bootstrap dropdowns in column headers. |
 | `none` | Hide filter controls entirely. |
 
+A filter without a rendered control, under `none` or in `header` when no column matches its field, still applies the value given by the `filters` option or by a URL state, on every refresh and export, until the filters are cleared.
+
 ### Column Header Filters
 When `filterLayout: 'header'` is used, filters are matched to columns by their `field` name. The column header will display a small button to open the filter dropdown.
 

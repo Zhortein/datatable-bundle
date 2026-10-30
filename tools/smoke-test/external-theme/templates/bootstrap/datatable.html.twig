@@ -16,6 +16,7 @@
     data-zhortein--datatable-bundle--datatable-sort-direction-value="{{ options.sortDirection|default('asc') }}"
     data-zhortein--datatable-bundle--datatable-sorts-value="{{ options.sorts|default([])|json_encode|e('html_attr') }}"
     data-zhortein--datatable-bundle--datatable-auto-load-value="{{ options.autoLoad is defined ? (options.autoLoad ? 'true' : 'false') : 'true' }}"
+    data-zhortein--datatable-bundle--datatable-filters-value="{{ filters|default({})|json_encode|e('html_attr') }}"
     data-zhortein--datatable-bundle--datatable-filter-layout-value="{{ options.filterLayout|default('toolbar') }}"
     data-zhortein--datatable-bundle--datatable-search-builder-value="{{ search_builder_enabled ? 'true' : 'false' }}"
     data-zhortein--datatable-bundle--datatable-boolean-display-mode-value="{{ options.booleanDisplayMode|default('badge') }}"

@@ -58,6 +58,7 @@ export default class extends Controller {
         sortDirection: { type: String, default: 'asc' },
         sorts: { type: Array, default: [] },
         autoLoad: { type: Boolean, default: true },
+        filters: { type: Object, default: {} },
         filterLayout: String,
         searchBuilder: { type: Boolean, default: false },
         booleanDisplayMode: String,
@@ -101,6 +102,7 @@ export default class extends Controller {
         this.preferencesAbortController = null;
         this.savedViews = [];
         this.initializeSortState();
+        this.keepUncontrolledFilters(this.filtersValue);
         this.defaultState = this.collectState();
         this.handlePopState = this.restoreStateFromHistory.bind(this);
         this.handleTurboBeforeCache = this.persistStateBeforeTurboCache.bind(this);
@@ -740,6 +742,7 @@ export default class extends Controller {
 
             control.value = '';
         });
+        this.uncontrolledFilters = {};
 
         this.pageValue = 1;
         this.updateActiveFilterState();
@@ -766,6 +769,7 @@ export default class extends Controller {
                 control.value = '';
             }
         });
+        delete this.uncontrolledFilters[filterName];
 
         this.pageValue = 1;
         this.updateActiveFilterState();
@@ -1523,7 +1527,7 @@ export default class extends Controller {
     }
 
     collectFilterState() {
-        const filters = {};
+        const filters = { ...this.uncontrolledFilters };
 
         this.getFilterControls().forEach((control) => {
             if (
@@ -1617,6 +1621,17 @@ export default class extends Controller {
                 ? String(value)
                 : '';
         });
+        this.keepUncontrolledFilters(filters);
+    }
+
+    keepUncontrolledFilters(filters) {
+        const controlledNames = new Set(
+            this.getFilterControls().map((control) => this.parseFilterControlPath(control.name)[0]),
+        );
+
+        this.uncontrolledFilters = Object.fromEntries(Object.entries(filters ?? {}).filter(
+            ([name, value]) => !controlledNames.has(name) && value !== null && value !== '',
+        ));
     }
 
     applyColumnVisibilityState(visibleColumns, hiddenColumns) {
@@ -1916,6 +1931,10 @@ export default class extends Controller {
 
             searchParams.set(control.name, value);
         });
+
+        Object.entries(this.uncontrolledFilters).forEach(([name, value]) => {
+            this.appendNestedParameters(searchParams, `filters[${name}]`, value);
+        });
     }
 
     appendColumnVisibilityParameters(searchParams) {
@@ -1953,7 +1972,7 @@ export default class extends Controller {
     }
 
     getActiveFilterCount() {
-        let activeCount = 0;
+        let activeCount = Object.keys(this.uncontrolledFilters).length;
 
         this.getFilterControls().forEach((control) => {
             if (control instanceof HTMLInputElement && (control.type === 'checkbox' || control.type === 'radio')) {
@@ -2413,7 +2432,7 @@ export default class extends Controller {
             return;
         }
 
-        this.appendSearchBuilderEntries(searchParams, 'advancedFilters', serialized);
+        this.appendNestedParameters(searchParams, 'advancedFilters', serialized);
     }
 
     serializeSearchBuilderGroup(groupElement) {
@@ -2496,7 +2515,7 @@ export default class extends Controller {
         return result;
     }
 
-    appendSearchBuilderEntries(searchParams, prefix, payload) {
+    appendNestedParameters(searchParams, prefix, payload) {
         if (payload === null || typeof payload !== 'object') {
             searchParams.set(prefix, String(payload ?? ''));
             return;
@@ -2504,13 +2523,13 @@ export default class extends Controller {
 
         if (Array.isArray(payload)) {
             payload.forEach((item, index) => {
-                this.appendSearchBuilderEntries(searchParams, `${prefix}[${index}]`, item);
+                this.appendNestedParameters(searchParams, `${prefix}[${index}]`, item);
             });
             return;
         }
 
         Object.entries(payload).forEach(([key, val]) => {
-            this.appendSearchBuilderEntries(searchParams, `${prefix}[${key}]`, val);
+            this.appendNestedParameters(searchParams, `${prefix}[${key}]`, val);
         });
     }
 
