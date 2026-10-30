@@ -125,6 +125,8 @@ $definition
     ->addFilter('role', 'role.id', type: FilterType::Choice, choices: $roleChoices);
 ```
 
+A column of such a join, or of a join chained to it, asks for the related rows instead: the list then shows and counts one row per related entity.
+
 ### Chained Joins
 You can chain joins by referencing previous aliases.
 ```php
@@ -230,7 +232,7 @@ Every query then sorts on the main entity's identifier, ascending, unless a crit
 The Doctrine provider handles pagination and filtering at the database level. For detailed tuning, see **[Doctrine Performance Guidance](doctrine-performance.md)**.
 
 ### Count and Distinct Strategy
-The provider counts with `COUNT(DISTINCT e.id)` when custom joins, aggregates or a join following a collection are present, so that a join repeating the main entity does not inflate the count. A join following a collection also makes the row query distinct, its identifier selected but hidden, so that each entity takes one row.
+The provider counts with `COUNT(DISTINCT e.id)` when custom joins, aggregates or a join following a collection that no column shows are present, so that a join repeating the main entity does not inflate the count. Such a join also makes the row query distinct, its identifier selected but hidden, so that each entity takes one row.
 
 ## Current Limitations
 

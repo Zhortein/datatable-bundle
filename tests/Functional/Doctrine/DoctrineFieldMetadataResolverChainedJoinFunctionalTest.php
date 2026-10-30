@@ -11,6 +11,7 @@ use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldMetadataResolver;
 use Zhortein\DatatableBundle\Doctrine\DoctrineFieldReference;
 use Zhortein\DatatableBundle\Enum\JoinType;
+use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineOrganization;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineOrganizationGroup;
 use Zhortein\DatatableBundle\Tests\Functional\Fixtures\Entity\DoctrineUser;
 use Zhortein\DatatableBundle\Tests\Functional\FunctionalTestCase;
@@ -41,6 +42,26 @@ final class DoctrineFieldMetadataResolverChainedJoinFunctionalTest extends Funct
         );
 
         self::assertSame(DoctrineOrganizationGroup::class, $metadata->getName());
+    }
+
+    public function test_it_lists_the_aliases_reached_through_a_collection_chained_ones_included(): void
+    {
+        self::bootKernel();
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        self::assertInstanceOf(EntityManagerInterface::class, $entityManager);
+        $definition = new DatatableDefinition('organizations')
+            ->addJoin('group', 'e.group', JoinType::Left)
+            ->addJoin('member', 'e.users', JoinType::Left)
+            ->addJoin('memberOrganization', 'member.organization', JoinType::Left)
+        ;
+
+        $aliases = new DoctrineFieldMetadataResolver()->collectionAliases(
+            entityManager: $entityManager,
+            mainEntityClass: DoctrineOrganization::class,
+            definition: $definition,
+        );
+
+        self::assertSame(['member', 'memberOrganization'], $aliases);
     }
 
     public function test_it_checks_chained_join_field_existence(): void

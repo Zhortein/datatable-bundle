@@ -89,16 +89,22 @@ final readonly class DoctrineFieldMetadataResolver
     }
 
     /**
-     * Whether a join of the definition follows a collection, which repeats the main entity once per related row.
+     * The aliases of the definition's joins reached through a collection, directly or through another such alias:
+     * each repeats the main entity once per related row.
      *
      * @param class-string $mainEntityClass
+     *
+     * @return list<string>
      */
-    public function joinsCollection(
+    public function collectionAliases(
         EntityManagerInterface $entityManager,
         string $mainEntityClass,
         DatatableDefinition $definition,
-    ): bool {
-        foreach ($definition->getJoins() as $join) {
+    ): array {
+        $aliases = [];
+
+        // A join reaches only aliases declared before it, which the loop has already classified
+        foreach ($definition->getJoins() as $alias => $join) {
             $association = DoctrineFieldReference::fromString($join->getJoin());
             $source = $this->resolveMetadataForAlias(
                 entityManager: $entityManager,
@@ -107,12 +113,15 @@ final readonly class DoctrineFieldMetadataResolver
                 alias: $association->getAlias(),
             );
 
-            if ($source->isCollectionValuedAssociation($association->getField())) {
-                return true;
+            if (
+                in_array($association->getAlias(), $aliases, true)
+                || $source->isCollectionValuedAssociation($association->getField())
+            ) {
+                $aliases[] = $alias;
             }
         }
 
-        return false;
+        return $aliases;
     }
 
     /**

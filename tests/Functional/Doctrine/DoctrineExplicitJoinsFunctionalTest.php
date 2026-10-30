@@ -108,6 +108,25 @@ final class DoctrineExplicitJoinsFunctionalTest extends FunctionalTestCase
         }
     }
 
+    public function test_a_column_of_a_to_many_join_lists_and_counts_a_row_per_related_entity(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+        $entityManager = $this->getStoredEntityManager();
+        $organizations = $entityManager->getRepository(DoctrineOrganization::class);
+        $enabledOrganization = $organizations->findOneBy(['name' => 'Enabled Org']);
+        $entityManager->persist(new DoctrineUser('dave@example.test', 'Dave', organization: $enabledOrganization));
+        $entityManager->flush();
+        $definition = $this->createOrganizationDefinition()->addColumn('users.email', label: 'Member');
+
+        $result = $this->createProvider()->getData($definition, DatatableRequest::create(pageSize: 10));
+
+        self::assertSame(3, $result->getTotalItems());
+        self::assertSame(
+            ['alice@example.test', 'dave@example.test', 'bob@example.test'],
+            array_column($result->getRows(), 'users_email'),
+        );
+    }
+
     public function test_it_rejects_columns_using_undeclared_alias(): void
     {
         $this->bootDoctrineAndLoadFixtures();

@@ -210,6 +210,38 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
     }
 
     /**
+     * Whether a join follows a collection that no column shows: it repeats each entity once per related row, which only
+     * a column of that collection asks for, so the list keeps one row per entity.
+     *
+     * @param class-string $entityClass
+     */
+    private function joinsUnshownCollection(
+        EntityManagerInterface $entityManager,
+        string $entityClass,
+        DatatableDefinition $definition,
+    ): bool {
+        $collectionAliases = $this->fieldMetadataResolver->collectionAliases($entityManager, $entityClass, $definition);
+
+        if ([] === $collectionAliases) {
+            return false;
+        }
+
+        foreach ($this->getSelectableColumns($definition) as $name => $column) {
+            if (isset($definition->getAggregateColumns()[$name])) {
+                continue;
+            }
+
+            $alias = $this->fieldReferenceResolver->normalize($column->getName(), $definition)->getAlias();
+
+            if (in_array($alias, $collectionAliases, true)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * @param class-string                    $entityClass
      * @param array<string, ColumnDefinition> $columns
      *
@@ -289,9 +321,8 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
         }
 
         $identifierFields = $this->getIdentifierFields($entityManager, $entityClass);
-        $joinsCollection = $this->fieldMetadataResolver->joinsCollection($entityManager, $entityClass, $definition);
 
-        if ($joinsCollection && !$hasAggregateColumns) {
+        if (!$hasAggregateColumns && $this->joinsUnshownCollection($entityManager, $entityClass, $definition)) {
             // The identifier, selected but hidden, keeps two entities showing the same values apart and lets a
             // distinct query sort on it
             $queryBuilder->distinct();
@@ -329,10 +360,10 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
         ?DatatableRequest $request = null,
     ): int {
         $metadata = $entityManager->getClassMetadata($entityClass);
-        $joinsCollection = $this->fieldMetadataResolver->joinsCollection($entityManager, $entityClass, $definition);
+        $joinsUnshownCollection = $this->joinsUnshownCollection($entityManager, $entityClass, $definition);
 
         $queryBuilder = $entityManager->createQueryBuilder()
-            ->select($this->countExpressionFactory->create($definition, $metadata, $joinsCollection))
+            ->select($this->countExpressionFactory->create($definition, $metadata, $joinsUnshownCollection))
             ->from($entityClass, self::MAIN_ALIAS)
         ;
 

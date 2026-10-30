@@ -12,14 +12,15 @@ final readonly class DoctrineCountExpressionFactory
 {
     /**
      * @param ClassMetadata<object> $metadata
-     * @param bool                  $joinsCollection whether a join follows a collection, repeating the main entity
+     * @param bool                  $joinsUnshownCollection whether a join follows a collection no column shows,
+     *                                                      repeating the main entity
      */
     public function create(
         DatatableDefinition $definition,
         ClassMetadata $metadata,
-        bool $joinsCollection = false,
+        bool $joinsUnshownCollection = false,
     ): string {
-        if (!$this->requiresDistinctCount($definition, $joinsCollection)) {
+        if (!$this->requiresDistinctCount($definition, $joinsUnshownCollection)) {
             return sprintf('COUNT(%s)', DoctrineOrmDataProvider::MAIN_ALIAS);
         }
 
@@ -36,9 +37,9 @@ final readonly class DoctrineCountExpressionFactory
         );
     }
 
-    public function requiresDistinctCount(DatatableDefinition $definition, bool $joinsCollection = false): bool
+    public function requiresDistinctCount(DatatableDefinition $definition, bool $joinsUnshownCollection = false): bool
     {
-        return $joinsCollection
+        return $joinsUnshownCollection
             || [] !== $definition->getAggregateColumns()
             || [] !== $definition->getCustomJoins();
     }
