@@ -115,8 +115,11 @@ final class DoctrineExpressionApplier
         EntityManagerInterface $entityManager,
         string $entityClass,
     ): string|object|null {
+        $fieldDefinition = $definition->getAdvancedFilterFields()[$condition->field] ?? null;
+        $declaredField = $fieldDefinition?->getField() ?? $condition->field;
+
         try {
-            $reference = $this->fieldReferenceResolver->normalize($condition->field, $definition);
+            $reference = $this->fieldReferenceResolver->normalize($declaredField, $definition);
         } catch (\InvalidArgumentException) {
             return null;
         }

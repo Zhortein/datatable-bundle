@@ -182,6 +182,30 @@ final class DoctrineAdvancedFiltersFunctionalTest extends FunctionalTestCase
         self::assertSame(3, $result->getFilteredItems());
     }
 
+    public function test_it_reads_the_field_an_advanced_filter_field_declares(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+        $definition = $this->createDefinition()
+            ->addAdvancedFilterField('mail', 'e.email')
+            ->addAdvancedFilterField('company', 'organization.name')
+        ;
+        $cases = [
+            ['mail', ComparisonOperator::Equals, 'alice@example.test', 1],
+            ['company', ComparisonOperator::NotEquals, 'Acme Corp', 0],
+        ];
+
+        foreach ($cases as [$field, $operator, $value, $expectedCount]) {
+            $result = $this->createProvider()->getData(
+                $definition,
+                DatatableRequest::create(advancedFilterExpression: new AdvancedFilterExpression(
+                    new Group(LogicOperator::And, [new Condition($field, $operator, $value)]),
+                )),
+            );
+
+            self::assertSame($expectedCount, $result->getFilteredItems(), sprintf('Failed for field %s', $field));
+        }
+    }
+
     #[After]
     protected function cleanupDoctrine(): void
     {

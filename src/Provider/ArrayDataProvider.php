@@ -6,6 +6,7 @@ namespace Zhortein\DatatableBundle\Provider;
 
 use Zhortein\DatatableBundle\Contract\DataProviderInterface;
 use Zhortein\DatatableBundle\Contract\ExportRowCountProviderInterface;
+use Zhortein\DatatableBundle\Definition\AdvancedFilterFieldDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\ContextFilterValue;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
@@ -42,7 +43,7 @@ final readonly class ArrayDataProvider implements DataProviderInterface, ExportR
         $totalItems = count($rows);
 
         $rows = $this->applyUserFilters($rows, $definition, $request);
-        $rows = $this->applyAdvancedFilters($rows, $request);
+        $rows = $this->applyAdvancedFilters($rows, $definition, $request);
         $rows = $this->applySearch($rows, $definition, $request);
 
         $filteredItems = count($rows);
@@ -70,7 +71,7 @@ final readonly class ArrayDataProvider implements DataProviderInterface, ExportR
         $rows = $this->normalizeRows($definition->getOption(self::OPTION_ROWS, []));
         $rows = $this->applyPermanentFilters($rows, $definition);
         $rows = $this->applyUserFilters($rows, $definition, $request);
-        $rows = $this->applyAdvancedFilters($rows, $request);
+        $rows = $this->applyAdvancedFilters($rows, $definition, $request);
         $rows = $this->applySearch($rows, $definition, $request);
 
         return count($rows);
@@ -595,8 +596,11 @@ final readonly class ArrayDataProvider implements DataProviderInterface, ExportR
      *
      * @return list<array<string, mixed>>
      */
-    private function applyAdvancedFilters(array $rows, DatatableRequest $request): array
-    {
+    private function applyAdvancedFilters(
+        array $rows,
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+    ): array {
         if (!$request->hasAdvancedFilters()) {
             return $rows;
         }
@@ -607,7 +611,10 @@ final readonly class ArrayDataProvider implements DataProviderInterface, ExportR
             return $rows;
         }
 
-        $evaluator = new ArrayExpressionEvaluator();
+        $evaluator = new ArrayExpressionEvaluator(array_map(
+            static fn (AdvancedFilterFieldDefinition $field): string => $field->getField(),
+            $definition->getAdvancedFilterFields(),
+        ));
 
         return array_values(array_filter(
             $rows,
