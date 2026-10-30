@@ -50,7 +50,7 @@ final readonly class DoctrineDayRange
             return null;
         }
 
-        return new self($start, self::PARAMETER_TYPES[$columnType] ?? Types::DATETIME_IMMUTABLE);
+        return new self($start, self::PARAMETER_TYPES[$columnType ?? ''] ?? Types::DATETIME_IMMUTABLE);
     }
 
     /**
