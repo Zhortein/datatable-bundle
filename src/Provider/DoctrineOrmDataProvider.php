@@ -290,7 +290,13 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
         $this->applyUserFilters($queryBuilder, $entityManager, $entityClass, $definition, $request);
         $this->applyAdvancedFilters($queryBuilder, $entityManager, $entityClass, $definition, $request);
         $this->applySearch($queryBuilder, $entityManager, $entityClass, $definition, $request);
-        $this->applySorting($queryBuilder, $entityManager, $entityClass, $definition, $request);
+        $identifierFields = $this->getIdentifierFields($entityManager, $entityClass);
+        $this->applySorting($queryBuilder, $entityManager, $entityClass, $definition, $request, $identifierFields);
+
+        if ($hasAggregateColumns) {
+            // A grouped query can only sort on a grouped field, and each row stays one entity
+            $groupByFields = [...$groupByFields, ...$identifierFields];
+        }
 
         foreach (array_values(array_unique($groupByFields)) as $groupByField) {
             $queryBuilder->addGroupBy($groupByField);
@@ -767,7 +773,11 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
     }
 
     /**
+     * Sorts as the request asks, then on the identifier: rows tied on the sorted values keep one order from a page, or
+     * an export batch, to the next.
+     *
      * @param class-string $entityClass
+     * @param list<string> $identifierFields
      */
     private function applySorting(
         QueryBuilder $queryBuilder,
@@ -775,10 +785,9 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
         string $entityClass,
         DatatableDefinition $definition,
         DatatableRequest $request,
+        array $identifierFields,
     ): void {
-        if (!$request->hasSort()) {
-            return;
-        }
+        $sortedFields = [];
 
         foreach ($request->getSorts() as $criterion) {
             $column = $definition->getColumns()[$criterion->getField()] ?? null;
@@ -793,11 +802,32 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
                 continue;
             }
 
-            $queryBuilder->addOrderBy($reference->toString(), match ($criterion->getDirection()) {
+            $field = $reference->toString();
+            $sortedFields[] = $field;
+            $queryBuilder->addOrderBy($field, match ($criterion->getDirection()) {
                 SortDirection::Asc => \SortDirection::Ascending,
                 SortDirection::Desc => \SortDirection::Descending,
             });
         }
+
+        foreach (array_diff($identifierFields, $sortedFields) as $identifierField) {
+            $queryBuilder->addOrderBy($identifierField, \SortDirection::Ascending);
+        }
+    }
+
+    /**
+     * The identifier fields of the main entity, those an ORDER BY or a GROUP BY accepts.
+     *
+     * @param class-string $entityClass
+     *
+     * @return list<string>
+     */
+    private function getIdentifierFields(EntityManagerInterface $entityManager, string $entityClass): array
+    {
+        $metadata = $entityManager->getClassMetadata($entityClass);
+        $fields = array_filter($metadata->getIdentifierFieldNames(), $metadata->hasField(...));
+
+        return array_values(array_map(static fn (string $field): string => self::MAIN_ALIAS.'.'.$field, $fields));
     }
 
     private function isStringSearchableType(string $doctrineType): bool

@@ -203,6 +203,8 @@ Ordered multi-column sorting works across main-entity and explicitly joined
 fields. Unsupported criteria are skipped independently instead of disabling
 later valid criteria. See [multi-column sorting](sorting.md).
 
+Every query then sorts on the main entity's identifier, ascending, unless a criterion already does: rows tied on the sorted values keep the same order from one page or export batch to the next. A query with aggregate columns groups by that identifier too, so each row stays one entity.
+
 ## Performance
 
 The Doctrine provider handles pagination and filtering at the database level. For detailed tuning, see **[Doctrine Performance Guidance](doctrine-performance.md)**.

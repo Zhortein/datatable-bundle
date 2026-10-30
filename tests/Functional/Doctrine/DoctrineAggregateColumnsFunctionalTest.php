@@ -62,6 +62,15 @@ final class DoctrineAggregateColumnsFunctionalTest extends FunctionalTestCase
         self::assertSame('alice@example.test', $result->getRows()[0]['e_email']);
     }
 
+    public function test_it_groups_by_the_identifier_it_sorts_on(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+
+        $this->createProvider()->getData($this->createDefinitionWithAggregateColumn(), DatatableRequest::create());
+
+        self::assertQueryExecuted('/GROUP BY \w+\.email, \w+\.id ORDER BY \w+\.id ASC/');
+    }
+
     #[After]
     protected function cleanupDoctrine(): void
     {

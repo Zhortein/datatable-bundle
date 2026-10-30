@@ -130,6 +130,39 @@ final class DoctrineSortingFunctionalTest extends FunctionalTestCase
         ], array_column($result->getRows(), 'e_email'));
     }
 
+    public function test_it_ends_every_sort_on_the_identifier(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+        $sortableIdentifier = new DatatableDefinition('doctrine-users')
+            ->setEntityClass(DoctrineUser::class)
+            ->addColumn('e.id')
+            ->addColumn('e.email')
+        ;
+        $cases = [
+            'another column' => [
+                $this->createDefinition(),
+                DatatableRequest::create(sortField: 'e.enabled', sortDirection: SortDirection::Desc, pageSize: 10),
+                '/ORDER BY \w+\.enabled DESC, \w+\.id ASC LIMIT/',
+            ],
+            'no sort' => [
+                $this->createDefinition(),
+                DatatableRequest::create(pageSize: 10),
+                '/ORDER BY \w+\.id ASC LIMIT/',
+            ],
+            'the identifier' => [
+                $sortableIdentifier,
+                DatatableRequest::create(sortField: 'e.id', sortDirection: SortDirection::Desc, pageSize: 10),
+                '/ORDER BY \w+\.id DESC LIMIT/',
+            ],
+        ];
+
+        foreach ($cases as $case => [$definition, $request, $orderBy]) {
+            $this->createProvider()->getData($definition, $request);
+
+            self::assertQueryExecuted($orderBy, $case);
+        }
+    }
+
     public function test_it_sorts_without_triggering_a_doctrine_deprecation(): void
     {
         $this->bootDoctrineAndLoadFixtures();
