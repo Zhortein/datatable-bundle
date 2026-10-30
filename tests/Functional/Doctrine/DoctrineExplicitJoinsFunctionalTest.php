@@ -78,27 +78,35 @@ final class DoctrineExplicitJoinsFunctionalTest extends FunctionalTestCase
         $cases = [
             'user filter' => [
                 $this->createOrganizationDefinition()->addFilter('user', 'users.email', type: FilterType::Text),
-                ['filters' => ['user' => '@example.test']],
+                ['user' => '@example.test'],
+                null,
             ],
             'advanced filter' => [
                 $this->createOrganizationDefinition()->addAdvancedFilterField('user', 'users.email'),
-                ['advancedFilterExpression' => $everyUser],
+                [],
+                $everyUser,
             ],
             'permanent filter' => [
                 $this->createOrganizationDefinition()
                     ->addPermanentFilter('users.email', FilterOperator::Like, '%@example.test'),
                 [],
+                null,
             ],
         ];
 
         $distinctSortedOnIdentifier = '/^SELECT DISTINCT .*\b\w+\.id AS \w+ FROM .* ORDER BY \w+\.id ASC/';
 
-        foreach ($cases as $case => [$definition, $filtering]) {
+        foreach ($cases as $case => [$definition, $filters, $expression]) {
             $provider = $this->createProvider();
-            $firstPage = $provider->getData($definition, DatatableRequest::create(...$filtering, pageSize: 1));
+            $pageRequest = static fn (int $page): DatatableRequest => DatatableRequest::create(
+                filters: $filters,
+                advancedFilterExpression: $expression,
+                page: $page,
+                pageSize: 1,
+            );
+            $firstPage = $provider->getData($definition, $pageRequest(1));
             self::assertQueryExecuted($distinctSortedOnIdentifier, $case);
-            $secondPageRequest = DatatableRequest::create(...$filtering, page: 2, pageSize: 1);
-            $secondPage = $provider->getData($definition, $secondPageRequest);
+            $secondPage = $provider->getData($definition, $pageRequest(2));
             self::assertQueryExecuted($distinctSortedOnIdentifier, $case);
 
             self::assertSame(2, $firstPage->getTotalItems(), $case);
