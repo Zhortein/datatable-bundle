@@ -29,11 +29,12 @@ help: ## 📖 Show available commands
 		| awk 'BEGIN {FS = ":.*?## "}{printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' \
 		| sed -e 's/\[32m##/[33m/'
 
+# The caches exist before any container mounts them, which would otherwise create them as root
 build: ## Build local tooling image
+	@mkdir -p "$(COMPOSER_CACHE_HOST)" "$(NPM_CACHE_HOST)"
 	@docker build -t $(TOOLS_IMAGE) -f docker/Dockerfile .
 
 installdeps: build ## Install Composer deps
-	@mkdir -p .cache/composer
 	$(DOCKER_RUN) composer install --prefer-dist --no-progress
 
 updatedeps: build ## Update deps
@@ -63,9 +64,8 @@ qa: build ## Run all QA checks
 php: build ## Run PHP command (usage: make php ARGS='script.php')
 	$(DOCKER_RUN) php $(ARGS)
 
-frontenddeps: build ## Install Composer deps
-	@mkdir -p .cache/composer .cache/npm
-	$(DOCKER_RUN) npm install
+frontenddeps: build ## Install npm deps from the lockfile
+	$(DOCKER_RUN) npm ci
 
 frontendtest: build ## Run frontend tests
 	$(DOCKER_RUN) npm run test:frontend
