@@ -584,12 +584,13 @@ final class DatatableDefinition
         bool $visible = true,
         ?string $className = null,
         bool $distinct = false,
+        bool $sortable = true,
     ): self {
         $this->columns[$name] = new ColumnDefinition(
             name: $name,
             label: $label,
             visible: $visible,
-            sortable: false,
+            sortable: $sortable,
             searchable: false,
             className: $className,
             template: null,

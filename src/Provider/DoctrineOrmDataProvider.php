@@ -796,19 +796,12 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
         $sortedFields = [];
 
         foreach ($request->getSorts() as $criterion) {
-            $column = $definition->getColumns()[$criterion->getField()] ?? null;
+            $field = $this->resolveSortField($entityManager, $entityClass, $definition, $criterion->getField());
 
-            if (!$column instanceof ColumnDefinition || !$column->isSortable()) {
+            if (null === $field) {
                 continue;
             }
 
-            $reference = $this->fieldReferenceResolver->normalize($column->getName(), $definition);
-
-            if (!$this->fieldMetadataResolver->hasField($entityManager, $entityClass, $definition, $reference)) {
-                continue;
-            }
-
-            $field = $reference->toString();
             $sortedFields[] = $field;
             $queryBuilder->addOrderBy($field, match ($criterion->getDirection()) {
                 SortDirection::Asc => \SortDirection::Ascending,
@@ -819,6 +812,36 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
         foreach (array_diff($identifierFields, $sortedFields) as $identifierField) {
             $queryBuilder->addOrderBy($identifierField, \SortDirection::Ascending);
         }
+    }
+
+    /**
+     * What a sortable column sorts on: the result alias of its aggregate or its mapped field, or null when it has none.
+     *
+     * @param class-string $entityClass
+     */
+    private function resolveSortField(
+        EntityManagerInterface $entityManager,
+        string $entityClass,
+        DatatableDefinition $definition,
+        string $columnName,
+    ): ?string {
+        $column = $definition->getColumns()[$columnName] ?? null;
+
+        if (!$column instanceof ColumnDefinition || !$column->isSortable()) {
+            return null;
+        }
+
+        if (isset($definition->getAggregateColumns()[$columnName])) {
+            return $columnName;
+        }
+
+        $reference = $this->fieldReferenceResolver->normalize($columnName, $definition);
+
+        if (!$this->fieldMetadataResolver->hasField($entityManager, $entityClass, $definition, $reference)) {
+            return null;
+        }
+
+        return $reference->toString();
     }
 
     /**

@@ -167,6 +167,8 @@ $definition->addAggregateColumn(
 );
 ```
 
+An aggregate column sorts on its result like any column; pass `sortable: false` to keep its header fixed.
+
 ## Filtering
 
 ### Permanent Filters
