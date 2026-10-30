@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Tests\Functional\Doctrine;
 
+use Doctrine\Deprecations\Deprecation;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\Attributes\After;
@@ -127,6 +128,20 @@ final class DoctrineSortingFunctionalTest extends FunctionalTestCase
             'alice@example.test',
             'bob@example.test',
         ], array_column($result->getRows(), 'e_email'));
+    }
+
+    public function test_it_sorts_without_triggering_a_doctrine_deprecation(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+        Deprecation::enableTrackingDeprecations();
+        $triggeredBefore = Deprecation::getTriggeredDeprecations();
+
+        $this->createProvider()->getData(
+            $this->createDefinition(),
+            DatatableRequest::create(sortField: 'e.email', sortDirection: SortDirection::Desc, pageSize: 10),
+        );
+
+        self::assertSame($triggeredBefore, Deprecation::getTriggeredDeprecations());
     }
 
     #[After]

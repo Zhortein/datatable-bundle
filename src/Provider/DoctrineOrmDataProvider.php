@@ -26,6 +26,7 @@ use Zhortein\DatatableBundle\Doctrine\DoctrineJoinApplier;
 use Zhortein\DatatableBundle\Doctrine\DoctrinePaginationApplier;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Enum\FilterType;
+use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Export\ExportRow;
 use Zhortein\DatatableBundle\Export\ExportStreamContext;
 use Zhortein\DatatableBundle\Request\DatatableRequest;
@@ -792,10 +793,10 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
                 continue;
             }
 
-            $queryBuilder->addOrderBy(
-                $reference->toString(),
-                strtoupper($criterion->getDirection()->value),
-            );
+            $queryBuilder->addOrderBy($reference->toString(), match ($criterion->getDirection()) {
+                SortDirection::Asc => \SortDirection::Ascending,
+                SortDirection::Desc => \SortDirection::Descending,
+            });
         }
     }
 
