@@ -4,6 +4,7 @@ import ChildDatatableManager from './child_datatable_manager.js';
 const DATATABLE_STATE_VERSION = 1;
 const MAX_STATE_PAYLOAD_LENGTH = 32768;
 const MAX_SORT_CRITERIA = 8;
+const SCALAR_VALUE_TYPES = ['string', 'number', 'boolean'];
 
 /**
  * Controls a Zhortein datatable.
@@ -2125,10 +2126,11 @@ export default class extends Controller {
 
         if (inputs.length === 1) {
             const input = inputs[0];
+            const values = (Array.isArray(value) ? value : [value])
+                .filter((item) => SCALAR_VALUE_TYPES.includes(typeof item))
+                .map(String);
 
             if (input instanceof HTMLSelectElement && input.multiple) {
-                const values = Array.isArray(value) ? value.map(String) : [String(value ?? '')];
-
                 Array.from(input.options).forEach((option) => {
                     option.selected = values.includes(option.value);
                 });
@@ -2136,7 +2138,7 @@ export default class extends Controller {
                 return;
             }
 
-            input.value = value === null || typeof value === 'undefined' ? '' : String(value);
+            input.value = values[0] ?? '';
 
             return;
         }
@@ -2302,7 +2304,14 @@ export default class extends Controller {
         this.updateSearchBuilderValueInput(condition, type, selectedOption.dataset.choices, shouldRefresh);
     }
 
-    onSearchBuilderOperatorChange() {
+    onSearchBuilderOperatorChange(event) {
+        const condition = event.target.closest('.zhortein-datatable__search-builder-condition');
+        const fieldSelect = condition.querySelector('select[data-action*="onSearchBuilderFieldChange"]');
+        const { type, choices } = fieldSelect.options[fieldSelect.selectedIndex].dataset;
+        const enteredValue = this.serializeSearchBuilderCondition(condition)?.value;
+
+        this.updateSearchBuilderValueInput(condition, type, choices, false);
+        this.restoreSearchBuilderValue(condition, enteredValue);
         this.refresh();
     }
 
