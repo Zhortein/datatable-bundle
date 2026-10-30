@@ -16,19 +16,21 @@ use Zhortein\DatatableBundle\Context\DatatableContextTransport;
 use Zhortein\DatatableBundle\Contract\DatatablePreferenceIdentityResolverInterface;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\FilterType;
+use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Preference\CacheDatatablePreferenceProvider;
 use Zhortein\DatatableBundle\Preference\DatatablePreference;
 use Zhortein\DatatableBundle\Preference\DatatablePreferenceSchema;
 use Zhortein\DatatableBundle\Preference\DatatablePreferenceScope;
 use Zhortein\DatatableBundle\Preference\DatatablePreferenceScopeResolver;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 use Zhortein\DatatableBundle\State\DatatableStateUrlSerializer;
 
 final class DatatableRendererPreferencesTest extends TestCase
 {
     use TranslatableRendererTestTrait;
 
-    public function test_scoped_cache_preferences_apply_below_runtime_options(): void
+    public function test_scoped_cache_preferences_apply_below_runtime_options_and_above_definition_defaults(): void
     {
         $request = Request::create('/admin/users');
         $request->attributes->set('_route', 'admin_users');
@@ -51,6 +53,7 @@ final class DatatableRendererPreferencesTest extends TestCase
                 choices: ['Active' => 'active'],
                 preferenceSafe: true,
             )
+            ->setDefaultSorts(SortCriterion::create('email'))
         ;
         $scope = DatatablePreferenceScope::create(
             ownerIdentifier: 'user-42',
@@ -64,6 +67,7 @@ final class DatatableRendererPreferencesTest extends TestCase
             pageSize: 50,
             visibleColumns: ['email'],
             hiddenColumns: ['phone'],
+            sorts: [SortCriterion::create('email', SortDirection::Desc)],
             filters: ['status' => 'active'],
         ));
         $renderer = new DatatableRenderer(
@@ -83,6 +87,10 @@ final class DatatableRendererPreferencesTest extends TestCase
 
         self::assertStringContainsString(
             'data-zhortein--datatable-bundle--datatable-page-size-value="10"',
+            $html,
+        );
+        self::assertStringContainsString(
+            'data-zhortein--datatable-bundle--datatable-sort-direction-value="desc"',
             $html,
         );
         self::assertStringContainsString('Email', $html);

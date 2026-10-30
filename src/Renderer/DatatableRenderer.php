@@ -93,7 +93,7 @@ final readonly class DatatableRenderer
         $runtimeOptions = $options;
         $options = $this->prepareContextOptions(
             $definition,
-            $this->resolveOptions($options),
+            $this->resolveOptions($this->withDefaultSorts($definition, $options)),
             prepareEndpoints: true,
             runtimeOptions: $runtimeOptions,
         );
@@ -223,6 +223,27 @@ final readonly class DatatableRenderer
             'htmlId' => $this->createHtmlId($definition, $options),
             'options' => $options,
         ]);
+    }
+
+    /**
+     * The options of a datatable's first rendering, sorted as its definition declares unless they set a sort.
+     *
+     * User preferences, merged later from the runtime options, still replace that order.
+     *
+     * @param array<string, mixed> $options
+     *
+     * @return array<string, mixed>
+     */
+    private function withDefaultSorts(DatatableDefinition $definition, array $options): array
+    {
+        if ([] === $definition->getDefaultSorts()
+            || array_key_exists('sorts', $options)
+            || array_key_exists('sortField', $options)
+        ) {
+            return $options;
+        }
+
+        return [...$options, 'sorts' => $definition->getDefaultSorts()];
     }
 
     /**

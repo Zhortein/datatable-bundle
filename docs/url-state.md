@@ -56,7 +56,7 @@ See [explicit context](context.md) for tenant and business-scope propagation.
 When named saved views are enabled, state is resolved in this order:
 
 ```text
-URL state > named default view > runtime Twig options > datatable preferences > bundle defaults
+URL state > named default view > runtime Twig options > datatable preferences > definition default sort > bundle defaults
 ```
 
 Twig options and `DatatablePreferenceProviderInterface` provide initial values.
