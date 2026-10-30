@@ -26,14 +26,18 @@ cleanup() {
 
 trap cleanup EXIT
 
+# The latest 8.x skeleton: Composer refuses to install a release line whose security fixes have ended
 composer create-project \
-    symfony/skeleton:"8.0.*" \
+    symfony/skeleton:"^8.0" \
     "${app_root}" \
     --no-interaction \
     --no-progress
 
 cd "${app_root}"
 
+install -D \
+    "${bundle_root}/tools/smoke-test/fixtures/Kernel.php" \
+    src/Kernel.php
 install -D \
     "${bundle_root}/tools/smoke-test/fixtures/SmokeController.php" \
     src/Controller/SmokeController.php
