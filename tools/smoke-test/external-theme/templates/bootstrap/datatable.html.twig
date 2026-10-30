@@ -1,4 +1,6 @@
 {% set search_builder_enabled = options.searchBuilder is defined and options.searchBuilder %}
+{# An empty map encodes as a JSON list, which the controller's object value refuses #}
+{% set initial_filters = filters|default({}) is empty ? '{}' : filters|json_encode %}
 
 <div
     id="{{ htmlId }}"
@@ -16,6 +18,7 @@
     data-zhortein--datatable-bundle--datatable-sort-direction-value="{{ options.sortDirection|default('asc') }}"
     data-zhortein--datatable-bundle--datatable-sorts-value="{{ options.sorts|default([])|json_encode|e('html_attr') }}"
     data-zhortein--datatable-bundle--datatable-auto-load-value="{{ options.autoLoad is defined ? (options.autoLoad ? 'true' : 'false') : 'true' }}"
+    data-zhortein--datatable-bundle--datatable-filters-value="{{ initial_filters|e('html_attr') }}"
     data-zhortein--datatable-bundle--datatable-filter-layout-value="{{ options.filterLayout|default('toolbar') }}"
     data-zhortein--datatable-bundle--datatable-search-builder-value="{{ search_builder_enabled ? 'true' : 'false' }}"
     data-zhortein--datatable-bundle--datatable-boolean-display-mode-value="{{ options.booleanDisplayMode|default('badge') }}"

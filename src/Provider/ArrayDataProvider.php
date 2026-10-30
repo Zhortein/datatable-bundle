@@ -6,9 +6,11 @@ namespace Zhortein\DatatableBundle\Provider;
 
 use Zhortein\DatatableBundle\Contract\DataProviderInterface;
 use Zhortein\DatatableBundle\Contract\ExportRowCountProviderInterface;
+use Zhortein\DatatableBundle\Definition\AdvancedFilterFieldDefinition;
 use Zhortein\DatatableBundle\Definition\ColumnDefinition;
 use Zhortein\DatatableBundle\Definition\ContextFilterValue;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Definition\FieldFilterValue;
 use Zhortein\DatatableBundle\Definition\FilterDefinition;
 use Zhortein\DatatableBundle\Definition\UserFilterDefinition;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
@@ -42,7 +44,7 @@ final readonly class ArrayDataProvider implements DataProviderInterface, ExportR
         $totalItems = count($rows);
 
         $rows = $this->applyUserFilters($rows, $definition, $request);
-        $rows = $this->applyAdvancedFilters($rows, $request);
+        $rows = $this->applyAdvancedFilters($rows, $definition, $request);
         $rows = $this->applySearch($rows, $definition, $request);
 
         $filteredItems = count($rows);
@@ -70,7 +72,7 @@ final readonly class ArrayDataProvider implements DataProviderInterface, ExportR
         $rows = $this->normalizeRows($definition->getOption(self::OPTION_ROWS, []));
         $rows = $this->applyPermanentFilters($rows, $definition);
         $rows = $this->applyUserFilters($rows, $definition, $request);
-        $rows = $this->applyAdvancedFilters($rows, $request);
+        $rows = $this->applyAdvancedFilters($rows, $definition, $request);
         $rows = $this->applySearch($rows, $definition, $request);
 
         return count($rows);
@@ -109,8 +111,8 @@ final readonly class ArrayDataProvider implements DataProviderInterface, ExportR
         DatatableDefinition $definition,
         ArrayExpressionEvaluator $evaluator,
     ): bool {
-        $value = $this->resolvePermanentFilterValue($filter->getValue(), $definition);
-        $secondValue = $this->resolvePermanentFilterValue($filter->getSecondValue(), $definition);
+        $value = $this->resolvePermanentFilterValue($filter->getValue(), $definition, $row);
+        $secondValue = $this->resolvePermanentFilterValue($filter->getSecondValue(), $definition, $row);
 
         if (FilterOperator::Like === $filter->getOperator() || FilterOperator::NotLike === $filter->getOperator()) {
             $matches = $this->matchesLikePattern(
@@ -139,8 +141,15 @@ final readonly class ArrayDataProvider implements DataProviderInterface, ExportR
         );
     }
 
-    private function resolvePermanentFilterValue(mixed $value, DatatableDefinition $definition): mixed
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function resolvePermanentFilterValue(mixed $value, DatatableDefinition $definition, array $row): mixed
     {
+        if ($value instanceof FieldFilterValue) {
+            return $this->readFieldValue($row, $value->getField());
+        }
+
         if (!$value instanceof ContextFilterValue) {
             return $value;
         }
@@ -595,8 +604,11 @@ final readonly class ArrayDataProvider implements DataProviderInterface, ExportR
      *
      * @return list<array<string, mixed>>
      */
-    private function applyAdvancedFilters(array $rows, DatatableRequest $request): array
-    {
+    private function applyAdvancedFilters(
+        array $rows,
+        DatatableDefinition $definition,
+        DatatableRequest $request,
+    ): array {
         if (!$request->hasAdvancedFilters()) {
             return $rows;
         }
@@ -607,7 +619,10 @@ final readonly class ArrayDataProvider implements DataProviderInterface, ExportR
             return $rows;
         }
 
-        $evaluator = new ArrayExpressionEvaluator();
+        $evaluator = new ArrayExpressionEvaluator(array_map(
+            static fn (AdvancedFilterFieldDefinition $field): string => $field->getField(),
+            $definition->getAdvancedFilterFields(),
+        ));
 
         return array_values(array_filter(
             $rows,

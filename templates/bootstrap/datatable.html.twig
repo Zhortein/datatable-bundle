@@ -5,6 +5,8 @@
 {% set sort_direction = options.sortDirection|default('asc') %}
 {% set sorts = options.sorts|default([]) %}
 {% set auto_load = options.autoLoad is defined ? options.autoLoad : true %}
+{# An empty map encodes as a JSON list, which the controller's object value refuses #}
+{% set initial_filters = filters|default({}) is empty ? '{}' : filters|json_encode %}
 {% set search_builder = options.searchBuilder is defined ? options.searchBuilder : false %}
 {% set controls_layout = options.controlsLayout|default('default') %}
 {% set table_striped = options.tableStriped is defined ? options.tableStriped : true %}
@@ -90,6 +92,7 @@
     data-zhortein--datatable-bundle--datatable-sort-direction-value="{{ sort_direction }}"
     data-zhortein--datatable-bundle--datatable-sorts-value="{{ sorts|json_encode|e('html_attr') }}"
     data-zhortein--datatable-bundle--datatable-auto-load-value="{{ auto_load ? 'true' : 'false' }}"
+    data-zhortein--datatable-bundle--datatable-filters-value="{{ initial_filters|e('html_attr') }}"
     data-zhortein--datatable-bundle--datatable-filter-layout-value="{{ filter_layout }}"
     data-zhortein--datatable-bundle--datatable-search-builder-value="{{ search_builder ? 'true' : 'false' }}"
     data-zhortein--datatable-bundle--datatable-boolean-display-mode-value="{{ boolean_display_mode }}"

@@ -7,6 +7,7 @@ namespace Zhortein\DatatableBundle\Factory;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Doctrine\DoctrineDatatableDefinitionEnricher;
 use Zhortein\DatatableBundle\Exception\DataProviderException;
+use Zhortein\DatatableBundle\Exception\InvalidDatatableException;
 use Zhortein\DatatableBundle\Provider\DataProviderRegistry;
 use Zhortein\DatatableBundle\Provider\DoctrineOrmDataProvider;
 use Zhortein\DatatableBundle\Registry\DatatableRegistry;
@@ -27,6 +28,7 @@ final readonly class DatatableDefinitionFactory
         $definition = new DatatableDefinition($name);
 
         $datatable->buildDatatable($definition);
+        $this->assertDefaultSortsAreSortable($definition);
 
         $providerName = $this->registry->getProviderName($name);
 
@@ -42,6 +44,29 @@ final readonly class DatatableDefinitionFactory
         }
 
         return $definition;
+    }
+
+    /**
+     * A request drops a sort on a column it cannot sort, so a mistyped default order would leave the list unsorted
+     * without a word.
+     */
+    private function assertDefaultSortsAreSortable(DatatableDefinition $definition): void
+    {
+        $columns = $definition->getColumns();
+
+        foreach ($definition->getDefaultSorts() as $sort) {
+            if (isset($columns[$sort->getField()]) && $columns[$sort->getField()]->isSortable()) {
+                continue;
+            }
+
+            $message = sprintf(
+                'The datatable "%s" sorts by default on "%s", which is not a sortable column.',
+                $definition->getName(),
+                $sort->getField(),
+            );
+
+            throw new InvalidDatatableException($message);
+        }
     }
 
     private function usesDoctrineProvider(DatatableDefinition $definition): bool

@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Definition\FieldFilterValue;
 use Zhortein\DatatableBundle\Enum\FilterOperator;
 use Zhortein\DatatableBundle\Enum\JoinType;
 use Zhortein\DatatableBundle\Provider\DoctrineOrmDataProvider;
@@ -45,6 +46,24 @@ final class DoctrineJoinedPermanentFiltersFunctionalTest extends FunctionalTestC
             'alice@example.test',
             'charlie@example.test',
         ], array_column($result->getRows(), 'e_email'));
+    }
+
+    public function test_it_compares_a_field_with_another_field(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+        $cases = [
+            'same as' => [FilterOperator::Equals, ['alice@example.test']],
+            'other than' => [FilterOperator::NotEquals, ['bob@example.test', 'charlie@example.test']],
+        ];
+
+        foreach ($cases as $case => [$operator, $emails]) {
+            $definition = $this->createDefinitionWithOrganizationJoin();
+            $definition->addPermanentFilter('e.enabled', $operator, FieldFilterValue::from('organization.enabled'));
+
+            $result = $this->createProvider()->getData($definition, DatatableRequest::create(pageSize: 10));
+
+            self::assertSame($emails, array_column($result->getRows(), 'e_email'), $case);
+        }
     }
 
     public function test_it_filters_on_joined_string_field_with_like(): void

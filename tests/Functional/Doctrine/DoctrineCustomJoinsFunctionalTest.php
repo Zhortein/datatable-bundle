@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zhortein\DatatableBundle\Tests\Functional\Doctrine;
 
+use Doctrine\Deprecations\Deprecation;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\Attributes\After;
@@ -40,6 +41,20 @@ final class DoctrineCustomJoinsFunctionalTest extends FunctionalTestCase
         self::assertSame('created', $result->getRows()[0]['audit_eventName']);
         self::assertSame('bob@example.test', $result->getRows()[1]['e_email']);
         self::assertNull($result->getRows()[1]['audit_eventName']);
+    }
+
+    public function test_it_joins_without_triggering_a_doctrine_deprecation(): void
+    {
+        $this->bootDoctrineAndLoadFixtures();
+        Deprecation::enableTrackingDeprecations();
+        $triggeredBefore = Deprecation::getTriggeredDeprecations();
+
+        $this->createProvider()->getData(
+            $this->createDefinitionWithCustomJoin(),
+            DatatableRequest::create(pageSize: 10),
+        );
+
+        self::assertSame($triggeredBefore, Deprecation::getTriggeredDeprecations());
     }
 
     public function test_it_searches_field_from_custom_join(): void

@@ -227,13 +227,59 @@ describe('datatable_controller search builder interactions', () => {
         controller.onSearchBuilderFieldChange({ target: fieldSelect });
         const operatorSelect = condition.querySelector('select[data-action$="#onSearchBuilderOperatorChange"]');
         operatorSelect.value = 'between';
-        controller.onSearchBuilderOperatorChange();
-        controller.updateSearchBuilderValueInput(condition, 'number', null);
+        controller.onSearchBuilderOperatorChange({ target: operatorSelect });
 
         expect(valueContainer.querySelectorAll('input').length).toBe(2);
         expect(valueContainer.firstElementChild.classList.contains('theme-between')).toBe(true);
         expect(valueContainer.querySelectorAll('input')[0].classList.contains('theme-input')).toBe(true);
         expect(valueContainer.querySelectorAll('input')[0].placeholder).toBe('From');
+    });
+
+    it('rebuilds the value input when the operator changes, keeping the value it still accepts', async () => {
+        vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(createJsonResponse())));
+        document.body.innerHTML = createDatatableHtml();
+        application = startApplication();
+
+        const { element, controller } = await getController(application);
+        clickWithCurrentTarget(controller, 'addSearchBuilderCondition', getRootAddConditionButton(element));
+
+        const condition = element.querySelector('.zhortein-datatable__search-builder-condition');
+        const fieldSelect = condition.querySelector('select[data-action$="#onSearchBuilderFieldChange"]');
+        const operatorSelect = condition.querySelector('select[data-action$="#onSearchBuilderOperatorChange"]');
+        const valueContainer = condition.querySelector('.zhortein-datatable__search-builder-value-container');
+        const changeOperator = (operator) => {
+            operatorSelect.value = operator;
+            controller.onSearchBuilderOperatorChange({ target: operatorSelect });
+        };
+
+        fieldSelect.value = 'status';
+        controller.onSearchBuilderFieldChange({ target: fieldSelect });
+        changeOperator('eq');
+        valueContainer.querySelector('select').value = 'inactive';
+        changeOperator('in');
+
+        const multiple = valueContainer.querySelector('select');
+        expect(multiple.multiple).toBe(true);
+        expect(Array.from(multiple.selectedOptions).map((option) => option.value)).toEqual(['inactive']);
+
+        multiple.options[0].selected = true;
+        changeOperator('neq');
+
+        expect(valueContainer.querySelector('select').multiple).toBe(false);
+        expect(valueContainer.querySelector('select').value).toBe('active');
+
+        fieldSelect.value = 'age';
+        controller.onSearchBuilderFieldChange({ target: fieldSelect });
+        changeOperator('eq');
+        valueContainer.querySelector('input').value = '30';
+        changeOperator('between');
+
+        expect(Array.from(valueContainer.querySelectorAll('input')).map((input) => input.value)).toEqual(['', '']);
+
+        changeOperator('gt');
+
+        expect(valueContainer.querySelectorAll('input').length).toBe(1);
+        expect(valueContainer.querySelector('input').value).toBe('');
     });
 
     it('renders dynamic labels as text instead of HTML', async () => {
@@ -276,7 +322,7 @@ describe('datatable_controller search builder interactions', () => {
 
         const operatorSelect = condition.querySelector('select[data-action$="#onSearchBuilderOperatorChange"]');
         operatorSelect.value = 'contains';
-        controller.onSearchBuilderOperatorChange();
+        controller.onSearchBuilderOperatorChange({ target: operatorSelect });
 
         const valueInput = condition.querySelector('.zhortein-datatable__search-builder-value-container input');
         valueInput.value = 'example';
@@ -335,7 +381,7 @@ describe('datatable_controller search builder interactions', () => {
         controller.onSearchBuilderFieldChange({ target: fieldSelect });
         const operatorSelect = condition.querySelector('select[data-action$="#onSearchBuilderOperatorChange"]');
         operatorSelect.value = 'contains';
-        controller.onSearchBuilderOperatorChange();
+        controller.onSearchBuilderOperatorChange({ target: operatorSelect });
         const valueInput = condition.querySelector('.zhortein-datatable__search-builder-value-container input');
         valueInput.value = 'example';
 
@@ -415,8 +461,9 @@ describe('datatable_controller search builder interactions', () => {
         const rootFieldSelect = rootCondition.querySelector('select[data-action$="#onSearchBuilderFieldChange"]');
         rootFieldSelect.value = 'email';
         controller.onSearchBuilderFieldChange({ target: rootFieldSelect });
-        rootCondition.querySelector('select[data-action$="#onSearchBuilderOperatorChange"]').value = 'contains';
-        controller.onSearchBuilderOperatorChange();
+        const rootOperatorSelect = rootCondition.querySelector('select[data-action$="#onSearchBuilderOperatorChange"]');
+        rootOperatorSelect.value = 'contains';
+        controller.onSearchBuilderOperatorChange({ target: rootOperatorSelect });
         rootCondition.querySelector('.zhortein-datatable__search-builder-value-container input').value = 'alice';
 
         // Subgroup with logic OR
@@ -431,8 +478,9 @@ describe('datatable_controller search builder interactions', () => {
         const subFieldSelect = subCondition.querySelector('select[data-action$="#onSearchBuilderFieldChange"]');
         subFieldSelect.value = 'enabled';
         controller.onSearchBuilderFieldChange({ target: subFieldSelect });
-        subCondition.querySelector('select[data-action$="#onSearchBuilderOperatorChange"]').value = 'eq';
-        controller.onSearchBuilderOperatorChange();
+        const subOperatorSelect = subCondition.querySelector('select[data-action$="#onSearchBuilderOperatorChange"]');
+        subOperatorSelect.value = 'eq';
+        controller.onSearchBuilderOperatorChange({ target: subOperatorSelect });
         // Boolean field swaps the input for a select with value "1" already
         const booleanValueSelect = subCondition.querySelector('.zhortein-datatable__search-builder-value-container select');
         if (booleanValueSelect) {
@@ -471,8 +519,9 @@ describe('datatable_controller search builder interactions', () => {
         const subFieldSelect = subCondition.querySelector('select[data-action$="#onSearchBuilderFieldChange"]');
         subFieldSelect.value = 'email';
         controller.onSearchBuilderFieldChange({ target: subFieldSelect });
-        subCondition.querySelector('select[data-action$="#onSearchBuilderOperatorChange"]').value = 'eq';
-        controller.onSearchBuilderOperatorChange();
+        const subOperatorSelect = subCondition.querySelector('select[data-action$="#onSearchBuilderOperatorChange"]');
+        subOperatorSelect.value = 'eq';
+        controller.onSearchBuilderOperatorChange({ target: subOperatorSelect });
         subCondition.querySelector('.zhortein-datatable__search-builder-value-container input').value = 'bob';
 
         const subgroupLogicSelect = subgroup.querySelector('select.zhortein-datatable__search-builder-logic');

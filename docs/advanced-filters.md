@@ -4,25 +4,19 @@ The "Advanced Filter Expressions" system (also referred to as **Search Builder**
 
 ## Enabling Advanced Filters
 
-Advanced filters are disabled by default. You can enable them globally or per-datatable.
+A datatable shows the Search Builder as soon as its definition declares an advanced filter field (see below). The `searchBuilder` Twig option overrides that, for instance to hide it on a compact list whose fields only serve links:
 
-### Global Enablement
+```twig
+{{ zhortein_datatable('users', {
+    searchBuilder: false
+}) }}
+```
 
-In your `zhortein_datatable.yaml` configuration:
+The `search_builder_enabled` configuration shows it on every datatable, those without fields included:
 
 ```yaml
 zhortein_datatable:
     search_builder_enabled: true
-```
-
-### Per-Datatable Enablement
-
-When rendering the datatable in Twig:
-
-```twig
-{{ zhortein_datatable('users', {
-    searchBuilder: true
-}) }}
 ```
 
 ## Declaring Filterable Fields
@@ -118,6 +112,8 @@ The Search Builder supports the following types from the `FilterType` enum:
 - `Number`
 - `NumberRange`
 - `DateRange`
+
+A `Date` or `DateRange` field compares a `Y-m-d` value with the whole day it names, whatever the time of day the Doctrine column holds: `eq` matches any time of that day, `lte` and `between` include their last day, and `gt` starts on the next day.
 
 ### Enum / Choice fields
 
@@ -241,6 +237,10 @@ Security is a core design principle of the Advanced Filters system:
 6.  **Breadth and Value Limits**: A request accepts at most 50 conditions,
     100 values per condition and 2,048 characters per string value. Invalid or
     oversized expressions are ignored before reaching a provider.
+7.  **Typed Values**: A condition whose value is blank, such as one whose value
+    is not typed yet, or does not match its field (a number field given text, a
+    date field given no calendar day) is ignored, so that it never reaches the
+    database.
 
 See the [security model](security.md) for the complete transport and provider
 boundaries.
@@ -250,4 +250,4 @@ boundaries.
 - **Saved Presets**: There is currently no support for saving or sharing filter presets.
 - **User Persistence**: Advanced filters are not persisted between sessions or page reloads.
 - **Third-party Widgets**: The current implementation uses standard Bootstrap inputs; custom widgets like Select2 or specialized datepickers are not yet supported.
-- **Collection-valued Associations**: Filtering on collection-valued associations (e.g., "Users having at least one Role with name X") is not supported.
+- **Collection-valued Associations**: A field of a collection (e.g., "Users having at least one Role with name X") is reached through a declared join, such as `addJoin('role', 'e.roles')` then `addAdvancedFilterField('role', 'role.name')`; the Doctrine provider still lists each user once.

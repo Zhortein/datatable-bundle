@@ -426,4 +426,37 @@ final class AdvancedFilterExpressionFactoryTest extends TestCase
             ]],
         ]));
     }
+
+    public function test_it_drops_a_condition_whose_value_cannot_filter_its_field(): void
+    {
+        $definition = new DatatableDefinition('claims')
+            ->addAdvancedFilterField('name', 'e.name', type: FilterType::Text)
+            ->addAdvancedFilterField('amount', 'e.amount', type: FilterType::Number)
+            ->addAdvancedFilterField('claimed', 'e.claimedAt', type: FilterType::Date)
+        ;
+        $dropped = [
+            'value not typed yet' => ['amount', 'eq', ''],
+            'blank text' => ['name', 'eq', ' '],
+            'not a number' => ['amount', 'gt', 'abc'],
+            'one bound missing' => ['amount', 'between', ['1', '']],
+            'no value listed' => ['amount', 'in', []],
+            'not a date' => ['claimed', 'eq', 'yesterday'],
+        ];
+        $kept = [
+            'number' => ['amount', 'eq', '-2.5'],
+            'numbers' => ['amount', 'between', ['1', '10']],
+            'day' => ['claimed', 'eq', '2026-10-30'],
+            'instant' => ['claimed', 'gte', '2026-10-30 08:00:00'],
+            'text' => ['name', 'eq', 'Alice'],
+        ];
+
+        foreach ([...$dropped, ...$kept] as $case => [$field, $operator, $value]) {
+            $expression = $this->factory->createFromArray([
+                'logic' => 'AND',
+                'conditions' => [['field' => $field, 'operator' => $operator, 'value' => $value]],
+            ], $definition);
+
+            self::assertSame(isset($kept[$case]), null !== $expression, $case);
+        }
+    }
 }

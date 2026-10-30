@@ -4,11 +4,12 @@ import DatatableController from '../../assets/controllers/datatable_controller.j
 
 const CONTROLLER_IDENTIFIER = 'zhortein--datatable-bundle--datatable';
 
-function createDatatableHtml() {
+function createDatatableHtml(initialFilters = {}) {
     return `
         <div
             id="zhortein-datatable-users"
             data-controller="${CONTROLLER_IDENTIFIER}"
+            data-${CONTROLLER_IDENTIFIER}-filters-value='${JSON.stringify(initialFilters)}'
             data-${CONTROLLER_IDENTIFIER}-name-value="users"
             data-${CONTROLLER_IDENTIFIER}-fragments-url-value="/_zhortein/datatable/users/fragments"
             data-${CONTROLLER_IDENTIFIER}-auto-load-value="false"
@@ -403,5 +404,71 @@ describe('datatable_controller search, filters and page size interactions', () =
         expect(clearButton.disabled).toBe(true);
         expect(url.searchParams.has('filters[email]')).toBe(false);
         expect(url.searchParams.has('filters[enabled]')).toBe(false);
+    });
+
+    it('keeps the initial filters that have no rendered control on every refresh', async () => {
+        const fetchMock = vi.fn(() => Promise.resolve(createJsonResponse()));
+        vi.stubGlobal('fetch', fetchMock);
+
+        document.body.innerHTML = createDatatableHtml({ status: 'active', created: { from: '2026-06-01' } });
+        application = startApplication();
+
+        const { controller } = await getController(application);
+        document.querySelector('[name="filters[email]"]').value = 'alice';
+        controller.refresh();
+        await flushPromises();
+
+        const url = getLastRequestedUrl(fetchMock);
+
+        expect(url.searchParams.get('filters[status]')).toBe('active');
+        expect(url.searchParams.get('filters[created][from]')).toBe('2026-06-01');
+        expect(url.searchParams.get('filters[email]')).toBe('alice');
+        expect(controller.collectState().filters).toEqual({
+            status: 'active',
+            created: { from: '2026-06-01' },
+            email: 'alice',
+        });
+    });
+
+    it('applies the filters of a state that have no rendered control', async () => {
+        const fetchMock = vi.fn(() => Promise.resolve(createJsonResponse()));
+        vi.stubGlobal('fetch', fetchMock);
+
+        document.body.innerHTML = createDatatableHtml({ status: 'active' });
+        application = startApplication();
+
+        const { controller } = await getController(application);
+        controller.applyFilterState({ status: 'inactive', enabled: '0' });
+        controller.refresh();
+        await flushPromises();
+
+        const url = getLastRequestedUrl(fetchMock);
+
+        expect(url.searchParams.get('filters[status]')).toBe('inactive');
+        expect(url.searchParams.get('filters[enabled]')).toBe('0');
+    });
+
+    it('clears the filters that have no rendered control', async () => {
+        const fetchMock = vi.fn(() => Promise.resolve(createJsonResponse()));
+        vi.stubGlobal('fetch', fetchMock);
+
+        document.body.innerHTML = createDatatableHtml({ status: 'active' });
+        document.querySelector('[name="not_a_filter"]').remove();
+        application = startApplication();
+
+        const { controller } = await getController(application);
+        const clearButton = document.querySelector(`[data-${CONTROLLER_IDENTIFIER}-target="clearFiltersButton"]`);
+        controller.refresh();
+        await flushPromises();
+
+        expect(getLastRequestedUrl(fetchMock).searchParams.get('filters[status]')).toBe('active');
+        expect(clearButton.hidden).toBe(false);
+
+        controller.clearFilters();
+        await flushPromises();
+
+        expect(getLastRequestedUrl(fetchMock).searchParams.has('filters[status]')).toBe(false);
+        expect(controller.collectState().filters).toEqual({});
+        expect(clearButton.hidden).toBe(true);
     });
 });

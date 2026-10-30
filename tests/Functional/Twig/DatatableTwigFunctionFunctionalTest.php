@@ -51,6 +51,28 @@ final class DatatableTwigFunctionFunctionalTest extends FunctionalTestCase
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-boolean-display-mode-value="switch"', $html);
     }
 
+    public function test_it_links_to_a_state_under_the_parameter_the_rendered_datatable_reads(): void
+    {
+        self::bootKernel();
+        $twig = self::getContainer()->get(Environment::class);
+        self::assertInstanceOf(Environment::class, $twig);
+
+        $html = $twig->createTemplate(<<<'TWIG'
+            {{ zhortein_datatable("functional-users") }}
+            <a id="state-link" href="{{ zhortein_datatable_path(
+                "zhortein_datatable_fragments",
+                {name: "functional-users"},
+                "functional-users",
+                {filters: {email: "alice"}}
+            ) }}">
+            TWIG)->render();
+        preg_match('/datatable-state-parameter-value="([^"]+)"/', $html, $parameter);
+        preg_match('/id="state-link" href="([^"]+)"/', $html, $href);
+        $query = (string) parse_url(html_entity_decode($href[1] ?? ''), \PHP_URL_QUERY);
+
+        self::assertStringStartsWith(rawurlencode(html_entity_decode($parameter[1] ?? '')).'=', $query);
+    }
+
     protected static function getKernelClass(): string
     {
         return TestKernel::class;

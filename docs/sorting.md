@@ -27,6 +27,20 @@ policy on host applications.
 
 ## Initial sorting
 
+Declare a datatable's default order once in its definition:
+
+```php
+use Zhortein\DatatableBundle\Enum\SortDirection;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
+
+$definition->setDefaultSorts(
+    SortCriterion::create('e.enabled', SortDirection::Desc),
+    SortCriterion::create('e.displayName'),
+);
+```
+
+Each default sort names a sortable column of the definition; any other field fails when the datatable is built. The page renders in that order unless the `sorts` or `sortField` Twig option, a stored preference or a URL state sets another one. Refreshes and exports then send the order the page shows, so a user who removes every sort is not sorted back.
+
 Use the `sorts` Twig option to render an initial multi-column order:
 
 ```twig

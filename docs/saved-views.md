@@ -73,7 +73,7 @@ list. See [multi-column sorting](sorting.md).
 Initial state precedence is:
 
 ```text
-URL state > named default view > Twig options > preferences > bundle defaults
+URL state > named default view > Twig options > preferences > definition default sort > bundle defaults
 ```
 
 A valid URL is therefore deterministic and never silently replaced by a user's

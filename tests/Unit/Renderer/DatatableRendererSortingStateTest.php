@@ -8,7 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Zhortein\DatatableBundle\Definition\DatatableDefinition;
+use Zhortein\DatatableBundle\Enum\SortDirection;
 use Zhortein\DatatableBundle\Renderer\DatatableRenderer;
+use Zhortein\DatatableBundle\Sorting\SortCriterion;
 
 final class DatatableRendererSortingStateTest extends TestCase
 {
@@ -68,6 +70,49 @@ final class DatatableRendererSortingStateTest extends TestCase
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-sort-direction-value="asc"', $html);
         self::assertStringNotContainsString('aria-sort=', $html);
         self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-current-sort-param="false"', $html);
+    }
+
+    public function test_it_renders_the_default_sort_of_the_definition(): void
+    {
+        $definition = $this->createDefinition()->setDefaultSorts(
+            SortCriterion::create('e.displayName', SortDirection::Desc),
+            SortCriterion::create('e.email'),
+        );
+
+        $html = new DatatableRenderer($this->createTwigEnvironment())->render($definition);
+
+        self::assertStringContainsString(
+            'data-zhortein--datatable-bundle--datatable-sort-field-value="e.displayName"',
+            $html,
+        );
+        self::assertStringContainsString(
+            'data-zhortein--datatable-bundle--datatable-sort-direction-value="desc"',
+            $html,
+        );
+        self::assertStringContainsString('aria-sort="descending"', $html);
+        self::assertStringContainsString('sorted ascending, priority 2 of 2', $html);
+    }
+
+    public function test_a_runtime_sort_replaces_the_default_sort_of_the_definition(): void
+    {
+        $definition = $this->createDefinition();
+        $definition->setDefaultSorts(SortCriterion::create('e.displayName', SortDirection::Desc));
+        $renderer = new DatatableRenderer($this->createTwigEnvironment());
+        $cases = [
+            'sort field' => ['sortField' => 'e.email'],
+            'sorts' => ['sorts' => [['field' => 'e.email']]],
+        ];
+
+        foreach ($cases as $case => $options) {
+            $html = $renderer->render($definition, $options);
+
+            self::assertStringContainsString(
+                'data-zhortein--datatable-bundle--datatable-sort-field-value="e.email"',
+                $html,
+                $case,
+            );
+            self::assertStringNotContainsString('aria-sort="descending"', $html, $case);
+        }
     }
 
     public function test_it_renders_priorities_and_keeps_aria_sort_on_the_primary_column_only(): void

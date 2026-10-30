@@ -15,14 +15,38 @@ final class DatatableRendererSearchBuilderTest extends TestCase
 {
     use TranslatableRendererTestTrait;
 
-    public function test_it_does_not_render_search_builder_by_default(): void
+    public function test_it_does_not_render_search_builder_without_advanced_fields(): void
     {
         $renderer = new DatatableRenderer($this->createTwigEnvironment());
 
-        $html = $renderer->render($this->createDefinition());
+        $html = $renderer->render(new DatatableDefinition('users')->addColumn('e.email', label: 'Email'));
 
         self::assertStringNotContainsString('data-zhortein--datatable-bundle--datatable-target="searchBuilder"', $html);
         self::assertStringNotContainsString('data-zhortein--datatable-bundle--datatable-search-builder-value="true"', $html);
+    }
+
+    public function test_it_renders_search_builder_when_the_definition_declares_advanced_fields(): void
+    {
+        $html = new DatatableRenderer($this->createTwigEnvironment())->render($this->createDefinition());
+
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="searchBuilder"', $html);
+        self::assertStringContainsString(
+            'data-zhortein--datatable-bundle--datatable-search-builder-value="true"',
+            $html,
+        );
+    }
+
+    public function test_it_hides_search_builder_when_the_render_options_ask(): void
+    {
+        $renderer = new DatatableRenderer($this->createTwigEnvironment());
+
+        $html = $renderer->render($this->createDefinition(), ['searchBuilder' => false]);
+
+        self::assertStringNotContainsString('data-zhortein--datatable-bundle--datatable-target="searchBuilder"', $html);
+        self::assertStringNotContainsString(
+            'data-zhortein--datatable-bundle--datatable-search-builder-value="true"',
+            $html,
+        );
     }
 
     public function test_it_renders_search_builder_when_enabled(): void

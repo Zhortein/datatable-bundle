@@ -42,6 +42,7 @@ use Zhortein\DatatableBundle\Contract\EnumPresentationResolverInterface;
 use Zhortein\DatatableBundle\Context\DatatableContextRequestResolver;
 use Zhortein\DatatableBundle\Context\DatatableContextTransport;
 use Zhortein\DatatableBundle\Renderer\DatatableSummaryRenderer;
+use Zhortein\DatatableBundle\State\DatatableStateUrlGenerator;
 use Zhortein\DatatableBundle\State\DatatableStateUrlSerializer;
 use Zhortein\DatatableBundle\Theme\BootstrapTheme;
 use Zhortein\DatatableBundle\Theme\ThemeRegistry;
@@ -158,6 +159,11 @@ return static function (ContainerConfigurator $container): void {
     $services->set(DatatableContextRequestResolver::class);
 
     $services->set(DatatableStateUrlSerializer::class);
+
+    $services
+        ->set(DatatableStateUrlGenerator::class)
+        ->arg('$defaultPageSize', param('zhortein_datatable.default_page_size'))
+    ;
 
     $services->set(AllowAllActionVisibilityChecker::class);
 
