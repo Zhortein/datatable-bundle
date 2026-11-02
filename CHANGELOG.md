@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [2.0.2] - 2026-11-02
+
+### Fixed
+
+- Published the release metadata of 2.0.1, its `assets/package.json` version and its changelog section, which the 2.0.1 package on Packagist was built without; the code is the same as 2.0.1.
+
 ## [2.0.1] - 2026-11-02
 
 ### Added
