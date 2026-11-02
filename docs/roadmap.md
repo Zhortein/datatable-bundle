@@ -1535,6 +1535,11 @@ the shell and most partials:
   entity through collection joins;
 - whole-day date bounds and filters kept without a rendered control.
 
+Delivered in `2.0.1`:
+
+- render options declared by a definition, which a child datatable needs since
+  its route renders it without runtime options.
+
 Main outcome:
 
 ```text

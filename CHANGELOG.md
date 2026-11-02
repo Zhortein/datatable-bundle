@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [2.0.1] - 2026-11-02
+
+### Added
+
+- Added `DatatableDefinition::setDefaultRenderOptions()` so that a definition declares the render options it starts from, such as `search`, `export` or `pageSize`; the bundle configuration yields to them, and saved preferences and the options passed when rendering replace them. A child datatable, which its route renders without runtime options, declares its options this way.
+
 ## [2.0.0] - 2026-10-30
 
 ### Added
