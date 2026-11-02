@@ -93,6 +93,11 @@ final class DatatableDefinition
      */
     private array $defaultSorts = [];
 
+    /**
+     * @var array<string, mixed>
+     */
+    private array $defaultRenderOptions = [];
+
     public function __construct(
         private readonly string $name,
     ) {
@@ -120,6 +125,29 @@ final class DatatableDefinition
     public function getDefaultSorts(): array
     {
         return $this->defaultSorts;
+    }
+
+    /**
+     * The render options the datatable starts from, such as `search` or `pageSize`, each replaced by the same option
+     * passed when it is rendered.
+     *
+     * A child datatable is rendered by the bundle's child route, which passes no such option: these are its only ones.
+     *
+     * @param array<string, mixed> $options
+     */
+    public function setDefaultRenderOptions(array $options): self
+    {
+        $this->defaultRenderOptions = $options;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getDefaultRenderOptions(): array
+    {
+        return $this->defaultRenderOptions;
     }
 
     /**
