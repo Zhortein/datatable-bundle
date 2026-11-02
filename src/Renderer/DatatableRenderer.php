@@ -227,7 +227,7 @@ final readonly class DatatableRenderer
 
     /**
      * The options of a datatable's first rendering, completed with what its definition declares and they leave unset:
-     * its Search Builder, shown when it declares fields for it, and its default sort.
+     * its default render options, its Search Builder, shown when it declares fields for it, and its default sort.
      *
      * User preferences, merged later from the runtime options, still replace that sort.
      *
@@ -237,6 +237,8 @@ final readonly class DatatableRenderer
      */
     private function withDefinitionDefaults(DatatableDefinition $definition, array $options): array
     {
+        $options = [...$definition->getDefaultRenderOptions(), ...$options];
+
         if ([] !== $definition->getAdvancedFilterFields() && !array_key_exists('searchBuilder', $options)) {
             $options['searchBuilder'] = true;
         }

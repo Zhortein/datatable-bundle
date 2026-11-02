@@ -455,6 +455,14 @@ Current options:
 | `preferencesScope` | string | Adds an application or tenant namespace to the preference key |
 | `preferencesLocale` | string | Overrides the current request locale in the preference key |
 
+A definition can declare the render options it starts from. They replace the bundle configuration, a user's saved preferences replace them, and an option passed when rendering replaces both:
+
+```php
+$definition->setDefaultRenderOptions(['search' => false, 'pageSize' => 10]);
+```
+
+A [child datatable](hierarchical-datatables.md) is rendered by the bundle's child route, without runtime options: its definition's are the only ones it receives.
+
 ## `booleanDisplayMode`
 
 Type: `string`

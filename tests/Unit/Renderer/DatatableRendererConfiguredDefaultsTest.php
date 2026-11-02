@@ -67,6 +67,36 @@ final class DatatableRendererConfiguredDefaultsTest extends TestCase
         self::assertStringNotContainsString('type="search"', $html);
     }
 
+    public function test_definition_render_options_override_configured_defaults(): void
+    {
+        $renderer = new DatatableRenderer(
+            twig: $this->createTwigEnvironment(),
+            searchEnabled: true,
+            defaultPageSize: 50,
+        );
+
+        $definition = $this->createDefinition()->setDefaultRenderOptions(['search' => false, 'pageSize' => 10]);
+
+        $html = $renderer->render($definition);
+
+        self::assertStringNotContainsString('type="search"', $html);
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-page-size-value="10"', $html);
+    }
+
+    public function test_runtime_options_override_definition_render_options(): void
+    {
+        $renderer = new DatatableRenderer(
+            twig: $this->createTwigEnvironment(),
+            searchEnabled: true,
+        );
+
+        $html = $renderer->render($this->createDefinition()->setDefaultRenderOptions(['search' => false]), [
+            'search' => true,
+        ]);
+
+        self::assertStringContainsString('data-zhortein--datatable-bundle--datatable-target="searchInput"', $html);
+    }
+
     private function createDefinition(): DatatableDefinition
     {
         $definition = new DatatableDefinition('users');

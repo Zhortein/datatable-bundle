@@ -228,6 +228,22 @@ $definition
 ;
 ```
 
+## Child render options
+
+The child route renders the child without runtime options. The child
+definition declares the ones it needs, for instance to leave out the controls
+a few lines do not need:
+
+```php
+$definition->setDefaultRenderOptions([
+    'search' => false,
+    'export' => false,
+    'pageSizeSelector' => false,
+]);
+```
+
+See [runtime options](configuration.md#runtime-options).
+
 ## Performance and limitations
 
 - Each expanded row performs one child-shell request, followed by the child's
