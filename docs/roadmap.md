@@ -1540,6 +1540,12 @@ Delivered in `2.0.1`:
 - render options declared by a definition, which a child datatable needs since
   its route renders it without runtime options.
 
+Delivered in `2.1.0`:
+
+- aggregate columns shown through a cell template and typed as what they hold;
+- a `resetState` action bringing a datatable back to its defaults, offered by
+  the toolbar while it differs from them.
+
 Main outcome:
 
 ```text

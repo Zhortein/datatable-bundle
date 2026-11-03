@@ -1,1 +1,0 @@
-- Added the `template` and `type` arguments of `DatatableDefinition::addAggregateColumn()`, so that an aggregate column is shown through a cell template, such as a sum of amounts, or typed as what it holds, such as the latest of dates; it stays numeric by default.

@@ -8,6 +8,13 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [2.1.0] - 2026-11-03
+
+### Added
+
+- Added the `template` and `type` arguments of `DatatableDefinition::addAggregateColumn()`, so that an aggregate column is shown through a cell template, such as a sum of amounts, or typed as what it holds, such as the latest of dates; it stays numeric by default.
+- Added the `resetState` action of the Stimulus controller, which brings a datatable back to its default state (search, filters, sorts, page size and columns) and clears its URL state; the Bootstrap toolbar offers it through the `resetStateButton` target, shown only while the datatable differs from its defaults.
+
 ## [2.0.2] - 2026-11-02
 
 ### Fixed
