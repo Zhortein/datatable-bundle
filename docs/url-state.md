@@ -87,6 +87,12 @@ values are ignored safely.
 
 See [named saved views](saved-views.md) for the opt-in default-view behavior.
 
+## Restoring the defaults
+
+The `resetState` action brings the datatable back to the state it connected with, a named default view included: search, filters, sorts, page size and columns. The refresh that follows clears the URL state and creates a history entry, so that the browser's back button returns to the state left.
+
+A theme offers it through the `resetStateButton` target, which the controller shows only while the datatable differs from its defaults; the Bootstrap toolbar places it among the controls. `clearFilters` remains the narrower action, which empties the filters alone.
+
 ## Fragments and exports
 
 The page URL uses the canonical JSON model, while fragment and export endpoints

@@ -628,6 +628,10 @@ final class DatatableDefinition
         return $this->customJoins;
     }
 
+    /**
+     * An aggregate column is numeric unless told otherwise: the latest of dates is a datetime, and a sum of amounts
+     * may take the template formatting the entity's own amounts.
+     */
     public function addAggregateColumn(
         string $name,
         string $field,
@@ -637,6 +641,8 @@ final class DatatableDefinition
         ?string $className = null,
         bool $distinct = false,
         bool $sortable = true,
+        ?string $template = null,
+        string $type = 'numeric',
     ): self {
         $this->columns[$name] = new ColumnDefinition(
             name: $name,
@@ -645,8 +651,8 @@ final class DatatableDefinition
             sortable: $sortable,
             searchable: false,
             className: $className,
-            template: null,
-            type: 'numeric',
+            template: $template,
+            type: $type,
         );
 
         $this->aggregateColumns[$name] = new AggregateColumnDefinition(

@@ -43,6 +43,8 @@ zhortein_datatable:
         range_to: '%filter% jusqu’à'
     columns:
         visibility: 'Colonnes'
+    state:
+        reset: 'Vue par défaut'
     export:
         label: 'Exporter'
         csv_current: 'CSV vue courante'

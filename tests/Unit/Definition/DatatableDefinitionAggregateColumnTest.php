@@ -44,4 +44,20 @@ final class DatatableDefinitionAggregateColumnTest extends TestCase
 
         self::assertFalse($definition->getColumns()['auditCount']->isSortable());
     }
+
+    public function test_it_shows_an_aggregate_column_through_a_template_and_type(): void
+    {
+        $definition = new DatatableDefinition('users')->addAggregateColumn(
+            'lastLogin',
+            'audit.createdAt',
+            AggregateFunction::Max,
+            template: 'cell/day.html.twig',
+            type: 'datetime',
+        );
+
+        $column = $definition->getColumns()['lastLogin'];
+
+        self::assertSame('cell/day.html.twig', $column->getTemplate());
+        self::assertSame('datetime', $column->getType());
+    }
 }
