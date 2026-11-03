@@ -1,0 +1,1 @@
+- Added the `resetState` action of the Stimulus controller, which brings a datatable back to its default state (search, filters, sorts, page size and columns) and clears its URL state; the Bootstrap toolbar offers it through the `resetStateButton` target, shown only while the datatable differs from its defaults.

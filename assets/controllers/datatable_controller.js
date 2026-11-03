@@ -22,6 +22,7 @@ export default class extends Controller {
         'pageSizeInput',
         'activeFilters',
         'clearFiltersButton',
+        'resetStateButton',
         'error',
         'feedback',
         'loading',
@@ -774,6 +775,19 @@ export default class extends Controller {
         this.pageValue = 1;
         this.updateActiveFilterState();
         this.refresh();
+    }
+
+    // Brings the datatable back to the state it connected with, a named default view included; the refresh then
+    // clears its URL state, as a discrete interaction worth a history entry
+    resetState(event = null) {
+        if (event !== null) {
+            event.preventDefault();
+        }
+
+        this.uncontrolledFilters = {};
+        this.applyStateSnapshot(this.defaultState);
+
+        return this.refresh(null, 'push');
     }
 
     changeColumnVisibility() {
@@ -1968,6 +1982,12 @@ export default class extends Controller {
         if (this.hasClearFiltersButtonTarget) {
             this.clearFiltersButtonTarget.hidden = activeCount === 0;
             this.clearFiltersButtonTarget.disabled = activeCount === 0;
+        }
+
+        if (this.hasResetStateButtonTarget) {
+            const isDefault = this.serializeState(this.collectState()) === this.serializeState(this.defaultState);
+            this.resetStateButtonTarget.hidden = isDefault;
+            this.resetStateButtonTarget.disabled = isDefault;
         }
     }
 

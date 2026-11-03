@@ -70,6 +70,17 @@
     </div>
 
     <div class="zhortein-datatable__controls d-flex flex-wrap align-items-center gap-2{% if not controls_visible %} d-none{% endif %}">
+        <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                data-zhortein--datatable-bundle--datatable-target="resetStateButton"
+                data-action="zhortein--datatable-bundle--datatable#resetState"
+                hidden
+                disabled
+        >
+            {{ 'zhortein_datatable.state.reset'|trans({}, 'zhortein_datatable') }}
+        </button>
+
         {% if saved_views_enabled %}
             {% include theme.template('_saved_views.html.twig') with {
                 theme: theme,
