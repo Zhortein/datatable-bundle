@@ -171,6 +171,19 @@ $definition->addAggregateColumn(
 
 An aggregate column sorts on its result like any column; pass `sortable: false` to keep its header fixed.
 
+It is numeric unless told otherwise: `template` shows it through a cell template, such as the one formatting the entity's own amounts, and `type` names what it holds, such as `datetime` for the latest of dates.
+
+```php
+$definition->addAggregateColumn(
+    name: 'lastLogin',
+    field: 'e.lastLogin',
+    function: AggregateFunction::Max,
+    label: 'Last login',
+    template: 'datatable/cell/day.html.twig',
+    type: 'datetime',
+);
+```
+
 ## Filtering
 
 ### Permanent Filters
