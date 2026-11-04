@@ -59,6 +59,27 @@ final class DatatableRendererRowActionVisibilityTest extends TestCase
         self::assertSame(1, $urlGenerator->getGenerateCallCount());
     }
 
+    public function test_it_hands_the_visibility_checker_the_source_of_each_row(): void
+    {
+        $renderer = new DatatableRenderer(
+            twig: $this->createTwigEnvironment(),
+            urlGenerator: new CountingUrlGenerator(),
+            routeParameterResolver: new RowActionRouteParameterResolver(),
+            actionVisibilityChecker: new AllowOnlyEditableSourceActionVisibilityChecker(),
+        );
+        $result = $this->createResult();
+        $sourcedResult = new DatatableResult(
+            rows: $result->getRows(),
+            totalItems: $result->getTotalItems(),
+            sources: [(object) ['editable' => false], (object) ['editable' => true]],
+        );
+
+        $html = $renderer->renderBody($this->createDefinition(), $sourcedResult);
+
+        self::assertStringNotContainsString('href="/users/42"', $html);
+        self::assertStringContainsString('href="/users/43"', $html);
+    }
+
     private function createDefinition(): DatatableDefinition
     {
         $definition = new DatatableDefinition('users');
@@ -124,6 +145,16 @@ final class AllowOnlyAliceActionVisibilityChecker implements ActionVisibilityChe
         $row = $context->getRow();
 
         return is_array($row) && 'alice@example.test' === ($row['e_email'] ?? null);
+    }
+}
+
+final class AllowOnlyEditableSourceActionVisibilityChecker implements ActionVisibilityCheckerInterface
+{
+    public function isVisible(ActionDefinition|BulkActionDefinition $action, ActionVisibilityContext $context): bool
+    {
+        $source = $context->getSource();
+
+        return $source instanceof \stdClass && true === $source->editable;
     }
 }
 

@@ -66,6 +66,31 @@ final class AuthorizationActionVisibilityCheckerTest extends TestCase
         self::assertSame(['e_id' => 42], $authorizationChecker->getLastSubject());
     }
 
+    public function test_it_decides_a_row_action_on_the_source_of_its_row(): void
+    {
+        $authorizationChecker = new RecordingAuthorizationChecker([
+            'USER_EDIT' => true,
+        ]);
+        $source = new \stdClass();
+
+        $checker = new AuthorizationActionVisibilityChecker($authorizationChecker);
+
+        $action = new ActionDefinition(
+            name: 'edit',
+            route: 'app_user_edit',
+            permission: 'USER_EDIT',
+        );
+
+        $context = new ActionVisibilityContext(
+            definition: new DatatableDefinition('users'),
+            row: ['e_id' => 42],
+            source: $source,
+        );
+
+        self::assertTrue($checker->isVisible($action, $context));
+        self::assertSame($source, $authorizationChecker->getLastSubject());
+    }
+
     public function test_it_uses_definition_as_subject_for_global_actions(): void
     {
         $definition = new DatatableDefinition('users');

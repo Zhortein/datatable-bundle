@@ -38,6 +38,8 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
     public const string PROVIDER_NAME = 'doctrine';
     public const string MAIN_ALIAS = 'e';
     private const string IDENTIFIER_ALIAS = 'datatable_identifier_';
+    private const string SOURCE_IDENTIFIER_ALIAS = 'datatable_source_identifier';
+    private const string SOURCE_ASSOCIATION_ALIAS = 'datatable_source_';
 
     private DoctrineFieldReferenceResolver $fieldReferenceResolver;
 
@@ -88,6 +90,15 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
         $selectedColumns = $this->getSelectableColumns($definition);
 
         $rows = $this->loadRows($entityManager, $entityClass, $selectedColumns, $definition, $request);
+        $sources = [];
+
+        if ($definition->hasEntitySources()) {
+            /** @var list<int|string> $identifiers */
+            $identifiers = array_column($rows, self::SOURCE_IDENTIFIER_ALIAS);
+            $sources = $this->loadEntitySources($entityManager, $entityClass, $definition, $identifiers);
+            $rows = array_map(static fn (array $row): array => array_diff_key($row, [self::SOURCE_IDENTIFIER_ALIAS => true]), $rows);
+        }
+
         $totalItems = $this->countRows($entityManager, $entityClass, $definition);
         $filteredItems = $request->hasSearchQuery() || $request->hasFilters() || $request->hasAdvancedFilters()
             ? $this->countRows($entityManager, $entityClass, $definition, $request)
@@ -99,6 +110,7 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
             pageSize: $request->getPageSize(),
             totalItems: $totalItems,
             filteredItems: $filteredItems,
+            sources: $sources,
         );
     }
 
@@ -262,10 +274,55 @@ final readonly class DoctrineOrmDataProvider implements DataProviderInterface, E
             request: $request,
         );
 
+        if ($definition->hasEntitySources()) {
+            $queryBuilder->addSelect(sprintf('%s AS %s', $this->getSourceIdentifierField($entityManager, $entityClass), self::SOURCE_IDENTIFIER_ALIAS));
+        }
+
         /** @var list<array<string, mixed>> $rows */
         $rows = $queryBuilder->getQuery()->getArrayResult();
 
         return $rows;
+    }
+
+    /**
+     * The entity of each row, by its identifier, loaded in one query with the associations the definition lists.
+     *
+     * @param class-string     $entityClass
+     * @param list<int|string> $identifiers
+     *
+     * @return list<object|null>
+     */
+    private function loadEntitySources(EntityManagerInterface $entityManager, string $entityClass, DatatableDefinition $definition, array $identifiers): array
+    {
+        if ([] === $identifiers) {
+            return [];
+        }
+
+        $identifierField = $this->getSourceIdentifierField($entityManager, $entityClass);
+        $queryBuilder = $entityManager->createQueryBuilder()
+            ->select(self::MAIN_ALIAS)
+            ->from($entityClass, self::MAIN_ALIAS, $identifierField)
+            ->where(sprintf('%s IN (:%s)', $identifierField, self::SOURCE_IDENTIFIER_ALIAS))
+            ->setParameter(self::SOURCE_IDENTIFIER_ALIAS, $identifiers)
+        ;
+
+        foreach ($definition->getEntitySourceAssociations() as $index => $association) {
+            $alias = self::SOURCE_ASSOCIATION_ALIAS.$index;
+            $queryBuilder->leftJoin(self::MAIN_ALIAS.'.'.$association, $alias)->addSelect($alias);
+        }
+
+        /** @var array<int|string, object> $entities */
+        $entities = $queryBuilder->getQuery()->getResult();
+
+        return array_map(static fn (int|string $identifier): ?object => $entities[$identifier] ?? null, $identifiers);
+    }
+
+    /**
+     * @param class-string $entityClass
+     */
+    private function getSourceIdentifierField(EntityManagerInterface $entityManager, string $entityClass): string
+    {
+        return self::MAIN_ALIAS.'.'.$entityManager->getClassMetadata($entityClass)->getSingleIdentifierFieldName();
     }
 
     /**

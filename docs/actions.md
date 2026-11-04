@@ -238,6 +238,8 @@ services:
 
 `permission` is authorization metadata and is never rendered as an HTML attribute. For compatibility with beta releases, a legacy `attributes: ['permission' => '...']` value is still recognized and removed from the rendered attributes. New code should use the dedicated option.
 
+The voter decides a row action on the row's source when the provider attached one, otherwise on the row, and a global or bulk action on the definition. The Array and HTTP providers attach the row itself; the Doctrine provider attaches the entity once the definition asks for it through `setEntitySources()` ([Doctrine provider](doctrine-provider.md#entity-sources)), so that a voter reads what the row's columns do not hold, such as the roles of an account.
+
 ## Confirmation Messages
 
 You can add a confirmation step to any action:
