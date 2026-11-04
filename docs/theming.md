@@ -106,7 +106,9 @@ See [Cell Context and Computed Values](cell-context.md) for provider
 capabilities, computed columns, export behavior and security guidance.
 
 ### Action Context (`_action.html.twig`)
--   `action`: Array containing `name`, `label`, `confirmationMessage`, `translationDomain`, `url`, `httpMethod`, `csrfToken`, `className`, `attributes` and `selectedRowsParameterName`.
+-   `action`: Array containing `name`, `label`, `confirmationMessage`, `translationDomain`, `url`, `httpMethod`, `csrfToken`, `className`, `attributes` and `selectedRowsParameterName`; a row action also holds `denied` and `deniedMessage`.
+
+A row action is `denied` only when the definition shows denied actions disabled ([denied row actions](actions.md#denied-row-actions)): its `url` is empty, and the templates render it as a disabled element, without link or form, holding `deniedMessage` as its title; `pe-auto` gives it back the pointer Bootstrap takes from a disabled element, so that the title shows on hover. `_row.html.twig` receives `hasRowActions` and keeps the actions cell of a row offering no action, so that the row stays aligned with the header.
 
 `label` and `confirmationMessage` remain their declared values so an override
 can inspect them. Resolve either value with the same semantics as the built-in

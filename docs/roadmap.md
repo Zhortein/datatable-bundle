@@ -1551,6 +1551,12 @@ Delivered in `2.2.0`:
 - entity sources a Doctrine definition asks for, loaded for the whole page in
   one query, on which a row action's permission is decided.
 
+Delivered in `2.2.1`:
+
+- denied row actions shown disabled, with a message on hover, when a definition
+  asks for it;
+- the actions cell kept on a row offering no action.
+
 Main outcome:
 
 ```text

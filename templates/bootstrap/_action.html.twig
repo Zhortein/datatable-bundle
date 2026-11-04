@@ -6,7 +6,21 @@
 {% set ajax = action.ajax|default(false) %}
 {% set controller_action = ajax ? 'executeAjaxAction' : 'confirmAction' %}
 
-{% if action.httpMethod == 'GET' %}
+{% if action.denied|default(false) %}
+    {% set denied_message = zhortein_datatable_translate(action.deniedMessage|default(null), translation_domain) %}
+    {# Bootstrap takes the pointer from a disabled element: pe-auto gives it back, so that its title shows on hover #}
+    <span class="{{ action.className ?? (action.httpMethod == 'GET' ? 'btn btn-outline-secondary' : 'btn btn-outline-danger') }} disabled pe-auto" role="button" aria-disabled="true"{% if denied_message is not empty %} title="{{ denied_message }}"{% endif %}>
+        {% if has_icon and icon_position == 'before' %}
+            {{ zhortein_datatable_icon(action.icon, {class: 'me-1'}) }}
+        {% endif %}
+
+        <span>{{ label }}</span>
+
+        {% if has_icon and icon_position == 'after' %}
+            {{ zhortein_datatable_icon(action.icon, {class: 'ms-1'}) }}
+        {% endif %}
+    </span>
+{% elseif action.httpMethod == 'GET' %}
     <a
         href="{{ action.url }}"
         class="{{ action.className ?? 'btn btn-outline-secondary' }}"

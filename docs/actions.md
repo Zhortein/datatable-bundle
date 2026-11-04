@@ -240,6 +240,18 @@ services:
 
 The voter decides a row action on the row's source when the provider attached one, otherwise on the row, and a global or bulk action on the definition. The Array and HTTP providers attach the row itself; the Doctrine provider attaches the entity once the definition asks for it through `setEntitySources()` ([Doctrine provider](doctrine-provider.md#entity-sources)), so that a voter reads what the row's columns do not hold, such as the roles of an account.
 
+#### Denied Row Actions
+
+A row action the checker denies is hidden by default. The `deniedRowActions` option shows it disabled instead, so that every row keeps the same actions in the same place; `deniedRowActionMessage` adds a message shown on hover, resolved in the definition's translation domain like a label:
+
+```php
+$definition
+    ->setOption('deniedRowActions', 'disable')
+    ->setOption('deniedRowActionMessage', 'action.denied');
+```
+
+Set both on the definition: the rows are rendered by the fragments route, which does not receive the options passed to `zhortein_datatable()`. A disabled action renders neither a link nor a form, and the bundle generates no URL for it. Whatever the mode, a row offering no action keeps an empty actions cell, aligned with the header.
+
 ## Confirmation Messages
 
 You can add a confirmation step to any action:

@@ -80,6 +80,55 @@ final class DatatableRendererRowActionVisibilityTest extends TestCase
         self::assertStringContainsString('href="/users/43"', $html);
     }
 
+    public function test_it_keeps_the_actions_cell_of_a_row_offering_none(): void
+    {
+        $renderer = new DatatableRenderer(
+            twig: $this->createTwigEnvironment(),
+            urlGenerator: new CountingUrlGenerator(),
+            routeParameterResolver: new RowActionRouteParameterResolver(),
+            actionVisibilityChecker: new DenyActionVisibilityChecker(),
+        );
+
+        $html = $renderer->renderBody($this->createDefinition(), $this->createResult());
+
+        self::assertSame([2, 2], $this->countCellsPerRow($html));
+    }
+
+    public function test_it_shows_a_denied_row_action_disabled_with_its_message_when_asked(): void
+    {
+        foreach (['inline', 'dropdown', 'list'] as $displayMode) {
+            $urlGenerator = new CountingUrlGenerator();
+            $renderer = new DatatableRenderer(
+                twig: $this->createTwigEnvironment(),
+                urlGenerator: $urlGenerator,
+                routeParameterResolver: new RowActionRouteParameterResolver(),
+                actionVisibilityChecker: new AllowOnlyAliceActionVisibilityChecker(),
+            );
+            $definition = $this->createDefinition()
+                ->setOption('rowActionDisplayMode', $displayMode)
+                ->setOption('deniedRowActions', 'disable')
+                ->setOption('deniedRowActionMessage', 'Not yours')
+            ;
+
+            $html = $renderer->renderBody($definition, $this->createResult());
+
+            self::assertStringContainsString('href="/users/42"', $html, $displayMode);
+            self::assertStringNotContainsString('/users/43', $html, $displayMode);
+            self::assertSame(1, $urlGenerator->getGenerateCallCount(), $displayMode);
+            self::assertMatchesRegularExpression('#<span class="[^"]* disabled pe-auto" role="button" aria-disabled="true" title="Not yours">#', $html, $displayMode);
+        }
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function countCellsPerRow(string $html): array
+    {
+        preg_match_all('#<tr\b.*?</tr>#s', $html, $rows);
+
+        return array_map(static fn (string $row): int => substr_count($row, '<td'), $rows[0]);
+    }
+
     private function createDefinition(): DatatableDefinition
     {
         $definition = new DatatableDefinition('users');

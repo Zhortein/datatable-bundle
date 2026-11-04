@@ -24,6 +24,7 @@ use Zhortein\DatatableBundle\Definition\DatatableDefinition;
 use Zhortein\DatatableBundle\Enum\ActionDisplayMode;
 use Zhortein\DatatableBundle\Enum\BooleanDisplayMode;
 use Zhortein\DatatableBundle\Enum\CellType;
+use Zhortein\DatatableBundle\Enum\DeniedActionMode;
 use Zhortein\DatatableBundle\Enum\FilterLayout;
 use Zhortein\DatatableBundle\Enum\PaginationSize;
 use Zhortein\DatatableBundle\Enum\SortDirection;
@@ -164,6 +165,7 @@ final readonly class DatatableRenderer
         return $this->twig->render($theme->getMetadata()->template('_body.html.twig'), [
             'theme' => $theme->getMetadata(),
             'rows' => $this->normalizeRows($definition, $result, $options),
+            'hasRowActions' => [] !== $definition->getRowActions(),
             'hasBulkActions' => $this->hasBulkActions($definition),
             'hasChildDatatable' => $hasChildDatatable,
             'childColspan' => count($visibleColumns)
@@ -1197,7 +1199,7 @@ final readonly class DatatableRenderer
      * @param array<string, mixed> $row
      * @param array<string, mixed> $options
      *
-     * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null}>
+     * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null, denied: bool, deniedMessage: string|null}>
      */
     private function normalizeRowActions(DatatableDefinition $definition, array $row, mixed $source, array $options): array
     {
@@ -1205,22 +1207,37 @@ final readonly class DatatableRenderer
             return [];
         }
 
+        $deniedMode = DeniedActionMode::fromNullableString($this->resolveRowActionOption($definition, $options, 'deniedRowActions'));
+        $deniedMessage = $this->resolveRowActionOption($definition, $options, 'deniedRowActionMessage');
         $actions = [];
 
         foreach ($definition->getRowActions() as $action) {
-            if (!$this->isActionVisible($action, $definition, $row, $source)) {
+            $denied = !$this->isActionVisible($action, $definition, $row, $source);
+
+            if ($denied && DeniedActionMode::Hide === $deniedMode) {
                 continue;
             }
 
-            $actions[] = $this->normalizeAction(
-                action: $action,
-                url: $this->urlGenerator->generate(
+            // A denied action leads nowhere: its templates render neither its URL nor its token
+            $url = '';
+
+            if (!$denied) {
+                $url = $this->urlGenerator->generate(
                     $action->getRoute(),
                     $this->routeParameterResolver->resolve($action, $row, $definition->getContext()),
+                );
+            }
+
+            $actions[] = [
+                ...$this->normalizeAction(
+                    action: $action,
+                    url: $url,
+                    translationDomain: $definition->getTranslationDomain(),
+                    options: $options,
                 ),
-                translationDomain: $definition->getTranslationDomain(),
-                options: $options,
-            );
+                'denied' => $denied,
+                'deniedMessage' => $denied ? $deniedMessage : null,
+            ];
         }
 
         return $actions;
@@ -1326,15 +1343,25 @@ final readonly class DatatableRenderer
      */
     private function resolveRowActionDisplayMode(DatatableDefinition $definition, array $options): ActionDisplayMode
     {
-        $runtimeMode = $options['rowActionDisplayMode'] ?? null;
+        return ActionDisplayMode::fromNullableString($this->resolveRowActionOption($definition, $options, 'rowActionDisplayMode'));
+    }
 
-        if (is_string($runtimeMode)) {
-            return ActionDisplayMode::fromNullableString($runtimeMode);
+    /**
+     * A row action option, as the render options set it, otherwise as the definition does.
+     *
+     * @param array<string, mixed> $options
+     */
+    private function resolveRowActionOption(DatatableDefinition $definition, array $options, string $name): ?string
+    {
+        $runtimeValue = $options[$name] ?? null;
+
+        if (is_string($runtimeValue)) {
+            return $runtimeValue;
         }
 
-        $definitionMode = $definition->getOption('rowActionDisplayMode');
+        $definitionValue = $definition->getOption($name);
 
-        return ActionDisplayMode::fromNullableString(is_string($definitionMode) ? $definitionMode : null);
+        return is_string($definitionValue) ? $definitionValue : null;
     }
 
     private function generateCsrfToken(ActionDefinition|BulkActionDefinition $action, string $httpMethod): ?string
