@@ -8,6 +8,16 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [2.2.1] - 2026-11-04
+
+### Added
+
+- Added the `deniedRowActions` option, which shows a row action its visibility checker denies as a disabled button instead of hiding it, and `deniedRowActionMessage`, the message such an action shows on hover.
+
+### Fixed
+
+- Fixed a row offering no action, all of them denied, which lost its actions cell and no longer lined up with the header.
+
 ## [2.2.0] - 2026-11-04
 
 ### Added
