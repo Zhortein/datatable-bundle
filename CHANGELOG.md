@@ -8,6 +8,12 @@ This project follows [Semantic Versioning](https://semver.org/).
 
 _No unreleased changes have been collected yet._
 
+## [2.2.0] - 2026-11-04
+
+### Added
+
+- Added `DatatableDefinition::setEntitySources()`, through which the Doctrine provider attaches to each row its entity as the row's source, loaded for the whole page in one query with the associations listed; `AuthorizationActionVisibilityChecker` decides a row action on its row's source when there is one, so that a voter reads what the row's columns do not hold, such as the roles of an account.
+
 ## [2.1.0] - 2026-11-03
 
 ### Added
