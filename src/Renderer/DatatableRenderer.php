@@ -1081,7 +1081,7 @@ final readonly class DatatableRenderer
                 : null;
             $normalizedRow = [
                 'cells' => $cells,
-                'actions' => $this->normalizeRowActions($definition, $row, $options),
+                'actions' => $this->normalizeRowActions($definition, $row, $source, $options),
                 'identifier' => $identifier,
                 'child' => $hasChildDatatable
                     ? $this->normalizeChildDatatable($definition, $row, $identifier, $options)
@@ -1199,7 +1199,7 @@ final readonly class DatatableRenderer
      *
      * @return list<array{name: string, label: string|null, icon: string|null, iconPosition: string, url: string, httpMethod: string, confirmationMessage: string|null, csrfToken: string|null, className: string|null, attributes: array<string, string>, selectedRowsParameterName: string|null, translationDomain: string|null, ajax: bool, ajaxSuccessStrategy: string|null}>
      */
-    private function normalizeRowActions(DatatableDefinition $definition, array $row, array $options): array
+    private function normalizeRowActions(DatatableDefinition $definition, array $row, mixed $source, array $options): array
     {
         if (null === $this->urlGenerator || null === $this->routeParameterResolver) {
             return [];
@@ -1208,7 +1208,7 @@ final readonly class DatatableRenderer
         $actions = [];
 
         foreach ($definition->getRowActions() as $action) {
-            if (!$this->isActionVisible($action, $definition, $row)) {
+            if (!$this->isActionVisible($action, $definition, $row, $source)) {
                 continue;
             }
 
@@ -1229,7 +1229,7 @@ final readonly class DatatableRenderer
     /**
      * @param array<string, mixed>|null $row
      */
-    private function isActionVisible(ActionDefinition|BulkActionDefinition $action, DatatableDefinition $definition, ?array $row): bool
+    private function isActionVisible(ActionDefinition|BulkActionDefinition $action, DatatableDefinition $definition, ?array $row, mixed $source = null): bool
     {
         if (null === $this->actionVisibilityChecker) {
             return true;
@@ -1240,6 +1240,7 @@ final readonly class DatatableRenderer
             new ActionVisibilityContext(
                 definition: $definition,
                 row: $row,
+                source: $source,
             ),
         );
     }

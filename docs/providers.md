@@ -6,8 +6,9 @@ The `zhortein/datatable-bundle` supports multiple providers through a common `Da
 
 Every provider returns normalized associative rows in `DatatableResult`.
 Providers may also attach one server-only source value per row. Array does so
-automatically; Doctrine intentionally keeps source objects unavailable to
-preserve scalar projections and prevent accidental lazy-loading queries.
+automatically; Doctrine keeps source objects unavailable to preserve scalar
+projections and prevent accidental lazy-loading queries, unless a definition
+asks for its entities through `setEntitySources()`.
 
 ## Available Providers
 

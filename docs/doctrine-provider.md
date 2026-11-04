@@ -184,6 +184,21 @@ $definition->addAggregateColumn(
 );
 ```
 
+## Entity Sources
+
+The provider returns scalar projections, so a voter deciding a row action sees only the columns of the row. When the decision needs the entity itself, such as an account's roles, `setEntitySources()` attaches to each row its entity as the row's source, loaded for the whole page in one query with the associations listed:
+
+```php
+$definition
+    ->setEntityClass(User::class)
+    ->setEntitySources(['roles'])
+    ->addRowAction('edit', 'app_user_edit', label: 'Edit', routeParameters: ['id' => 'e.id'], permission: 'USER_EDIT');
+```
+
+The `USER_EDIT` voter then receives the `User`, its roles already loaded: reading them queries nothing more. A cell template or resolver reads the same entity as `cell.source`. List every association the voter or a template reads, since any other is loaded once per row.
+
+The entity needs a single identifier field. Exports keep scalar projections and attach no source.
+
 ## Filtering
 
 ### Permanent Filters
@@ -254,7 +269,7 @@ The provider counts with `COUNT(DISTINCT e.id)` when custom joins, aggregates or
 - **Collection Aggregations**: ManyToMany or OneToMany collections are not fully supported for direct column display.
 - **Async Exports**: Large exports are currently synchronous.
 - **Streaming exports**: Synchronous exports use bounded scalar batches; configure `export.batch_size` according to row width and query cost.
-- **Source objects**: Doctrine uses scalar projections and never exposes root entities to cell templates implicitly.
+- **Source objects**: Doctrine uses scalar projections and exposes root entities only to a definition asking for them through `setEntitySources()`.
 - **Computed filtering/sorting**: PHP-resolved columns cannot participate in DQL filtering or sorting.
 
 See [Roadmap](roadmap.md) for planned improvements.

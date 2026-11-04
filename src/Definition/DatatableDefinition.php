@@ -98,6 +98,11 @@ final class DatatableDefinition
      */
     private array $defaultRenderOptions = [];
 
+    /**
+     * @var list<string>|null
+     */
+    private ?array $entitySourceAssociations = null;
+
     public function __construct(
         private readonly string $name,
     ) {
@@ -166,6 +171,35 @@ final class DatatableDefinition
     public function getEntityClass(): ?string
     {
         return $this->entityClass;
+    }
+
+    /**
+     * Attaches to each row its entity as the row's source, loaded for the whole page in one query with the associations
+     * given, so that a row action's permission is decided on the entity and a cell may read it.
+     *
+     * Without it, the Doctrine provider returns scalar projections only: a voter needing an association of the entity,
+     * such as its roles, could not decide on the row alone.
+     *
+     * @param list<string> $associations associations of the entity fetched with it, so that reading them queries nothing
+     */
+    public function setEntitySources(array $associations = []): self
+    {
+        $this->entitySourceAssociations = $associations;
+
+        return $this;
+    }
+
+    public function hasEntitySources(): bool
+    {
+        return null !== $this->entitySourceAssociations;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getEntitySourceAssociations(): array
+    {
+        return $this->entitySourceAssociations ?? [];
     }
 
     public function setTranslationDomain(?string $translationDomain): self

@@ -1546,6 +1546,11 @@ Delivered in `2.1.0`:
 - a `resetState` action bringing a datatable back to its defaults, offered by
   the toolbar while it differs from them.
 
+Delivered in `2.2.0`:
+
+- entity sources a Doctrine definition asks for, loaded for the whole page in
+  one query, on which a row action's permission is decided.
+
 Main outcome:
 
 ```text

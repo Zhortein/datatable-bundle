@@ -64,7 +64,7 @@ DTO.
 | Provider | Normalized `row` | `source` |
 |---|---|---|
 | Array | The filtered, sorted and paginated associative array. | The same associative array. |
-| Doctrine ORM | Scalar projection aliases such as `e_id` and `organization_name`. | `null`; root entities are never hydrated implicitly. |
+| Doctrine ORM | Scalar projection aliases such as `e_id` and `organization_name`. | `null`, unless the definition asks for its entities through `setEntitySources()`. |
 | Custom | Provider-defined associative projection. | Optional array or object supplied explicitly through `DatatableResult`. |
 
 Custom providers may pass server-only sources aligned with rows:
@@ -173,9 +173,12 @@ A template or resolver can still print a value deliberately. Treat access to
 
 The Doctrine provider intentionally returns scalar projections and `source =
 null`. This prevents a template from traversing lazy associations and causing
-an implicit query per row. When a custom provider supplies objects, fetch all
-required associations in the provider before building `DatatableResult`; a
-resolver must never execute a repository query once per cell.
+an implicit query per row. A definition asking for its entities through
+`setEntitySources()` lists the associations loaded with them in the same query;
+any other association still costs a query per row. When a custom provider
+supplies objects, fetch all required associations in the provider before
+building `DatatableResult`; a resolver must never execute a repository query
+once per cell.
 
 ## Related documentation
 
