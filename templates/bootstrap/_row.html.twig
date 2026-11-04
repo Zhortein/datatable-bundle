@@ -75,7 +75,8 @@
         } only %}
     {% endfor %}
 
-    {% if row.actions is not empty %}
+    {# The header shows an actions column once the definition declares a row action: a row offering none keeps its cell #}
+    {% if hasRowActions|default(false) or row.actions is not empty %}
         {% include theme.template('_actions.html.twig') with {
             theme: theme,
             actions: row.actions,

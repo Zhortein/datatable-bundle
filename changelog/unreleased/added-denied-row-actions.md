@@ -1,0 +1,1 @@
+- Added the `deniedRowActions` option, which shows a row action its visibility checker denies as a disabled button instead of hiding it, and `deniedRowActionMessage`, the message such an action shows on hover.

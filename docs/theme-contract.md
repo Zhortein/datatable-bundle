@@ -105,7 +105,7 @@ Do not include a different theme's template. Missing templates fail fast.
 |---|---|
 | All renderer entry templates | `theme` (`ThemeMetadata`) |
 | Shell and header | `definition`, `visibleColumns`, `columnClassNames`, `htmlId`, `options`, `filters` |
-| Body and row | normalized `rows`, action mode, hierarchy and selection flags |
+| Body and row | normalized `rows`, action mode, row action (`hasRowActions`), hierarchy and selection flags |
 | Cell | `cell`, `column`, `column_label`, `value`, `row`, `source`, `row_identifier`, `datatable`, `datatable_context`, typed presentation values |
 | Pagination | `result` when loaded, `options`, `htmlId` |
 | Actions | normalized action maps documented in `theming.md` |

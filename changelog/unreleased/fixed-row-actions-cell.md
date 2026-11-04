@@ -1,0 +1,1 @@
+- Fixed a row offering no action, all of them denied, which lost its actions cell and no longer lined up with the header.
